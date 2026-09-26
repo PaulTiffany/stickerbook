@@ -1,0 +1,9 @@
+# The build context is the repository root, because the agent image needs
+# both jev/omega_jev/ and core/stickerbook_core/. Everything below is
+# excluded so the context stays small and nothing unrelated is shipped.
+
+jev/PeTTa/
+**/__pycache__/
+**/*.pyc
+*.log
+.git/

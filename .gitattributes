@@ -1,0 +1,21 @@
+# Keep LF in the working tree on every platform.
+#
+# This is not cosmetic. Files here are copied into Linux containers, where
+# CRLF breaks things silently or confusingly:
+#   - `#!/usr/bin/env bash\r` is not a valid interpreter
+#   - a heredoc delimiter becomes `PYFIX\r` and never matches its opener,
+#     so Dockerfile.jev fails to build
+#   - git inside a container sees every checked-out file as modified, which
+#     is what produced the misleading "-dirty" version suffix recorded in
+#     jev/VERSIONS.txt
+#
+# Windows checkouts default to core.autocrlf=true, so without this a fresh
+# clone would not build.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.gif binary
+*.webp binary
+*.pdf binary
+*.ico binary

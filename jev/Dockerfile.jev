@@ -1,0 +1,82 @@
+# Jev experiment image, layered on the unmodified upstream Omega image.
+#
+# Build the baseline first:
+#   docker build -t omega-jev:baseline jev/PeTTa/repos/Omega
+# Then, FROM THE REPOSITORY ROOT (the context needs both jev/ and core/):
+#   docker build -t omega-jev:experiment -f jev/Dockerfile.jev .
+#
+# Everything copied here is owned by root. The agent runs as uid 65534
+# (nobody), so its own source tree is read-only to it. Only the memory
+# directory is writable, exactly as upstream arranged.
+
+FROM omega-jev:baseline
+
+# --- our three plugins ------------------------------------------------------
+COPY jev/omega_jev/providers/jev_core.py  /PeTTa/repos/Omega/providers/jev_core.py
+COPY jev/omega_jev/providers/jev.py       /PeTTa/repos/Omega/providers/jev.py
+COPY jev/omega_jev/providers/sb_bridge.py /PeTTa/repos/Omega/providers/sb_bridge.py
+COPY jev/omega_jev/channels/jevconsole.py /PeTTa/repos/Omega/channels/jevconsole.py
+# Whole directory: the .metta file py-calls into butterfly.py beside it.
+COPY jev/omega_jev/plugins/jevskills/     /PeTTa/repos/Omega/plugins/jevskills/
+
+# --- the StickerBook authority kernel ---------------------------------------
+# Single source of truth: the same package the core test suite exercises, not
+# a copy. It lands inside providers/, which the plugin loader puts on
+# sys.path, so `import stickerbook_core` resolves for sb_bridge.
+COPY core/stickerbook_core/ /PeTTa/repos/Omega/providers/stickerbook_core/
+
+# --- configuration: Jev provider, offline channel, finite loop --------------
+COPY jev/omega_jev/config/plugins.yaml /PeTTa/repos/Omega/config/plugins.yaml
+COPY jev/omega_jev/config/config.yaml  /PeTTa/repos/Omega/config/config.yaml
+
+# --- upstream bug fix: argument quoting in entrypoint.sh --------------------
+# The final exec interpolates "$*" into a `sh -c` string, so ANY configuration
+# value containing a space is word-split and silently truncated to its first
+# word. `jevIntent=Put the butterfly beside the lantern.` arrived as "Put".
+# Every competence measurement taken before this fix was therefore run against
+# a one-word goal.
+#
+# The correct form is the one upstream already uses earlier in the same file
+# for the memory-portability step: pass the args after the -c string so they
+# arrive as "$@" inside it.
+RUN python3 - <<'PYFIX'
+import io
+p = "/PeTTa/repos/Omega/entrypoint.sh"
+s = io.open(p).read()
+old = 'exec env -i $env_args su nobody -s /bin/sh -c "sh run.sh run.metta GATEWAY_URL="http://localhost:8080" $*"'
+new = ("exec env -i $env_args su nobody -s /bin/sh -c "
+       "'sh run.sh run.metta GATEWAY_URL=http://localhost:8080 \"$@\"' sh \"$@\"")
+assert old in s, "entrypoint.sh final exec line not found; upstream changed"
+io.open(p, "w").write(s.replace(old, new, 1))
+print("entrypoint.sh argument quoting fixed")
+PYFIX
+
+# --- no credential proxy in this container ----------------------------------
+# The gateway is now a SEPARATE container (see gateway/Dockerfile), so this
+# image holds no provider secret and no proxy configuration at all. Upstream's
+# entrypoint still invokes /opt/nginx/nginx.sh, so it is replaced with a no-op
+# and the nginx config template is deleted.
+#
+# Consequence: this container needs no DNS and no Internet route. It reaches
+# the gateway over an internal Docker network and nothing else.
+RUN printf '#!/bin/sh\nexit 0\n' > /opt/nginx/nginx.sh \
+ && chmod 0755 /opt/nginx/nginx.sh \
+ && rm -f /opt/nginx/nginx.conf.template /opt/nginx/nginx.conf
+
+# --- defence in depth: delete the capability, do not merely leave it unloaded
+# None of these are listed in our plugins.yaml, so they would not load anyway.
+# Removing the files means a future mistake in plugins.yaml still cannot reach
+# Telegram, Slack, IRC, Mattermost, WebSocket, or any generative LLM provider.
+# channels/auth.py is kept: src/channels.py imports it lazily on the
+# memory-export control path.
+RUN rm -f /PeTTa/repos/Omega/channels/irc.py \
+          /PeTTa/repos/Omega/channels/telegram.py \
+          /PeTTa/repos/Omega/channels/slack.py \
+          /PeTTa/repos/Omega/channels/mattermost.py \
+          /PeTTa/repos/Omega/channels/wschat.py \
+          /PeTTa/repos/Omega/channels/mockchannel.py \
+          /PeTTa/repos/Omega/providers/openai.py \
+          /PeTTa/repos/Omega/providers/openaiapi.py \
+          /PeTTa/repos/Omega/providers/openrouter.py \
+          /PeTTa/repos/Omega/providers/asione.py \
+          /PeTTa/repos/Omega/providers/mockprovider.py

@@ -1,0 +1,35 @@
+# Upstream clones. These are their own git repositories and are reproducible
+# from the commit SHAs recorded in jev/VERSIONS.txt, so they are not vendored.
+jev/PeTTa/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Logs and local runtime state
+*.log
+chroma_db/
+memory/
+
+# Secrets. Nothing here should ever exist in this repository; the pattern
+# list is a backstop, not the mechanism. The mechanism is that the API key
+# lives only in the operator's environment and is injected into the gateway
+# container at run time. See jev/SECURITY.md.
+.env
+.env.*
+*.key
+*.pem
+*.p12
+secrets.*
+credentials.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp

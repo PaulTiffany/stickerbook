@@ -1,0 +1,28 @@
+# plugins.yaml for the Jev experiment.
+#
+# This REPLACES the upstream plugin list. Everything upstream loads by default
+# is deliberately absent, so the capability is not merely discouraged -- the
+# code that implements it is never imported at all:
+#
+#   removed channels : irc, telegram, slack, mattermost, wschat, mockchannel
+#   removed providers: openai, openaiapi, openrouter, asione, mockprovider
+#   removed plugins  : workflow, openclaw
+#
+# Removing the generative providers is what makes "no LLM fallback in Jev mode"
+# structurally true: no other provider is registered, so there is nothing to
+# fall back to.
+
+# Inert jev-noop skill. Loaded first so the skill exists before any decision.
+- name: jevskills
+  loader: metta
+  location: "{REPO}/plugins/jevskills"
+
+# Offline console channel. No network, no tokens.
+- name: jevconsole
+  loader: python
+  location: "{REPO}/channels"
+
+# Typed decision provider. Registers as "Jev" and narrows LLM_COMMANDS.
+- name: jev
+  loader: python
+  location: "{REPO}/providers"

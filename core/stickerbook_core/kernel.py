@@ -1,0 +1,471 @@
+"""
+StickerBook authority kernel.
+
+The single gate through which every world mutation passes, for every
+principal -- human, agent or operator. Deterministic, no model inference, no
+network, standard library only.
+
+Design rules (root SECURITY.md section 25): the answer to "may principal P
+perform action A on object O now?" stays boring. Every rejection has an
+explicit reason. Every decision produces a receipt.
+"""
+
+from __future__ import annotations
+
+import copy
+from typing import Dict, FrozenSet, List, Optional, Tuple
+
+from .model import (
+    ADD_OWN_STICKER, AGENT, ALL_ACTIONS, ANCHORS, ANIMATE_OWN_STICKER,
+    AssetDef, CREATE_AGENT, Command, HUMAN, MOVE_OWN_STICKER,
+    MUTATING_ACTIONS, NOOP, OBSERVE, OPERATOR, PROFILES, Principal, Receipt,
+    REMOVE_AGENT_STICKER, REMOVE_OWN_STICKER, StickerInstance,
+)
+
+
+class Kernel:
+
+    def __init__(self, profile, assets=None, page: int = 1, anchors=None):
+        self.profile = PROFILES[profile] if isinstance(profile, str) else profile
+        self.assets: Dict[str, AssetDef] = dict(assets or {})
+        # Spatial vocabulary is WORLD content, not authority machinery: a page
+        # decides what positions exist. The kernel only enforces that a move
+        # names one of them. Defaults to the module-level set.
+        self.anchors = tuple(anchors) if anchors else ANCHORS
+        self.page = page
+        self.revision = 0
+        self.turn = 1
+        self._principals: Dict[str, Principal] = {}
+        self._stickers: Dict[str, StickerInstance] = {}
+        self._receipts: List[Receipt] = []
+        self._seen: Dict[str, Receipt] = {}
+        self._actions_used: Dict[str, int] = {}
+        self._next_sticker = 1
+        # Operator-held configuration. Never enters a view or a receipt.
+        self._secrets: Dict[str, str] = {}
+
+    # -- operator-side administration (never reachable by an agent) --------
+
+    def set_secret(self, key: str, value: str) -> None:
+        self._secrets[key] = value
+
+    def register_principal(self, principal: Principal) -> Principal:
+        """Register a principal. Stored as given; authority is always
+        recomputed at action time, so registering an over-privileged
+        principal cannot widen what it can actually do."""
+        self._principals[principal.id] = principal
+        return principal
+
+    def set_enabled(self, principal_id: str, enabled: bool) -> None:
+        """Operator stop path. Requires no cooperation from the principal."""
+        p = self._principals[principal_id]
+        self._principals[principal_id] = Principal(
+            id=p.id, kind=p.kind, tools=p.tools, delegable=p.delegable,
+            enabled=enabled, parent=p.parent, depth=p.depth,
+            max_actions=p.max_actions, expires_after_turn=p.expires_after_turn,
+        )
+
+    def begin_turn(self) -> int:
+        self.turn += 1
+        self._actions_used.clear()
+        return self.turn
+
+    def place_sticker(self, sticker: StickerInstance) -> StickerInstance:
+        """Seed world state directly. Operator/test setup only -- this is not
+        reachable from any command."""
+        self.revision += 1
+        seeded = StickerInstance(
+            id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
+            asset=sticker.asset, page=sticker.page, anchor=sticker.anchor,
+            animation=sticker.animation, revision=self.revision,
+        )
+        self._stickers[seeded.id] = seeded
+        return seeded
+
+    @staticmethod
+    def load_asset(manifest: dict) -> AssetDef:
+        """Load a declarative asset manifest.
+
+        Total by construction: only `name` and `animations` are read. Any
+        other field -- owner, capabilities, principals, tools, policy,
+        scripts -- is discarded rather than interpreted. A book or sticker
+        cannot declare authority (root SECURITY.md section 16).
+        """
+        name = str(manifest.get("name", ""))
+        raw = manifest.get("animations", ("none",))
+        animations = tuple(str(a) for a in raw) if isinstance(raw, (list, tuple)) else ("none",)
+        if "none" not in animations:
+            animations = ("none",) + animations
+        return AssetDef(name=name, animations=animations)
+
+    # -- authority computation ---------------------------------------------
+
+    def effective_tools(self, principal_id: str) -> FrozenSet[str]:
+        """The intersection that actually governs.
+
+            rootPolicy (ALL_ACTIONS)
+          ∩ profile ceiling (for agents)
+          ∩ the principal's own tools
+          ∩ every ancestor's delegable set
+
+        Recomputed on every action, so a child can never hold more than its
+        parent may delegate, however it was registered.
+        """
+        p = self._principals.get(principal_id)
+        if p is None:
+            return frozenset()
+
+        tools = ALL_ACTIONS & p.tools
+        if p.kind == AGENT:
+            tools &= self.profile.agent_ceiling
+
+        seen = {p.id}
+        ancestor_id = p.parent
+        while ancestor_id is not None and ancestor_id not in seen:
+            seen.add(ancestor_id)
+            ancestor = self._principals.get(ancestor_id)
+            if ancestor is None:
+                return frozenset()          # broken chain: fail closed
+            tools &= ancestor.delegable
+            if ancestor.kind == AGENT:
+                tools &= self.profile.agent_ceiling
+            ancestor_id = ancestor.parent
+        return frozenset(tools)
+
+    def _budget(self, p: Principal) -> int:
+        limit = self.profile.max_actions_per_turn
+        if p.max_actions is not None:
+            limit = min(limit, p.max_actions)
+        return limit
+
+    # -- views (bounded projections) ---------------------------------------
+
+    def view(self, principal_id: str) -> dict:
+        """A bounded, role-appropriate projection.
+
+        Returns plain copied data. Mutating the result cannot affect the
+        world -- the renderer, or anything else holding a view, is not a
+        mutation path.
+        """
+        p = self._principals.get(principal_id)
+        if p is None or not p.enabled:
+            return {"revision": self.revision, "principal": principal_id,
+                    "page": self.page, "stickers": [], "available_actions": []}
+
+        stickers = []
+        for s in sorted(self._stickers.values(), key=lambda x: x.id):
+            if s.page != self.page:
+                continue
+            stickers.append({
+                "id": s.id, "owner": s.owner, "createdBy": s.created_by,
+                "asset": s.asset, "anchor": s.anchor,
+                "animation": s.animation, "revision": s.revision,
+                "mine": s.owner == principal_id,
+            })
+        return copy.deepcopy({
+            "revision": self.revision,
+            "turn": self.turn,
+            "principal": principal_id,
+            "page": self.page,
+            "stickers": stickers,
+            "available_actions": sorted(self.available_actions(principal_id)),
+        })
+
+    def available_actions(self, principal_id: str) -> Dict[str, Command]:
+        """Generate the context-dependent legal action table.
+
+        Only currently-legal actions appear. An illegal operation is not
+        representable as a key, so an agent selecting from this table cannot
+        express one (root SECURITY.md section 14).
+
+        Keys are host-owned strings; the Command behind each key is built
+        here, never by the selector.
+        """
+        p = self._principals.get(principal_id)
+        if p is None or not p.enabled or self._expired(p):
+            return {}
+        tools = self.effective_tools(principal_id)
+        table: Dict[str, Command] = {}
+
+        def add(key, action, object_id=None, params=()):
+            table[key] = Command(action=action, actor=principal_id,
+                                 command_id="", object_id=object_id,
+                                 params=tuple(params))
+
+        if NOOP in tools:
+            add("NOOP", NOOP)
+
+        mine = [s for s in self._stickers.values()
+                if s.owner == principal_id and s.page == self.page]
+        for s in sorted(mine, key=lambda x: x.id):
+            if MOVE_OWN_STICKER in tools:
+                for anchor in self.anchors:
+                    if anchor != s.anchor:
+                        add("MOVE:%s:%s" % (s.id, anchor), MOVE_OWN_STICKER,
+                            s.id, (("anchor", anchor),))
+            if ANIMATE_OWN_STICKER in tools:
+                asset = self.assets.get(s.asset)
+                for anim in (asset.animations if asset else ("none",)):
+                    if anim != s.animation:
+                        add("ANIMATE:%s:%s" % (s.id, anim),
+                            ANIMATE_OWN_STICKER, s.id, (("animation", anim),))
+            if REMOVE_OWN_STICKER in tools:
+                add("REMOVE:%s" % s.id, REMOVE_OWN_STICKER, s.id)
+
+        if REMOVE_AGENT_STICKER in tools and p.kind in (HUMAN, OPERATOR):
+            for s in sorted(self._stickers.values(), key=lambda x: x.id):
+                if s.page == self.page and self._is_agent(s.owner):
+                    add("REMOVE_AGENT:%s" % s.id, REMOVE_AGENT_STICKER, s.id)
+
+        if ADD_OWN_STICKER in tools:
+            for asset_name in sorted(self.assets):
+                add("ADD:%s" % asset_name, ADD_OWN_STICKER, None,
+                    (("asset", asset_name),))
+        return table
+
+    def _is_agent(self, principal_id: str) -> bool:
+        p = self._principals.get(principal_id)
+        return p is not None and p.kind == AGENT
+
+    def _expired(self, p: Principal) -> bool:
+        return (p.expires_after_turn is not None
+                and self.turn > p.expires_after_turn)
+
+    # -- the gate ----------------------------------------------------------
+
+    def propose_key(self, principal_id: str, key: str, command_id: str,
+                    based_on_revision: Optional[int] = None,
+                    requested_by: Optional[str] = None) -> Receipt:
+        """Select one entry from the generated action table.
+
+        This is the agent-facing path and mirrors the OmegaJev pattern: the
+        selector supplies a KEY, the host owns the Command behind it.
+        """
+        table = self.available_actions(principal_id)
+        template = table.get(key)
+        if template is None:
+            return self._reject(
+                Command(action="<unknown-key>", actor=principal_id,
+                        command_id=command_id, requested_by=requested_by,
+                        based_on_revision=based_on_revision),
+                "unknown-action-key")
+        return self.propose(Command(
+            action=template.action, actor=principal_id, command_id=command_id,
+            object_id=template.object_id, params=template.params,
+            based_on_revision=based_on_revision, requested_by=requested_by,
+        ))
+
+    def propose(self, command: Command) -> Receipt:
+        """Validate and, if authorized, apply. The only mutation path.
+
+        Raw proposals are accepted from any caller -- a renderer, a bridge, a
+        modified browser -- and are validated identically. The caller is
+        never the trust anchor.
+        """
+        # Idempotency: a replayed command_id returns the original decision and
+        # applies nothing a second time.
+        if command.command_id and command.command_id in self._seen:
+            original = self._seen[command.command_id]
+            return Receipt(
+                command_id=original.command_id, actor=original.actor,
+                action=original.action, accepted=original.accepted,
+                reason=original.reason, object_id=original.object_id,
+                requested_by=original.requested_by,
+                based_on_revision=original.based_on_revision,
+                result_revision=original.result_revision, replayed=True,
+            )
+
+        p = self._principals.get(command.actor)
+        if p is None:
+            return self._reject(command, "unknown-principal")
+        if not p.enabled:
+            return self._reject(command, "principal-disabled")
+        if self._expired(p):
+            return self._reject(command, "principal-expired")
+        if command.action not in ALL_ACTIONS:
+            return self._reject(command, "unknown-action")
+        if command.action not in self.effective_tools(command.actor):
+            # Covers profile ceiling, own ceiling and every ancestor's
+            # delegable set. NOTE: requested_by is deliberately NOT consulted.
+            return self._reject(command, "action-not-in-effective-authority")
+
+        if command.action in MUTATING_ACTIONS:
+            used = self._actions_used.get(command.actor, 0)
+            if used >= self._budget(p):
+                return self._reject(command, "action-budget-exhausted")
+
+        handler = {
+            NOOP: self._do_noop,
+            OBSERVE: self._do_noop,
+            ADD_OWN_STICKER: self._do_add,
+            MOVE_OWN_STICKER: self._do_move,
+            ANIMATE_OWN_STICKER: self._do_animate,
+            REMOVE_OWN_STICKER: self._do_remove_own,
+            REMOVE_AGENT_STICKER: self._do_remove_agent,
+            CREATE_AGENT: self._do_create_agent,
+        }[command.action]
+        return handler(command, p)
+
+    # -- handlers ----------------------------------------------------------
+
+    def _target(self, command: Command):
+        if not command.object_id:
+            return None, "missing-object"
+        sticker = self._stickers.get(command.object_id)
+        if sticker is None:
+            return None, "unknown-object"
+        if command.based_on_revision is not None:
+            if command.based_on_revision > self.revision:
+                return None, "invalid-revision"
+            if sticker.revision > command.based_on_revision:
+                # Relevant state changed since the proposal was formed.
+                return None, "stale-revision"
+        return sticker, None
+
+    def _do_noop(self, command, p):
+        return self._accept(command, "ok")
+
+    def _do_add(self, command, p):
+        asset = command.param("asset")
+        if asset not in self.assets:
+            return self._reject(command, "unknown-asset")
+        new_id = "%s-%d" % (asset, self._next_sticker)
+        self._next_sticker += 1
+        self.revision += 1
+        self._stickers[new_id] = StickerInstance(
+            id=new_id, owner=command.actor, created_by=command.actor,
+            asset=asset, page=self.page, revision=self.revision,
+        )
+        return self._accept(command, "ok", object_id=new_id)
+
+    def _do_move(self, command, p):
+        sticker, why = self._target(command)
+        if why:
+            return self._reject(command, why)
+        if sticker.owner != command.actor:
+            return self._reject(command, "not-owner")
+        anchor = command.param("anchor")
+        if anchor not in self.anchors:
+            return self._reject(command, "anchor-out-of-domain")
+        self.revision += 1
+        self._stickers[sticker.id] = StickerInstance(
+            id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
+            asset=sticker.asset, page=sticker.page, anchor=anchor,
+            animation=sticker.animation, revision=self.revision,
+        )
+        return self._accept(command, "ok", object_id=sticker.id)
+
+    def _do_animate(self, command, p):
+        sticker, why = self._target(command)
+        if why:
+            return self._reject(command, why)
+        if sticker.owner != command.actor:
+            return self._reject(command, "not-owner")
+        animation = command.param("animation")
+        asset = self.assets.get(sticker.asset)
+        allowed = asset.animations if asset else ("none",)
+        if animation not in allowed:
+            # The asset declares WHICH animations exist. It does not decide
+            # who may invoke them -- that was settled above.
+            return self._reject(command, "animation-not-declared-by-asset")
+        self.revision += 1
+        self._stickers[sticker.id] = StickerInstance(
+            id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
+            asset=sticker.asset, page=sticker.page, anchor=sticker.anchor,
+            animation=animation, revision=self.revision,
+        )
+        return self._accept(command, "ok", object_id=sticker.id)
+
+    def _do_remove_own(self, command, p):
+        sticker, why = self._target(command)
+        if why:
+            return self._reject(command, why)
+        if sticker.owner != command.actor:
+            return self._reject(command, "not-owner")
+        self.revision += 1
+        del self._stickers[sticker.id]
+        return self._accept(command, "ok", object_id=sticker.id)
+
+    def _do_remove_agent(self, command, p):
+        sticker, why = self._target(command)
+        if why:
+            return self._reject(command, why)
+        if p.kind not in (HUMAN, OPERATOR):
+            return self._reject(command, "only-humans-may-remove-agent-content")
+        if not self._is_agent(sticker.owner):
+            return self._reject(command, "target-is-not-agent-owned")
+        self.revision += 1
+        del self._stickers[sticker.id]
+        return self._accept(command, "ok", object_id=sticker.id)
+
+    def _do_create_agent(self, command, p):
+        """Agent creation is a capability, and the requester does not define
+        the child's ceilings."""
+        child_id = command.param("child_id")
+        if not child_id or child_id in self._principals:
+            return self._reject(command, "invalid-child-id")
+
+        agents = [x for x in self._principals.values() if x.kind == AGENT]
+        if len(agents) >= self.profile.max_agents:
+            return self._reject(command, "agent-population-limit")
+        if p.depth + 1 > self.profile.max_delegation_depth:
+            return self._reject(command, "delegation-depth-limit")
+
+        # The child's tools are the intersection of what was requested with
+        # what the parent may actually delegate and what the profile permits.
+        # A parent cannot grant what it does not hold or may not pass on.
+        requested = frozenset(
+            v for k, v in command.params if k == "tool")
+        granted = requested & p.delegable & self.effective_tools(command.actor)
+        if p.kind == AGENT:
+            granted &= self.profile.agent_ceiling
+
+        self.revision += 1
+        self._principals[child_id] = Principal(
+            id=child_id, kind=AGENT, tools=granted,
+            delegable=frozenset(),          # no onward delegation by default
+            parent=command.actor, depth=p.depth + 1,
+            max_actions=self.profile.max_actions_per_turn,
+            expires_after_turn=self.turn,
+        )
+        return self._accept(command, "ok", object_id=child_id)
+
+    # -- receipts ----------------------------------------------------------
+
+    def _accept(self, command, reason, object_id=None):
+        if command.action in MUTATING_ACTIONS:
+            self._actions_used[command.actor] = \
+                self._actions_used.get(command.actor, 0) + 1
+        return self._record(Receipt(
+            command_id=command.command_id, actor=command.actor,
+            action=command.action, accepted=True, reason=reason,
+            object_id=object_id or command.object_id,
+            requested_by=command.requested_by,
+            based_on_revision=command.based_on_revision,
+            result_revision=self.revision,
+        ))
+
+    def _reject(self, command, reason):
+        return self._record(Receipt(
+            command_id=command.command_id, actor=command.actor,
+            action=command.action, accepted=False, reason=reason,
+            object_id=command.object_id, requested_by=command.requested_by,
+            based_on_revision=command.based_on_revision,
+            result_revision=self.revision,
+        ))
+
+    def _record(self, receipt: Receipt) -> Receipt:
+        self._receipts.append(receipt)
+        if receipt.command_id:
+            self._seen.setdefault(receipt.command_id, receipt)
+        return receipt
+
+    @property
+    def receipts(self) -> Tuple[Receipt, ...]:
+        return tuple(self._receipts)
+
+    def sticker(self, sticker_id: str) -> Optional[StickerInstance]:
+        return self._stickers.get(sticker_id)
+
+    def sticker_ids(self) -> Tuple[str, ...]:
+        return tuple(sorted(self._stickers))

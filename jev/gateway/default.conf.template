@@ -1,0 +1,44 @@
+# Credential-bearing inference gateway.
+#
+# This is the ONLY component that holds the provider secret, and the only one
+# with egress to the Internet. It has no StickerBook authority, no agent code,
+# no filesystem shared with the agent, and no published port -- it is
+# reachable only from the internal Docker network the agent sits on.
+#
+# Root SECURITY.md section 21:
+#     OmegaJev container            Gateway
+#       no provider secret    ->      provider secret
+#       no general Internet           provider-only egress
+#
+# ${OPENROUTER_API_KEY} is substituted at container start by the stock nginx
+# image's envsubst entrypoint. It is never given to the agent container.
+
+server {
+    listen 8080;
+
+    # The single permitted upstream route.
+    #   http://jev-gateway:8080/jev/decisions
+    #     -> https://openrouter.ai/api/alpha/decisions
+    location /jev/ {
+        proxy_pass https://openrouter.ai/api/alpha/;
+        proxy_set_header Authorization "Bearer ${OPENROUTER_API_KEY}";
+        proxy_set_header Host openrouter.ai;
+        proxy_set_header Content-Type $content_type;
+        proxy_ssl_server_name on;
+        proxy_ssl_protocols TLSv1.2 TLSv1.3;
+        proxy_http_version 1.1;
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 120s;
+        proxy_read_timeout 120s;
+    }
+
+    location = /health {
+        return 200 "ok\n";
+        add_header Content-Type text/plain;
+    }
+
+    # Everything else is refused. The gateway is not a general proxy.
+    location / {
+        return 404;
+    }
+}

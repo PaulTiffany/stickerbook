@@ -1,0 +1,48 @@
+=== UPSTREAM COMMITS ===
+PeTTa                ae66fa8e41dcd5539d614706bd4e5cfb34f9608d
+                       date=2026-08-25T21:07:52+02:00  describe=v1.0-67-gae66fa8
+                       url=https://github.com/trueagi-io/PeTTa
+Omega                ee0618a293ec3662a32b10b09c6cbb073f59d6b2
+                       date=2026-09-25T11:07:16+03:00  describe=v0.1.19-141-gee0618a
+                       url=https://github.com/singnet/Omega.git
+petta_lib_chromadb   218484875d5d1bfb217a9a03d3983dc1ed9d406c
+                       date=2026-08-04T22:41:02+02:00  describe=2184848
+                       url=https://github.com/patham9/petta_lib_chromadb.git
+
+=== TOOLCHAIN ===
+distro   : Ubuntu 24.04.3 LTS
+kernel   : 6.6.87.2-microsoft-standard-WSL2
+git      : git version 2.43.0
+python3  : Python 3.12.3
+pip      : pip 24.0
+swipl    : NOT INSTALLED
+
+=== RECORDED ===
+date            : 2026-09-26T18:02:14Z
+host            : Windows 11 (10.0.26200) + WSL2 Ubuntu 24.04.3 LTS
+docker (Windows): Docker version 29.7.2, build a7dcaa6
+git (Windows)   : git version 2.47.1.windows.2
+python(Windows) : Python 3.13.4
+landlock ABI    : 3 (available in WSL2 kernel 6.6.87.2)
+swipl required  : Omega README >=10.0.2 ; PeTTa README >=9.3.x
+swipl in noble  : 9.0.4+dfsg-3.1ubuntu4  << TOO OLD
+
+=== IN-IMAGE VERSIONS (authoritative: what was actually tested) ===
+image              : omega-jev:experiment (built from omega-jev:baseline)
+base image         : docker.io/library/swipl:10.0.2
+SWI-Prolog         : 10.0.2 for x86_64-linux
+Python (container) : 3.11.2
+Omega              : v0.1.19-141-gee0618a  (source = commit ee0618a2...)
+PeTTa              : v1.0.4  (pinned by upstream Dockerfile ARG PETTA_REF)
+petta_lib_chromadb : 218484875d5d1bfb217a9a03d3983dc1ed9d406c
+agent uid          : 65534 (nobody)
+Jev model          : typesafe/jev-1.13  (server reported jev-1.13-20260917)
+endpoint           : POST https://openrouter.ai/api/alpha/decisions (Decisions API, alpha)
+
+NOTE: the container builds its OWN PeTTa at v1.0.4, which differs from the
+host clone (v1.0-67-gae66fa8). The in-image version is what was tested; the
+host clone was used for source inspection only.
+
+NOTE: the image reports "-dirty". Host `git status` is clean at ee0618a; the
+suffix comes from file-metadata differences when building from a
+Windows-hosted checkout.
