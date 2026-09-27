@@ -125,6 +125,12 @@ That means art can be replaced without editing browser logic. For example,
 replacing a frog is a file/manifest operation; the StickerDefinition id,
 ownership, legal actions, and kernel authority remain separate.
 
+A sticker's visual asset is a **package of named clips**, and each clip may
+contain one image or a sequence of related frames. This lets Sticker Maker
+eventually emit idle art plus frame sets for behaviors such as fluttering,
+hopping, swimming, or other bounded animations without turning generated art
+into executable code.
+
 See [`web/static/assets/README.md`](web/static/assets/README.md) for exact
 instructions for replacing the cover, adding a page background, or adding a
 sticker asset.
