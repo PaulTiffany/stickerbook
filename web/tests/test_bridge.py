@@ -124,6 +124,28 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         else:
             self.fail("asset traversal unexpectedly succeeded")
 
+    def test_sticker_manifest_models_visuals_as_clip_packages(self):
+        path = os.path.join(
+            bridge_mod.STATIC_DIR, "assets", "manifest.json")
+        with open(path, "r", encoding="utf-8") as handle:
+            manifest = json.load(handle)
+
+        self.assertEqual(manifest["version"], 2)
+        self.assertTrue(manifest["stickers"])
+
+        for kind, package in manifest["stickers"].items():
+            self.assertIn("default_clip", package, kind)
+            self.assertIn("clips", package, kind)
+            self.assertIn(package["default_clip"], package["clips"], kind)
+
+            for clip_name, clip in package["clips"].items():
+                self.assertIsInstance(clip.get("frames"), list,
+                                      (kind, clip_name))
+                self.assertTrue(clip["frames"], (kind, clip_name))
+                for frame in clip["frames"]:
+                    self.assertTrue(frame.startswith("static/assets/"),
+                                    (kind, clip_name, frame))
+
     def test_each_sticker_carries_its_authoritative_position(self):
         _, state = self.get("/api/state")
         for s in state["stickers"]:
