@@ -710,3 +710,28 @@ class TakingAStickerOffThePage(unittest.TestCase):
         self.assertFalse(r.accepted)
         self.assertEqual(r.reason, "not-owner")
         self.assertIsNotNone(k.sticker("lantern-h"))
+
+
+class BudgetsAreForAgents(unittest.TestCase):
+    """A per-turn action budget contains an agent. A human has no turn."""
+
+    def test_a_human_is_not_rate_limited_on_their_own_page(self):
+        k = build()
+        limit = LOCAL_SINGLE_AGENT.max_actions_per_turn
+        for i in range(limit * 3):
+            r = k.propose(Command(MOVE_STICKER, "human:kid", "h%d" % i,
+                                  "lantern-h", (("x", 0.5), ("y", 0.5))))
+            self.assertTrue(r.accepted, "human refused at action %d: %s"
+                            % (i, r.reason))
+
+    def test_an_agent_is_still_rate_limited(self):
+        k = build()
+        limit = LOCAL_SINGLE_AGENT.max_actions_per_turn
+        refusals = 0
+        for i in range(limit + 4):
+            r = k.propose(Command(MOVE_STICKER, "agent:jev", "a%d" % i,
+                                  "moth-a", (("x", 0.5), ("y", 0.5))))
+            if not r.accepted:
+                self.assertEqual(r.reason, "action-budget-exhausted")
+                refusals += 1
+        self.assertEqual(refusals, 4)

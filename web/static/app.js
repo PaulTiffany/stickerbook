@@ -143,8 +143,15 @@ const ART = {
   },
 };
 
-function stickerNode(kind, cls = "sticker") {
+function stickerNode(kind, cls = "sticker", grabbable = false) {
   const g = el("g", { class: cls });
+  if (grabbable) {
+    // A <g> has no geometry of its own, so it is only hit through a child.
+    // This invisible disc is the grab target: it means you can pick the cow
+    // up by the gap between its legs, which is how a real sticker behaves.
+    g.appendChild(el("circle", { r: 52, fill: "transparent",
+      class: "hit", "pointer-events": "all" }));
+  }
   const art = el("g", { class: "art" });
   (ART[kind] || (() => {}))(art);
   g.appendChild(art);
@@ -154,7 +161,7 @@ function stickerNode(kind, cls = "sticker") {
 function drawStickers(stickers) {
   layers.stickers.replaceChildren();
   for (const s of stickers) {
-    const g = stickerNode(s.is);
+    const g = stickerNode(s.is, "sticker", true);
     g.setAttribute("data-id", s.id);
     g.setAttribute("transform", `translate(${s.x * PAGE_W} ${s.y * PAGE_H})`);
     g.addEventListener("pointerdown", (e) => grabPlaced(e, s));
@@ -193,11 +200,26 @@ function render() {
 
 // ------------------------------------------------------------------- input
 
-const pageFraction = (e) => {
-  const box = svg.getBoundingClientRect();
-  return { x: (e.clientX - box.left) / box.width,
-           y: (e.clientY - box.top) / box.height };
-};
+// The viewBox is letterboxed inside the element by preserveAspectRatio, so
+// the element's bounding box is NOT the drawn area. Going through the SVG's
+// own screen transform is the only mapping that lands where the finger is.
+function pageFraction(e) {
+  const ctm = svg.getScreenCTM();
+  if (!ctm) return { x: 0.5, y: 0.5 };
+  const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+  const clamp = (v) => Math.min(Math.max(v, 0), 1);
+  // Clamped so a drop in the letterbox margin lands at the paper's edge
+  // rather than being refused. Presentation only: the kernel still checks.
+  return { x: clamp(p.x / PAGE_W), y: clamp(p.y / PAGE_H) };
+}
+
+// Is the pointer over the drawn page, as opposed to the element box?
+function overPage(e) {
+  const ctm = svg.getScreenCTM();
+  if (!ctm) return false;
+  const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+  return p.x >= 0 && p.x <= PAGE_W && p.y >= 0 && p.y <= PAGE_H;
+}
 const overTray = (e) => {
   const box = trayEl.getBoundingClientRect();
   return e.clientY >= box.top;
@@ -209,7 +231,10 @@ function grabPlaced(evt, sticker) {
   evt.preventDefault();
   const node = evt.currentTarget;
   node.classList.add("held");
-  node.setPointerCapture(evt.pointerId);
+  // Capture keeps the drag alive if the pointer outruns the sticker. It
+  // throws when the pointer is not active (synthetic events, odd input
+  // devices); the drag still works without it, so never let it abort one.
+  try { node.setPointerCapture(evt.pointerId); } catch (e) { /* not fatal */ }
 
   const onMove = (e) => {
     const p = pageFraction(e);
@@ -237,7 +262,7 @@ function grabPlaced(evt, sticker) {
 function grabFromTray(evt, kind) {
   evt.preventDefault();
   const button = evt.currentTarget;
-  button.setPointerCapture(evt.pointerId);
+  try { button.setPointerCapture(evt.pointerId); } catch (e) { /* not fatal */ }
 
   const ghost = document.createElement("div");
   ghost.id = "ghost";
@@ -260,10 +285,7 @@ function grabFromTray(evt, kind) {
     button.removeEventListener("pointerup", onUp);
     button.removeEventListener("pointercancel", onUp);
     ghost.remove();
-    const box = svg.getBoundingClientRect();
-    const onPage = e.clientX >= box.left && e.clientX <= box.right
-                && e.clientY >= box.top && e.clientY <= box.bottom;
-    if (onPage) {
+    if (overPage(e) && !overTray(e)) {
       await send("/api/place", { asset: kind, command_id: nextId("add"),
         point: pageFraction(e) });
     }

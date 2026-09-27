@@ -43,28 +43,41 @@ html, body {
 
 /* --- the page ---------------------------------------------------------- */
 
+/* The frame hugs the PICTURE, it does not surround it. Putting the paper on
+   the wrapper left white bars either side of a wide page, because the
+   viewBox is letterboxed inside the element by preserveAspectRatio. Giving
+   the svg the page's own aspect ratio makes the drawn area and the element
+   the same rectangle -- which also means a pointer position maps to the
+   picture with no dead margin to fall into. */
 #page-wrap {
   flex: 1 1 auto;
   min-height: 0;                 /* lets the page shrink instead of the tray */
   display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#page {
+  aspect-ratio: 1000 / 640;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  display: block;
   background: #fff;
   border: 1px solid var(--edge);
   border-radius: 12px;
   box-shadow: 0 1px 2px rgba(20, 40, 60, .07);
-  overflow: hidden;
-}
-
-#page {
-  width: 100%;
-  height: 100%;
-  display: block;
   touch-action: none;            /* we handle the gestures */
 }
 
 /* --- stickers ---------------------------------------------------------- */
 
 .sticker { cursor: grab; }
-.sticker > * { pointer-events: none; }   /* grab the whole thing, not a leg */
+/* The art is decorative; the invisible .hit disc inside each sticker is the
+   grab target. Marking the art non-interactive on its own would leave the
+   group with no hit area at all, because a <g> has no geometry. */
+.sticker .art { pointer-events: none; }
 .sticker.held { cursor: grabbing; }
 .sticker.held .art { filter: drop-shadow(0 10px 8px rgba(20, 40, 60, .28)); }
 
@@ -91,6 +104,11 @@ html, body {
 
 #tray {
   flex: 0 0 auto;
+  /* Hug the stickers and sit under the page, rather than stretching the
+     full window: a full-width bar under a centred page reads as two
+     unrelated panels instead of a sheet beneath a book. */
+  align-self: center;
+  max-width: 100%;
   background: var(--tray);
   border: 1px solid var(--edge);
   border-radius: 12px;
@@ -105,6 +123,7 @@ html, body {
 #tray-items {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: clamp(4px, 1.4vmin, 18px);
   overflow-x: auto;
   overflow-y: hidden;

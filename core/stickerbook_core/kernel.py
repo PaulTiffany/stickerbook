@@ -292,7 +292,13 @@ class Kernel:
             # delegable set. NOTE: requested_by is deliberately NOT consulted.
             return self._reject(command, "action-not-in-effective-authority")
 
-        if command.action in MUTATING_ACTIONS:
+        # A per-turn action budget is an AGENT containment mechanism: it
+        # exists so an agent does not treat continued existence as a mandate
+        # for continued intervention (root SECURITY.md section 13). A human
+        # has no turn structure, and rate-limiting the person whose page it
+        # is protects nothing -- it just tells a child they have placed
+        # enough stickers today.
+        if command.action in MUTATING_ACTIONS and p.kind == AGENT:
             used = self._actions_used.get(command.actor, 0)
             if used >= self._budget(p):
                 return self._reject(command, "action-budget-exhausted")
