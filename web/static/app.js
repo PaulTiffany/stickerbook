@@ -48,6 +48,14 @@ const stickerLibraryGrid = document.getElementById("sticker-library-grid");
 const stickerLibraryView = document.getElementById("sticker-library-view");
 const stickerMakerView = document.getElementById("sticker-maker-view");
 const adultPanel = document.getElementById("adult-panel");
+const voiceOrb = document.getElementById("voice-orb");
+const voiceOrbState = document.getElementById("voice-orb-state");
+const voiceEnable = document.getElementById("voice-enable");
+const agentAdultControls = document.getElementById("agent-adult-controls");
+const voicePrivacyNote = document.getElementById("voice-privacy-note");
+const adultChatInput = document.getElementById("adult-chat-input");
+const adultChatSend = document.getElementById("adult-chat-send");
+const adultChatReply = document.getElementById("adult-chat-reply");
 const status = document.getElementById("a11y-status");
 
 const dev = {
@@ -69,6 +77,9 @@ let hotbarKinds = [];
 let bookCache = null;
 let pagePreviewUrl = null;
 let stickerPreviewUrl = null;
+let voiceEnabled = false;
+let voiceRecognition = null;
+let voiceBusy = false;
 
 const nextId = (kind) => "ui-" + kind + "-" + Date.now() + "-" + (++seq);
 const copy = (value) => JSON.parse(JSON.stringify(value));
@@ -321,6 +332,9 @@ function createMechanicalWorld() {
     async creatorDraft() {
       return { ok: false, error: "creator-agent-unavailable" };
     },
+    async converse() {
+      return { ok: false, error: "conversational-agent-unavailable" };
+    },
     async send(path, body) {
       if (path === "/api/place") {
         const def = definition(body.asset);
@@ -412,6 +426,15 @@ const kernelWorld = {
 
   async creatorDraft(body) {
     const res = await fetch("/api/creator/draft", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    return res.json();
+  },
+
+  async converse(body) {
+    const res = await fetch("/api/agent/converse", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -1083,6 +1106,8 @@ function render() {
   adultNote.textContent = world.name === "public mechanical"
     ? "Public demo. Animations and scene changes are mechanical; no Omega/Jev runtime is connected."
     : "Local governed runtime. Browser actions are proposals; the authority kernel decides.";
+
+  updateConversationControls();
 }
 
 function speak(message) {
@@ -1105,6 +1130,8 @@ function showScreen(name) {
   if (name === "gallery") {
     drawGallery();
   }
+
+  updateConversationControls();
 }
 
 function enterPlay(pageId) {
@@ -1742,6 +1769,173 @@ async function requestCreatorDraft(kind) {
   }
 }
 
+
+// ------------------------------------------------------ conversational Omega
+
+function conversationCapabilities() {
+  return state && state.capabilities || {};
+}
+
+function speechRecognitionConstructor() {
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function updateConversationControls() {
+  if (!voiceOrb || !agentAdultControls) return;
+
+  const capabilities = conversationCapabilities();
+  const connected = Boolean(capabilities.conversational_agent);
+  const SpeechRecognitionCtor = speechRecognitionConstructor();
+  const onPlaySurface = screens.play && !screens.play.hidden;
+
+  agentAdultControls.hidden = !connected;
+
+  if (!connected) {
+    voiceEnabled = false;
+    if (voiceEnable) voiceEnable.checked = false;
+  }
+
+  if (voiceEnable) {
+    voiceEnable.disabled = !connected || !SpeechRecognitionCtor;
+  }
+
+  if (voicePrivacyNote) {
+    voicePrivacyNote.textContent = !SpeechRecognitionCtor
+      ? "Voice recognition is unavailable in this browser. The adult text fallback remains available."
+      : "Voice is push-to-talk. Speech recognition may use your browser or device speech service; StickerBook sends the resulting text to the local conversational runtime.";
+  }
+
+  voiceOrb.hidden = !(
+    connected &&
+    voiceEnabled &&
+    SpeechRecognitionCtor &&
+    onPlaySurface
+  );
+}
+
+function setVoiceOrbState(name) {
+  if (!voiceOrb) return;
+  voiceOrb.classList.remove("listening", "speaking", "error");
+  if (name && name !== "ready") voiceOrb.classList.add(name);
+  if (voiceOrbState) voiceOrbState.textContent = name || "ready";
+}
+
+async function converseWithStickerBook(text, aloud) {
+  const clean = String(text || "").trim();
+  if (!clean) return null;
+
+  const capabilities = conversationCapabilities();
+  if (!capabilities.conversational_agent) {
+    if (adultChatReply) {
+      adultChatReply.textContent = "No conversational Omega runtime is connected.";
+    }
+    return null;
+  }
+
+  voiceBusy = true;
+  if (aloud) setVoiceOrbState("speaking");
+
+  try {
+    const payload = await world.converse({ text: clean });
+
+    if (payload && payload.state) {
+      state = payload.state;
+      render();
+    }
+
+    if (!payload || !payload.ok || typeof payload.reply !== "string") {
+      const message = payload && payload.error
+        ? payload.error
+        : "Conversation runtime did not return a reply.";
+      if (adultChatReply) adultChatReply.textContent = message;
+      if (aloud) setVoiceOrbState("error");
+      return null;
+    }
+
+    const reply = payload.reply.trim();
+    if (adultChatReply) adultChatReply.textContent = reply;
+    speak(reply);
+
+    if (aloud && reply && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(reply);
+      utterance.onend = () => {
+        voiceBusy = false;
+        setVoiceOrbState("ready");
+      };
+      utterance.onerror = () => {
+        voiceBusy = false;
+        setVoiceOrbState("error");
+      };
+      window.speechSynthesis.speak(utterance);
+    } else {
+      voiceBusy = false;
+      setVoiceOrbState("ready");
+    }
+
+    return reply;
+  } catch (error) {
+    console.error(error);
+    voiceBusy = false;
+    if (adultChatReply) {
+      adultChatReply.textContent = "Conversation runtime is unavailable.";
+    }
+    if (aloud) setVoiceOrbState("error");
+    return null;
+  }
+}
+
+function startVoiceConversation() {
+  if (!voiceEnabled || voiceBusy) return;
+
+  const SpeechRecognitionCtor = speechRecognitionConstructor();
+  if (!SpeechRecognitionCtor) {
+    updateConversationControls();
+    return;
+  }
+
+  if (voiceRecognition) {
+    try { voiceRecognition.abort(); } catch (_) {}
+  }
+
+  const recognition = new SpeechRecognitionCtor();
+  voiceRecognition = recognition;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  if (navigator.language) recognition.lang = navigator.language;
+
+  recognition.onstart = () => {
+    setVoiceOrbState("listening");
+  };
+
+  recognition.onresult = (event) => {
+    const result = event.results && event.results[0];
+    const transcript = result && result[0] && result[0].transcript;
+    if (transcript) {
+      converseWithStickerBook(transcript, true);
+    }
+  };
+
+  recognition.onerror = () => {
+    voiceBusy = false;
+    setVoiceOrbState("error");
+  };
+
+  recognition.onend = () => {
+    voiceRecognition = null;
+    if (!voiceBusy && !voiceOrb.classList.contains("error")) {
+      setVoiceOrbState("ready");
+    }
+  };
+
+  try {
+    recognition.start();
+  } catch (error) {
+    console.error(error);
+    setVoiceOrbState("error");
+  }
+}
+
 // --------------------------------------------------------------- boot
 
 document.getElementById("cover-enter").addEventListener("click", () => {
@@ -1821,6 +2015,29 @@ document.getElementById("page-agent-go").addEventListener("click", () => {
 
 document.getElementById("sticker-agent-go").addEventListener("click", () => {
   requestCreatorDraft("sticker");
+});
+
+voiceEnable.addEventListener("change", () => {
+  voiceEnabled = voiceEnable.checked;
+  if (!voiceEnabled && "speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
+  updateConversationControls();
+});
+
+voiceOrb.addEventListener("click", startVoiceConversation);
+
+adultChatSend.addEventListener("click", () => {
+  const text = adultChatInput.value;
+  if (!text.trim()) return;
+  adultChatInput.value = "";
+  converseWithStickerBook(text, false);
+});
+
+adultChatInput.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  adultChatSend.click();
 });
 
 document.addEventListener("keydown", (event) => {
