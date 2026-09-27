@@ -28,7 +28,8 @@ const sheets = {
   book: document.getElementById("book-screen"),
   stickers: document.getElementById("sticker-screen"),
 };
-const status = document.getElementById("a11y-status");\nconst worldNote = document.getElementById("world-note");
+const status = document.getElementById("a11y-status");
+const worldNote = document.getElementById("world-note");
 const dev = {
   panel: document.getElementById("dev"),
   mode: document.getElementById("world-mode"),
