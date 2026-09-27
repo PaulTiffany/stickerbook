@@ -37,6 +37,7 @@ const layers = {
 
 const coverPicture = document.getElementById("cover-picture");
 const coverDecor = document.getElementById("cover-decor");
+const coverTitle = document.querySelector(".cover-title");
 const hotbar = document.getElementById("hotbar");
 const trayZone = document.getElementById("tray-zone");
 const trayItems = document.getElementById("tray-items");
@@ -59,6 +60,7 @@ const dev = {
 };
 
 let state = null;
+let assetManifest = null;
 let seq = 0;
 let pendingDefinition = null;
 let placementPreview = null;
@@ -78,6 +80,41 @@ const el = (name, attrs = {}) => {
   }
   return node;
 };
+
+async function loadAssetManifest() {
+  try {
+    const res = await fetch("static/assets/manifest.json", { cache: "no-store" });
+    if (!res.ok) throw new Error("asset manifest: HTTP " + res.status);
+    const manifest = await res.json();
+    if (!manifest || manifest.version !== 1) {
+      throw new Error("unsupported asset manifest");
+    }
+    assetManifest = manifest;
+  } catch (error) {
+    console.warn("StickerBook asset manifest unavailable; using procedural fallbacks.", error);
+    assetManifest = null;
+  }
+}
+
+function stickerAsset(kind) {
+  return assetManifest &&
+    assetManifest.stickers &&
+    assetManifest.stickers[kind] || null;
+}
+
+function pageAsset(pageId) {
+  return assetManifest &&
+    assetManifest.pages &&
+    assetManifest.pages[pageId] || null;
+}
+
+function svgImage(src, x, y, width, height) {
+  return el("image", {
+    href: src,
+    x, y, width, height,
+    preserveAspectRatio: "xMidYMid meet",
+  });
+}
 
 // --------------------------------------------------------------- adapters
 
@@ -398,6 +435,19 @@ function cloudNode(x, y, scale, fill) {
 function drawScene(target, picture, mode) {
   target.replaceChildren();
 
+  if (mode !== "cover") {
+    const id = state && state.page && state.page.id || "farm";
+    const asset = pageAsset(id);
+    if (asset && asset.src) {
+      target.appendChild(el("image", {
+        href: asset.src,
+        x: 0, y: 0, width: PAGE_W, height: PAGE_H,
+        preserveAspectRatio: "xMidYMid slice",
+      }));
+      return;
+    }
+  }
+
   const skyFill = mode === "cover"
     ? "url(#cover-sky)"
     : mode === "play"
@@ -709,7 +759,13 @@ function stickerNode(kind, cls, grabbable, filterId) {
     filter: "url(#" + (filterId || "sticker-paper") + ")",
   });
 
-  (ART[kind] || ART.flower)(paper);
+  const asset = stickerAsset(kind);
+  if (asset && asset.src) {
+    paper.appendChild(svgImage(asset.src, -72, -72, 144, 144));
+  } else {
+    (ART[kind] || ART.flower)(paper);
+  }
+
   art.appendChild(paper);
   g.appendChild(art);
   return g;
@@ -726,6 +782,22 @@ function miniature(kind) {
 // ------------------------------------------------------------- cover
 
 function drawCover() {
+  const cover = assetManifest && assetManifest.cover;
+
+  if (cover && cover.src) {
+    coverPicture.replaceChildren(
+      el("image", {
+        href: cover.src,
+        x: 0, y: 0, width: PAGE_W, height: PAGE_H,
+        preserveAspectRatio: "xMidYMid slice",
+      })
+    );
+    coverDecor.replaceChildren();
+    if (coverTitle) coverTitle.hidden = cover.show_title === false;
+    return;
+  }
+
+  if (coverTitle) coverTitle.hidden = false;
   drawScene(coverPicture, DEMO_SEED.picture, "cover");
   coverDecor.replaceChildren();
 
@@ -1554,17 +1626,24 @@ document.addEventListener("keydown", (event) => {
 
 if (DEV) dev.panel.hidden = false;
 
-drawCover();
-showScreen("cover");
+async function boot() {
+  await loadAssetManifest();
+  drawCover();
+  showScreen("cover");
 
-reload().catch((error) => {
-  console.error(error);
+  try {
+    await reload();
+  } catch (error) {
+    console.error(error);
 
-  // A localhost static preview without bridge remains useful for UI work.
-  // Fallback happens only during boot; never silently mid-session.
-  if (world === kernelWorld) {
-    world = createMechanicalWorld();
-    bookCache = null;
-    reload();
+    // A localhost static preview without bridge remains useful for UI work.
+    // Fallback happens only during boot; never silently mid-session.
+    if (world === kernelWorld) {
+      world = createMechanicalWorld();
+      bookCache = null;
+      await reload();
+    }
   }
-});
+}
+
+boot();
