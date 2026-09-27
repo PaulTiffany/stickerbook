@@ -19,7 +19,11 @@ const layers = {
   picture: document.getElementById("picture"),
   stickers: document.getElementById("stickers"),
 };
-const trayEl = document.getElementById("tray");
+const hotbar = document.getElementById("hotbar");
+const sheets = {
+  book: document.getElementById("book-screen"),
+  stickers: document.getElementById("sticker-screen"),
+};
 const trayItems = document.getElementById("tray-items");
 const dev = {
   panel: document.getElementById("dev"),
@@ -161,28 +165,53 @@ function stickerNode(kind, cls = "sticker", grabbable = false) {
 function drawStickers(stickers) {
   layers.stickers.replaceChildren();
   for (const s of stickers) {
-    const g = stickerNode(s.is, "sticker", true);
+    const g = stickerNode(s.definition, "sticker", true);
     g.setAttribute("data-id", s.id);
     g.setAttribute("transform", `translate(${s.x * PAGE_W} ${s.y * PAGE_H})`);
+    if (s.animation && s.animation !== "none") {
+      g.classList.add("alive");
+      g.setAttribute("data-alive", s.animation);
+    }
     g.addEventListener("pointerdown", (e) => grabPlaced(e, s));
+    // "Bring this to life." Which animation that means is decided by the
+    // host from what the definition declares -- never sent from here.
+    g.addEventListener("dblclick", (e) => {
+      e.preventDefault();
+      send("/api/animate", { sticker: s.id, command_id: nextId("anim") });
+    });
     layers.stickers.appendChild(g);
   }
 }
 
-function drawTray(kinds) {
+function miniature(kind) {
+  const mini = el("svg", { viewBox: "-60 -60 120 120" });
+  mini.appendChild(stickerNode(kind, ""));
+  return mini;
+}
+
+// The hot-bar shows StickerDefinitions -- reusable designs. Dragging one
+// onto the page creates a StickerInstance. One design, many instances.
+function drawTray(definitions) {
   trayItems.replaceChildren();
-  for (const kind of kinds) {
+  for (const def of definitions) {
     const button = document.createElement("button");
     button.className = "tray-sticker";
     button.type = "button";
-    button.title = kind;
-    button.setAttribute("aria-label", "Add a " + kind);
-    const mini = el("svg", { viewBox: "-60 -60 120 120" });
-    mini.appendChild(stickerNode(kind, ""));
-    button.appendChild(mini);
-    button.addEventListener("pointerdown", (e) => grabFromTray(e, kind));
+    button.title = def.id;
+    button.setAttribute("aria-label", "Add a " + def.id);
+    button.appendChild(miniature(def.id));
+    button.addEventListener("pointerdown", (e) => grabFromTray(e, def.id));
     trayItems.appendChild(button);
   }
+  // "I want another thing." Tapping opens the sticker library; it is not a
+  // drag target, so it never competes with dragging a sticker upward.
+  const add = document.createElement("button");
+  add.className = "tray-add";
+  add.type = "button";
+  add.textContent = "+";
+  add.setAttribute("aria-label", "Find or make another sticker");
+  add.addEventListener("click", () => openSheet("stickers"));
+  trayItems.appendChild(add);
 }
 
 // ------------------------------------------------------------------ render
@@ -191,7 +220,7 @@ function render() {
   if (!state) return;
   drawPicture(state.picture);
   drawStickers(state.stickers);
-  if (!trayItems.childElementCount) drawTray(state.tray);
+  if (!trayItems.childElementCount) drawTray(state.definitions);
   if (DEV) {
     dev.revision.textContent = state.revision;
     dev.principal.textContent = state.principal;
@@ -221,7 +250,7 @@ function overPage(e) {
   return p.x >= 0 && p.x <= PAGE_W && p.y >= 0 && p.y <= PAGE_H;
 }
 const overTray = (e) => {
-  const box = trayEl.getBoundingClientRect();
+  const box = hotbar.getBoundingClientRect();
   return e.clientY >= box.top;
 };
 
@@ -230,6 +259,9 @@ const overTray = (e) => {
 function grabPlaced(evt, sticker) {
   evt.preventDefault();
   const node = evt.currentTarget;
+  // The child always wins. Holding suspends any animation at once (the CSS
+  // rule is .alive:not(.held)), so there is never a tug of war with an
+  // animated sticker -- whoever placed it, and whatever is animating it.
   node.classList.add("held");
   // Capture keeps the drag alive if the pointer outruns the sticker. It
   // throws when the pointer is not active (synthetic events, odd input
@@ -240,14 +272,14 @@ function grabPlaced(evt, sticker) {
     const p = pageFraction(e);
     node.setAttribute("transform",
       `translate(${p.x * PAGE_W} ${p.y * PAGE_H})`);
-    trayEl.classList.toggle("open", overTray(e));
+    hotbar.classList.toggle("open", overTray(e));
   };
   const onUp = async (e) => {
     node.removeEventListener("pointermove", onMove);
     node.removeEventListener("pointerup", onUp);
     node.removeEventListener("pointercancel", onUp);
     node.classList.remove("held");
-    trayEl.classList.remove("open");
+    hotbar.classList.remove("open");
     if (overTray(e)) await send("/api/remove", { sticker: sticker.id,
       command_id: nextId("rm") });
     else await send("/api/propose-move", { sticker: sticker.id,
@@ -363,6 +395,80 @@ async function refreshReceipts() {
     dev.receipts.appendChild(li);
   }
 }
+
+// ------------------------------------------------------------- sheets
+// Navigation REPLACES play rather than shrinking it. On a phone this is
+// the difference between a usable page and a page squeezed by chrome.
+
+function openSheet(which) {
+  for (const [name, node] of Object.entries(sheets)) {
+    node.hidden = name !== which;
+  }
+  if (which === "book") drawBook();
+  if (which === "stickers") drawStickerLibrary();
+}
+
+function closeSheets() {
+  for (const node of Object.values(sheets)) node.hidden = true;
+}
+
+async function drawBook() {
+  const b = await (await fetch("/api/book")).json();
+  document.getElementById("book-title").textContent = b.title;
+  document.getElementById("book-subtitle").textContent = b.subtitle;
+
+  // A collection, not a sequence: pages are visited, not advanced through.
+  const list = document.getElementById("page-list");
+  list.replaceChildren();
+  for (const pg of b.pages) {
+    const card = document.createElement("button");
+    card.className = "card" + (state && state.page && state.page.id === pg.id
+      ? " current" : "");
+    card.type = "button";
+    card.innerHTML = "<strong></strong><span></span>";
+    card.querySelector("strong").textContent = pg.name;
+    card.querySelector("span").textContent = pg.summary;
+    card.addEventListener("click", closeSheets);   // one page exists so far
+    list.appendChild(card);
+  }
+
+  const soon = document.getElementById("page-soon");
+  soon.replaceChildren();
+  for (const item of b.coming) {
+    const card = document.createElement("button");
+    card.className = "card soon";
+    card.type = "button";
+    card.disabled = true;
+    card.textContent = item.label;
+    soon.appendChild(card);
+  }
+}
+
+function drawStickerLibrary() {
+  const list = document.getElementById("sticker-list");
+  list.replaceChildren();
+  for (const def of (state ? state.definitions : [])) {
+    const card = document.createElement("button");
+    card.className = "card sticker-card";
+    card.type = "button";
+    card.appendChild(miniature(def.id));
+    const label = document.createElement("span");
+    label.textContent = def.id;
+    card.appendChild(label);
+    card.title = "Drag " + def.id + " from the bar at the bottom";
+    card.addEventListener("click", closeSheets);
+    list.appendChild(card);
+  }
+}
+
+document.getElementById("menu-btn")
+  .addEventListener("click", () => openSheet("book"));
+for (const btn of document.querySelectorAll("[data-close]")) {
+  btn.addEventListener("click", closeSheets);
+}
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeSheets();
+});
 
 if (DEV) dev.panel.hidden = false;
 reload();

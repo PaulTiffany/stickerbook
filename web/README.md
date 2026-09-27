@@ -4,13 +4,37 @@ A localhost, human-only sticker book page, backed by the existing Python
 authority kernel in [`../core`](../core). See
 [`../docs/MEDIUM.md`](../docs/MEDIUM.md) for what this is trying to be.
 
-The page fills the screen; a sticker tray sits beneath it, as the sticker
-sheet does in a physical book. Drag a sticker up from the tray to put it
-down, drag one around to move it, drag one back down to the tray to take it
-off. Nothing numeric is shown.
+Maximal play surface, minimal persistent chrome. The only permanent
+interface is the page and the hot-bar beneath it:
+
+    +-------------------------------+
+    |                               |
+    |          ACTIVE PAGE          |
+    |                               |
+    +---------------------------+---+
+    |  butterfly cow duck hen + | = |
+    +---------------------------+---+
+        sticker hot-bar          menu
+
+The grammar is four gestures and nothing else:
+
+    drag a sticker      "I want this here."
+    double-tap          "Bring this to life."
+    +                   "I want another thing."
+    menu                "I want another world, or the book."
+
+Navigation and the sticker library open as sheets that REPLACE play rather
+than shrinking it. On a phone the answer to limited space is less visible
+machinery, not smaller machinery. Nothing numeric is shown.
 
 Add `?dev=1` for the proof harness: revision, acting principal, the last
 verdict, and the receipt stream.
+
+**If you change Python, restart the bridge.** Static files are read per
+request, so the browser picks up HTML/CSS/JS immediately -- but the kernel
+is imported once at startup. A running bridge will happily serve a new page
+on top of old logic. Starting a second bridge now fails loudly rather than
+leaving the old one answering.
 
 ```bash
 cd web && python bridge.py          # then open http://127.0.0.1:8756/
@@ -27,6 +51,7 @@ pointer drag
          /api/place        {asset, command_id, point}    from the tray
          /api/propose-move {sticker, command_id, point}   around the page
          /api/remove       {sticker, command_id}          back to the tray
+         /api/animate      {sticker, command_id}          bring it to life
     -> bridge validates the SHAPE and fixes the actor      (bridge.py)
     -> kernel validates the VALUES: position, ownership,
        revision, budget                                    (../core)
@@ -71,7 +96,7 @@ authority.
 ## Tests
 
 ```bash
-cd web && python -m unittest discover -s tests      # 43 tests
+cd web && python -m unittest discover -s tests      # 52 tests
 ```
 
 They run a real server on an ephemeral loopback port, because the seam is

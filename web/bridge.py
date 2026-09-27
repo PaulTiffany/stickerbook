@@ -35,9 +35,11 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import book  # noqa: E402
 import farm  # noqa: E402
 from stickerbook_core import (  # noqa: E402
-    ADD_OWN_STICKER, Command, MOVE_STICKER, REMOVE_OWN_STICKER,
+    ADD_OWN_STICKER, ANIMATE_OWN_STICKER, Command, MOVE_STICKER,
+    REMOVE_OWN_STICKER,
 )
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -68,7 +70,7 @@ class Bridge:
         for s in view["stickers"]:
             stickers.append({
                 "id": s["id"],
-                "is": s["asset"],
+                "definition": s["asset"],
                 "x": s["x"],
                 "y": s["y"],
                 "owner": s["owner"],
@@ -79,8 +81,15 @@ class Bridge:
         return {
             "revision": view["revision"],
             "principal": BROWSER_PRINCIPAL,
+            "page": {"id": book.DEFAULT_PAGE,
+                     "name": book.PAGES[book.DEFAULT_PAGE]["name"]},
             "picture": chrome["picture"],
-            "tray": chrome["tray"],
+            # StickerDefinitions: reusable designs the tray offers. One
+            # design, many instances.
+            "definitions": [
+                {"id": name, "animations": list(d.animations)}
+                for name, d in sorted(farm.ASSETS.items())
+            ],
             "stickers": stickers,
         }
 
@@ -165,6 +174,46 @@ class Bridge:
         ))
         return {"ok": True, "receipt": receipt.to_dict(), "state": self.state()}
 
+    def animate(self, body: dict) -> dict:
+        """Bring a sticker to life, or let it settle.
+
+        The child gesture is a double-tap; which animation that means is
+        decided here from what the definition declares, never sent by the
+        browser. Later an agent may choose instead, without the gesture
+        changing.
+        """
+        if not isinstance(body, dict):
+            return self._bad_request("body is not a JSON object")
+        sticker_id = body.get("sticker")
+        command_id = body.get("command_id")
+        based_on = body.get("based_on_revision")
+        if not isinstance(sticker_id, str) or not sticker_id:
+            return self._bad_request("missing sticker id")
+        if not isinstance(command_id, str) or not command_id:
+            return self._bad_request("missing command id")
+        if based_on is not None and not isinstance(based_on, int):
+            return self._bad_request("based_on_revision must be an integer")
+
+        sticker = self.kernel.sticker(sticker_id)
+        if sticker is None:
+            return self._bad_request("no such sticker")
+        definition = self.kernel.assets.get(sticker.asset)
+        alive = [a for a in (definition.animations if definition else ())
+                 if a != "none"]
+        # A toggle: bring it to life, or let it settle.
+        wanted = "none" if sticker.animation != "none" else (
+            alive[0] if alive else "none")
+
+        receipt = self.kernel.propose(Command(
+            action=ANIMATE_OWN_STICKER,
+            actor=BROWSER_PRINCIPAL,
+            command_id=command_id,
+            object_id=sticker_id,
+            params=(("animation", wanted),),
+            based_on_revision=based_on,
+        ))
+        return {"ok": True, "receipt": receipt.to_dict(), "state": self.state()}
+
     def _common(self, body, extra=()):
         """Shape validation shared by the pointer-driven write paths.
 
@@ -228,6 +277,8 @@ def make_handler(bridge: Bridge, quiet: bool = False):
                 return self._static("index.html")
             if path == "/api/state":
                 return self._send(200, bridge.state())
+            if path == "/api/book":
+                return self._send(200, book.listing())
             if path == "/api/receipts":
                 return self._send(200, {"receipts": bridge.receipts()})
             if path.startswith("/static/"):
@@ -236,7 +287,8 @@ def make_handler(bridge: Bridge, quiet: bool = False):
 
         ROUTES = {"/api/propose-move": "propose_move",
                   "/api/place": "place",
-                  "/api/remove": "remove"}
+                  "/api/remove": "remove",
+                  "/api/animate": "animate"}
 
         def do_POST(self):
             route = self.ROUTES.get(self.path.split("?")[0])
@@ -269,8 +321,14 @@ def make_handler(bridge: Bridge, quiet: bool = False):
             with open(path, "rb") as handle:
                 self._send(200, handle.read(), CONTENT_TYPES[ext])
 
+        def address_string(self):
+            # Skip the reverse DNS lookup BaseHTTPRequestHandler does
+            # by default; on loopback it is pure latency.
+            return self.client_address[0]
+
         def log_message(self, fmt, *args):
-            sys.stderr.write("[bridge] %s\n" % (fmt % args))
+            if not quiet:
+                sys.stderr.write("[bridge] %s\n" % (fmt % args))
 
     return Handler
 
@@ -284,7 +342,20 @@ def serve(host="127.0.0.1", port=8756, kernel=None, quiet=False):
 if __name__ == "__main__":
     # Loopback only. This is a local development surface, not a service.
     PORT = int(os.environ.get("STICKERBOOK_PORT", "8756"))
-    httpd, _ = serve("127.0.0.1", PORT)
+    try:
+        httpd, _ = serve("127.0.0.1", PORT)
+    except OSError as exc:
+        # Fail LOUDLY. A silent bind failure leaves an OLDER process
+        # serving: it hands out the current static files but the Python
+        # it imported at startup is stale, so the page looks updated
+        # while the kernel behind it is not. That has cost real
+        # debugging time twice in one sitting.
+        sys.stderr.write(
+            "\nStickerBook: cannot listen on 127.0.0.1:%d -- %s\n"
+            "Something already serves that port, probably an older bridge.\n"
+            "Stop it first; do NOT assume this one is running.\n\n"
+            % (PORT, exc))
+        raise SystemExit(2)
     print("StickerBook farm on http://127.0.0.1:%d/  (Ctrl-C to stop)" % PORT)
     try:
         httpd.serve_forever()

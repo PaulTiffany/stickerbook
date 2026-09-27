@@ -36,7 +36,7 @@ computable and visible to a model that must discriminate on it.
 from __future__ import annotations
 
 from stickerbook_core import (
-    ADD_OWN_STICKER, AGENT, ANIMATE_OWN_STICKER, AssetDef, HUMAN, Kernel,
+    ADD_OWN_STICKER, AGENT, ANIMATE_OWN_STICKER, StickerDefinition, HUMAN, Kernel,
     MOVE_STICKER, NOOP, OBSERVE, PROFILES, Principal,
     REMOVE_AGENT_STICKER, REMOVE_OWN_STICKER, StickerInstance,
 )
@@ -45,8 +45,8 @@ HUMAN_ID = "human:kid"
 AGENT_ID = "agent:jev-visual-1"
 
 ASSETS = {
-    "butterfly": AssetDef("butterfly", ("none", "flutter", "orbit")),
-    "star": AssetDef("star", ("none", "twinkle")),
+    "butterfly": StickerDefinition("butterfly", ("none", "flutter", "orbit")),
+    "star": StickerDefinition("star", ("none", "twinkle")),
 }
 
 # The page's spatial vocabulary: plain positional slots, owned by the page

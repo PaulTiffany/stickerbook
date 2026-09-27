@@ -390,9 +390,9 @@ class TrayPlacement(ServerCase):
             "sticker": sticker, "command_id": command_id,
             "based_on_revision": based_on})
 
-    def test_the_tray_offers_the_pages_stickers(self):
+    def test_the_hotbar_offers_the_pages_sticker_definitions(self):
         _, state = self.get("/api/state")
-        self.assertEqual(sorted(state["tray"]),
+        self.assertEqual(sorted(d["id"] for d in state["definitions"]),
                          ["butterfly", "cow", "duck", "hen"])
 
     def test_placing_from_the_tray_creates_a_sticker_at_that_point(self):
@@ -470,5 +470,92 @@ class TrayPlacement(ServerCase):
         self.assertEqual(sticker.owner, farm.HUMAN_ID)
 
     def test_unknown_write_routes_are_404(self):
-        status, _ = self.post("/api/animate", {"sticker": "cow-1"})
-        self.assertEqual(status, 404)
+        for path in ("/api/delete-everything", "/api/grant", "/api/admin"):
+            status, _ = self.post(path, {"sticker": "cow-1"})
+            self.assertEqual(status, 404, path)
+
+
+class DefinitionsAndInstances(ServerCase):
+    """One sticker DESIGN, many PLACEMENTS."""
+
+    def test_state_separates_definitions_from_instances(self):
+        _, st = self.get("/api/state")
+        designs = {d["id"] for d in st["definitions"]}
+        self.assertEqual(designs, {"butterfly", "cow", "duck", "hen"})
+        for d in st["definitions"]:
+            self.assertIn("none", d["animations"])
+        for instance in st["stickers"]:
+            self.assertIn(instance["definition"], designs)
+
+    def test_one_definition_can_have_many_instances(self):
+        for i in range(3):
+            self.post("/api/place", {"asset": "duck", "command_id": "d%d" % i,
+                                     "point": {"x": 0.2 + i * .2, "y": 0.5}})
+        _, st = self.get("/api/state")
+        ducks = [s for s in st["stickers"] if s["definition"] == "duck"]
+        self.assertEqual(len(ducks), 3)
+        self.assertEqual(len({d["id"] for d in ducks}), 3)
+
+
+class TheBookIsACollection(ServerCase):
+    """A home for pages, not an ordered array."""
+
+    def test_book_lists_its_pages(self):
+        _, b = self.get("/api/book")
+        self.assertEqual(b["title"], "StickerBook")
+        self.assertEqual([p["id"] for p in b["pages"]], ["farm"])
+
+    def test_the_book_exposes_no_ordering(self):
+        """No index, no previous, no next -- pages are visited, not advanced."""
+        _, b = self.get("/api/book")
+        flat = json.dumps(b)
+        for ordering in ("index", "previous", "next", "order", "position"):
+            self.assertNotIn('"%s"' % ordering, flat)
+        for page in b["pages"]:
+            self.assertEqual(sorted(page), ["id", "name", "summary"])
+
+    def test_unbuilt_things_are_named_but_not_pretended_to_exist(self):
+        _, b = self.get("/api/book")
+        self.assertEqual([c["label"] for c in b["coming"]],
+                         ["New Page", "Find Pages"])
+
+
+class BringingAStickerToLife(ServerCase):
+    """Double-tap means bring this to life. The host picks the animation."""
+
+    def animate(self, sticker, command_id="an1"):
+        return self.post("/api/animate", {"sticker": sticker,
+                                          "command_id": command_id})
+
+    def test_it_toggles_life_on_and_off(self):
+        _, out = self.animate("butterfly-1", "a1")
+        self.assertTrue(out["receipt"]["accepted"], out["receipt"]["reason"])
+        self.assertEqual(self.bridge.kernel.sticker("butterfly-1").animation,
+                         "flutter")
+        _, out = self.animate("butterfly-1", "a2")
+        self.assertTrue(out["receipt"]["accepted"])
+        self.assertEqual(self.bridge.kernel.sticker("butterfly-1").animation,
+                         "none")
+
+    def test_the_browser_does_not_choose_the_animation(self):
+        """It sends a gesture, not a value. The host reads the definition."""
+        _, out = self.post("/api/animate", {
+            "sticker": "cow-1", "command_id": "a1", "animation": "flutter"})
+        self.assertTrue(out["receipt"]["accepted"])
+        # cow declares chew, not flutter -- the body was ignored
+        self.assertEqual(self.bridge.kernel.sticker("cow-1").animation, "chew")
+
+    def test_a_human_may_animate_an_agent_owned_sticker(self):
+        self.assertEqual(self.bridge.kernel.sticker("butterfly-1").owner,
+                         farm.AGENT_ID)
+        _, out = self.animate("butterfly-1")
+        self.assertTrue(out["receipt"]["accepted"], out["receipt"]["reason"])
+
+    def test_malformed_animate_never_reaches_the_kernel(self):
+        rev = self.bridge.kernel.revision
+        for body in ({}, {"sticker": "cow-1"}, {"command_id": "c"},
+                     {"sticker": "nope", "command_id": "c"}):
+            status, out = self.post("/api/animate", body)
+            self.assertEqual(status, 400)
+            self.assertNotIn("receipt", out)
+        self.assertEqual(self.bridge.kernel.revision, rev)

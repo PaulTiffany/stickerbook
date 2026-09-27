@@ -17,7 +17,7 @@ from typing import Dict, FrozenSet, List, Optional, Tuple
 
 from .model import (
     ADD_OWN_STICKER, AGENT, ALL_ACTIONS, ANIMATE_OWN_STICKER,
-    AssetDef, CREATE_AGENT, Command, HUMAN, MOVE_STICKER,
+    StickerDefinition, CREATE_AGENT, Command, HUMAN, MOVE_STICKER,
     MUTATING_ACTIONS, NOOP, OBSERVE, OPERATOR, POSITION_MAX,
     POSITION_MIN, PROFILES, Principal, Receipt,
     REMOVE_AGENT_STICKER, REMOVE_OWN_STICKER, StickerInstance,
@@ -28,7 +28,7 @@ class Kernel:
 
     def __init__(self, profile, assets=None, page: int = 1, presets=None):
         self.profile = PROFILES[profile] if isinstance(profile, str) else profile
-        self.assets: Dict[str, AssetDef] = dict(assets or {})
+        self.assets: Dict[str, StickerDefinition] = dict(assets or {})
         # Named positions are WORLD content, not authority machinery. A page
         # may offer some so a principal that CHOOSES rather than points has
         # somewhere sensible to aim. They are suggestions for the generated
@@ -85,7 +85,7 @@ class Kernel:
         return seeded
 
     @staticmethod
-    def load_asset(manifest: dict) -> AssetDef:
+    def load_definition(manifest: dict) -> StickerDefinition:
         """Load a declarative asset manifest.
 
         Total by construction: only `name` and `animations` are read. Any
@@ -98,7 +98,7 @@ class Kernel:
         animations = tuple(str(a) for a in raw) if isinstance(raw, (list, tuple)) else ("none",)
         if "none" not in animations:
             animations = ("none",) + animations
-        return AssetDef(name=name, animations=animations)
+        return StickerDefinition(name=name, animations=animations)
 
     # -- authority computation ---------------------------------------------
 
@@ -133,6 +133,27 @@ class Kernel:
                 tools &= self.profile.agent_ceiling
             ancestor_id = ancestor.parent
         return frozenset(tools)
+
+    def may_act_on(self, p: Principal, sticker) -> bool:
+        """Whether this principal may act on this sticker at all.
+
+        THE ownership rule, stated once:
+
+          * a human or operator may act on anything on their page -- the
+            page belongs to them, and agent-created content is subordinate
+            to human control, which means control rather than a veto;
+          * an agent may act only on stickers it owns.
+
+        This was written out three times (move, animate, remove) before it
+        earned a name. Agent policy is unchanged by extracting it: an agent
+        is still confined to what it owns, and what an agent may do at all
+        is still decided by the deployment profile's ceiling.
+        """
+        if sticker is None:
+            return False
+        if p.kind in (HUMAN, OPERATOR):
+            return True
+        return sticker.owner == p.id
 
     def _budget(self, p: Principal) -> int:
         limit = self.profile.max_actions_per_turn
@@ -379,14 +400,7 @@ class Kernel:
         sticker, why = self._target(command)
         if why:
             return self._reject(command, why)
-        # THE ONE AUTHORITY CHANGE FOR THIS MILESTONE. The page belongs to
-        # the human: they may move anything on it, whatever its provenance
-        # says. An agent is still confined to stickers it owns.
-        #
-        # This settles nothing about future agent policy. Whether agents may
-        # place, animate or tidy up is an open product question and is NOT
-        # encoded here.
-        if p.kind not in (HUMAN, OPERATOR) and sticker.owner != command.actor:
+        if not self.may_act_on(p, sticker):
             return self._reject(command, "not-owner")
         position, why = self._position(command)
         if why:
@@ -404,7 +418,7 @@ class Kernel:
         sticker, why = self._target(command)
         if why:
             return self._reject(command, why)
-        if sticker.owner != command.actor:
+        if not self.may_act_on(p, sticker):
             return self._reject(command, "not-owner")
         animation = command.param("animation")
         asset = self.assets.get(sticker.asset)
@@ -425,13 +439,7 @@ class Kernel:
         sticker, why = self._target(command)
         if why:
             return self._reject(command, why)
-        # Same rule as _do_move: the page belongs to the human. This is not
-        # new authority -- a human could already remove agent-created content
-        # via remove-agent-sticker. It removes the need for the UI to pick a
-        # different verb depending on who placed the sticker, which no child
-        # could perceive. See docs/MEDIUM.md section 8: remove-agent-sticker
-        # is now redundant for humans and should be retired deliberately.
-        if p.kind not in (HUMAN, OPERATOR) and sticker.owner != command.actor:
+        if not self.may_act_on(p, sticker):
             return self._reject(command, "not-owner")
         self.revision += 1
         del self._stickers[sticker.id]

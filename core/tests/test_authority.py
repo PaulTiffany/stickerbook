@@ -16,15 +16,15 @@ import unittest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from stickerbook_core import (  # noqa: E402
-    ADD_OWN_STICKER, AGENT, ANIMATE_OWN_STICKER, AssetDef, Command,
+    ADD_OWN_STICKER, AGENT, ANIMATE_OWN_STICKER, StickerDefinition, Command,
     CREATE_AGENT, HUMAN, Kernel, LOCAL_MULTI_AGENT, LOCAL_SINGLE_AGENT, NOOP,
     MOVE_STICKER, OBSERVE, OPERATOR, PAGES_DEMO, Principal,
     REMOVE_AGENT_STICKER, REMOVE_OWN_STICKER, StickerInstance,
 )
 
 ASSETS = {
-    "moth": AssetDef("moth", ("none", "flutter", "orbit")),
-    "lantern": AssetDef("lantern", ("none", "glow")),
+    "moth": StickerDefinition("moth", ("none", "flutter", "orbit")),
+    "lantern": StickerDefinition("lantern", ("none", "glow")),
 }
 
 AGENT_TOOLS = frozenset({
@@ -319,7 +319,7 @@ class T12_ManifestCannotDeclareAuthority(unittest.TestCase):
             "policy": {"agent_ceiling": ["*"]},
             "script": "import os; os.system('id')",
         }
-        asset = Kernel.load_asset(hostile)
+        asset = Kernel.load_definition(hostile)
         self.assertEqual(asset.name, "trojan")
         self.assertEqual(set(asset.animations), {"none", "wiggle"})
         for forbidden in ("owner", "capabilities", "tools", "principals",
@@ -328,7 +328,7 @@ class T12_ManifestCannotDeclareAuthority(unittest.TestCase):
 
     def test_12b_declared_animation_does_not_grant_invocation_rights(self):
         k = Kernel(LOCAL_SINGLE_AGENT, presets={"far": (0.9, 0.9)},
-                   assets={"trojan": Kernel.load_asset(
+                   assets={"trojan": Kernel.load_definition(
                        {"name": "trojan", "animations": ["none", "wiggle"]})})
         k.register_principal(Principal("human:kid", HUMAN, tools=HUMAN_TOOLS))
         k.register_principal(Principal("agent:jev", AGENT, tools=AGENT_TOOLS))
@@ -735,3 +735,46 @@ class BudgetsAreForAgents(unittest.TestCase):
                 self.assertEqual(r.reason, "action-budget-exhausted")
                 refusals += 1
         self.assertEqual(refusals, 4)
+
+
+class BringingAStickerToLife(unittest.TestCase):
+    """Animation follows the same ownership rule as moving and removing.
+
+    A child double-tapping a sticker to bring it to life cannot be expected
+    to know who placed it.
+    """
+
+    def test_human_may_animate_an_agent_owned_sticker(self):
+        k = build()
+        self.assertEqual(k.sticker("moth-a").owner, "agent:jev")
+        r = k.propose(Command(ANIMATE_OWN_STICKER, "human:kid", "c1", "moth-a",
+                              (("animation", "flutter"),)))
+        self.assertTrue(r.accepted, r.reason)
+        self.assertEqual(k.sticker("moth-a").animation, "flutter")
+
+    def test_an_agent_still_cannot_animate_a_human_sticker(self):
+        k = build()
+        r = k.propose(Command(ANIMATE_OWN_STICKER, "agent:jev", "c1",
+                              "lantern-h", (("animation", "glow"),)))
+        self.assertFalse(r.accepted)
+        self.assertEqual(r.reason, "not-owner")
+        self.assertEqual(k.sticker("lantern-h").animation, "none")
+
+    def test_the_rule_is_stated_once_and_used_everywhere(self):
+        """move, animate and remove must agree about who may act."""
+        k = build()
+        human = k._principals["human:kid"]
+        agent = k._principals["agent:jev"]
+        for sticker_id in ("lantern-h", "moth-a"):
+            sticker = k.sticker(sticker_id)
+            self.assertTrue(k.may_act_on(human, sticker))
+        self.assertTrue(k.may_act_on(agent, k.sticker("moth-a")))
+        self.assertFalse(k.may_act_on(agent, k.sticker("lantern-h")))
+        self.assertFalse(k.may_act_on(human, None))
+
+    def test_an_undeclared_animation_is_still_refused(self):
+        k = build()
+        r = k.propose(Command(ANIMATE_OWN_STICKER, "human:kid", "c1", "moth-a",
+                              (("animation", "explode"),)))
+        self.assertFalse(r.accepted)
+        self.assertEqual(r.reason, "animation-not-declared-by-asset")

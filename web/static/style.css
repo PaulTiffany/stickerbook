@@ -1,22 +1,25 @@
 /* StickerBook.
  *
- * The page dominates. The tray sits under it like the sticker sheet in a
- * physical book. Everything else is hidden unless ?dev=1.
+ *   Maximal play surface. Minimal persistent chrome.
  *
- * Landscape is the first target because a page benefits from width and the
- * tray costs height -- but nothing here assumes it. In portrait the same
- * hierarchy survives: page first, stickers at the bottom, minimal chrome.
- * The answer to a small screen is less visible machinery, not smaller
- * machinery.
+ * The only permanent interface is the page and the hot-bar beneath it.
+ * Everything else -- book navigation, the sticker library -- appears only
+ * when invited, as a sheet that REPLACES play rather than shrinking it.
+ * On a phone especially, the answer to limited space is less visible
+ * machinery, not smaller machinery.
+ *
+ * Landscape is the first target because a page benefits from width and a
+ * hot-bar costs height. Portrait keeps the same hierarchy rather than
+ * becoming a different interface.
  */
 
 :root {
   --ink: #2a3540;
-  --paper: #eef1f0;
-  --tray: #ffffff;
+  --muted: #6b7c88;
+  --desk: #eef1f0;
+  --card: #ffffff;
   --edge: #d9e0e3;
-  --sky: #cfe8f5;
-  --grass: #93c47d;
+  --hot: 15vmin;                  /* hot-bar sticker size, one source */
 }
 
 * { box-sizing: border-box; }
@@ -25,14 +28,16 @@ html, body {
   margin: 0;
   height: 100%;
   overflow: hidden;
-  background: var(--paper);
+  background: var(--desk);
   color: var(--ink);
   font: 16px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
 }
 
-#book {
+/* ====================================================== play (persistent) */
+
+#play {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -41,22 +46,18 @@ html, body {
   gap: clamp(6px, 1.2vmin, 14px);
 }
 
-/* --- the page ---------------------------------------------------------- */
-
-/* The frame hugs the PICTURE, it does not surround it. Putting the paper on
-   the wrapper left white bars either side of a wide page, because the
-   viewBox is letterboxed inside the element by preserveAspectRatio. Giving
-   the svg the page's own aspect ratio makes the drawn area and the element
-   the same rectangle -- which also means a pointer position maps to the
-   picture with no dead margin to fall into. */
 #page-wrap {
   flex: 1 1 auto;
-  min-height: 0;                 /* lets the page shrink instead of the tray */
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+/* The frame hugs the PICTURE. Putting the paper on a full-width wrapper
+   left white bars either side, because preserveAspectRatio letterboxes the
+   viewBox inside the element. Matching the element to the page's own aspect
+   ratio also means there is no dead margin for a drop to fall into. */
 #page {
   aspect-ratio: 1000 / 640;
   max-width: 100%;
@@ -68,30 +69,23 @@ html, body {
   border: 1px solid var(--edge);
   border-radius: 12px;
   box-shadow: 0 1px 2px rgba(20, 40, 60, .07);
-  touch-action: none;            /* we handle the gestures */
+  touch-action: none;
 }
 
-/* --- stickers ---------------------------------------------------------- */
+/* ---- stickers on the page ---- */
 
 .sticker { cursor: grab; }
-/* The art is decorative; the invisible .hit disc inside each sticker is the
-   grab target. Marking the art non-interactive on its own would leave the
-   group with no hit area at all, because a <g> has no geometry. */
+/* The art is decorative; the invisible .hit disc is the grab target.
+   Marking the art non-interactive on its own would leave the group with no
+   hit area at all, because a <g> has no geometry. */
 .sticker .art { pointer-events: none; }
 .sticker.held { cursor: grabbing; }
 .sticker.held .art { filter: drop-shadow(0 10px 8px rgba(20, 40, 60, .28)); }
 
 .art { transition: transform .12s ease; }
 .sticker.held .art { transform: scale(1.08); }
-.sticker.settling .art { animation: settle .22s ease; }
 
-@keyframes settle {
-  0%   { transform: scale(1.08); }
-  60%  { transform: scale(.97); }
-  100% { transform: scale(1); }
-}
-
-/* A refused move: the sticker does not go. Same feedback a real sticker
+/* A refused action: the sticker does not go. Same feedback a real sticker
    gives when it will not stick. */
 .sticker.refused .art { animation: refuse .3s ease; }
 @keyframes refuse {
@@ -100,40 +94,77 @@ html, body {
   75%      { transform: translateX(4px); }
 }
 
-/* --- the tray ---------------------------------------------------------- */
+/* ---- alive ----
+   Held always wins: grabbing a sticker suspends its animation instantly,
+   so the child never wrestles with it. */
+.sticker.alive:not(.held) .art {
+  animation: var(--alive) 1.1s ease-in-out infinite;
+}
+.sticker[data-alive="flutter"] { --alive: flutter; }
+.sticker[data-alive="chew"]    { --alive: chew; }
+.sticker[data-alive="paddle"]  { --alive: paddle; }
+.sticker[data-alive="peck"]    { --alive: peck; }
 
-#tray {
+@keyframes flutter {
+  0%, 100% { transform: translateY(0)    rotate(-3deg) scaleX(1); }
+  25%      { transform: translateY(-7px) rotate(2deg)  scaleX(.86); }
+  50%      { transform: translateY(-3px) rotate(-2deg) scaleX(1); }
+  75%      { transform: translateY(-9px) rotate(3deg)  scaleX(.9); }
+}
+@keyframes chew {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(-3.5deg) translateY(2px); }
+}
+@keyframes paddle {
+  0%, 100% { transform: translateX(0)    rotate(0deg); }
+  50%      { transform: translateX(10px) rotate(3deg); }
+}
+@keyframes peck {
+  0%, 100% { transform: rotate(0deg); }
+  40%      { transform: rotate(16deg) translateY(4px); }
+}
+
+/* ============================================ the hot-bar (persistent) */
+
+#hotbar {
   flex: 0 0 auto;
-  /* Hug the stickers and sit under the page, rather than stretching the
-     full window: a full-width bar under a centred page reads as two
-     unrelated panels instead of a sheet beneath a book. */
   align-self: center;
   max-width: 100%;
-  background: var(--tray);
+  display: flex;
+  align-items: stretch;
+  gap: clamp(4px, 1vmin, 10px);
+  background: var(--card);
   border: 1px solid var(--edge);
   border-radius: 12px;
   box-shadow: 0 1px 2px rgba(20, 40, 60, .07);
   padding: clamp(4px, 1vmin, 10px);
-  transition: background .15s ease, border-color .15s ease;
 }
-
-/* Dragging a placed sticker down here takes it off the page. */
-#tray.open { background: #f2f8f4; border-color: #9ccbb0; }
 
 #tray-items {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: clamp(4px, 1.4vmin, 18px);
   overflow-x: auto;
   overflow-y: hidden;
+  /* The page and hot-bar must never jump because a scrollbar appears.
+     Reserve the gutter always; do not optimise for the bar being visible. */
+  scrollbar-gutter: stable;
   scrollbar-width: thin;
+  /* A fixed track height keeps the bar the same size whether or not a
+     scrollbar is drawn. */
+  height: calc(var(--hot) + 14px);
+  min-height: 62px;
+  max-height: 110px;
 }
+#tray-items::-webkit-scrollbar { height: 6px; }
+#tray-items::-webkit-scrollbar-thumb { background: var(--edge); border-radius: 3px; }
 
-.tray-sticker {
+.tray-sticker, .tray-add {
   flex: 0 0 auto;
-  width: clamp(54px, 11vmin, 96px);
-  height: clamp(54px, 11vmin, 96px);
+  width: var(--hot);
+  height: var(--hot);
+  min-width: 54px; min-height: 54px;
+  max-width: 96px; max-height: 96px;
   border: none;
   background: transparent;
   padding: 0;
@@ -142,62 +173,135 @@ html, body {
   border-radius: 10px;
 }
 .tray-sticker:active { cursor: grabbing; }
-.tray-sticker svg { width: 100%; height: 100%; display: block; }
+.tray-sticker svg { width: 100%; height: 100%; display: block;
+                    transition: transform .12s ease; }
 .tray-sticker:hover svg { transform: scale(1.06); }
-.tray-sticker svg { transition: transform .12s ease; }
 
-/* the piece that follows your finger between tray and page */
+/* the + tile: find or make another thing */
+.tray-add {
+  cursor: pointer;
+  border: 2px dashed var(--edge);
+  color: var(--muted);
+  font-size: clamp(22px, 5vmin, 34px);
+  line-height: 1;
+  display: grid;
+  place-items: center;
+}
+.tray-add:hover { border-color: #b7c4cb; color: var(--ink); }
+
+#menu-btn {
+  flex: 0 0 auto;
+  width: var(--hot);
+  min-width: 54px; max-width: 96px;
+  border: none;
+  border-left: 1px solid var(--edge);
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  border-radius: 0 8px 8px 0;
+}
+#menu-btn:hover { color: var(--ink); }
+#menu-btn svg { width: 46%; max-width: 30px; fill: currentColor; }
+
+/* the piece that follows your finger between hot-bar and page */
 #ghost {
   position: fixed;
   pointer-events: none;
-  z-index: 10;
-  width: clamp(54px, 11vmin, 96px);
-  height: clamp(54px, 11vmin, 96px);
+  z-index: 40;
+  width: var(--hot);
+  height: var(--hot);
+  min-width: 54px; min-height: 54px;
+  max-width: 96px; max-height: 96px;
   transform: translate(-50%, -50%) scale(1.1);
   filter: drop-shadow(0 10px 8px rgba(20, 40, 60, .3));
 }
 
-/* --- developer view (?dev=1) ------------------------------------------- */
+/* ============================== sheets: navigation REPLACES play ======= */
+
+.sheet[hidden] { display: none; }
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: var(--desk);
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: clamp(16px, 4vmin, 44px);
+  padding-bottom: calc(clamp(16px, 4vmin, 44px) + env(safe-area-inset-bottom));
+}
+.sheet header { position: relative; margin-bottom: 8px; }
+.sheet h1 { margin: 0; font-size: clamp(22px, 4.4vmin, 34px); }
+.sheet header p { margin: 4px 0 0; color: var(--muted); }
+.sheet h2 {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--muted); margin: 26px 0 10px;
+}
+.sheet .close {
+  position: absolute; top: -6px; right: -6px;
+  width: 46px; height: 46px;
+  border: 1px solid var(--edge); border-radius: 50%;
+  background: var(--card); color: var(--ink);
+  font-size: 26px; line-height: 1; cursor: pointer;
+}
+.sheet .close:hover { background: #f6f9fa; }
+
+.cards { display: flex; flex-wrap: wrap; gap: 12px; }
+.card {
+  border: 1px solid var(--edge);
+  background: var(--card);
+  border-radius: 12px;
+  padding: 16px 18px;
+  min-width: 170px;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.card:hover { border-color: #b7c4cb; }
+.card strong { display: block; font-size: 17px; }
+.card span { color: var(--muted); font-size: 13.5px; }
+.card.current { outline: 2px solid #9ccbb0; }
+.card.soon { opacity: .5; cursor: not-allowed; }
+
+.card.sticker-card {
+  display: grid; place-items: center; gap: 6px;
+  min-width: 0; width: clamp(96px, 17vmin, 140px); padding: 12px;
+}
+.card.sticker-card svg { width: 68px; height: 68px; }
+.card.sticker-card span { font-size: 13px; }
+
+/* ====================================== developer view (?dev=1) ======== */
 
 #dev[hidden] { display: none; }
 #dev {
-  position: fixed;
-  top: 10px; right: 10px;
-  width: 290px;
-  max-height: 80vh;
-  overflow: auto;
-  background: #fff;
-  border: 1px solid var(--edge);
-  border-radius: 10px;
-  padding: 12px;
-  font-size: 13px;
+  position: fixed; top: 10px; right: 10px; z-index: 50;
+  width: 290px; max-height: 80vh; overflow: auto;
+  background: #fff; border: 1px solid var(--edge); border-radius: 10px;
+  padding: 12px; font-size: 13px;
   box-shadow: 0 4px 16px rgba(20, 40, 60, .14);
 }
 #dev .row { display: flex; justify-content: space-between; padding: 2px 0; }
-#dev .row span:first-child { color: #6b7c88; }
-#dev h2 {
-  font-size: 11px; text-transform: uppercase; letter-spacing: .07em;
-  color: #6b7c88; margin: 14px 0 6px;
-}
+#dev .row span:first-child { color: var(--muted); }
+#dev h2 { font-size: 11px; text-transform: uppercase; letter-spacing: .07em;
+          color: var(--muted); margin: 14px 0 6px; }
 .verdict { margin-top: 10px; padding: 7px 9px; border-radius: 6px;
            border: 1px solid var(--edge); }
-.verdict.idle { color: #6b7c88; }
+.verdict.idle { color: var(--muted); }
 .verdict.accepted { border-color: #b9e2cd; background: #eefaf3; color: #1d7a4c; }
 .verdict.rejected { border-color: #f0c9c5; background: #fdf1f0; color: #a8332a; }
 #receipts { list-style: none; margin: 0; padding: 0; font-size: 11.5px; }
-#receipts li {
-  border-top: 1px solid var(--edge); padding: 5px 0;
-  font-family: ui-monospace, Consolas, monospace; word-break: break-word;
-}
+#receipts li { border-top: 1px solid var(--edge); padding: 5px 0;
+               font-family: ui-monospace, Consolas, monospace;
+               word-break: break-word; }
 #receipts .ok { color: #1d7a4c; font-weight: 600; }
 #receipts .no { color: #a8332a; font-weight: 600; }
 
-/* --- portrait ----------------------------------------------------------
-   Same hierarchy, not a different interface: the page still comes first
-   and the tray still sits beneath it. Only the breathing room changes. */
+/* ============================================================ portrait = */
 @media (orientation: portrait) {
-  #book { padding: clamp(4px, 1vmin, 10px); gap: 8px; }
-  .tray-sticker { width: clamp(50px, 15vmin, 84px);
-                  height: clamp(50px, 15vmin, 84px); }
+  :root { --hot: 16vmin; }
+  #play { padding: clamp(4px, 1vmin, 10px); gap: 8px; }
   #dev { width: min(290px, calc(100vw - 20px)); }
 }

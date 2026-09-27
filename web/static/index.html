@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>StickerBook — Farm</title>
+<title>StickerBook</title>
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-<main id="book">
-  <!-- The page is the product. Everything else gets out of its way. -->
+<!-- PLAY. The only persistent interface is the page and the hot-bar.
+     No title, no nav, no breadcrumbs, no previous/next. -->
+<main id="play">
   <div id="page-wrap">
     <svg id="page" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet"
          role="img" aria-label="A farm page you can put stickers on">
@@ -18,14 +19,48 @@
     </svg>
   </div>
 
-  <!-- The sticker sheet, below the page, as in a physical book. -->
-  <div id="tray" aria-label="Sticker tray">
-    <div id="tray-items"></div>
+  <div id="hotbar">
+    <div id="tray-items" role="list" aria-label="Stickers"></div>
+    <button id="menu-btn" type="button" aria-label="Pages and book">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="6"  width="18" height="2.2" rx="1.1"/>
+        <rect x="3" y="11" width="18" height="2.2" rx="1.1"/>
+        <rect x="3" y="16" width="18" height="2.2" rx="1.1"/>
+      </svg>
+    </button>
   </div>
 </main>
 
-<!-- Proof harness. Hidden unless ?dev=1 -- the receipts are our evidence
-     that the authority boundary holds, so they are kept, not deleted. -->
+<!-- Navigation replaces play; it never shrinks it. -->
+<section id="book-screen" class="sheet" hidden aria-label="Book">
+  <header>
+    <h1 id="book-title">StickerBook</h1>
+    <p id="book-subtitle"></p>
+    <button class="close" type="button" data-close aria-label="Back to the page">×</button>
+  </header>
+  <div class="sheet-body">
+    <h2>Pages</h2>
+    <div id="page-list" class="cards"></div>
+    <h2>Later</h2>
+    <div id="page-soon" class="cards"></div>
+  </div>
+</section>
+
+<section id="sticker-screen" class="sheet" hidden aria-label="Stickers">
+  <header>
+    <h1>Stickers</h1>
+    <p>Drag one onto the page.</p>
+    <button class="close" type="button" data-close aria-label="Back to the page">×</button>
+  </header>
+  <div class="sheet-body">
+    <div id="sticker-list" class="cards"></div>
+    <h2>Later</h2>
+    <div class="cards"><button class="card soon" type="button" disabled>Make a sticker</button></div>
+  </div>
+</section>
+
+<!-- Proof harness. Hidden unless ?dev=1. The receipts are how we show the
+     authority boundary holds, so they are kept, not deleted. -->
 <aside id="dev" hidden>
   <div class="row"><span>revision</span><span id="revision">–</span></div>
   <div class="row"><span>acting as</span><span id="principal">–</span></div>

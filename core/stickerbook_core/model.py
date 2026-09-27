@@ -149,7 +149,9 @@ PROFILES = {
 
 @dataclass(frozen=True)
 class StickerInstance:
-    """A placed sticker. Ownership and provenance are explicit fields."""
+    """ONE placement of a StickerDefinition on one page.
+
+    Ownership and provenance are explicit fields."""
 
     id: str
     owner: str
@@ -163,12 +165,13 @@ class StickerInstance:
 
 
 @dataclass(frozen=True)
-class AssetDef:
-    """A declarative sticker/book asset.
+class StickerDefinition:
+    """A reusable sticker design. One design, many placements.
 
-    An asset may declare WHICH animations exist. It may not declare who may
-    invoke them, who owns anything, or any capability. Loading is total: any
-    field not named here is discarded (see kernel.load_assets).
+    This is what the tray offers. It declares WHICH animations the design
+    supports; it may not declare who may invoke them, who owns anything, or
+    any capability. Loading is total: any field not named here is discarded
+    (see kernel.load_definition).
     """
 
     name: str
@@ -235,5 +238,5 @@ __all__ = [
     "CREATE_AGENT", "ALL_ACTIONS", "MUTATING_ACTIONS", "POSITION_MIN", "POSITION_MAX",
     "HUMAN", "AGENT", "OPERATOR", "Principal", "AuthorityProfile",
     "PAGES_DEMO", "LOCAL_SINGLE_AGENT", "LOCAL_MULTI_AGENT", "PROFILES",
-    "StickerInstance", "AssetDef", "Command", "Receipt", "replace", "field",
+    "StickerInstance", "StickerDefinition", "Command", "Receipt", "replace", "field",
 ]

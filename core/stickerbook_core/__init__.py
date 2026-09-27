@@ -11,14 +11,14 @@ See ../../SECURITY.md for the requirements this implements, and
 from .kernel import Kernel
 from .model import (
     ADD_OWN_STICKER, AGENT, ALL_ACTIONS, ANIMATE_OWN_STICKER,
-    AssetDef, CREATE_AGENT, Command, HUMAN, LOCAL_MULTI_AGENT,
+    StickerDefinition, CREATE_AGENT, Command, HUMAN, LOCAL_MULTI_AGENT,
     LOCAL_SINGLE_AGENT, MOVE_STICKER, MUTATING_ACTIONS, NOOP, OBSERVE,
     OPERATOR, PAGES_DEMO, PROFILES, Principal, Receipt, REMOVE_AGENT_STICKER,
     REMOVE_OWN_STICKER, StickerInstance,
 )
 
 __all__ = [
-    "Kernel", "Principal", "StickerInstance", "AssetDef", "Command",
+    "Kernel", "Principal", "StickerInstance", "StickerDefinition", "Command",
     "Receipt", "PROFILES", "PAGES_DEMO", "LOCAL_SINGLE_AGENT",
     "LOCAL_MULTI_AGENT", "HUMAN", "AGENT", "OPERATOR", "ALL_ACTIONS",
     "MUTATING_ACTIONS", "POSITION_MIN", "POSITION_MAX", "NOOP", "OBSERVE", "ADD_OWN_STICKER",
