@@ -30,8 +30,14 @@ The title page is one large visual hit target. Touching it opens the page
 gallery. A small bottom-right title-page target is reserved for responsible
 adult / developer controls.
 
-The gallery is thumbnail-first. It currently exposes the connected farm page
-plus a **+ Make a page** tile that opens an uploader/creator interface.
+The gallery is thumbnail-first. In the public mechanical profile it is driven
+by the asset manifest and currently exposes **Farm, Beach, Park, and Space**,
+plus a **+ Make a page** tile. Each public demo page has independent in-memory
+StickerInstances for the current session.
+
+The governed localhost profile is intentionally stricter: a visual page asset
+does not become a governed page until the authority kernel has page state for
+it. Today that means Farm remains the connected governed page.
 
 ## Library → sheet → page
 
