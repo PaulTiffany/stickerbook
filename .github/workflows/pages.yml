@@ -1,0 +1,62 @@
+name: Deploy public mechanical demo
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Validate browser JavaScript
+        run: node --check web/static/app.js
+
+      - name: Build public-only artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf _site
+          mkdir -p _site/static
+          cp web/static/index.html _site/index.html
+          cp web/static/app.js _site/static/app.js
+          cp web/static/style.css _site/static/style.css
+          touch _site/.nojekyll
+
+          # The Pages artifact is intentionally allow-listed. It must never
+          # contain the Python bridge, authority kernel, Omega/Jev code,
+          # credentials, local configuration, or repository history.
+          expected=$'_site/.nojekyll\n_site/index.html\n_site/static/app.js\n_site/static/style.css'
+          actual="$(find _site -type f | sort)"
+          test "$actual" = "$expected"
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
