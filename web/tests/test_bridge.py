@@ -25,11 +25,58 @@ import bridge as bridge_mod  # noqa: E402
 import farm  # noqa: E402
 
 
+class FakeAgentRuntime:
+    def __init__(self):
+        self.last_principal = None
+        self.last_scene = None
+        self.last_creator = None
+
+    def capabilities(self):
+        return {
+            "creator_agent": True,
+            "conversational_agent": True,
+        }
+
+    def converse(self, *, text, principal, scene):
+        self.last_principal = principal
+        self.last_scene = scene
+        return {"ok": True, "reply": "Omega heard: " + text}
+
+    def creator_draft(
+            self, *,
+            kind,
+            prompt,
+            animation_intent,
+            asset_schema_version,
+            principal,
+            scene):
+        self.last_principal = principal
+        self.last_scene = scene
+        self.last_creator = {
+            "kind": kind,
+            "prompt": prompt,
+            "animation_intent": animation_intent,
+            "asset_schema_version": asset_schema_version,
+        }
+        return {
+            "ok": True,
+            "draft": {
+                "summary": "draft for " + kind,
+                "asset_schema_version": asset_schema_version,
+            },
+        }
+
+
 class ServerCase(unittest.TestCase):
     """A fresh farm and a fresh server per test."""
 
+    agent_runtime_factory = None
+
     def setUp(self):
-        self.httpd, self.bridge = bridge_mod.serve("127.0.0.1", 0, quiet=True)
+        runtime = (self.agent_runtime_factory()
+                   if self.agent_runtime_factory else None)
+        self.httpd, self.bridge = bridge_mod.serve(
+            "127.0.0.1", 0, quiet=True, agent_runtime=runtime)
         self.port = self.httpd.server_address[1]
         # poll_interval matters: shutdown() waits up to one interval, and
         # the default 0.5s dominates the runtime of a suite this size.
@@ -113,6 +160,17 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
                 b'data-clip-intent="animate"'):
             self.assertIn(marker, page)
 
+    def test_voice_is_child_facing_only_when_enabled_by_adult(self):
+        with urllib.request.urlopen(self.url("/"), timeout=5) as r:
+            page = r.read()
+        for marker in (
+                b'id="voice-orb"',
+                b'id="voice-enable"',
+                b'id="adult-text-fallback"',
+                b'id="adult-chat-input"'):
+            self.assertIn(marker, page)
+        self.assertIn(b"Speech recognition may use your browser", page)
+
     def test_manifest_driven_visual_assets_are_served(self):
         cases = (
             ("/static/assets/manifest.json", "application/json"),
@@ -164,6 +222,70 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             kernel_sticker = self.bridge.kernel.sticker(s["id"])
             self.assertAlmostEqual(s["x"], kernel_sticker.x)
             self.assertAlmostEqual(s["y"], kernel_sticker.y)
+
+
+class Q1b_AgentInterfacesStayOutsideKernelAuthority(ServerCase):
+
+    agent_runtime_factory = FakeAgentRuntime
+
+    def test_agent_capabilities_are_explicit_in_state(self):
+        _, state = self.get("/api/state")
+        self.assertEqual(state["capabilities"], {
+            "creator_agent": True,
+            "conversational_agent": True,
+        })
+
+    def test_conversation_returns_language_without_mutating_kernel(self):
+        before = self.bridge.kernel.revision
+        status, body = self.post("/api/agent/converse", {
+            "text": "hello",
+            "actor": "agent:spoofed",
+        })
+        self.assertEqual(status, 200)
+        self.assertTrue(body["ok"], body)
+        self.assertEqual(body["reply"], "Omega heard: hello")
+        self.assertEqual(self.bridge.kernel.revision, before)
+        self.assertEqual(
+            self.bridge.agent_runtime.last_principal,
+            bridge_mod.BROWSER_PRINCIPAL)
+        self.assertNotIn("kernel", self.bridge.agent_runtime.last_scene)
+
+    def test_creator_draft_targets_v2_package_without_mutating_kernel(self):
+        before = self.bridge.kernel.revision
+        status, body = self.post("/api/creator/draft", {
+            "kind": "sticker",
+            "prompt": "a purple dragon",
+            "animation_intent": "animate",
+            "asset_schema_version": 2,
+            "actor": "agent:spoofed",
+        })
+        self.assertEqual(status, 200)
+        self.assertTrue(body["ok"], body)
+        self.assertEqual(body["draft"]["asset_schema_version"], 2)
+        self.assertEqual(self.bridge.kernel.revision, before)
+        self.assertEqual(
+            self.bridge.agent_runtime.last_principal,
+            bridge_mod.BROWSER_PRINCIPAL)
+        self.assertEqual(
+            self.bridge.agent_runtime.last_creator["animation_intent"],
+            "animate")
+
+    def test_agent_routes_validate_input_before_runtime(self):
+        before = self.bridge.kernel.revision
+        status, body = self.post("/api/agent/converse", {"text": ""})
+        self.assertEqual(status, 400)
+        self.assertFalse(body["ok"])
+        self.assertEqual(self.bridge.kernel.revision, before)
+
+        status, body = self.post("/api/creator/draft", {
+            "kind": "sticker",
+            "prompt": "frog",
+            "animation_intent": "animate",
+            "asset_schema_version": 1,
+        })
+        self.assertEqual(status, 400)
+        self.assertFalse(body["ok"])
+        self.assertEqual(self.bridge.kernel.revision, before)
 
 
 class Q2_HumanCanMoveAStickerThroughTheKernel(ServerCase):
