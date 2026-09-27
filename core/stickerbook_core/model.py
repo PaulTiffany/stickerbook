@@ -21,26 +21,31 @@ from typing import FrozenSet, Optional, Tuple
 NOOP = "noop"
 OBSERVE = "observe"
 ADD_OWN_STICKER = "add-own-sticker"
-MOVE_OWN_STICKER = "move-own-sticker"
+# Renamed from `move-own-sticker`: a human may move anything on their page,
+# so "own" no longer describes the rule. Agents remain owner-scoped (see
+# Kernel._do_move). Nothing else in the vocabulary changed.
+MOVE_STICKER = "move-sticker"
 ANIMATE_OWN_STICKER = "animate-own-sticker"
 REMOVE_OWN_STICKER = "remove-own-sticker"
 REMOVE_AGENT_STICKER = "remove-agent-sticker"
 CREATE_AGENT = "create-agent"
 
 ALL_ACTIONS: FrozenSet[str] = frozenset({
-    NOOP, OBSERVE, ADD_OWN_STICKER, MOVE_OWN_STICKER, ANIMATE_OWN_STICKER,
+    NOOP, OBSERVE, ADD_OWN_STICKER, MOVE_STICKER, ANIMATE_OWN_STICKER,
     REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER, CREATE_AGENT,
 })
 
 # Actions that mutate the world. Everything else is read-only.
 MUTATING_ACTIONS: FrozenSet[str] = frozenset({
-    ADD_OWN_STICKER, MOVE_OWN_STICKER, ANIMATE_OWN_STICKER,
+    ADD_OWN_STICKER, MOVE_STICKER, ANIMATE_OWN_STICKER,
     REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER, CREATE_AGENT,
 })
 
-# Bounded argument domains. An argument outside these is not representable in
-# a generated action table and is rejected on a raw proposal.
-ANCHORS: Tuple[str, ...] = ("near-lantern", "near-fox", "top-left", "centre", "away")
+# A sticker's position is a coordinate on the page, as a fraction of its
+# width and height. Bounded, simply continuous rather than enumerated: a
+# sticker book whose stickers snap to five dots is not a sticker book.
+POSITION_MIN = 0.0
+POSITION_MAX = 1.0
 
 
 # ---------------------------------------------------------------------------
@@ -116,7 +121,7 @@ PAGES_DEMO = AuthorityProfile(
 LOCAL_SINGLE_AGENT = AuthorityProfile(
     name="local-single-agent",
     agent_ceiling=frozenset({
-        OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_OWN_STICKER,
+        OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_STICKER,
         ANIMATE_OWN_STICKER, REMOVE_OWN_STICKER,
     }),
     max_agents=1,
@@ -126,7 +131,7 @@ LOCAL_SINGLE_AGENT = AuthorityProfile(
 LOCAL_MULTI_AGENT = AuthorityProfile(
     name="local-multi-agent",
     agent_ceiling=frozenset({
-        OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_OWN_STICKER,
+        OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_STICKER,
         ANIMATE_OWN_STICKER, REMOVE_OWN_STICKER, CREATE_AGENT,
     }),
     max_agents=4,
@@ -151,7 +156,8 @@ class StickerInstance:
     created_by: str
     asset: str
     page: int
-    anchor: str = "centre"
+    x: float = 0.5
+    y: float = 0.5
     animation: str = "none"
     revision: int = 0          # world revision at which this last changed
 
@@ -224,9 +230,9 @@ class Receipt:
 
 
 __all__ = [
-    "NOOP", "OBSERVE", "ADD_OWN_STICKER", "MOVE_OWN_STICKER",
+    "NOOP", "OBSERVE", "ADD_OWN_STICKER", "MOVE_STICKER",
     "ANIMATE_OWN_STICKER", "REMOVE_OWN_STICKER", "REMOVE_AGENT_STICKER",
-    "CREATE_AGENT", "ALL_ACTIONS", "MUTATING_ACTIONS", "ANCHORS",
+    "CREATE_AGENT", "ALL_ACTIONS", "MUTATING_ACTIONS", "POSITION_MIN", "POSITION_MAX",
     "HUMAN", "AGENT", "OPERATOR", "Principal", "AuthorityProfile",
     "PAGES_DEMO", "LOCAL_SINGLE_AGENT", "LOCAL_MULTI_AGENT", "PROFILES",
     "StickerInstance", "AssetDef", "Command", "Receipt", "replace", "field",

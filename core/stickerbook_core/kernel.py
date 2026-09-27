@@ -16,22 +16,24 @@ import copy
 from typing import Dict, FrozenSet, List, Optional, Tuple
 
 from .model import (
-    ADD_OWN_STICKER, AGENT, ALL_ACTIONS, ANCHORS, ANIMATE_OWN_STICKER,
-    AssetDef, CREATE_AGENT, Command, HUMAN, MOVE_OWN_STICKER,
-    MUTATING_ACTIONS, NOOP, OBSERVE, OPERATOR, PROFILES, Principal, Receipt,
+    ADD_OWN_STICKER, AGENT, ALL_ACTIONS, ANIMATE_OWN_STICKER,
+    AssetDef, CREATE_AGENT, Command, HUMAN, MOVE_STICKER,
+    MUTATING_ACTIONS, NOOP, OBSERVE, OPERATOR, POSITION_MAX,
+    POSITION_MIN, PROFILES, Principal, Receipt,
     REMOVE_AGENT_STICKER, REMOVE_OWN_STICKER, StickerInstance,
 )
 
 
 class Kernel:
 
-    def __init__(self, profile, assets=None, page: int = 1, anchors=None):
+    def __init__(self, profile, assets=None, page: int = 1, presets=None):
         self.profile = PROFILES[profile] if isinstance(profile, str) else profile
         self.assets: Dict[str, AssetDef] = dict(assets or {})
-        # Spatial vocabulary is WORLD content, not authority machinery: a page
-        # decides what positions exist. The kernel only enforces that a move
-        # names one of them. Defaults to the module-level set.
-        self.anchors = tuple(anchors) if anchors else ANCHORS
+        # Named positions are WORLD content, not authority machinery. A page
+        # may offer some so a principal that CHOOSES rather than points has
+        # somewhere sensible to aim. They are suggestions for the generated
+        # action table, never the only legal positions.
+        self.presets = dict(presets or {})
         self.page = page
         self.revision = 0
         self.turn = 1
@@ -76,7 +78,7 @@ class Kernel:
         self.revision += 1
         seeded = StickerInstance(
             id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
-            asset=sticker.asset, page=sticker.page, anchor=sticker.anchor,
+            asset=sticker.asset, page=sticker.page, x=sticker.x, y=sticker.y,
             animation=sticker.animation, revision=self.revision,
         )
         self._stickers[seeded.id] = seeded
@@ -158,7 +160,7 @@ class Kernel:
                 continue
             stickers.append({
                 "id": s.id, "owner": s.owner, "createdBy": s.created_by,
-                "asset": s.asset, "anchor": s.anchor,
+                "asset": s.asset, "x": s.x, "y": s.y,
                 "animation": s.animation, "revision": s.revision,
                 "mine": s.owner == principal_id,
             })
@@ -198,11 +200,10 @@ class Kernel:
         mine = [s for s in self._stickers.values()
                 if s.owner == principal_id and s.page == self.page]
         for s in sorted(mine, key=lambda x: x.id):
-            if MOVE_OWN_STICKER in tools:
-                for anchor in self.anchors:
-                    if anchor != s.anchor:
-                        add("MOVE:%s:%s" % (s.id, anchor), MOVE_OWN_STICKER,
-                            s.id, (("anchor", anchor),))
+            if MOVE_STICKER in tools:
+                for name, (px, py) in sorted(self.presets.items()):
+                    add("MOVE:%s:%s" % (s.id, name), MOVE_STICKER,
+                        s.id, (("x", px), ("y", py)))
             if ANIMATE_OWN_STICKER in tools:
                 asset = self.assets.get(s.asset)
                 for anim in (asset.animations if asset else ("none",)):
@@ -219,8 +220,10 @@ class Kernel:
 
         if ADD_OWN_STICKER in tools:
             for asset_name in sorted(self.assets):
+                # A table entry has to be complete: the page's centre is
+                # the default drop point for a principal that chooses.
                 add("ADD:%s" % asset_name, ADD_OWN_STICKER, None,
-                    (("asset", asset_name),))
+                    (("asset", asset_name), ("x", 0.5), ("y", 0.5)))
         return table
 
     def _is_agent(self, principal_id: str) -> bool:
@@ -298,7 +301,7 @@ class Kernel:
             NOOP: self._do_noop,
             OBSERVE: self._do_noop,
             ADD_OWN_STICKER: self._do_add,
-            MOVE_OWN_STICKER: self._do_move,
+            MOVE_STICKER: self._do_move,
             ANIMATE_OWN_STICKER: self._do_animate,
             REMOVE_OWN_STICKER: self._do_remove_own,
             REMOVE_AGENT_STICKER: self._do_remove_agent,
@@ -329,28 +332,64 @@ class Kernel:
         asset = command.param("asset")
         if asset not in self.assets:
             return self._reject(command, "unknown-asset")
+        position, why = self._position(command)
+        if why:
+            return self._reject(command, why)
         new_id = "%s-%d" % (asset, self._next_sticker)
         self._next_sticker += 1
         self.revision += 1
         self._stickers[new_id] = StickerInstance(
             id=new_id, owner=command.actor, created_by=command.actor,
-            asset=asset, page=self.page, revision=self.revision,
+            asset=asset, page=self.page, x=position[0], y=position[1],
+            revision=self.revision,
         )
         return self._accept(command, "ok", object_id=new_id)
+
+    @staticmethod
+    def _position(command):
+        """Read and validate (x, y). Bounded and closed.
+
+        Non-numeric, NaN, infinite or off-page values are refused rather than
+        clamped: a caller sending one is confused and should be told so.
+        """
+        raw_x, raw_y = command.param("x"), command.param("y")
+        if raw_x is None or raw_y is None:
+            return None, "missing-position"
+        if isinstance(raw_x, bool) or isinstance(raw_y, bool):
+            return None, "position-not-numeric"
+        try:
+            x, y = float(raw_x), float(raw_y)
+        except (TypeError, ValueError):
+            return None, "position-not-numeric"
+        if x != x or y != y or x in (float("inf"), float("-inf")) \
+                or y in (float("inf"), float("-inf")):
+            return None, "position-not-finite"
+        if not (POSITION_MIN <= x <= POSITION_MAX
+                and POSITION_MIN <= y <= POSITION_MAX):
+            return None, "position-out-of-page"
+        return (x, y), None
 
     def _do_move(self, command, p):
         sticker, why = self._target(command)
         if why:
             return self._reject(command, why)
-        if sticker.owner != command.actor:
+        # THE ONE AUTHORITY CHANGE FOR THIS MILESTONE. The page belongs to
+        # the human: they may move anything on it, whatever its provenance
+        # says. An agent is still confined to stickers it owns.
+        #
+        # This settles nothing about future agent policy. Whether agents may
+        # place, animate or tidy up is an open product question and is NOT
+        # encoded here.
+        if p.kind not in (HUMAN, OPERATOR) and sticker.owner != command.actor:
             return self._reject(command, "not-owner")
-        anchor = command.param("anchor")
-        if anchor not in self.anchors:
-            return self._reject(command, "anchor-out-of-domain")
+        position, why = self._position(command)
+        if why:
+            return self._reject(command, why)
         self.revision += 1
         self._stickers[sticker.id] = StickerInstance(
             id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
-            asset=sticker.asset, page=sticker.page, anchor=anchor,
+            asset=sticker.asset, page=sticker.page,
+            x=position[0], y=position[1],
             animation=sticker.animation, revision=self.revision,
         )
         return self._accept(command, "ok", object_id=sticker.id)
@@ -371,7 +410,7 @@ class Kernel:
         self.revision += 1
         self._stickers[sticker.id] = StickerInstance(
             id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
-            asset=sticker.asset, page=sticker.page, anchor=sticker.anchor,
+            asset=sticker.asset, page=sticker.page, x=sticker.x, y=sticker.y,
             animation=animation, revision=self.revision,
         )
         return self._accept(command, "ok", object_id=sticker.id)

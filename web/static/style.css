@@ -40,9 +40,6 @@ main {
 
 #page { display: block; width: 100%; height: auto; touch-action: none; }
 
-/* host-owned slots, shown faintly so the discrete model is visible */
-.slot-dot { fill: none; stroke: #b9c6cf; stroke-dasharray: 3 4; }
-.slot-name { fill: #9aa9b4; font-size: 13px; text-anchor: middle; }
 
 .sticker { cursor: grab; }
 .sticker.dragging { cursor: grabbing; opacity: 0.75; }

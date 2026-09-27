@@ -3,7 +3,7 @@ Localhost bridge between the browser and the StickerBook authority kernel.
 
     pointer action
         -> browser POSTs a PROPOSAL (sticker id + where the pointer was)
-        -> bridge snaps the pointer position to a host-owned slot
+        -> bridge validates the shape and fixes the acting principal
         -> bridge builds the Command; the kernel validates and decides
         -> kernel returns a Receipt
         -> bridge returns receipt + authoritative state
@@ -15,7 +15,8 @@ What the browser is NOT trusted with, enforced here:
 
   * its own identity -- the acting principal is fixed by the bridge; an
     `actor` field in the request body is ignored entirely;
-  * naming a slot -- it reports where the pointer was, and the host snaps;
+  * the position it claims -- the kernel checks the coordinate is on the
+    page before anything moves;
   * choosing an action -- this endpoint performs exactly one kind of
     command, a move of an existing sticker;
   * being believed about success -- every response carries authoritative
@@ -35,7 +36,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import farm  # noqa: E402
-from stickerbook_core import Command, MOVE_OWN_STICKER  # noqa: E402
+from stickerbook_core import Command, MOVE_STICKER  # noqa: E402
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 
@@ -63,13 +64,11 @@ class Bridge:
         chrome = farm.page_chrome()
         stickers = []
         for s in view["stickers"]:
-            xy = farm.SLOTS.get(s["anchor"], (0.5, 0.5))
             stickers.append({
                 "id": s["id"],
                 "is": s["asset"],
-                "slot": s["anchor"],
-                "x": xy[0],
-                "y": xy[1],
+                "x": s["x"],
+                "y": s["y"],
                 "owner": s["owner"],
                 "mine": s["mine"],
                 "animation": s["animation"],
@@ -79,7 +78,6 @@ class Bridge:
             "revision": view["revision"],
             "principal": BROWSER_PRINCIPAL,
             "backdrop": chrome["backdrop"],
-            "slots": chrome["slots"],
             "stickers": stickers,
         }
 
@@ -113,23 +111,18 @@ class Bridge:
         if based_on is not None and not isinstance(based_on, int):
             return self._bad_request("based_on_revision must be an integer")
 
-        try:
-            slot = farm.snap_to_slot(point.get("x"), point.get("y"))
-        except ValueError as exc:
-            return self._bad_request(str(exc))
-
         # NOTE: actor is NOT taken from the request. Whatever the browser
         # claims about who it is has no effect.
         receipt = self.kernel.propose(Command(
-            action=MOVE_OWN_STICKER,
+            action=MOVE_STICKER,
             actor=BROWSER_PRINCIPAL,
             command_id=command_id,
             object_id=sticker_id,
-            params=(("anchor", slot),),
+            params=(("x", point.get("x")), ("y", point.get("y"))),
             based_on_revision=based_on,
         ))
-        return {"ok": True, "snapped_to": slot,
-                "receipt": receipt.to_dict(), "state": self.state()}
+        return {"ok": True, "receipt": receipt.to_dict(),
+                "state": self.state()}
 
     def _bad_request(self, reason: str) -> dict:
         """Malformed input never reaches the kernel and never mutates."""

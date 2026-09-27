@@ -7,7 +7,8 @@
 //      went, then draws whatever authoritative state comes back. A refused
 //      drag simply redraws at the old slot, because that is what the kernel
 //      says is true.
-//   2. It never names a slot. It reports a pointer position; the host snaps.
+//   2. It reports where the pointer went. The kernel decides whether that
+//      position is legal and whether this principal may move that sticker.
 //
 // Everything here is presentation. Anyone may tamper with it; the Python
 // kernel still decides.
@@ -16,7 +17,6 @@ const PAGE_W = 1000, PAGE_H = 640;
 const svg = document.getElementById("page");
 const layers = {
   backdrop: document.getElementById("backdrop"),
-  slots: document.getElementById("slots"),
   stickers: document.getElementById("stickers"),
 };
 const els = {
@@ -85,18 +85,6 @@ function drawBackdrop(backdrop) {
   }
 }
 
-function drawSlots(slots) {
-  layers.slots.replaceChildren();
-  for (const s of slots) {
-    const x = s.x * PAGE_W, y = s.y * PAGE_H;
-    layers.slots.appendChild(svgEl("circle", {
-      cx: x, cy: y, r: 30, class: "slot-dot" }));
-    const label = svgEl("text", { x, y: y + 48, class: "slot-name" });
-    label.textContent = s.id;
-    layers.slots.appendChild(label);
-  }
-}
-
 // ---------------------------------------------------------------- stickers
 
 const STICKER_ART = {
@@ -157,18 +145,17 @@ function drawStickers(stickers) {
 function render() {
   if (!state) return;
   drawBackdrop(state.backdrop);
-  drawSlots(state.slots);
   drawStickers(state.stickers);
   els.revision.textContent = state.revision;
   els.principal.textContent = state.principal;
 }
 
-function showVerdict(receipt, snapped) {
+function showVerdict(receipt) {
   if (!receipt) return;
   const ok = receipt.accepted;
   els.verdict.className = "verdict " + (ok ? "accepted" : "rejected");
   els.verdict.textContent = ok
-    ? `accepted — ${receipt.object} moved to ${snapped} (revision ${receipt.resultRevision})`
+    ? `accepted — ${receipt.object} moved (revision ${receipt.resultRevision})`
     : `refused — ${receipt.reason}; nothing changed`;
 }
 
@@ -194,9 +181,10 @@ async function refreshReceipts() {
 
 function pointerFraction(evt) {
   const box = svg.getBoundingClientRect();
+  const clamp = (v) => Math.min(Math.max(v, 0), 1);
   return {
-    x: (evt.clientX - box.left) / box.width,
-    y: (evt.clientY - box.top) / box.height,
+    x: clamp((evt.clientX - box.left) / box.width),
+    y: clamp((evt.clientY - box.top) / box.height),
   };
 }
 
@@ -231,7 +219,7 @@ async function proposeMove(stickerId, point) {
   const body = {
     sticker: stickerId,
     command_id: `ui-${Date.now()}-${commandSeq}`,
-    point,                                  // where the pointer was, not a slot
+    point,                                  // where the pointer went
     based_on_revision: state ? state.revision : null,
   };
   let payload;
@@ -252,7 +240,7 @@ async function proposeMove(stickerId, point) {
   // Draw what the kernel says is true, whatever we proposed.
   if (payload.state) state = payload.state;
   render();
-  if (payload.ok) showVerdict(payload.receipt, payload.snapped_to);
+  if (payload.ok) showVerdict(payload.receipt);
   else {
     els.verdict.className = "verdict rejected";
     els.verdict.textContent = `refused — ${payload.error}; nothing changed`;

@@ -37,7 +37,7 @@ from __future__ import annotations
 
 from stickerbook_core import (
     ADD_OWN_STICKER, AGENT, ANIMATE_OWN_STICKER, AssetDef, HUMAN, Kernel,
-    MOVE_OWN_STICKER, NOOP, OBSERVE, PROFILES, Principal,
+    MOVE_STICKER, NOOP, OBSERVE, PROFILES, Principal,
     REMOVE_AGENT_STICKER, REMOVE_OWN_STICKER, StickerInstance,
 )
 
@@ -51,7 +51,16 @@ ASSETS = {
 
 # The page's spatial vocabulary: plain positional slots, owned by the page
 # rather than by the authority kernel.
-SLOTS = ("top-left", "top-right", "centre", "bottom-left", "bottom-right")
+# Named positions the page offers a principal that CHOOSES rather than
+# points. Positions themselves are coordinates now; these are presets used to
+# generate a discrete action table, not the only legal places.
+SLOTS = {
+    "top-left": (0.2, 0.2),
+    "top-right": (0.8, 0.2),
+    "centre": (0.5, 0.5),
+    "bottom-left": (0.2, 0.8),
+    "bottom-right": (0.8, 0.8),
+}
 
 # The passive backdrop. `features` labels what it depicts and where, so those
 # things can be referred to. Nothing can act on them.
@@ -61,10 +70,10 @@ BACKDROP = {
 }
 
 AGENT_TOOLS = frozenset({
-    OBSERVE, NOOP, MOVE_OWN_STICKER, ANIMATE_OWN_STICKER,
+    OBSERVE, NOOP, MOVE_STICKER, ANIMATE_OWN_STICKER,
 })
 HUMAN_TOOLS = frozenset({
-    OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_OWN_STICKER, ANIMATE_OWN_STICKER,
+    OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_STICKER, ANIMATE_OWN_STICKER,
     REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER,
 })
 
@@ -93,15 +102,15 @@ def init(profile: str = "local-single-agent"):
     _last_receipt = None
     _counter = 0
 
-    _kernel = Kernel(PROFILES[profile], assets=ASSETS, anchors=SLOTS)
+    _kernel = Kernel(PROFILES[profile], assets=ASSETS, presets=SLOTS)
     _kernel.register_principal(Principal(HUMAN_ID, HUMAN, tools=HUMAN_TOOLS,
                                          delegable=frozenset()))
     _kernel.register_principal(Principal(AGENT_ID, AGENT, tools=AGENT_TOOLS,
                                          delegable=frozenset()))
     _kernel.place_sticker(StickerInstance(
-        "star-1", HUMAN_ID, HUMAN_ID, "star", 1, anchor="top-right"))
+        "star-1", HUMAN_ID, HUMAN_ID, "star", 1, x=0.8, y=0.2))
     _kernel.place_sticker(StickerInstance(
-        "butterfly-1", AGENT_ID, AGENT_ID, "butterfly", 1, anchor="top-left"))
+        "butterfly-1", AGENT_ID, AGENT_ID, "butterfly", 1, x=0.2, y=0.2))
     return _kernel
 
 
@@ -114,6 +123,12 @@ def action_table():
     return _kernel.available_actions(AGENT_ID) if _kernel else {}
 
 
+def _slot_of(x, y) -> str:
+    """The named position nearest a coordinate. Presentation only."""
+    return min(SLOTS, key=lambda n: (SLOTS[n][0] - x) ** 2
+               + (SLOTS[n][1] - y) ** 2)
+
+
 def _whats_in(slot: str):
     """(name, kind) of whatever occupies `slot`, or None if it is empty."""
     feature = BACKDROP["features"].get(slot)
@@ -122,7 +137,8 @@ def _whats_in(slot: str):
     if _kernel:
         for sid in _kernel.sticker_ids():
             sticker = _kernel.sticker(sid)
-            if sticker.anchor == slot and sticker.owner != AGENT_ID:
+            if _slot_of(sticker.x, sticker.y) == slot \
+                    and sticker.owner != AGENT_ID:
                 return sticker.asset, "a sticker the human placed"
     return None
 
@@ -134,7 +150,8 @@ def _neighbours() -> dict:
         for sid in _kernel.sticker_ids():
             sticker = _kernel.sticker(sid)
             if sticker.owner != AGENT_ID:
-                out.setdefault(sticker.anchor, sticker.asset)
+                out.setdefault(_slot_of(sticker.x, sticker.y),
+                               sticker.asset)
     return out
 
 
@@ -157,8 +174,9 @@ def describe_actions() -> dict:
             motion = command.param("animation")
             out[key] = "Animate %s: %s." % (
                 target, MOTION_SENSE.get(motion, "the '%s' motion" % motion))
-        elif command.action == MOVE_OWN_STICKER:
-            slot = command.param("anchor")
+        elif command.action == MOVE_STICKER:
+            slot = _slot_of(float(command.param("x")),
+                            float(command.param("y")))
             occupant = _whats_in(slot)
             if occupant:
                 name, kind = occupant
@@ -192,18 +210,18 @@ def scene() -> dict:
     for s in view["stickers"]:
         entry = {
             "is": s["asset"],
-            "in_slot": s["anchor"],
+            "in_slot": _slot_of(s["x"], s["y"]),
             "owned_by": "me" if s["mine"] else "the human",
             "i_may_change_it": bool(s["mine"]),
         }
         if s["mine"]:
             entry["motion"] = "still" if s["animation"] == "none" \
                 else s["animation"]
-            beside = neighbours.get(s["anchor"])
+            beside = neighbours.get(_slot_of(s["x"], s["y"]))
             entry["beside"] = beside if beside else "nothing"
             entry["not_beside"] = sorted(
                 name for slot, name in neighbours.items()
-                if slot != s["anchor"])
+                if slot != _slot_of(s["x"], s["y"]))
         stickers[s["id"]] = entry
     return {
         "backdrop": BACKDROP["description"],
@@ -226,9 +244,10 @@ def last_action_label() -> str:
     sticker = _kernel.sticker(r.object_id) if _kernel and r.object_id else None
     if sticker is None:
         return "the previous action was applied"
-    beside = _neighbours().get(sticker.anchor)
+    slot = _slot_of(sticker.x, sticker.y)
+    beside = _neighbours().get(slot)
     return ("the previous action was applied: %s is in the %s slot, beside %s, "
-            "motion %s" % (sticker.id, sticker.anchor, beside or "nothing",
+            "motion %s" % (sticker.id, slot, beside or "nothing",
                            "still" if sticker.animation == "none"
                            else sticker.animation))
 

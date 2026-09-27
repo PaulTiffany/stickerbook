@@ -97,14 +97,14 @@ for forged in ("ANIMATE:star-1:twinkle",       # human-owned object
 
 check("an empty key stages nothing at all", sb_bridge.stage("") is False)
 
-# Compare against the seeded state rather than a hard-coded anchor, so this
+# Compare against the seeded state rather than a hard-coded position, so this
 # stays a real invariant if the demo world is re-seeded.
 for landmark in ("star-1",):
     sticker = k.sticker(landmark)
     check("the human's %s is untouched by all of that" % landmark,
           sticker is not None and sticker.owner == sb_bridge.HUMAN_ID
           and sticker.animation == "none",
-          "%s at %s, motion %s" % (landmark, sticker.anchor, sticker.animation))
+          "%s at (%.2f, %.2f), motion %s" % (landmark, sticker.x, sticker.y, sticker.animation))
 
 print()
 print("=" * 70)

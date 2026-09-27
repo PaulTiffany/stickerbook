@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from stickerbook_core import (  # noqa: E402
     ADD_OWN_STICKER, AGENT, ANIMATE_OWN_STICKER, AssetDef, Command,
     CREATE_AGENT, HUMAN, Kernel, LOCAL_MULTI_AGENT, LOCAL_SINGLE_AGENT, NOOP,
-    MOVE_OWN_STICKER, OBSERVE, OPERATOR, PAGES_DEMO, Principal,
+    MOVE_STICKER, OBSERVE, OPERATOR, PAGES_DEMO, Principal,
     REMOVE_AGENT_STICKER, REMOVE_OWN_STICKER, StickerInstance,
 )
 
@@ -28,7 +28,7 @@ ASSETS = {
 }
 
 AGENT_TOOLS = frozenset({
-    OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_OWN_STICKER, ANIMATE_OWN_STICKER,
+    OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_STICKER, ANIMATE_OWN_STICKER,
     REMOVE_OWN_STICKER,
 })
 HUMAN_TOOLS = AGENT_TOOLS | {REMOVE_AGENT_STICKER}
@@ -36,15 +36,16 @@ HUMAN_TOOLS = AGENT_TOOLS | {REMOVE_AGENT_STICKER}
 
 def build(profile=LOCAL_SINGLE_AGENT, agent_tools=AGENT_TOOLS):
     """A world with one human-owned and one agent-owned sticker."""
-    k = Kernel(profile, assets=ASSETS)
+    k = Kernel(profile, assets=ASSETS,
+               presets={"far": (0.9, 0.9), "near": (0.1, 0.1)})
     k.register_principal(Principal("human:kid", HUMAN, tools=HUMAN_TOOLS))
     k.register_principal(Principal("operator", OPERATOR, tools=HUMAN_TOOLS))
     k.register_principal(Principal(
         "agent:jev", AGENT, tools=agent_tools, delegable=frozenset()))
     k.place_sticker(StickerInstance(
-        "lantern-h", "human:kid", "human:kid", "lantern", 1))
+        "lantern-h", "human:kid", "human:kid", "lantern", 1, x=0.2, y=0.2))
     k.place_sticker(StickerInstance(
-        "moth-a", "agent:jev", "agent:jev", "moth", 1))
+        "moth-a", "agent:jev", "agent:jev", "moth", 1, x=0.8, y=0.8))
     return k
 
 
@@ -52,11 +53,11 @@ class T01_AgentCannotModifyHumanSticker(unittest.TestCase):
 
     def test_01_agent_cannot_move_human_sticker(self):
         k = build()
-        r = k.propose(Command(MOVE_OWN_STICKER, "agent:jev", "c1",
-                              "lantern-h", (("anchor", "away"),)))
+        r = k.propose(Command(MOVE_STICKER, "agent:jev", "c1",
+                              "lantern-h", (("x", 0.7), ("y", 0.3))))
         self.assertFalse(r.accepted)
         self.assertEqual(r.reason, "not-owner")
-        self.assertEqual(k.sticker("lantern-h").anchor, "centre")
+        self.assertEqual(k.sticker("lantern-h").x, 0.2)
 
     def test_01b_agent_cannot_animate_human_sticker(self):
         k = build()
@@ -95,15 +96,15 @@ class T03_AgentCannotAlterOwnership(unittest.TestCase):
         k = build()
         before = k.sticker("moth-a").owner
         for params in ((("owner", "human:kid"),), (("created_by", "human:kid"),)):
-            k.propose(Command(MOVE_OWN_STICKER, "agent:jev", "c" + params[0][0],
-                              "moth-a", params + (("anchor", "away"),)))
+            k.propose(Command(MOVE_STICKER, "agent:jev", "c" + params[0][0],
+                              "moth-a", params + (("x", 0.7), ("y", 0.3))))
         self.assertEqual(k.sticker("moth-a").owner, before)
         self.assertEqual(k.sticker("moth-a").created_by, "agent:jev")
 
     def test_03b_created_sticker_is_owned_by_actor_not_by_request(self):
         k = build()
         r = k.propose(Command(ADD_OWN_STICKER, "agent:jev", "c1", None,
-                              (("asset", "moth"), ("owner", "human:kid"))))
+                              (("asset", "moth"), ("owner", "human:kid"), ("x", 0.4), ("y", 0.4))))
         self.assertTrue(r.accepted)
         self.assertEqual(k.sticker(r.object_id).owner, "agent:jev")
         self.assertEqual(k.sticker(r.object_id).created_by, "agent:jev")
@@ -133,25 +134,36 @@ class T04_UnknownActionRejects(unittest.TestCase):
 class T05_MalformedFieldsReject(unittest.TestCase):
 
     def test_05_argument_outside_bounded_domain(self):
+        """A position is bounded even though it is continuous."""
         k = build()
-        r = k.propose(Command(MOVE_OWN_STICKER, "agent:jev", "c1", "moth-a",
-                              (("anchor", "../../etc/passwd"),)))
-        self.assertFalse(r.accepted)
-        self.assertEqual(r.reason, "anchor-out-of-domain")
+        cases = [
+            ((("x", "../../etc/passwd"), ("y", 0.5)), "position-not-numeric"),
+            ((("x", 1.5), ("y", 0.5)), "position-out-of-page"),
+            ((("x", -0.01), ("y", 0.5)), "position-out-of-page"),
+            ((("x", float("nan")), ("y", 0.5)), "position-not-finite"),
+            ((("x", float("inf")), ("y", 0.5)), "position-not-finite"),
+            ((("y", 0.5),), "missing-position"),
+        ]
+        for i, (params, reason) in enumerate(cases):
+            with self.subTest(params=params):
+                r = k.propose(Command(MOVE_STICKER, "agent:jev", "c%d" % i,
+                                      "moth-a", params))
+                self.assertFalse(r.accepted)
+                self.assertEqual(r.reason, reason)
 
     def test_05b_missing_and_unknown_objects(self):
         k = build()
         self.assertEqual(
-            k.propose(Command(MOVE_OWN_STICKER, "agent:jev", "c1", None,
-                              (("anchor", "away"),))).reason, "missing-object")
+            k.propose(Command(MOVE_STICKER, "agent:jev", "c1", None,
+                              (("x", 0.7), ("y", 0.3)))).reason, "missing-object")
         self.assertEqual(
-            k.propose(Command(MOVE_OWN_STICKER, "agent:jev", "c2", "nope",
-                              (("anchor", "away"),))).reason, "unknown-object")
+            k.propose(Command(MOVE_STICKER, "agent:jev", "c2", "nope",
+                              (("x", 0.7), ("y", 0.3)))).reason, "unknown-object")
 
     def test_05c_unknown_asset(self):
         k = build()
         r = k.propose(Command(ADD_OWN_STICKER, "agent:jev", "c1", None,
-                              (("asset", "malware"),)))
+                              (("asset", "malware"), ("x", 0.4), ("y", 0.4))))
         self.assertFalse(r.accepted)
         self.assertEqual(r.reason, "unknown-asset")
 
@@ -195,24 +207,24 @@ class T07_StaleRevision(unittest.TestCase):
         observed = k.sticker("moth-a").revision       # agent observes here
         # The human (or anything else) changes the same object first.
         k.place_sticker(StickerInstance(
-            "moth-a", "agent:jev", "agent:jev", "moth", 1, anchor="top-left"))
-        r = k.propose(Command(MOVE_OWN_STICKER, "agent:jev", "c1", "moth-a",
-                              (("anchor", "away"),), based_on_revision=observed))
+            "moth-a", "agent:jev", "agent:jev", "moth", 1, x=0.1, y=0.1))
+        r = k.propose(Command(MOVE_STICKER, "agent:jev", "c1", "moth-a",
+                              (("x", 0.7), ("y", 0.3)), based_on_revision=observed))
         self.assertFalse(r.accepted)
         self.assertEqual(r.reason, "stale-revision")
-        self.assertEqual(k.sticker("moth-a").anchor, "top-left")
+        self.assertEqual(k.sticker("moth-a").x, 0.1)
 
     def test_07b_fresh_revision_is_accepted(self):
         k = build()
-        r = k.propose(Command(MOVE_OWN_STICKER, "agent:jev", "c1", "moth-a",
-                              (("anchor", "away"),),
+        r = k.propose(Command(MOVE_STICKER, "agent:jev", "c1", "moth-a",
+                              (("x", 0.7), ("y", 0.3)),
                               based_on_revision=k.revision))
         self.assertTrue(r.accepted, r.reason)
 
     def test_07c_revision_from_the_future_is_rejected(self):
         k = build()
-        r = k.propose(Command(MOVE_OWN_STICKER, "agent:jev", "c1", "moth-a",
-                              (("anchor", "away"),),
+        r = k.propose(Command(MOVE_STICKER, "agent:jev", "c1", "moth-a",
+                              (("x", 0.7), ("y", 0.3)),
                               based_on_revision=k.revision + 99))
         self.assertFalse(r.accepted)
         self.assertEqual(r.reason, "invalid-revision")
@@ -223,10 +235,10 @@ class T08_Idempotency(unittest.TestCase):
     def test_08_duplicate_command_id_does_not_duplicate_effect(self):
         k = build()
         first = k.propose(Command(ADD_OWN_STICKER, "agent:jev", "cmd-1", None,
-                                  (("asset", "moth"),)))
+                                  (("asset", "moth"), ("x", 0.4), ("y", 0.4))))
         count = len(k.sticker_ids())
         second = k.propose(Command(ADD_OWN_STICKER, "agent:jev", "cmd-1", None,
-                                   (("asset", "moth"),)))
+                                   (("asset", "moth"), ("x", 0.4), ("y", 0.4))))
         self.assertTrue(first.accepted)
         self.assertTrue(second.accepted)
         self.assertTrue(second.replayed)
@@ -240,8 +252,8 @@ class T09_T16_DisableAndStopPath(unittest.TestCase):
     def test_09_disabled_agent_cannot_mutate(self):
         k = build()
         k.set_enabled("agent:jev", False)
-        r = k.propose(Command(MOVE_OWN_STICKER, "agent:jev", "c1", "moth-a",
-                              (("anchor", "away"),)))
+        r = k.propose(Command(MOVE_STICKER, "agent:jev", "c1", "moth-a",
+                              (("x", 0.7), ("y", 0.3))))
         self.assertFalse(r.accepted)
         self.assertEqual(r.reason, "principal-disabled")
 
@@ -251,9 +263,9 @@ class T09_T16_DisableAndStopPath(unittest.TestCase):
         # not notified, and has no opportunity to object or interfere.
         k.set_enabled("agent:jev", False)
         self.assertEqual(k.available_actions("agent:jev"), {})
-        for action in (NOOP, MOVE_OWN_STICKER, ADD_OWN_STICKER):
+        for action in (NOOP, MOVE_STICKER, ADD_OWN_STICKER):
             r = k.propose(Command(action, "agent:jev", "c" + action, "moth-a",
-                                  (("anchor", "away"), ("asset", "moth"))))
+                                  (("x", 0.7), ("y", 0.3), ("asset", "moth"))))
             self.assertFalse(r.accepted)
 
     def test_16b_disable_fails_toward_less_authority(self):
@@ -315,13 +327,13 @@ class T12_ManifestCannotDeclareAuthority(unittest.TestCase):
             self.assertFalse(hasattr(asset, forbidden))
 
     def test_12b_declared_animation_does_not_grant_invocation_rights(self):
-        k = Kernel(LOCAL_SINGLE_AGENT,
+        k = Kernel(LOCAL_SINGLE_AGENT, presets={"far": (0.9, 0.9)},
                    assets={"trojan": Kernel.load_asset(
                        {"name": "trojan", "animations": ["none", "wiggle"]})})
         k.register_principal(Principal("human:kid", HUMAN, tools=HUMAN_TOOLS))
         k.register_principal(Principal("agent:jev", AGENT, tools=AGENT_TOOLS))
         k.place_sticker(StickerInstance(
-            "t-1", "human:kid", "human:kid", "trojan", 1))
+            "t-1", "human:kid", "human:kid", "trojan", 1, x=0.5, y=0.5))
         # The asset declares 'wiggle' exists. It does not decide who may run it.
         r = k.propose(Command(ANIMATE_OWN_STICKER, "agent:jev", "c1", "t-1",
                               (("animation", "wiggle"),)))
@@ -336,10 +348,10 @@ class T13_RendererCannotBypassKernel(unittest.TestCase):
         view = k.view("human:kid")
         for sticker in view["stickers"]:
             sticker["owner"] = "agent:jev"
-            sticker["anchor"] = "away"
+            sticker["x"] = 0.99
         view["stickers"].append({"id": "injected"})
         self.assertEqual(k.sticker("lantern-h").owner, "human:kid")
-        self.assertEqual(k.sticker("lantern-h").anchor, "centre")
+        self.assertEqual(k.sticker("lantern-h").x, 0.2)
         self.assertNotIn("injected", k.sticker_ids())
 
     def test_13b_a_hostile_raw_proposal_is_validated_identically(self):
@@ -357,7 +369,7 @@ class T14_ViewsDoNotExposeSecrets(unittest.TestCase):
         secret = "sk-or-v1-NOT-A-REAL-KEY-0123456789"
         k.set_secret("OPENROUTER_API_KEY", secret)
         k.propose(Command(ADD_OWN_STICKER, "agent:jev", "c1", None,
-                          (("asset", "moth"),)))
+                          (("asset", "moth"), ("x", 0.4), ("y", 0.4))))
         blob = repr(k.view("agent:jev")) + repr(k.view("human:kid")) + \
             repr([r.to_dict() for r in k.receipts])
         self.assertNotIn(secret, blob)
@@ -383,40 +395,41 @@ class T15_HumanRemovesAgentContent(unittest.TestCase):
 class T17_T18_DelegationLimits(unittest.TestCase):
 
     def _multi(self):
-        k = Kernel(LOCAL_MULTI_AGENT, assets=ASSETS)
+        k = Kernel(LOCAL_MULTI_AGENT, assets=ASSETS,
+                   presets={"far": (0.9, 0.9)})
         k.register_principal(Principal("human:kid", HUMAN, tools=HUMAN_TOOLS))
         k.register_principal(Principal(
             "agent:omega", AGENT,
-            tools=frozenset({OBSERVE, NOOP, CREATE_AGENT, MOVE_OWN_STICKER}),
-            delegable=frozenset({MOVE_OWN_STICKER, NOOP})))
+            tools=frozenset({OBSERVE, NOOP, CREATE_AGENT, MOVE_STICKER}),
+            delegable=frozenset({MOVE_STICKER, NOOP})))
         return k
 
     def test_17_child_cannot_exceed_parent_delegable(self):
         k = self._multi()
         r = k.propose(Command(CREATE_AGENT, "agent:omega", "c1", None, (
             ("child_id", "agent:child"),
-            ("tool", MOVE_OWN_STICKER),
+            ("tool", MOVE_STICKER),
             ("tool", ANIMATE_OWN_STICKER),    # parent cannot delegate this
             ("tool", REMOVE_AGENT_STICKER),   # parent does not even hold it
         )))
         self.assertTrue(r.accepted, r.reason)
         tools = k.effective_tools("agent:child")
-        self.assertIn(MOVE_OWN_STICKER, tools)
+        self.assertIn(MOVE_STICKER, tools)
         self.assertNotIn(ANIMATE_OWN_STICKER, tools)
         self.assertNotIn(REMOVE_AGENT_STICKER, tools)
 
     def test_17b_shrinking_the_parent_shrinks_the_child_immediately(self):
         k = self._multi()
         k.propose(Command(CREATE_AGENT, "agent:omega", "c1", None, (
-            ("child_id", "agent:child"), ("tool", MOVE_OWN_STICKER))))
-        self.assertIn(MOVE_OWN_STICKER, k.effective_tools("agent:child"))
+            ("child_id", "agent:child"), ("tool", MOVE_STICKER))))
+        self.assertIn(MOVE_STICKER, k.effective_tools("agent:child"))
         # Parent loses the right to delegate it; child loses it at once,
         # because effective authority is recomputed, never cached.
         k.register_principal(Principal(
             "agent:omega", AGENT,
             tools=frozenset({OBSERVE, NOOP, CREATE_AGENT}),
             delegable=frozenset({NOOP})))
-        self.assertNotIn(MOVE_OWN_STICKER, k.effective_tools("agent:child"))
+        self.assertNotIn(MOVE_STICKER, k.effective_tools("agent:child"))
 
     def test_18_agent_population_limit(self):
         k = self._multi()
@@ -435,7 +448,8 @@ class T17_T18_DelegationLimits(unittest.TestCase):
         self.assertEqual(accepted, LOCAL_MULTI_AGENT.max_agents - 1)
 
     def test_18b_delegation_depth_limit(self):
-        k = Kernel(LOCAL_MULTI_AGENT, assets=ASSETS)
+        k = Kernel(LOCAL_MULTI_AGENT, assets=ASSETS,
+                   presets={"far": (0.9, 0.9)})
         deep = LOCAL_MULTI_AGENT.max_delegation_depth
         k.register_principal(Principal(
             "agent:deep", AGENT,
@@ -483,13 +497,13 @@ class T19_T20_T21_NoAuthorityLaundering(unittest.TestCase):
         # Identical command, three different claimed requesters, including
         # the operator. The acting principal's policy governs in every case.
         for i, claimed in enumerate(["operator", "human:kid", "agent:omega"]):
-            r = k.propose(Command(MOVE_OWN_STICKER, "agent:jev", "c%d" % i,
-                                  "lantern-h", (("anchor", "away"),),
+            r = k.propose(Command(MOVE_STICKER, "agent:jev", "c%d" % i,
+                                  "lantern-h", (("x", 0.7), ("y", 0.3)),
                                   requested_by=claimed))
             self.assertFalse(r.accepted)
             self.assertEqual(r.reason, "not-owner")
             self.assertEqual(r.requested_by, claimed)   # recorded, not obeyed
-        self.assertEqual(k.sticker("lantern-h").anchor, "centre")
+        self.assertEqual(k.sticker("lantern-h").x, 0.2)
 
 
 class T22_Expiry(unittest.TestCase):
@@ -515,19 +529,19 @@ class DeploymentProfiles(unittest.TestCase):
 
     def test_pages_demo_rejects_every_agent_action(self):
         k = build(profile=PAGES_DEMO)
-        for action in (NOOP, OBSERVE, ADD_OWN_STICKER, MOVE_OWN_STICKER,
+        for action in (NOOP, OBSERVE, ADD_OWN_STICKER, MOVE_STICKER,
                        ANIMATE_OWN_STICKER, REMOVE_OWN_STICKER,
                        REMOVE_AGENT_STICKER, CREATE_AGENT):
             r = k.propose(Command(action, "agent:jev", "c" + action, "moth-a",
-                                  (("anchor", "away"), ("asset", "moth"),
+                                  (("x", 0.7), ("y", 0.3), ("asset", "moth"),
                                    ("animation", "flutter"))))
             self.assertFalse(r.accepted, action)
             self.assertEqual(r.reason, "action-not-in-effective-authority")
 
     def test_pages_demo_humans_are_unaffected(self):
         k = build(profile=PAGES_DEMO)
-        r = k.propose(Command(MOVE_OWN_STICKER, "human:kid", "c1", "lantern-h",
-                              (("anchor", "away"),)))
+        r = k.propose(Command(MOVE_STICKER, "human:kid", "c1", "lantern-h",
+                              (("x", 0.7), ("y", 0.3))))
         self.assertTrue(r.accepted, r.reason)
 
     def test_pages_demo_cannot_be_widened_by_granting_tools(self):
@@ -561,7 +575,7 @@ class ActionTableIntegrity(unittest.TestCase):
         accepted = 0
         for i in range(limit + 4):
             r = k.propose(Command(ADD_OWN_STICKER, "agent:jev", "c%d" % i,
-                                  None, (("asset", "moth"),)))
+                                  None, (("asset", "moth"), ("x", 0.4), ("y", 0.4))))
             if r.accepted:
                 accepted += 1
             else:
@@ -570,7 +584,7 @@ class ActionTableIntegrity(unittest.TestCase):
         k.begin_turn()
         self.assertTrue(k.propose(Command(
             ADD_OWN_STICKER, "agent:jev", "later", None,
-            (("asset", "moth"),))).accepted)
+            (("asset", "moth"), ("x", 0.4), ("y", 0.4)))).accepted)
 
     def test_read_only_actions_do_not_consume_budget(self):
         k = build()
@@ -583,15 +597,15 @@ class ReceiptSchema(unittest.TestCase):
     def test_receipt_carries_full_causal_provenance(self):
         k = build()
         based = k.revision
-        r = k.propose(Command(MOVE_OWN_STICKER, "agent:jev", "cmd-184",
-                              "moth-a", (("anchor", "near-lantern"),),
+        r = k.propose(Command(MOVE_STICKER, "agent:jev", "cmd-184",
+                              "moth-a", (("x", 0.7), ("y", 0.3)),
                               based_on_revision=based,
                               requested_by="agent:omega"))
         d = r.to_dict()
         self.assertEqual(d["commandId"], "cmd-184")
         self.assertEqual(d["actor"], "agent:jev")
         self.assertEqual(d["requestedBy"], "agent:omega")
-        self.assertEqual(d["action"], "move-own-sticker")
+        self.assertEqual(d["action"], "move-sticker")
         self.assertEqual(d["object"], "moth-a")
         self.assertEqual(d["basedOnRevision"], based)
         self.assertTrue(d["accepted"])
@@ -600,8 +614,8 @@ class ReceiptSchema(unittest.TestCase):
 
     def test_rejections_are_receipted_with_an_explicit_reason(self):
         k = build()
-        r = k.propose(Command(MOVE_OWN_STICKER, "agent:jev", "c1", "lantern-h",
-                              (("anchor", "away"),)))
+        r = k.propose(Command(MOVE_STICKER, "agent:jev", "c1", "lantern-h",
+                              (("x", 0.7), ("y", 0.3))))
         self.assertIn(r, k.receipts)
         self.assertFalse(r.to_dict()["accepted"])
         self.assertEqual(r.to_dict()["reason"], "not-owner")
@@ -616,3 +630,53 @@ class ReceiptSchema(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class ThePageBelongsToTheHuman(unittest.TestCase):
+    """The one authority change made for Milestone 1.
+
+    A human may move any sticker on their page, whatever its provenance
+    says. An agent is still confined to stickers it owns. Nothing else about
+    agent policy is settled here.
+    """
+
+    def test_human_may_move_an_agent_owned_sticker(self):
+        k = build()
+        self.assertEqual(k.sticker("moth-a").owner, "agent:jev")
+        r = k.propose(Command(MOVE_STICKER, "human:kid", "c1", "moth-a",
+                              (("x", 0.62), ("y", 0.31))))
+        self.assertTrue(r.accepted, r.reason)
+        self.assertAlmostEqual(k.sticker("moth-a").x, 0.62)
+        self.assertAlmostEqual(k.sticker("moth-a").y, 0.31)
+
+    def test_moving_does_not_transfer_ownership(self):
+        k = build()
+        k.propose(Command(MOVE_STICKER, "human:kid", "c1", "moth-a",
+                          (("x", 0.62), ("y", 0.31))))
+        self.assertEqual(k.sticker("moth-a").owner, "agent:jev")
+        self.assertEqual(k.sticker("moth-a").created_by, "agent:jev")
+
+    def test_an_agent_still_cannot_move_a_human_sticker(self):
+        k = build()
+        before = k.sticker("lantern-h").x
+        r = k.propose(Command(MOVE_STICKER, "agent:jev", "c1", "lantern-h",
+                              (("x", 0.62), ("y", 0.31))))
+        self.assertFalse(r.accepted)
+        self.assertEqual(r.reason, "not-owner")
+        self.assertEqual(k.sticker("lantern-h").x, before)
+
+    def test_an_operator_may_also_move_anything(self):
+        k = build()
+        r = k.propose(Command(MOVE_STICKER, "operator", "c1", "moth-a",
+                              (("x", 0.4), ("y", 0.4))))
+        self.assertTrue(r.accepted, r.reason)
+
+    def test_free_placement_anywhere_on_the_page(self):
+        """Not five dots: any in-bounds coordinate is a legal destination."""
+        k = build()
+        for i, (x, y) in enumerate([(0.0, 0.0), (1.0, 1.0), (0.337, 0.914),
+                                    (0.5, 0.5), (0.001, 0.999)]):
+            r = k.propose(Command(MOVE_STICKER, "human:kid", "p%d" % i,
+                                  "moth-a", (("x", x), ("y", y))))
+            self.assertTrue(r.accepted, "%s,%s -> %s" % (x, y, r.reason))
+            self.assertAlmostEqual(k.sticker("moth-a").x, x)
