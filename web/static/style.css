@@ -142,7 +142,7 @@ button:focus-visible, a:focus-visible, label:focus-within {
   width: clamp(48px, 7vmin, 68px);
   height: clamp(48px, 7vmin, 68px);
   border: 1px solid rgba(255,255,255,.36);
-  border-radius: 16px 16px 0 0;
+  border-radius: 16px;
   background: rgba(34, 45, 39, .14);
   color: rgba(255,255,255,.74);
   font-size: clamp(20px, 3vmin, 28px);
@@ -657,7 +657,7 @@ button:focus-visible, a:focus-visible, label:focus-within {
   align-items: stretch;
   overflow: hidden;
   border: 1px solid #cbbfab;
-  border-radius: 16px;
+  border-radius: 16px 16px 0 0;
   background: #fbf7ed;
   box-shadow:
     0 2px 0 rgba(120,102,76,.12),
