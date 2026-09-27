@@ -1,106 +1,159 @@
 # StickerBook
 
-An experiment in giving an AI agent bounded authority over a small creative
-world.
+StickerBook is an interactive scene system, building on AlphaClaw and Chalked,
+where users and agents manipulate persistent sticker objects with animation,
+state, and behavior. It uses Omega as the agent runtime, Jev for typed
+decision selection, and constrained multi-agent control interfaces for
+coordinating how stickers act within shared illustrated environments.
 
-StickerBook is intended to become a space where a human — potentially a child
-— and an agent place and animate stickers together. The reason it exists as a
-research project rather than an app is the hard part: **a child must not have
-to supervise an AI agent for the system to stay safe.** The boundary has to be
-architectural.
+The medium comes first: a person arranges stickers on a page, and machine
+agency may inhabit that shared surface without acquiring authority over it.
 
 > **Capability is not authority.**
-> More reasoning, memory, confidence, specialization, recursion or tool skill
+> More reasoning, memory, confidence, specialization, recursion, or tool skill
 > must never imply more authority.
 
 ## What exists today
 
-Two components. They are connected to each other, and to nothing else.
-
 | | |
 |---|---|
-| **`core/`** | A headless **authority kernel**: principals, sticker ownership, revisions, receipts, delegation ceilings, agent budgets, and per-turn generated legal-action tables. No renderer, no network, no model, standard library only. 53 tests. |
-| **`jev/`** | **OmegaJev**: an experiment replacing SingularityNET Omega's generative inference step with typed discriminative decisions (OpenRouter's Decisions API / Jev). The agent selects a key from a kernel-generated table; the kernel decides. 40 unit tests plus 4 container/host verification suites. |
+| **`core/`** | Headless authority kernel: principals, sticker ownership, revisions, receipts, deployment ceilings, action budgets, and legal-action tables. Standard library only. 67 tests. |
+| **`web/`** | The StickerBook surface: farm page, reusable StickerDefinitions, placed StickerInstances, drag/place/remove interaction, mechanical animation, book and sticker sheets, and a developer receipt view. The same renderer supports a governed localhost world and a mechanical public world. 52 bridge tests. |
+| **`jev/`** | OmegaJev: typed Jev decision selection inside a bounded Omega path. The model selects from host-provided legal choices; the host validates the choice and the kernel decides. 40 unit tests plus container/host verification suites. |
 
-## What does not exist yet
+## Public demo versus powered runtime
 
-No renderer. No browser UI. No GitHub Pages build. No sticker editor, no
-multi-agent delegation in a running system, no persistence. The page used in
-experiments is a passive backdrop, two backdrop features, and two stickers.
+These are deliberately different deployment profiles.
 
-Read the status markers in [`SECURITY.md`](SECURITY.md) before treating any
-statement there as a description of running software. It distinguishes
-*architectural requirement*, *implemented mechanism*, *verified test* and
-*known gap*, and that distinction is load-bearing.
+### GitHub Pages
 
-## The shape of it
+The public site is a **mechanical demonstration only**.
 
+It contains no Omega runtime, Jev model call, API key, Python bridge, authority
+kernel, privileged backend, or agent process. Dragging and animation are
+implemented deterministically in browser memory so the public site can show
+the StickerBook medium without pretending a live agent is present.
+
+The Pages workflow uses an allow-listed artifact containing only:
+
+- `index.html`
+- `static/app.js`
+- `static/style.css`
+- `.nojekyll`
+
+### Localhost
+
+The powered surface runs through `web/bridge.py`. The browser proposes an
+action; the Python authority kernel determines what actually happens and
+returns authoritative state plus a receipt.
+
+```text
+human gesture / agent choice
+          |
+          v
+     proposed action
+          |
+          v
+   authority kernel
+          |
+     accept / refuse
+          |
+          v
+ authoritative scene state
 ```
-kernel generates the legal actions   ->  {"MOVE:butterfly-1:centre": Command, ...}
-the agent selects a KEY              ->  "MOVE:butterfly-1:centre"
-the host stages it                   ->  single-use slot; staging is not authorization
-Omega executes one fixed command     ->  (sb-apply)   <- zero arguments
-the kernel decides                   ->  Receipt(accepted, actor, object, revision)
+
+Omega/Jev integration remains local and bounded. Models do not directly mutate
+the page.
+
+## The current interaction model
+
+The persistent child-facing surface is intentionally small:
+
+```text
++----------------------------------+
+|                                  |
+|           ACTIVE PAGE            |
+|                                  |
++------------------------------+---+
+|   sticker sheet / hot-bar    | book |
++------------------------------+---+
 ```
 
-The agent never constructs a command, an object id, a position or an
-animation name. In this mode Omega's entire executable vocabulary is one
-command with no argument position at all.
+The main gestures are:
 
-## Running the tests
+- drag a sticker from the sheet onto the page;
+- drag a placed sticker to move it;
+- drag a placed sticker back to the sheet to remove it;
+- double-tap a placed sticker to bring its declared mechanical animation to life;
+- open the sticker sheet to choose another design;
+- open the book to visit pages.
 
-The kernel needs nothing but Python:
+A StickerDefinition is a reusable design. A StickerInstance is one placement
+of that design on a page.
+
+## Security boundary
+
+The root [`SECURITY.md`](SECURITY.md) is the binding security model.
+
+The important invariant is not that an agent is "safe enough." It is that
+agent capability and execution are downstream of explicit authority. Jev
+selects from typed choices; Omega executes the bounded path; the kernel
+adjudicates.
+
+The public Pages build is intentionally outside that powered path.
+
+## Running locally
 
 ```bash
-cd core && python -m unittest discover -s tests      # 53 tests
-cd jev  && python -m unittest discover -s tests      # 40 tests
+cd web
+python bridge.py
+# open http://127.0.0.1:8756/
 ```
 
-The OmegaJev verification suites need Docker and a built image; see
-[`jev/SECURITY.md`](jev/SECURITY.md) §10 for the exact commands, and
-[`jev/EXPERIMENT.md`](jev/EXPERIMENT.md) for what has actually been observed,
-including results that were later retracted and why.
+Add `?dev=1` to show revision, acting principal, verdicts, and receipts.
+Add `?mechanical=1` to preview the public adapter locally.
 
-Upstream PeTTa/Omega is not vendored here. The exact commits tested are
-recorded in [`jev/VERSIONS.txt`](jev/VERSIONS.txt).
+## Tests
+
+```bash
+cd core && python -m unittest discover -s tests
+cd ../web && python -m unittest discover -s tests
+cd ../jev && python -m unittest discover -s tests
+```
+
+Browser JavaScript is also syntax-checked in GitHub Actions.
 
 ## Documents
 
 | File | What it is |
 |---|---|
-| [`SECURITY.md`](SECURITY.md) | The constitutional security model. Binding on all work here. |
-| [`core/README.md`](core/README.md) | The authority kernel. |
-| [`jev/SECURITY.md`](jev/SECURITY.md) | OmegaJev's enforced boundaries, with the evidence for each. |
-| [`jev/EXPERIMENT.md`](jev/EXPERIMENT.md) | What was tried, what happened, what is still unknown. |
-| [`docs/MEDIUM.md`](docs/MEDIUM.md) | What StickerBook is as a medium, and why the medium is the experiment. |
-| [`NOTICE`](NOTICE) | Third-party attributions, licenses, and the modifications made to upstream Omega. |
+| [`SECURITY.md`](SECURITY.md) | Constitutional security model and implementation status. |
+| [`docs/MEDIUM.md`](docs/MEDIUM.md) | Why the sticker-book medium is itself the experiment. |
+| [`core/README.md`](core/README.md) | Authority kernel. |
+| [`web/README.md`](web/README.md) | Current page/bridge behavior. |
+| [`jev/SECURITY.md`](jev/SECURITY.md) | OmegaJev boundaries and verification. |
+| [`jev/EXPERIMENT.md`](jev/EXPERIMENT.md) | Experimental record, including failures and retractions. |
+| [`NOTICE`](NOTICE) | Third-party attribution and upstream modifications. |
 
-## Status
+## Current direction
 
-Early and deliberately small. The security model is implemented and tested;
-the product is not built. Nothing here is packaged for use by anyone else
-yet, and the child-facing invariant — the one that matters most — is the
-least tested, because no child-facing surface exists.
+The immediate product problem is the shared scene, not more autonomous
+capability. The next useful integrations should make bounded agent behavior
+visible on the same surface already used by the human, while preserving human
+superiority and kernel adjudication.
+
+Sticker Maker, persistence, accounts, social discovery, generated art, and
+broader multi-agent delegation remain separate future work.
 
 ## Built on
 
-This project is a small experiment layered on substantial work by others.
+StickerBook draws from and experiments with several projects and prior design
+lines, including AlphaClaw, Chalked, SingularityNET Omega, PeTTa, OpenRouter,
+and TypeSafe Jev. See [`NOTICE`](NOTICE) and the relevant component documents
+for exact third-party licensing and version information.
 
-| Project | | |
-|---|---|---|
-| [SingularityNET Omega](https://github.com/singnet/Omega) | SingularityNET Foundation | Apache-2.0 |
-| [PeTTa](https://github.com/trueagi-io/PeTTa) | Patrick Hammer | MIT |
-| [petta_lib_chromadb](https://github.com/patham9/petta_lib_chromadb) | Patrick Hammer | no license file upstream |
-| [OpenRouter](https://openrouter.ai) Decisions API | | service |
-| TypeSafe Jev (`typesafe/jev-1.13`) | | model, via OpenRouter |
-| [SWI-Prolog](https://www.swi-prolog.org), [nginx](https://nginx.org) | | base images |
-
-Omega's source is **not** vendored here; it is cloned locally and excluded
-from this repository, and the experiment image applies a small set of
-documented modifications to it — including one upstream bug fix. Those
-modifications are enumerated in [`NOTICE`](NOTICE), as Apache-2.0 requires.
-The exact upstream commits tested are in
-[`jev/VERSIONS.txt`](jev/VERSIONS.txt).
+Omega's source is not vendored here. The tested upstream versions and local
+modifications are recorded under `jev/`.
 
 ## License
 
