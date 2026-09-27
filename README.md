@@ -44,6 +44,12 @@ ACTIVE PAGE
 The page gallery is thumbnail-first, like an image browser. The title page is
 itself the primary navigation target: touch the cover to open the page gallery.
 
+The current public mechanical book includes four visual pages from the asset
+manifest: **Farm, Beach, Park, and Space**. Each page keeps its own in-memory
+StickerInstances during the demo session. The governed localhost world still
+only exposes pages that the authority kernel actually implements; additional
+art does not silently create governed state.
+
 On an active page, the persistent bottom bar has three parts:
 
 ```text
