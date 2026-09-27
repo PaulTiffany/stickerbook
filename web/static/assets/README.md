@@ -41,26 +41,53 @@ StickerInstances remain separate objects on top of the background.
 
 ## Add or replace a sticker
 
-Store sticker artwork under `stickers/`. Sticker files should have a
-transparent background and should contain only the illustration itself.
-StickerBook supplies the white die-cut paper border and shadow.
+A sticker is a **visual package**, not necessarily one image.
 
-Example:
+Store sticker artwork under `stickers/`. Files should have transparent
+backgrounds and contain only the illustration itself. StickerBook supplies the
+white die-cut paper border and shadow.
+
+Manifest v2 represents each StickerDefinition as named clips:
 
 ```json
 "frog": {
-  "src": "static/assets/stickers/frog.svg",
-  "animation": "hop"
+  "default_clip": "idle",
+  "clips": {
+    "idle": {
+      "frames": [
+        "static/assets/stickers/frog.svg"
+      ],
+      "loop": false
+    },
+    "hop": {
+      "frames": [
+        "static/assets/stickers/frog/hop-01.png",
+        "static/assets/stickers/frog/hop-02.png",
+        "static/assets/stickers/frog/hop-03.png"
+      ],
+      "frame_ms": 110,
+      "loop": true,
+      "motion": "hop"
+    }
+  }
 }
 ```
 
-The key (`frog`) must match the StickerDefinition id exposed by the world.
-Replacing `frog.svg` replaces its visual art without changing authority,
-ownership, or behavior.
+A clip may contain one frame or many related images. Multi-frame clips are
+cycled by the browser. `frame_ms` controls frame duration and `loop`
+controls whether the clip repeats. `motion` optionally adds a whole-sticker
+movement such as `hop`, `flutter`, or `swim` while the image frames change.
 
-The manifest currently supports the visual source and a descriptive animation
-name. Runtime legality still comes from the world/kernel definition, not from
-this JSON file.
+The current built-in clips use one frame plus whole-object motion, but the
+schema is already ready for frame-by-frame animation produced by Sticker Maker.
+
+The key (`frog`) must match the StickerDefinition id exposed by the world.
+Replacing the files changes visual art without changing authority, ownership,
+or legal actions.
+
+Runtime legality still comes from the world/kernel StickerDefinition. The
+manifest describes how an already-legal state looks; it does not grant that
+state or action.
 
 ## Public deployment boundary
 
