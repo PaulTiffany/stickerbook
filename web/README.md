@@ -73,7 +73,8 @@ interface. It is intentionally not a powered Sticker Maker yet.
 
 - drag from hotbar to page: place a StickerInstance;
 - drag a placed sticker: move it;
-- drag a placed sticker back to the hotbar: remove it;
+- drag a placed sticker back to the hotbar: remove it from the page;
+- while the library is open, drag a hotbar sticker back into the library: remove it from the working sheet;
 - double-tap: toggle the definition's declared mechanical animation.
 
 Direct human manipulation suspends animation while the sticker is held.
