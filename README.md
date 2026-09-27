@@ -72,6 +72,7 @@ recorded in [`jev/VERSIONS.txt`](jev/VERSIONS.txt).
 | [`core/README.md`](core/README.md) | The authority kernel. |
 | [`jev/SECURITY.md`](jev/SECURITY.md) | OmegaJev's enforced boundaries, with the evidence for each. |
 | [`jev/EXPERIMENT.md`](jev/EXPERIMENT.md) | What was tried, what happened, what is still unknown. |
+| [`docs/MEDIUM.md`](docs/MEDIUM.md) | What StickerBook is as a medium, and why the medium is the experiment. |
 | [`NOTICE`](NOTICE) | Third-party attributions, licenses, and the modifications made to upstream Omega. |
 
 ## Status
