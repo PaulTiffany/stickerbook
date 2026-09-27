@@ -54,6 +54,12 @@ The sticker library floats above the page while leaving the hotbar available,
 so a child can drag a sticker thumbnail from the larger library into the
 working sheet.
 
+
+When a local conversational runtime is connected, the child-facing language
+interface is voice-first: a responsible adult may enable a small push-to-talk
+microphone for the current session. The text fallback stays inside the
+responsible-adult panel.
+
 The hotbar has three regions:
 
 ```text
@@ -84,6 +90,20 @@ The creator seam returns drafts only and does not mutate the authority kernel.
 - double-tap: toggle the definition's declared mechanical animation.
 
 Direct human manipulation suspends animation while the sticker is held.
+
+## Conversational / creator agent seams
+
+The browser has two non-authoritative agent endpoints:
+
+- `/api/agent/converse` returns language;
+- `/api/creator/draft` returns proposed asset/page draft metadata.
+
+Neither endpoint is a kernel command path. The runtime receives the fixed
+browser principal and a JSON scene view, not the kernel object. Machine actions
+still belong on the legal-choice / Jev / kernel path.
+
+The shipped `agent_runtime.py` is disabled and inert. It advertises no agent
+capabilities until a local runtime adapter is explicitly connected.
 
 ## Governed localhost path
 

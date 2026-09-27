@@ -153,6 +153,12 @@
       <span aria-hidden="true">+</span>
     </button>
   </div>
+
+  <button id="voice-orb" class="voice-orb" type="button" hidden
+          aria-label="Talk to StickerBook">
+    <span class="voice-orb-icon" aria-hidden="true">🎙️</span>
+    <span id="voice-orb-state" class="sr-only">ready</span>
+  </button>
 </main>
 
 <section id="sticker-overlay" class="sticker-overlay" hidden aria-label="Sticker library">
@@ -217,6 +223,27 @@
     <div class="eyebrow">Responsible adult / developer</div>
     <h2>StickerBook</h2>
     <p id="adult-world-note"></p>
+
+    <div id="agent-adult-controls" class="agent-adult-controls" hidden>
+      <label class="adult-toggle" for="voice-enable">
+        <input id="voice-enable" type="checkbox">
+        <span>Enable voice on this device</span>
+      </label>
+      <p id="voice-privacy-note" class="adult-note">
+        Voice is push-to-talk. Speech recognition may use your browser or device speech service.
+      </p>
+
+      <div id="adult-text-fallback" class="adult-text-fallback">
+        <label for="adult-chat-input">Text fallback</label>
+        <div class="adult-chat-row">
+          <input id="adult-chat-input" type="text" maxlength="2000"
+                 placeholder="Say something to StickerBook">
+          <button id="adult-chat-send" type="button">Send</button>
+        </div>
+        <div id="adult-chat-reply" class="adult-chat-reply" role="status"></div>
+      </div>
+    </div>
+
     <a id="dev-link" href="?dev=1">Developer receipts</a>
   </div>
 </section>
