@@ -170,6 +170,26 @@ package, not arbitrary generated runtime code.
 A StickerDefinition is a reusable design. A StickerInstance is one placement
 of that design on one page.
 
+## Conversational Omega and voice
+
+The child-facing page is voice-first rather than chat-first.
+
+A connected local conversational runtime can expose a small push-to-talk
+control, but voice is disabled by default and must be enabled for the current
+session from the responsible-adult panel. A text fallback exists there for
+accessibility and debugging rather than occupying the child's play surface.
+
+Conversation remains non-authoritative:
+
+**Omega talks. Jev chooses. The kernel decides.**
+
+The conversational endpoint receives validated text plus a normal JSON scene
+view, not the kernel object. Creator-agent drafts are similarly proposals, not
+installed assets or scene mutations.
+
+See [`docs/AGENT-INTERFACE.md`](docs/AGENT-INTERFACE.md) for the interface
+contract and voice/privacy boundary.
+
 ## Security boundary
 
 The root [`SECURITY.md`](SECURITY.md) is the binding security model.
@@ -208,6 +228,7 @@ Browser JavaScript is syntax-checked in GitHub Actions.
 |---|---|
 | [`SECURITY.md`](SECURITY.md) | Constitutional security model and implementation status. |
 | [`docs/MEDIUM.md`](docs/MEDIUM.md) | Why the sticker-book medium is itself the experiment. |
+| [`docs/AGENT-INTERFACE.md`](docs/AGENT-INTERFACE.md) | Conversational Omega, voice, creator drafts, and authority separation. |
 | [`core/README.md`](core/README.md) | Authority kernel. |
 | [`web/README.md`](web/README.md) | Browser, page, and bridge behavior. |
 | [`jev/SECURITY.md`](jev/SECURITY.md) | OmegaJev boundaries and verification. |
