@@ -49,7 +49,13 @@ BROWSER_PRINCIPAL = farm.HUMAN_ID
 
 CONTENT_TYPES = {".html": "text/html; charset=utf-8",
                  ".js": "text/javascript; charset=utf-8",
-                 ".css": "text/css; charset=utf-8"}
+                 ".css": "text/css; charset=utf-8",
+                 ".json": "application/json; charset=utf-8",
+                 ".svg": "image/svg+xml",
+                 ".png": "image/png",
+                 ".jpg": "image/jpeg",
+                 ".jpeg": "image/jpeg",
+                 ".webp": "image/webp"}
 
 MAX_BODY_BYTES = 8192
 
@@ -310,14 +316,30 @@ def make_handler(bridge: Bridge, quiet: bool = False):
             return self._send(200 if result.get("ok") else 400, result)
 
         def _static(self, name):
-            # Serve only the files we ship, by exact name.
-            safe = os.path.basename(name)
-            path = os.path.join(STATIC_DIR, safe)
-            if safe != name or not os.path.isfile(path):
+            # Root browser code remains exact-name only. Visual assets may live
+            # below static/assets/, but path resolution is contained there.
+            if name in ("index.html", "app.js", "style.css"):
+                path = os.path.join(STATIC_DIR, name)
+            elif name.startswith("assets/"):
+                asset_root = os.path.realpath(os.path.join(STATIC_DIR, "assets"))
+                relative = name[len("assets/"):]
+                path = os.path.realpath(os.path.join(asset_root, relative))
+                try:
+                    contained = os.path.commonpath((asset_root, path)) == asset_root
+                except ValueError:
+                    contained = False
+                if not relative or not contained:
+                    return self._send(404, {"error": "not found"})
+            else:
                 return self._send(404, {"error": "not found"})
-            ext = os.path.splitext(safe)[1]
+
+            if not os.path.isfile(path):
+                return self._send(404, {"error": "not found"})
+
+            ext = os.path.splitext(path)[1].lower()
             if ext not in CONTENT_TYPES:
                 return self._send(404, {"error": "not found"})
+
             with open(path, "rb") as handle:
                 self._send(200, handle.read(), CONTENT_TYPES[ext])
 

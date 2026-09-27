@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" role="img" aria-label="StickerBook cover with a bird, frog, butterfly and pond">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#77c7f0"/>
+      <stop offset="100%" stop-color="#eef9f6"/>
+    </linearGradient>
+    <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b2dc82"/>
+      <stop offset="100%" stop-color="#4f9f58"/>
+    </linearGradient>
+    <filter id="paper" x="-40%" y="-40%" width="180%" height="180%">
+      <feMorphology in="SourceAlpha" operator="dilate" radius="8" result="expand"/>
+      <feFlood flood-color="#fffdf5" result="white"/>
+      <feComposite in="white" in2="expand" operator="in" result="outline"/>
+      <feOffset in="expand" dy="5" result="off"/>
+      <feGaussianBlur in="off" stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#3f463e" flood-opacity=".28" result="shade"/>
+      <feComposite in="shade" in2="blur" operator="in" result="shadow"/>
+      <feMerge><feMergeNode in="shadow"/><feMergeNode in="outline"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1000" height="640" fill="url(#sky)"/>
+  <circle cx="888" cy="92" r="47" fill="#f8d76c"/>
+  <g opacity=".8" fill="#fff"><circle cx="760" cy="114" r="27"/><circle cx="798" cy="102" r="39"/><circle cx="838" cy="118" r="26"/></g>
+  <path d="M0 370Q130 285 295 350Q445 245 620 350Q790 270 1000 338V640H0Z" fill="#bedaa0"/>
+  <path d="M0 402Q180 330 365 395Q590 315 1000 392V640H0Z" fill="url(#grass)"/>
+  <g transform="translate(790 475)"><ellipse rx="150" ry="66" fill="#69b6d2" stroke="#4c9ebc" stroke-width="3"/><path d="M-95-5q45-14 85 0M30 18q35-10 68 0" fill="none" stroke="#bee7f3" stroke-width="4" stroke-linecap="round"/></g>
+  <g transform="translate(150 120)"><rect x="-18" y="45" width="36" height="210" rx="14" fill="#6b4b31"/><circle cx="0" cy="0" r="95" fill="#4f9256"/><circle cx="-72" cy="55" r="68" fill="#63a764"/><circle cx="78" cy="46" r="70" fill="#46844d"/></g>
+  <text x="500" y="145" text-anchor="middle" font-family="Arial Rounded MT Bold, Trebuchet MS, sans-serif" font-size="112" font-weight="900" letter-spacing="-6" fill="#0b5d89" stroke="#fff8e8" stroke-width="18" paint-order="stroke fill" filter="url(#paper)">Sticker<tspan fill="#f28a0a">Book</tspan></text>
+  <g transform="translate(490 295) scale(1.45) rotate(-7)" filter="url(#paper)">
+    <ellipse rx="34" ry="23" fill="#2e86c6" stroke="#185f91" stroke-width="2"/>
+    <ellipse cx="25" cy="-15" rx="15" ry="14" fill="#4da0da" stroke="#185f91" stroke-width="2"/>
+    <ellipse cx="12" cy="13" rx="23" ry="13" fill="#f4b166"/>
+    <path d="M-7-4Q-50-45-54-3Q-37 17-5 10Z" fill="#4b98d1" stroke="#185f91" stroke-width="2"/>
+    <path d="M38-13l16 6-16 5Z" fill="#ed8b24" stroke="#bf6d18"/>
+    <circle cx="29" cy="-18" r="2.5" fill="#1c2428"/>
+  </g>
+  <g transform="translate(650 505) scale(1.05)" filter="url(#paper)">
+    <ellipse cy="8" rx="31" ry="22" fill="#7bc85c" stroke="#407d39" stroke-width="2.2"/>
+    <ellipse cy="-9" rx="25" ry="18" fill="#82d264" stroke="#407d39" stroke-width="2.2"/>
+    <circle cx="-13" cy="-22" r="8" fill="#8ddd6b" stroke="#407d39" stroke-width="1.8"/>
+    <circle cx="13" cy="-22" r="8" fill="#8ddd6b" stroke="#407d39" stroke-width="1.8"/>
+    <circle cx="-13" cy="-23" r="3" fill="#202820"/><circle cx="13" cy="-23" r="3" fill="#202820"/>
+    <path d="M-11-5q11 9 22 0" fill="none" stroke="#355f33" stroke-width="2" stroke-linecap="round"/>
+    <ellipse cy="10" rx="17" ry="11" fill="#dff0b2"/>
+  </g>
+  <g transform="translate(850 320) scale(.9) rotate(10)" filter="url(#paper)">
+    <ellipse cx="-15" cy="-10" rx="17" ry="21" fill="#f19a38" stroke="#563d30" stroke-width="2"/>
+    <ellipse cx="15" cy="-10" rx="17" ry="21" fill="#f19a38" stroke="#563d30" stroke-width="2"/>
+    <ellipse cx="-12" cy="13" rx="13" ry="15" fill="#f6be5e" stroke="#563d30" stroke-width="2"/>
+    <ellipse cx="12" cy="13" rx="13" ry="15" fill="#f6be5e" stroke="#563d30" stroke-width="2"/>
+    <rect x="-3" y="-23" width="6" height="46" rx="3" fill="#46352b"/>
+  </g>
+</svg>

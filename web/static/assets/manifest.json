@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "cover": {
+    "src": "static/assets/cover.svg",
+    "show_title": false,
+    "alt": "StickerBook cover with a bird, frog, butterfly and pond"
+  },
+  "pages": {
+    "farm": {
+      "src": "static/assets/pages/farm.svg",
+      "thumbnail": "static/assets/pages/farm.svg",
+      "alt": "Sunny farm with barn, tree, pond and fence"
+    }
+  },
+  "stickers": {
+    "bird": {
+      "src": "static/assets/stickers/bird.svg",
+      "animation": "flutter"
+    },
+    "butterfly": {
+      "src": "static/assets/stickers/butterfly.svg",
+      "animation": "flutter"
+    },
+    "frog": {
+      "src": "static/assets/stickers/frog.svg",
+      "animation": "hop"
+    },
+    "fish": {
+      "src": "static/assets/stickers/fish.svg",
+      "animation": "swim"
+    },
+    "flower": {
+      "src": "static/assets/stickers/flower.svg",
+      "animation": "sway"
+    },
+    "cloud": {
+      "src": "static/assets/stickers/cloud.svg",
+      "animation": "drift"
+    },
+    "cow": {
+      "src": "static/assets/stickers/cow.svg",
+      "animation": "chew"
+    },
+    "duck": {
+      "src": "static/assets/stickers/duck.svg",
+      "animation": "paddle"
+    },
+    "hen": {
+      "src": "static/assets/stickers/hen.svg",
+      "animation": "peck"
+    }
+  }
+}

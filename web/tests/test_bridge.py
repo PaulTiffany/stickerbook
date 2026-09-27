@@ -101,6 +101,29 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             self.assertIn(marker, page)
         self.assertNotIn(b'id="book-screen"', page)
 
+    def test_manifest_driven_visual_assets_are_served(self):
+        cases = (
+            ("/static/assets/manifest.json", "application/json"),
+            ("/static/assets/cover.svg", "image/svg+xml"),
+            ("/static/assets/pages/farm.svg", "image/svg+xml"),
+            ("/static/assets/stickers/frog.svg", "image/svg+xml"),
+        )
+        for path, content_type in cases:
+            with urllib.request.urlopen(self.url(path), timeout=5) as r:
+                self.assertEqual(r.status, 200)
+                self.assertTrue(r.headers["Content-Type"].startswith(content_type))
+                self.assertTrue(r.read())
+
+    def test_asset_path_cannot_escape_the_asset_directory(self):
+        request = urllib.request.Request(
+            self.url("/static/assets/../app.js"), method="GET")
+        try:
+            urllib.request.urlopen(request, timeout=5)
+        except urllib.error.HTTPError as exc:
+            self.assertEqual(exc.code, 404)
+        else:
+            self.fail("asset traversal unexpectedly succeeded")
+
     def test_each_sticker_carries_its_authoritative_position(self):
         _, state = self.get("/api/state")
         for s in state["stickers"]:
