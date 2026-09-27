@@ -18,9 +18,9 @@ screen it will be letterboxed rather than cropped:
   "alt": "StickerBook cover",
   "variants": {
     "landscape": {
-      "src": "static/assets/cover.svg",
-      "width": 1000,
-      "height": 640
+      "src": "static/assets/cover-landscape.svg",
+      "width": 1672,
+      "height": 941
     }
   }
 }
@@ -35,14 +35,14 @@ landscape version:
   "alt": "StickerBook cover",
   "variants": {
     "landscape": {
-      "src": "static/assets/cover.svg",
+      "src": "static/assets/cover-landscape.svg",
       "width": 1000,
       "height": 640
     },
     "portrait": {
-      "src": "static/assets/cover-portrait.svg",
-      "width": 640,
-      "height": 1000
+      "src": "static/assets/cover-vertical.svg",
+      "width": 941,
+      "height": 1672
     }
   }
 }
