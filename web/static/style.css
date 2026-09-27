@@ -698,6 +698,51 @@ button:focus-visible, a:focus-visible, label:focus-within {
   filter: saturate(1.15) brightness(.98);
 }
 
+.voice-orb {
+  position: fixed;
+  z-index: 76;
+  right: max(18px, calc(env(safe-area-inset-right) + 12px));
+  top: max(18px, calc(env(safe-area-inset-top) + 12px));
+  width: clamp(54px, 7vmin, 68px);
+  height: clamp(54px, 7vmin, 68px);
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 50%;
+  background: rgba(255,253,247,.88);
+  box-shadow: 0 8px 24px rgba(42,53,45,.18);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(6px);
+  transition: transform .14s ease, background .14s ease, box-shadow .14s ease;
+}
+
+.voice-orb:hover,
+.voice-orb:focus-visible {
+  transform: translateY(-2px);
+}
+
+.voice-orb.listening {
+  background: #eef8ee;
+  box-shadow:
+    0 0 0 6px rgba(53,173,98,.16),
+    0 10px 28px rgba(42,53,45,.20);
+}
+
+.voice-orb.speaking {
+  background: #eef4fb;
+  box-shadow:
+    0 0 0 6px rgba(91,157,198,.16),
+    0 10px 28px rgba(42,53,45,.20);
+}
+
+.voice-orb.error {
+  background: #fff0ed;
+}
+
+.voice-orb-icon {
+  font-size: clamp(24px, 3.5vmin, 32px);
+}
+
 .tray-zone {
   position: relative;
   min-width: 0;
@@ -958,6 +1003,75 @@ button:focus-visible, a:focus-visible, label:focus-within {
   margin-top: 6px;
   color: #376d8c;
   font-weight: 750;
+}
+
+.agent-adult-controls {
+  margin: 18px 0 12px;
+  padding: 14px;
+  border: 1px solid #d8cebe;
+  border-radius: 14px;
+  background: #f8f3e9;
+}
+
+.adult-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.adult-toggle input {
+  width: 18px;
+  height: 18px;
+}
+
+.adult-note {
+  margin: 7px 0 12px !important;
+  font-size: 12px;
+}
+
+.adult-text-fallback {
+  display: grid;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.adult-text-fallback > label {
+  color: #5f685e;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.adult-chat-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 7px;
+}
+
+.adult-chat-row input {
+  min-width: 0;
+  border: 1px solid #cbbfac;
+  border-radius: 10px;
+  background: #fffdf8;
+  padding: 9px 10px;
+  color: var(--ink);
+}
+
+.adult-chat-row button {
+  border: 0;
+  border-radius: 10px;
+  background: #557e5a;
+  color: white;
+  padding: 0 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.adult-chat-reply {
+  min-height: 1.4em;
+  color: #59665d;
+  font-size: 12.5px;
 }
 
 /* ------------------------------------------------------------ developer */
