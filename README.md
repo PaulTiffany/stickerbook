@@ -115,6 +115,20 @@ human gesture / agent choice
 Omega/Jev integration remains local and bounded. Models do not directly mutate
 the page.
 
+## Visual asset system
+
+Cover art, page backgrounds, and sticker illustrations are now replaceable
+files under `web/static/assets/`, selected by
+`web/static/assets/manifest.json`.
+
+That means art can be replaced without editing browser logic. For example,
+replacing a frog is a file/manifest operation; the StickerDefinition id,
+ownership, legal actions, and kernel authority remain separate.
+
+See [`web/static/assets/README.md`](web/static/assets/README.md) for exact
+instructions for replacing the cover, adding a page background, or adding a
+sticker asset.
+
 ## Page and sticker creation
 
 The page gallery contains a simple **+ Make a page** route into an
