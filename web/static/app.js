@@ -1,13 +1,18 @@
 // StickerBook front end.
 //
-// One surface, two world adapters:
+// Child-facing navigation:
+//   cover -> page gallery -> page
+//                          -> page creator
 //
-//   local kernel       -> the browser proposes; Python decides.
-//   public mechanical  -> deterministic in-memory behavior for GitHub Pages.
+// On a page, the sticker library floats above the world. The hotbar is the
+// child's working sticker sheet: library -> sheet -> page.
 //
-// The public adapter deliberately contains no agent, credential, model call,
-// privileged backend, or hidden authority. It only preserves the same state
-// shape so the public demo and governed localhost world share one renderer.
+// Two world adapters remain intentionally separate:
+//   localhost       -> Python authority kernel decides
+//   GitHub Pages    -> deterministic in-memory mechanical demo
+//
+// The public adapter contains no live agent, model call, credential, kernel,
+// Python bridge, or privileged backend.
 
 const PAGE_W = 1000;
 const PAGE_H = 640;
@@ -16,20 +21,33 @@ const DEV = QUERY.get("dev") === "1";
 const FORCE_MECHANICAL = QUERY.get("mechanical") === "1";
 const LOCAL_HOST = ["localhost", "127.0.0.1", "::1"].includes(location.hostname);
 
+const screens = {
+  cover: document.getElementById("cover-screen"),
+  gallery: document.getElementById("gallery-screen"),
+  creator: document.getElementById("page-creator-screen"),
+  play: document.getElementById("play-screen"),
+};
+
 const svg = document.getElementById("page");
 const layers = {
   picture: document.getElementById("picture"),
   stickers: document.getElementById("stickers"),
   placement: document.getElementById("placement-layer"),
 };
+
+const coverPicture = document.getElementById("cover-picture");
+const coverDecor = document.getElementById("cover-decor");
 const hotbar = document.getElementById("hotbar");
+const trayZone = document.getElementById("tray-zone");
 const trayItems = document.getElementById("tray-items");
-const sheets = {
-  book: document.getElementById("book-screen"),
-  stickers: document.getElementById("sticker-screen"),
-};
+const trayEmpty = document.getElementById("tray-empty");
+const stickerOverlay = document.getElementById("sticker-overlay");
+const stickerLibraryGrid = document.getElementById("sticker-library-grid");
+const stickerLibraryView = document.getElementById("sticker-library-view");
+const stickerMakerView = document.getElementById("sticker-maker-view");
+const adultPanel = document.getElementById("adult-panel");
 const status = document.getElementById("a11y-status");
-const worldNote = document.getElementById("world-note");
+
 const dev = {
   panel: document.getElementById("dev"),
   mode: document.getElementById("world-mode"),
@@ -41,12 +59,15 @@ const dev = {
 
 let state = null;
 let seq = 0;
-let traySignature = "";
 let pendingDefinition = null;
 let placementPreview = null;
 let lastTap = { id: null, at: 0 };
+let hotbarKinds = [];
+let bookCache = null;
+let pagePreviewUrl = null;
+let stickerPreviewUrl = null;
 
-const nextId = (kind) => `ui-${kind}-${Date.now()}-${++seq}`;
+const nextId = (kind) => "ui-" + kind + "-" + Date.now() + "-" + (++seq);
 const copy = (value) => JSON.parse(JSON.stringify(value));
 
 const el = (name, attrs = {}) => {
@@ -66,13 +87,10 @@ const DEMO_BOOK = {
     {
       id: "farm",
       name: "The Farm",
-      summary: "A barn, a pond, a tree and a fence.",
+      summary: "Barn, pond, tree and fence.",
     },
   ],
-  coming: [
-    { id: "new-page", label: "New Page" },
-    { id: "find-pages", label: "Find Pages" },
-  ],
+  coming: [],
 };
 
 const DEMO_SEED = {
@@ -89,7 +107,12 @@ const DEMO_SEED = {
     ],
   },
   definitions: [
+    { id: "bird", animations: ["none", "flutter"] },
     { id: "butterfly", animations: ["none", "flutter"] },
+    { id: "frog", animations: ["none", "hop"] },
+    { id: "fish", animations: ["none", "swim"] },
+    { id: "flower", animations: ["none", "sway"] },
+    { id: "cloud", animations: ["none", "drift"] },
     { id: "cow", animations: ["none", "chew"] },
     { id: "duck", animations: ["none", "paddle"] },
     { id: "hen", animations: ["none", "peck"] },
@@ -108,8 +131,8 @@ const DEMO_SEED = {
     {
       id: "butterfly-1",
       definition: "butterfly",
-      x: 0.52,
-      y: 0.38,
+      x: 0.58,
+      y: 0.34,
       owner: "agent:jev-visual-1",
       mine: false,
       animation: "none",
@@ -148,11 +171,7 @@ function createMechanicalWorld() {
     };
     receipts.push(receipt);
     receipts = receipts.slice(-24);
-    return {
-      ok: true,
-      receipt: copy(receipt),
-      state: copy(worldState),
-    };
+    return { ok: true, receipt: copy(receipt), state: copy(worldState) };
   };
 
   const refuse = (action, object, reason) => {
@@ -165,11 +184,7 @@ function createMechanicalWorld() {
     };
     receipts.push(receipt);
     receipts = receipts.slice(-24);
-    return {
-      ok: true,
-      receipt: copy(receipt),
-      state: copy(worldState),
-    };
+    return { ok: true, receipt: copy(receipt), state: copy(worldState) };
   };
 
   return {
@@ -189,7 +204,7 @@ function createMechanicalWorld() {
         if (!def || !pointOkay(body.point)) {
           return refuse("add-own-sticker", null, "invalid-demo-proposal");
         }
-        const id = `${body.asset}-demo-${++instanceSeq}`;
+        const id = body.asset + "-demo-" + (++instanceSeq);
         return commit("add-own-sticker", id, (revision) => {
           worldState.stickers.push({
             id,
@@ -234,7 +249,9 @@ function createMechanicalWorld() {
           return refuse("animate-own-sticker", body.sticker, "unknown-sticker");
         }
         const def = definition(target.definition);
-        const alive = (def?.animations || []).find((name) => name !== "none");
+        const alive = (def && def.animations || []).find(
+          (name) => name !== "none"
+        );
         if (!alive) {
           return refuse("animate-own-sticker", target.id, "no-animation");
         }
@@ -251,32 +268,32 @@ function createMechanicalWorld() {
 
 const kernelWorld = {
   name: "local kernel",
+
   async state() {
     const res = await fetch("/api/state", { cache: "no-store" });
-    if (!res.ok) throw new Error(`state: HTTP ${res.status}`);
+    if (!res.ok) throw new Error("state: HTTP " + res.status);
     return res.json();
   },
+
   async book() {
     const res = await fetch("/api/book", { cache: "no-store" });
-    if (!res.ok) throw new Error(`book: HTTP ${res.status}`);
+    if (!res.ok) throw new Error("book: HTTP " + res.status);
     return res.json();
   },
+
   async receipts() {
     const res = await fetch("/api/receipts", { cache: "no-store" });
-    if (!res.ok) throw new Error(`receipts: HTTP ${res.status}`);
+    if (!res.ok) throw new Error("receipts: HTTP " + res.status);
     return res.json();
   },
+
   async send(path, body) {
     const res = await fetch(path, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    const payload = await res.json();
-    if (!res.ok && !payload.receipt) {
-      return payload;
-    }
-    return payload;
+    return res.json();
   },
 };
 
@@ -284,7 +301,7 @@ let world = (!FORCE_MECHANICAL && LOCAL_HOST)
   ? kernelWorld
   : createMechanicalWorld();
 
-// ---------------------------------------------------------------- picture
+// --------------------------------------------------------------- picture
 
 const PICTURE = {
   barn(g) {
@@ -315,13 +332,15 @@ const PICTURE = {
     g.appendChild(el("rect", {
       x: -9, y: 8, width: 18, height: 56, rx: 4, fill: "#76553b",
     }));
-    for (const [cx, cy, r, fill] of [
+    for (const item of [
       [0, -18, 47, "#53965a"],
       [-30, 4, 30, "#65a966"],
       [31, 3, 29, "#498b50"],
       [7, 12, 32, "#5da260"],
     ]) {
-      g.appendChild(el("circle", { cx, cy, r, fill }));
+      g.appendChild(el("circle", {
+        cx: item[0], cy: item[1], r: item[2], fill: item[3],
+      }));
     }
   },
 
@@ -337,7 +356,7 @@ const PICTURE = {
     }));
     for (const x of [-76, 79]) {
       g.appendChild(el("path", {
-        d: `M ${x} 26 q -8 -26 1 -43 M ${x + 7} 24 q -2 -23 8 -37`,
+        d: "M " + x + " 26 q -8 -26 1 -43 M " + (x + 7) + " 24 q -2 -23 8 -37",
         fill: "none", stroke: "#527f4a", "stroke-width": 4,
         "stroke-linecap": "round",
       }));
@@ -360,68 +379,109 @@ const PICTURE = {
   },
 };
 
-function cloud(x, y, scale = 1) {
+function cloudNode(x, y, scale, fill) {
   const g = el("g", {
-    transform: `translate(${x} ${y}) scale(${scale})`,
-    opacity: .84,
+    transform: "translate(" + x + " " + y + ") scale(" + scale + ")",
+    opacity: .86,
   });
-  for (const [cx, cy, r] of [
+  for (const item of [
     [-28, 5, 17], [-8, -4, 24], [18, 2, 20], [38, 8, 13],
   ]) {
-    g.appendChild(el("circle", { cx, cy, r, fill: "#ffffff" }));
+    g.appendChild(el("circle", {
+      cx: item[0], cy: item[1], r: item[2], fill: fill || "#ffffff",
+    }));
   }
   return g;
 }
 
-function drawPicture(picture) {
-  layers.picture.replaceChildren();
+function drawScene(target, picture, mode) {
+  target.replaceChildren();
 
-  layers.picture.appendChild(el("rect", {
-    x: 0, y: 0, width: PAGE_W, height: PAGE_H,
-    fill: "url(#sky)",
+  const skyFill = mode === "cover"
+    ? "url(#cover-sky)"
+    : mode === "play"
+      ? "url(#sky)"
+      : "#bfe5f4";
+
+  const grassFill = mode === "cover"
+    ? "url(#cover-grass)"
+    : mode === "play"
+      ? "url(#grass)"
+      : "#82b96c";
+
+  target.appendChild(el("rect", {
+    x: 0, y: 0, width: PAGE_W, height: PAGE_H, fill: skyFill,
   }));
 
-  layers.picture.appendChild(cloud(230, 92, 1.05));
-  layers.picture.appendChild(cloud(680, 118, .72));
+  target.appendChild(cloudNode(210, 92, 1.05));
+  target.appendChild(cloudNode(700, 112, .72));
 
-  layers.picture.appendChild(el("circle", {
-    cx: 878, cy: 85, r: 43, fill: "#f7d873", opacity: .94,
+  target.appendChild(el("circle", {
+    cx: 870, cy: 84, r: 44, fill: "#f8d86f", opacity: .95,
   }));
 
-  layers.picture.appendChild(el("path", {
-    d: "M 0 360 Q 150 275 320 350 Q 480 250 660 345 Q 825 275 1000 338 L 1000 640 L 0 640 Z",
-    fill: "#b9d79b",
-  }));
-  layers.picture.appendChild(el("path", {
-    d: "M 0 390 Q 190 335 380 395 Q 605 315 1000 388 L 1000 640 L 0 640 Z",
-    fill: "url(#grass)",
+  target.appendChild(el("path", {
+    d: "M 0 365 Q 155 275 325 350 Q 495 250 665 346 Q 825 275 1000 338 L 1000 640 L 0 640 Z",
+    fill: mode === "cover" ? "#b7d898" : "#b9d79b",
   }));
 
-  const flowers = [
+  target.appendChild(el("path", {
+    d: "M 0 395 Q 190 335 380 397 Q 610 315 1000 390 L 1000 640 L 0 640 Z",
+    fill: grassFill,
+  }));
+
+  for (const item of [
     [360, 490], [410, 542], [601, 475], [685, 535], [895, 480],
     [85, 522], [126, 570], [520, 586], [760, 445],
-  ];
-  for (const [x, y] of flowers) {
-    const g = el("g", { transform: `translate(${x} ${y})`, opacity: .82 });
+  ]) {
+    const g = el("g", {
+      transform: "translate(" + item[0] + " " + item[1] + ")",
+      opacity: .82,
+    });
     g.appendChild(el("circle", { r: 4.5, fill: "#fff4d6" }));
     g.appendChild(el("circle", { cx: -4, cy: 0, r: 2.6, fill: "#f6a9bd" }));
     g.appendChild(el("circle", { cx: 4, cy: 0, r: 2.6, fill: "#f6a9bd" }));
     g.appendChild(el("circle", { cx: 0, cy: -4, r: 2.6, fill: "#f6a9bd" }));
-    layers.picture.appendChild(g);
+    target.appendChild(g);
   }
 
   for (const feature of picture.features || []) {
     const g = el("g", {
-      transform: `translate(${feature.x * PAGE_W} ${feature.y * PAGE_H})`,
+      transform: "translate(" + (feature.x * PAGE_W) + " " +
+        (feature.y * PAGE_H) + ")",
     });
     (PICTURE[feature.id] || (() => {}))(g);
-    layers.picture.appendChild(g);
+    target.appendChild(g);
   }
 }
 
-// --------------------------------------------------------------- stickers
+// --------------------------------------------------------------- sticker art
 
 const ART = {
+  bird(g) {
+    g.appendChild(el("ellipse", {
+      cx: 0, cy: 2, rx: 34, ry: 23,
+      fill: "#2e86c6", stroke: "#185f91", "stroke-width": 2,
+    }));
+    g.appendChild(el("ellipse", {
+      cx: 25, cy: -15, rx: 15, ry: 14,
+      fill: "#4da0da", stroke: "#185f91", "stroke-width": 2,
+    }));
+    g.appendChild(el("ellipse", {
+      cx: 12, cy: 13, rx: 23, ry: 13,
+      fill: "#f4b166", opacity: .95,
+    }));
+    g.appendChild(el("path", {
+      d: "M -7 -4 Q -50 -45 -54 -3 Q -37 17 -5 10 Z",
+      fill: "#4b98d1", stroke: "#185f91", "stroke-width": 2,
+    }));
+    g.appendChild(el("path", {
+      d: "M 38 -13 l 16 6 l -16 5 z",
+      fill: "#ed8b24", stroke: "#bf6d18", "stroke-width": 1.2,
+    }));
+    g.appendChild(el("circle", { cx: 29, cy: -18, r: 2.5, fill: "#1c2428" }));
+  },
+
   cow(g) {
     g.appendChild(el("ellipse", {
       cx: -2, cy: 1, rx: 43, ry: 28,
@@ -453,31 +513,28 @@ const ART = {
   butterfly(g) {
     g.appendChild(el("ellipse", {
       cx: -15, cy: -10, rx: 17, ry: 21,
-      fill: "#e99bc3", stroke: "#b96393", "stroke-width": 1.8,
+      fill: "#f19a38", stroke: "#563d30", "stroke-width": 2,
     }));
     g.appendChild(el("ellipse", {
       cx: 15, cy: -10, rx: 17, ry: 21,
-      fill: "#e99bc3", stroke: "#b96393", "stroke-width": 1.8,
+      fill: "#f19a38", stroke: "#563d30", "stroke-width": 2,
     }));
     g.appendChild(el("ellipse", {
       cx: -12, cy: 13, rx: 13, ry: 15,
-      fill: "#f4bfd8", stroke: "#b96393", "stroke-width": 1.8,
+      fill: "#f6be5e", stroke: "#563d30", "stroke-width": 2,
     }));
     g.appendChild(el("ellipse", {
       cx: 12, cy: 13, rx: 13, ry: 15,
-      fill: "#f4bfd8", stroke: "#b96393", "stroke-width": 1.8,
+      fill: "#f6be5e", stroke: "#563d30", "stroke-width": 2,
     }));
     g.appendChild(el("rect", {
-      x: -3, y: -23, width: 6, height: 46, rx: 3, fill: "#5a4634",
+      x: -3, y: -23, width: 6, height: 46, rx: 3, fill: "#46352b",
     }));
     g.appendChild(el("path", {
       d: "M -2 -21 q -11 -15 -18 -9 M 2 -21 q 11 -15 18 -9",
-      fill: "none", stroke: "#5a4634", "stroke-width": 1.8,
+      fill: "none", stroke: "#46352b", "stroke-width": 1.8,
       "stroke-linecap": "round",
     }));
-    for (const x of [-15, 15]) {
-      g.appendChild(el("circle", { cx: x, cy: -9, r: 4, fill: "#f7d66e" }));
-    }
   },
 
   duck(g) {
@@ -511,22 +568,95 @@ const ART = {
       fill: "#e9c69a", stroke: "#9e7045", "stroke-width": 2.2,
     }));
     g.appendChild(el("path", {
-      d: "M 11 -29 q 5 -9 10 0 q 5 -8 9 1 z",
-      fill: "#c64d42",
+      d: "M 11 -29 q 5 -9 10 0 q 5 -8 9 1 z", fill: "#c64d42",
     }));
     g.appendChild(el("path", {
       d: "M 29 -14 l 13 3 l -13 5 z", fill: "#eea33b",
     }));
     g.appendChild(el("circle", { cx: 22, cy: -19, r: 2.2, fill: "#34322f" }));
-    g.appendChild(el("path", {
-      d: "M -27 0 q -14 7 -5 18 q 12 -1 14 -11 z",
-      fill: "#d5aa79", stroke: "#9e7045", "stroke-width": 1.4,
+  },
+
+  frog(g) {
+    g.appendChild(el("ellipse", {
+      cx: 0, cy: 8, rx: 31, ry: 22,
+      fill: "#7bc85c", stroke: "#407d39", "stroke-width": 2.2,
     }));
-    for (const dx of [-7, 8]) {
-      g.appendChild(el("rect", {
-        x: dx, y: 25, width: 4, height: 12, rx: 2, fill: "#eea33b",
+    g.appendChild(el("ellipse", {
+      cx: 0, cy: -9, rx: 25, ry: 18,
+      fill: "#82d264", stroke: "#407d39", "stroke-width": 2.2,
+    }));
+    for (const x of [-13, 13]) {
+      g.appendChild(el("circle", {
+        cx: x, cy: -22, r: 8, fill: "#8ddd6b",
+        stroke: "#407d39", "stroke-width": 1.8,
+      }));
+      g.appendChild(el("circle", { cx: x, cy: -23, r: 3, fill: "#202820" }));
+    }
+    g.appendChild(el("path", {
+      d: "M -11 -5 q 11 9 22 0",
+      fill: "none", stroke: "#355f33", "stroke-width": 2,
+      "stroke-linecap": "round",
+    }));
+    g.appendChild(el("ellipse", {
+      cx: 0, cy: 10, rx: 17, ry: 11, fill: "#dff0b2",
+    }));
+  },
+
+  fish(g) {
+    g.appendChild(el("ellipse", {
+      cx: 2, cy: 0, rx: 31, ry: 20,
+      fill: "#f08a45", stroke: "#bd6031", "stroke-width": 2.2,
+    }));
+    g.appendChild(el("path", {
+      d: "M -29 0 L -53 -20 L -50 22 Z",
+      fill: "#f2a05f", stroke: "#bd6031", "stroke-width": 2,
+      "stroke-linejoin": "round",
+    }));
+    g.appendChild(el("circle", { cx: 20, cy: -5, r: 3, fill: "#2e2d2b" }));
+    g.appendChild(el("path", {
+      d: "M -8 -17 q 10 -13 21 -2 M -6 17 q 10 10 18 0",
+      fill: "none", stroke: "#fff4dc", "stroke-width": 3,
+      "stroke-linecap": "round",
+    }));
+  },
+
+  flower(g) {
+    for (let i = 0; i < 8; i += 1) {
+      const a = i * Math.PI / 4;
+      g.appendChild(el("ellipse", {
+        cx: Math.cos(a) * 18,
+        cy: Math.sin(a) * 18,
+        rx: 10, ry: 16,
+        transform: "rotate(" + (i * 45 + 90) + " " +
+          (Math.cos(a) * 18) + " " + (Math.sin(a) * 18) + ")",
+        fill: "#f27c8d", stroke: "#c85669", "stroke-width": 1.3,
       }));
     }
+    g.appendChild(el("circle", { r: 11, fill: "#f1c64f" }));
+    g.appendChild(el("path", {
+      d: "M 0 30 L 0 58 M 0 43 q -18 -10 -22 5 M 0 48 q 18 -11 23 -2",
+      fill: "none", stroke: "#4b9252", "stroke-width": 5,
+      "stroke-linecap": "round",
+    }));
+  },
+
+  cloud(g) {
+    g.appendChild(el("ellipse", {
+      cx: 0, cy: 10, rx: 41, ry: 18,
+      fill: "#e8f2ff", stroke: "#9bbdde", "stroke-width": 2,
+    }));
+    g.appendChild(el("circle", {
+      cx: -20, cy: 0, r: 19, fill: "#eef6ff",
+      stroke: "#9bbdde", "stroke-width": 2,
+    }));
+    g.appendChild(el("circle", {
+      cx: 2, cy: -11, r: 25, fill: "#eef6ff",
+      stroke: "#9bbdde", "stroke-width": 2,
+    }));
+    g.appendChild(el("circle", {
+      cx: 27, cy: 2, r: 18, fill: "#eef6ff",
+      stroke: "#9bbdde", "stroke-width": 2,
+    }));
   },
 };
 
@@ -563,30 +693,117 @@ function installStickerPaper(targetSvg, id) {
   targetSvg.appendChild(defs);
 }
 
-function stickerNode(kind, cls = "sticker", grabbable = false, filterId = "sticker-paper") {
-  const g = el("g", { class: cls });
+function stickerNode(kind, cls, grabbable, filterId) {
+  const g = el("g", { class: cls || "sticker" });
 
   if (grabbable) {
     g.appendChild(el("circle", {
-      r: 56, fill: "transparent", class: "hit", "pointer-events": "all",
+      r: 60, fill: "transparent", class: "hit", "pointer-events": "all",
     }));
   }
 
   const art = el("g", { class: "art" });
-  const paper = el("g", { class: "paper", filter: `url(#${filterId})` });
-  (ART[kind] || (() => {}))(paper);
+  const paper = el("g", {
+    class: "paper",
+    filter: "url(#" + (filterId || "sticker-paper") + ")",
+  });
+
+  (ART[kind] || ART.flower)(paper);
   art.appendChild(paper);
   g.appendChild(art);
   return g;
 }
 
 function miniature(kind) {
-  const mini = el("svg", { viewBox: "-66 -66 132 132", "aria-hidden": "true" });
-  const filterId = `paper-${kind}-${++seq}`;
+  const mini = el("svg", { viewBox: "-72 -72 144 144", "aria-hidden": "true" });
+  const filterId = "paper-" + kind + "-" + (++seq);
   installStickerPaper(mini, filterId);
   mini.appendChild(stickerNode(kind, "", false, filterId));
   return mini;
 }
+
+// ------------------------------------------------------------- cover
+
+function drawCover() {
+  drawScene(coverPicture, DEMO_SEED.picture, "cover");
+  coverDecor.replaceChildren();
+
+  const bird = stickerNode("bird", "cover-sticker", false, "cover-paper");
+  bird.setAttribute("transform", "translate(465 295) scale(1.55) rotate(-6)");
+  coverDecor.appendChild(bird);
+
+  const frog = stickerNode("frog", "cover-sticker", false, "cover-paper");
+  frog.setAttribute("transform", "translate(640 505) scale(1.1) rotate(2)");
+  coverDecor.appendChild(frog);
+
+  const butterfly = stickerNode("butterfly", "cover-sticker", false, "cover-paper");
+  butterfly.setAttribute("transform", "translate(835 330) scale(.95) rotate(8)");
+  coverDecor.appendChild(butterfly);
+}
+
+// ------------------------------------------------------------- gallery
+
+function makeThumbSvg() {
+  const thumb = el("svg", {
+    viewBox: "0 0 1000 640",
+    preserveAspectRatio: "xMidYMid slice",
+    "aria-hidden": "true",
+  });
+  const scene = el("g");
+  thumb.appendChild(scene);
+  drawScene(scene, state ? state.picture : DEMO_SEED.picture, "thumb");
+
+  const frog = stickerNode("frog", "", false, null);
+  frog.setAttribute("transform", "translate(700 460) scale(1.05)");
+  scene.appendChild(frog);
+
+  return thumb;
+}
+
+async function drawGallery() {
+  if (!bookCache) {
+    try {
+      bookCache = await world.book();
+    } catch (error) {
+      console.error(error);
+      bookCache = copy(DEMO_BOOK);
+    }
+  }
+
+  const gallery = document.getElementById("page-gallery");
+  gallery.replaceChildren();
+
+  for (const page of bookCache.pages || []) {
+    const button = document.createElement("button");
+    button.className = "page-tile";
+    button.type = "button";
+    button.setAttribute("aria-label", "Open " + page.name);
+    button.appendChild(makeThumbSvg());
+
+    const label = document.createElement("span");
+    label.className = "page-tile-label";
+    label.textContent = page.name;
+    button.appendChild(label);
+
+    button.addEventListener("click", () => {
+      enterPlay(page.id);
+    });
+
+    gallery.appendChild(button);
+  }
+
+  const make = document.createElement("button");
+  make.className = "page-tile new-page";
+  make.type = "button";
+  make.setAttribute("aria-label", "Make a new page");
+  make.innerHTML =
+    '<span class="new-page-inner"><span class="plus">+</span>' +
+    '<strong>Make a page</strong></span>';
+  make.addEventListener("click", () => showScreen("creator"));
+  gallery.appendChild(make);
+}
+
+// --------------------------------------------------------------- render
 
 function drawStickers(stickers) {
   layers.stickers.replaceChildren();
@@ -594,12 +811,16 @@ function drawStickers(stickers) {
   for (const sticker of stickers) {
     const node = stickerNode(sticker.definition, "sticker", true);
     node.setAttribute("data-id", sticker.id);
-    node.setAttribute("transform",
-      `translate(${sticker.x * PAGE_W} ${sticker.y * PAGE_H})`);
+    node.setAttribute(
+      "transform",
+      "translate(" + (sticker.x * PAGE_W) + " " + (sticker.y * PAGE_H) + ")"
+    );
     node.setAttribute("tabindex", "0");
     node.setAttribute("role", "button");
-    node.setAttribute("aria-label",
-      `${sticker.definition} sticker. Drag to move. Double tap to bring to life.`);
+    node.setAttribute(
+      "aria-label",
+      sticker.definition + " sticker. Drag to move. Double tap to bring to life."
+    );
 
     if (sticker.animation && sticker.animation !== "none") {
       node.classList.add("alive");
@@ -621,65 +842,98 @@ function drawStickers(stickers) {
   }
 }
 
-function drawTray(definitions) {
-  const signature = definitions.map((item) => item.id).join("|");
-  if (signature === traySignature && trayItems.childElementCount) return;
+function definitionIds() {
+  return (state && state.definitions || []).map((item) => item.id);
+}
 
-  traySignature = signature;
+function ensureHotbar() {
+  const available = definitionIds();
+
+  hotbarKinds = hotbarKinds.filter((kind) => available.includes(kind));
+
+  if (!hotbarKinds.length) {
+    const preferred = ["bird", "butterfly", "frog", "cow", "duck"];
+    for (const kind of preferred) {
+      if (available.includes(kind) && !hotbarKinds.includes(kind)) {
+        hotbarKinds.push(kind);
+      }
+      if (hotbarKinds.length >= 3) break;
+    }
+  }
+
+  if (!hotbarKinds.length) {
+    hotbarKinds = available.slice(0, 3);
+  }
+}
+
+function drawTray() {
+  ensureHotbar();
   trayItems.replaceChildren();
 
-  for (const definition of definitions) {
+  for (const kind of hotbarKinds) {
     const button = document.createElement("button");
     button.className = "tray-sticker";
     button.type = "button";
     button.setAttribute("role", "listitem");
-    button.setAttribute("aria-label", "Add a " + definition.id);
-    button.title = definition.id;
-    button.appendChild(miniature(definition.id));
-    button.addEventListener("pointerdown",
-      (event) => grabFromTray(event, definition.id));
+    button.setAttribute("aria-label", "Place " + kind);
+    button.appendChild(miniature(kind));
+    button.addEventListener("pointerdown", (event) => grabFromTray(event, kind));
     trayItems.appendChild(button);
   }
 
-  const add = document.createElement("button");
-  add.className = "tray-add";
-  add.type = "button";
-  add.textContent = "+";
-  add.setAttribute("aria-label", "Open the sticker sheet");
-  add.addEventListener("click", () => openSheet("stickers"));
-  trayItems.appendChild(add);
+  trayEmpty.hidden = hotbarKinds.length !== 0;
 }
-
-// ---------------------------------------------------------------- render
 
 function render() {
   if (!state) return;
 
-  drawPicture(state.picture);
+  drawScene(layers.picture, state.picture, "play");
   drawStickers(state.stickers);
-  drawTray(state.definitions);
-
-  if (worldNote) {
-    const publicDemo = world.name === "public mechanical";
-    worldNote.hidden = !publicDemo;
-    worldNote.textContent = publicDemo
-      ? "Public demo: animations are mechanical. No Omega/Jev agent runtime is connected."
-      : "";
-  }
+  drawTray();
 
   if (DEV) {
     dev.mode.textContent = world.name;
     dev.revision.textContent = state.revision;
     dev.principal.textContent = state.principal;
   }
+
+  const adultNote = document.getElementById("adult-world-note");
+  adultNote.textContent = world.name === "public mechanical"
+    ? "Public demo. Animations and scene changes are mechanical; no Omega/Jev runtime is connected."
+    : "Local governed runtime. Browser actions are proposals; the authority kernel decides.";
 }
 
 function speak(message) {
   status.textContent = "";
-  requestAnimationFrame(() => { status.textContent = message; });
+  requestAnimationFrame(() => {
+    status.textContent = message;
+  });
 }
 
-// ---------------------------------------------------------------- input
+// -------------------------------------------------------------- screens
+
+function showScreen(name) {
+  closeLibrary();
+  clearPlacement();
+
+  for (const [key, node] of Object.entries(screens)) {
+    node.hidden = key !== name;
+  }
+
+  if (name === "gallery") {
+    drawGallery();
+  }
+}
+
+function enterPlay(pageId) {
+  if (pageId && state && state.page && pageId !== state.page.id) {
+    speak("That page is not connected yet");
+  }
+  showScreen("play");
+  render();
+}
+
+// --------------------------------------------------------------- input
 
 function pageFraction(event) {
   const ctm = svg.getScreenCTM();
@@ -698,14 +952,16 @@ function pageFraction(event) {
 function overPage(event) {
   const ctm = svg.getScreenCTM();
   if (!ctm) return false;
+
   const point = new DOMPoint(event.clientX, event.clientY)
     .matrixTransform(ctm.inverse());
+
   return point.x >= 0 && point.x <= PAGE_W &&
          point.y >= 0 && point.y <= PAGE_H;
 }
 
-function overTray(event) {
-  const box = hotbar.getBoundingClientRect();
+function overTrayZone(event) {
+  const box = trayZone.getBoundingClientRect();
   return event.clientX >= box.left &&
          event.clientX <= box.right &&
          event.clientY >= box.top &&
@@ -722,6 +978,7 @@ async function tapSticker(sticker) {
   }
 
   lastTap = { id: null, at: 0 };
+
   await send("/api/animate", {
     sticker: sticker.id,
     command_id: nextId("anim"),
@@ -748,7 +1005,7 @@ function grabPlaced(event, sticker) {
     node.removeEventListener("pointerup", onUp);
     node.removeEventListener("pointercancel", onCancel);
     node.classList.remove("held");
-    hotbar.classList.remove("open");
+    trayZone.classList.remove("drop-ready");
   };
 
   const onMove = (moveEvent) => {
@@ -760,9 +1017,11 @@ function grabPlaced(event, sticker) {
     if (!moved) return;
 
     const point = pageFraction(moveEvent);
-    node.setAttribute("transform",
-      `translate(${point.x * PAGE_W} ${point.y * PAGE_H})`);
-    hotbar.classList.toggle("open", overTray(moveEvent));
+    node.setAttribute(
+      "transform",
+      "translate(" + (point.x * PAGE_W) + " " + (point.y * PAGE_H) + ")"
+    );
+    trayZone.classList.toggle("drop-ready", overTrayZone(moveEvent));
   };
 
   const onCancel = () => {
@@ -773,7 +1032,7 @@ function grabPlaced(event, sticker) {
   const onUp = async (upEvent) => {
     cleanup();
 
-    if (overTray(upEvent) && moved) {
+    if (overTrayZone(upEvent) && moved) {
       await send("/api/remove", {
         sticker: sticker.id,
         command_id: nextId("remove"),
@@ -800,12 +1059,7 @@ function grabPlaced(event, sticker) {
   node.addEventListener("pointercancel", onCancel);
 }
 
-function grabFromTray(event, kind) {
-  event.preventDefault();
-
-  const button = event.currentTarget;
-  try { button.setPointerCapture(event.pointerId); } catch (_) {}
-
+function ghostFor(kind) {
   const ghost = document.createElement("div");
   ghost.id = "ghost";
   const mini = miniature(kind);
@@ -813,11 +1067,22 @@ function grabFromTray(event, kind) {
   mini.setAttribute("height", "100%");
   ghost.appendChild(mini);
   document.body.appendChild(ghost);
+  return ghost;
+}
+
+function grabFromTray(event, kind) {
+  event.preventDefault();
+
+  const button = event.currentTarget;
+  try { button.setPointerCapture(event.pointerId); } catch (_) {}
+
+  const ghost = ghostFor(kind);
 
   const placeGhost = (moveEvent) => {
     ghost.style.left = moveEvent.clientX + "px";
     ghost.style.top = moveEvent.clientY + "px";
   };
+
   placeGhost(event);
 
   const cleanup = () => {
@@ -828,12 +1093,12 @@ function grabFromTray(event, kind) {
   };
 
   const onMove = (moveEvent) => placeGhost(moveEvent);
-
   const onCancel = () => cleanup();
 
   const onUp = async (upEvent) => {
     cleanup();
-    if (!overPage(upEvent) || overTray(upEvent)) return;
+
+    if (!overPage(upEvent)) return;
 
     await send("/api/place", {
       asset: kind,
@@ -848,11 +1113,71 @@ function grabFromTray(event, kind) {
   button.addEventListener("pointercancel", onCancel);
 }
 
-// Sticker-sheet selection is a two-step digital analogue of peel + press:
-// choose the design, then touch the page where it belongs.
+function addToHotbar(kind) {
+  if (!definitionIds().includes(kind)) return;
+
+  if (!hotbarKinds.includes(kind)) {
+    hotbarKinds.push(kind);
+    drawTray();
+  }
+
+  speak(kind + " added to your sticker sheet");
+}
+
+function grabFromLibrary(event, kind) {
+  event.preventDefault();
+
+  const card = event.currentTarget;
+  const startX = event.clientX;
+  const startY = event.clientY;
+  let moved = false;
+
+  try { card.setPointerCapture(event.pointerId); } catch (_) {}
+
+  const ghost = ghostFor(kind);
+
+  const moveGhost = (moveEvent) => {
+    ghost.style.left = moveEvent.clientX + "px";
+    ghost.style.top = moveEvent.clientY + "px";
+
+    if (Math.hypot(moveEvent.clientX - startX, moveEvent.clientY - startY) > 7) {
+      moved = true;
+    }
+
+    trayZone.classList.toggle("drop-ready", overTrayZone(moveEvent));
+  };
+
+  moveGhost(event);
+
+  const cleanup = () => {
+    card.removeEventListener("pointermove", onMove);
+    card.removeEventListener("pointerup", onUp);
+    card.removeEventListener("pointercancel", onCancel);
+    trayZone.classList.remove("drop-ready");
+    ghost.remove();
+  };
+
+  const onMove = (moveEvent) => moveGhost(moveEvent);
+  const onCancel = () => cleanup();
+
+  const onUp = (upEvent) => {
+    const dropped = overTrayZone(upEvent);
+    cleanup();
+
+    if (dropped || !moved) {
+      addToHotbar(kind);
+    }
+  };
+
+  card.addEventListener("pointermove", onMove);
+  card.addEventListener("pointerup", onUp);
+  card.addEventListener("pointercancel", onCancel);
+}
+
+// Two-step peel + press path used by keyboard/accessibility and future tooling.
 function chooseSticker(kind) {
   pendingDefinition = kind;
-  closeSheets();
+  closeLibrary();
   svg.classList.add("placing");
   speak("Tap the page to place the " + kind);
 }
@@ -868,6 +1193,7 @@ function showPlacementPreview(event) {
   if (!pendingDefinition) return;
 
   const point = pageFraction(event);
+
   if (!placementPreview) {
     placementPreview = stickerNode(
       pendingDefinition,
@@ -876,14 +1202,19 @@ function showPlacementPreview(event) {
     );
     layers.placement.replaceChildren(placementPreview);
   }
-  placementPreview.setAttribute("transform",
-    `translate(${point.x * PAGE_W} ${point.y * PAGE_H})`);
+
+  placementPreview.setAttribute(
+    "transform",
+    "translate(" + (point.x * PAGE_W) + " " + (point.y * PAGE_H) + ")"
+  );
 }
 
 svg.addEventListener("pointerdown", (event) => {
   if (!pendingDefinition) return;
+
   event.preventDefault();
   event.stopPropagation();
+
   try { svg.setPointerCapture(event.pointerId); } catch (_) {}
   showPlacementPreview(event);
 }, true);
@@ -908,24 +1239,91 @@ svg.addEventListener("pointerup", async (event) => {
     command_id: nextId("sheet-place"),
     point,
   });
-  speak(kind + " placed");
 }, true);
 
 svg.addEventListener("pointercancel", () => {
-  if (pendingDefinition) {
-    layers.placement.replaceChildren();
-    placementPreview = null;
-  }
+  if (!pendingDefinition) return;
+  layers.placement.replaceChildren();
+  placementPreview = null;
 }, true);
 
 svg.addEventListener("contextmenu", (event) => event.preventDefault());
 
-// ------------------------------------------------------------------ wire
+// ------------------------------------------------------ sticker library
+
+function drawStickerLibrary() {
+  stickerLibraryGrid.replaceChildren();
+
+  for (const definition of state && state.definitions || []) {
+    const card = document.createElement("button");
+    card.className = "library-sticker";
+    card.type = "button";
+    card.setAttribute(
+      "aria-label",
+      "Drag " + definition.id + " to your sticker sheet"
+    );
+    card.appendChild(miniature(definition.id));
+
+    const label = document.createElement("span");
+    label.textContent = definition.id;
+    card.appendChild(label);
+
+    card.addEventListener(
+      "pointerdown",
+      (event) => grabFromLibrary(event, definition.id)
+    );
+
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        addToHotbar(definition.id);
+      }
+    });
+
+    stickerLibraryGrid.appendChild(card);
+  }
+
+  const make = document.createElement("button");
+  make.className = "make-sticker-card";
+  make.type = "button";
+  make.innerHTML =
+    '<span class="make-plus">+</span><span>make a sticker</span>';
+  make.addEventListener("click", openStickerMaker);
+  stickerLibraryGrid.appendChild(make);
+}
+
+function openLibrary() {
+  clearPlacement();
+  drawStickerLibrary();
+  stickerLibraryView.hidden = false;
+  stickerMakerView.hidden = true;
+  stickerOverlay.hidden = false;
+}
+
+function closeLibrary() {
+  stickerOverlay.hidden = true;
+  stickerMakerView.hidden = true;
+  stickerLibraryView.hidden = false;
+  trayZone.classList.remove("drop-ready");
+}
+
+function openStickerMaker() {
+  stickerLibraryView.hidden = true;
+  stickerMakerView.hidden = false;
+}
+
+function backToStickerLibrary() {
+  stickerMakerView.hidden = true;
+  stickerLibraryView.hidden = false;
+}
+
+// ---------------------------------------------------------------- wire
 
 async function send(path, body) {
   body.based_on_revision = state ? state.revision : null;
 
   let payload;
+
   try {
     payload = await world.send(path, body);
   } catch (error) {
@@ -943,9 +1341,10 @@ async function send(path, body) {
   render();
 
   const receipt = payload.receipt;
+
   if (receipt && !receipt.accepted && receipt.object) {
     const node = layers.stickers.querySelector(
-      `[data-id="${CSS.escape(receipt.object)}"]`
+      '[data-id="' + CSS.escape(receipt.object) + '"]'
     );
     if (node) {
       node.classList.add("refused");
@@ -959,6 +1358,8 @@ async function send(path, body) {
 async function reload() {
   state = await world.state();
   render();
+  drawCover();
+
   if (DEV) await refreshReceipts();
 }
 
@@ -969,13 +1370,14 @@ function showVerdict(payload) {
 
   if (!receipt) {
     dev.verdict.className = "verdict rejected";
-    dev.verdict.textContent = `refused — ${payload.error || "invalid request"}`;
+    dev.verdict.textContent = "refused — " + (payload.error || "invalid request");
   } else {
     dev.verdict.className =
       "verdict " + (receipt.accepted ? "accepted" : "rejected");
     dev.verdict.textContent = receipt.accepted
-      ? `accepted — ${receipt.action} ${receipt.object || ""} (rev ${receipt.resultRevision})`
-      : `refused — ${receipt.reason}; nothing changed`;
+      ? "accepted — " + receipt.action + " " +
+        (receipt.object || "") + " (rev " + receipt.resultRevision + ")"
+      : "refused — " + receipt.reason + "; nothing changed";
   }
 
   refreshReceipts();
@@ -990,116 +1392,140 @@ async function refreshReceipts() {
     const mark = document.createElement("span");
     mark.className = receipt.accepted ? "ok" : "no";
     mark.textContent = receipt.accepted ? "ACCEPT " : "REFUSE ";
+
     item.append(
       mark,
       document.createTextNode(
-        `${receipt.action} ${receipt.object || ""} → ${receipt.reason} (rev ${receipt.resultRevision})`
+        receipt.action + " " + (receipt.object || "") + " → " +
+        receipt.reason + " (rev " + receipt.resultRevision + ")"
       )
     );
+
     dev.receipts.appendChild(item);
   }
 }
 
-// --------------------------------------------------------------- sheets
+// ------------------------------------------------------------- uploads
 
-function openSheet(which) {
-  clearPlacement();
+function previewUpload(input, preview, kind) {
+  const file = input.files && input.files[0];
+  if (!file || !file.type.startsWith("image/")) return;
 
-  for (const [name, node] of Object.entries(sheets)) {
-    node.hidden = name !== which;
-  }
+  const previous = kind === "page" ? pagePreviewUrl : stickerPreviewUrl;
+  if (previous) URL.revokeObjectURL(previous);
 
-  if (which === "book") drawBook();
-  if (which === "stickers") drawStickerLibrary();
-}
+  const url = URL.createObjectURL(file);
 
-function closeSheets() {
-  for (const node of Object.values(sheets)) {
-    node.hidden = true;
-  }
-}
+  if (kind === "page") pagePreviewUrl = url;
+  else stickerPreviewUrl = url;
 
-async function drawBook() {
-  const book = await world.book();
-  document.getElementById("book-title").textContent = book.title;
-  document.getElementById("book-subtitle").textContent = book.subtitle;
+  preview.style.backgroundImage =
+    "linear-gradient(rgba(0,0,0,.08), rgba(0,0,0,.08)), url('" + url + "')";
+  preview.classList.add("has-image");
 
-  const list = document.getElementById("page-list");
-  list.replaceChildren();
+  const strong = preview.querySelector("strong");
+  const small = preview.querySelector("small");
+  const plus = preview.querySelector(".upload-plus");
 
-  for (const page of book.pages) {
-    const card = document.createElement("button");
-    card.className =
-      "card" + (state?.page?.id === page.id ? " current" : "");
-    card.type = "button";
-    card.innerHTML = "<strong></strong><span></span>";
-    card.querySelector("strong").textContent = page.name;
-    card.querySelector("span").textContent = page.summary;
-    card.addEventListener("click", closeSheets);
-    list.appendChild(card);
-  }
-
-  const soon = document.getElementById("page-soon");
-  soon.replaceChildren();
-
-  for (const item of book.coming || []) {
-    const card = document.createElement("button");
-    card.className = "card soon";
-    card.type = "button";
-    card.disabled = true;
-    card.textContent = item.label;
-    soon.appendChild(card);
-  }
-}
-
-function drawStickerLibrary() {
-  const list = document.getElementById("sticker-list");
-  list.replaceChildren();
-
-  for (const definition of state?.definitions || []) {
-    const card = document.createElement("button");
-    card.className = "card sticker-card";
-    card.type = "button";
-    card.appendChild(miniature(definition.id));
-
-    const label = document.createElement("span");
-    label.textContent = definition.id;
-    card.appendChild(label);
-
-    card.addEventListener("click", () => chooseSticker(definition.id));
-    list.appendChild(card);
+  if (plus) plus.textContent = "✓";
+  if (strong) strong.textContent = file.name;
+  if (small) {
+    small.textContent = kind === "page"
+      ? "preview only for now"
+      : "ready for future Sticker Maker";
   }
 }
 
 // --------------------------------------------------------------- boot
 
-document.getElementById("menu-btn")
-  .addEventListener("click", () => openSheet("book"));
+document.getElementById("cover-enter").addEventListener("click", () => {
+  showScreen("gallery");
+});
 
-for (const button of document.querySelectorAll("[data-close]")) {
-  button.addEventListener("click", closeSheets);
-}
+document.getElementById("adult-hotspot").addEventListener("click", () => {
+  adultPanel.hidden = false;
+});
+
+document.getElementById("adult-close").addEventListener("click", () => {
+  adultPanel.hidden = true;
+});
+
+document.getElementById("adult-backdrop").addEventListener("click", () => {
+  adultPanel.hidden = true;
+});
+
+document.getElementById("gallery-back").addEventListener("click", () => {
+  showScreen("cover");
+});
+
+document.getElementById("creator-back").addEventListener("click", () => {
+  showScreen("gallery");
+});
+
+document.getElementById("home-btn").addEventListener("click", () => {
+  showScreen("cover");
+});
+
+document.getElementById("library-btn").addEventListener("click", openLibrary);
+document.getElementById("library-close").addEventListener("click", closeLibrary);
+document.getElementById("library-backdrop").addEventListener("click", closeLibrary);
+document.getElementById("sticker-maker-back")
+  .addEventListener("click", backToStickerLibrary);
+
+document.getElementById("page-upload").addEventListener("change", (event) => {
+  previewUpload(
+    event.currentTarget,
+    document.getElementById("page-upload-preview"),
+    "page"
+  );
+});
+
+document.getElementById("sticker-upload").addEventListener("change", (event) => {
+  previewUpload(
+    event.currentTarget,
+    document.getElementById("sticker-upload-preview"),
+    "sticker"
+  );
+});
 
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
 
+  if (!adultPanel.hidden) {
+    adultPanel.hidden = true;
+    return;
+  }
+
+  if (!stickerOverlay.hidden) {
+    closeLibrary();
+    return;
+  }
+
   if (pendingDefinition) {
     clearPlacement();
-    speak("Sticker placement cancelled");
-  } else {
-    closeSheets();
+    return;
+  }
+
+  if (!screens.play.hidden) {
+    showScreen("cover");
+  } else if (!screens.creator.hidden || !screens.gallery.hidden) {
+    showScreen("cover");
   }
 });
 
 if (DEV) dev.panel.hidden = false;
 
+drawCover();
+showScreen("cover");
+
 reload().catch((error) => {
   console.error(error);
 
-  // A localhost file/server without the Python bridge is still useful as a
-  // visual preview. We fall back only during boot, never mid-session.
+  // A localhost static preview without bridge remains useful for UI work.
+  // Fallback happens only during boot; never silently mid-session.
   if (world === kernelWorld) {
     world = createMechanicalWorld();
+    bookCache = null;
     reload();
   }
 });

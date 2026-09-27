@@ -88,6 +88,19 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
                 self.assertEqual(r.status, 200)
                 self.assertIn(needle, r.read())
 
+    def test_child_navigation_surfaces_are_in_the_served_page(self):
+        with urllib.request.urlopen(self.url("/"), timeout=5) as r:
+            page = r.read()
+        for marker in (
+                b'id="cover-screen"',
+                b'id="page-gallery"',
+                b'id="play-screen"',
+                b'id="home-btn"',
+                b'id="library-btn"',
+                b'id="sticker-overlay"'):
+            self.assertIn(marker, page)
+        self.assertNotIn(b'id="book-screen"', page)
+
     def test_each_sticker_carries_its_authoritative_position(self):
         _, state = self.get("/api/state")
         for s in state["stickers"]:
