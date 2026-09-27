@@ -1,38 +1,68 @@
 {
-  "version": 2,
+  "version": 3,
   "cover": {
-    "src": "static/assets/cover.svg",
     "show_title": false,
-    "alt": "StickerBook title page"
+    "alt": "StickerBook title page",
+    "variants": {
+      "landscape": {
+        "src": "static/assets/cover.svg",
+        "width": 1000,
+        "height": 640
+      }
+    }
   },
   "pages": {
     "farm": {
       "name": "The Farm",
       "summary": "Barns, fields and farm animals.",
-      "src": "static/assets/pages/farm.svg",
+      "alt": "Farm StickerBook page",
       "thumbnail": "static/assets/pages/farm.svg",
-      "alt": "Farm StickerBook page"
+      "variants": {
+        "landscape": {
+          "src": "static/assets/pages/farm.svg",
+          "width": 1000,
+          "height": 640
+        }
+      }
     },
     "beach": {
       "name": "The Beach",
       "summary": "Sand, water and a sunny shore.",
-      "src": "static/assets/pages/beach.svg",
+      "alt": "Beach StickerBook page",
       "thumbnail": "static/assets/pages/beach.svg",
-      "alt": "Beach StickerBook page"
+      "variants": {
+        "landscape": {
+          "src": "static/assets/pages/beach.svg",
+          "width": 1000,
+          "height": 640
+        }
+      }
     },
     "park": {
       "name": "The Park",
       "summary": "A green park for outdoor play.",
-      "src": "static/assets/pages/park.svg",
+      "alt": "Park StickerBook page",
       "thumbnail": "static/assets/pages/park.svg",
-      "alt": "Park StickerBook page"
+      "variants": {
+        "landscape": {
+          "src": "static/assets/pages/park.svg",
+          "width": 1000,
+          "height": 640
+        }
+      }
     },
     "space": {
       "name": "Space",
       "summary": "Stars, planets and deep space.",
-      "src": "static/assets/pages/space.svg",
+      "alt": "Space StickerBook page",
       "thumbnail": "static/assets/pages/space.svg",
-      "alt": "Space StickerBook page"
+      "variants": {
+        "landscape": {
+          "src": "static/assets/pages/space.svg",
+          "width": 1000,
+          "height": 640
+        }
+      }
     }
   },
   "stickers": {
