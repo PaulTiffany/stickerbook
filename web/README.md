@@ -66,8 +66,14 @@ The hotbar has three regions:
 - the **middle** is the current small set of stickers;
 - **+** opens the larger sticker library.
 
-The library also contains a **+ Make a sticker** path into an upload/preview
-interface. It is intentionally not a powered Sticker Maker yet.
+The library also contains a **+ Make a sticker** path. Both page and sticker
+creators expose **Upload** and **Make with StickerBook**. The assisted path is
+an explicit seam for a future local creator agent; the public Pages demo does
+not fake an agent connection.
+
+Sticker draft requests target asset schema v2: a validated visual package with
+an idle clip and optional behavior clips containing one or many related frames.
+The creator seam returns drafts only and does not mutate the authority kernel.
 
 ## Page gestures
 
