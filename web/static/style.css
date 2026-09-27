@@ -1,0 +1,84 @@
+:root {
+  --ink: #23303a;
+  --muted: #6b7c88;
+  --line: #d6dfe5;
+  --paper: #f7f9fa;
+  --accept: #1d7a4c;
+  --reject: #a8332a;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 24px;
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+header { max-width: 1180px; margin: 0 auto 16px; }
+h1 { font-size: 20px; margin: 0 0 4px; font-weight: 650; }
+h1 .sub { color: var(--muted); font-weight: 400; }
+.note { margin: 0; color: var(--muted); max-width: 70ch; }
+
+main {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px;
+  align-items: start;
+}
+
+#page-wrap {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#page { display: block; width: 100%; height: auto; touch-action: none; }
+
+/* host-owned slots, shown faintly so the discrete model is visible */
+.slot-dot { fill: none; stroke: #b9c6cf; stroke-dasharray: 3 4; }
+.slot-name { fill: #9aa9b4; font-size: 13px; text-anchor: middle; }
+
+.sticker { cursor: grab; }
+.sticker.dragging { cursor: grabbing; opacity: 0.75; }
+.sticker.pending { opacity: 0.5; }
+.sticker-label { font-size: 13px; text-anchor: middle; fill: var(--ink); }
+.owner-tag { font-size: 11px; text-anchor: middle; fill: var(--muted); }
+
+#panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+}
+#panel h2 {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--muted); margin: 18px 0 8px;
+}
+.row { display: flex; justify-content: space-between; padding: 3px 0; }
+.label { color: var(--muted); }
+.value { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+.verdict {
+  margin-top: 12px; padding: 9px 11px; border-radius: 7px;
+  border: 1px solid var(--line); font-size: 14px;
+}
+.verdict.idle { color: var(--muted); }
+.verdict.accepted { border-color: #b9e2cd; background: #eefaf3; color: var(--accept); }
+.verdict.rejected { border-color: #f0c9c5; background: #fdf1f0; color: var(--reject); }
+
+#receipts { list-style: none; margin: 0; padding: 0; font-size: 12.5px; }
+#receipts li {
+  border-top: 1px solid var(--line); padding: 7px 0;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  word-break: break-word;
+}
+#receipts li .ok { color: var(--accept); font-weight: 600; }
+#receipts li .no { color: var(--reject); font-weight: 600; }
+
+.fineprint { margin-top: 16px; font-size: 12.5px; color: var(--muted); }

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StickerBook — Farm</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>StickerBook <span class="sub">farm page</span></h1>
+  <p class="note">
+    Drag a sticker. The browser only <em>proposes</em>; the Python authority
+    kernel decides, and this page redraws from whatever the kernel returns.
+  </p>
+</header>
+
+<main>
+  <div id="page-wrap">
+    <svg id="page" viewBox="0 0 1000 640" role="img"
+         aria-label="A farm page with stickers">
+      <!-- passive painted backdrop: scenery, not governed objects -->
+      <g id="backdrop" aria-hidden="true"></g>
+      <!-- host-owned named positions -->
+      <g id="slots" aria-hidden="true"></g>
+      <!-- stickers: the only things any principal can act on -->
+      <g id="stickers"></g>
+    </svg>
+  </div>
+
+  <aside id="panel">
+    <div class="row">
+      <span class="label">revision</span>
+      <span id="revision" class="value">–</span>
+    </div>
+    <div class="row">
+      <span class="label">acting as</span>
+      <span id="principal" class="value">–</span>
+    </div>
+    <div id="verdict" class="verdict idle">drag a sticker to begin</div>
+    <h2>receipts</h2>
+    <ol id="receipts"></ol>
+    <p class="fineprint">
+      The cow is yours. The butterfly belongs to an agent principal — no agent
+      is running, but the kernel still refuses to let you move it. That
+      refusal is the boundary working, not a bug.
+    </p>
+  </aside>
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
