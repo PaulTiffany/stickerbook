@@ -3,13 +3,36 @@
   "cover": {
     "src": "static/assets/cover.svg",
     "show_title": false,
-    "alt": "StickerBook cover with a bird, frog, butterfly and pond"
+    "alt": "StickerBook title page"
   },
   "pages": {
     "farm": {
+      "name": "The Farm",
+      "summary": "Barns, fields and farm animals.",
       "src": "static/assets/pages/farm.svg",
       "thumbnail": "static/assets/pages/farm.svg",
-      "alt": "Sunny farm with barn, tree, pond and fence"
+      "alt": "Farm StickerBook page"
+    },
+    "beach": {
+      "name": "The Beach",
+      "summary": "Sand, water and a sunny shore.",
+      "src": "static/assets/pages/beach.svg",
+      "thumbnail": "static/assets/pages/beach.svg",
+      "alt": "Beach StickerBook page"
+    },
+    "park": {
+      "name": "The Park",
+      "summary": "A green park for outdoor play.",
+      "src": "static/assets/pages/park.svg",
+      "thumbnail": "static/assets/pages/park.svg",
+      "alt": "Park StickerBook page"
+    },
+    "space": {
+      "name": "Space",
+      "summary": "Stars, planets and deep space.",
+      "src": "static/assets/pages/space.svg",
+      "thumbnail": "static/assets/pages/space.svg",
+      "alt": "Space StickerBook page"
     }
   },
   "stickers": {
