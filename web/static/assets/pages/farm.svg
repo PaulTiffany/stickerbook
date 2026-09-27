@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" role="img" aria-label="Sunny farm with barn, tree, pond and fence">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9dd8f3"/>
+      <stop offset="100%" stop-color="#eef8f6"/>
+    </linearGradient>
+    <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a7d282"/>
+      <stop offset="100%" stop-color="#73aa62"/>
+    </linearGradient>
+  </defs>
+  <rect width="1000" height="640" fill="url(#sky)"/>
+  <circle cx="875" cy="82" r="44" fill="#f7d873"/>
+  <g opacity=".88" fill="#fff">
+    <circle cx="180" cy="90" r="28"/><circle cx="215" cy="82" r="38"/><circle cx="255" cy="95" r="27"/>
+    <circle cx="660" cy="112" r="23"/><circle cx="690" cy="101" r="31"/><circle cx="722" cy="114" r="21"/>
+  </g>
+  <path d="M0 360 Q150 275 320 350 Q480 250 660 345 Q825 275 1000 338 L1000 640 H0Z" fill="#b9d79b"/>
+  <path d="M0 390 Q190 335 380 395 Q605 315 1000 388 L1000 640 H0Z" fill="url(#grass)"/>
+  <g transform="translate(170 302)">
+    <rect x="-59" y="-31" width="118" height="82" rx="4" fill="#b85445" stroke="#8f3b31" stroke-width="2.5"/>
+    <path d="M-72-31 0-82 72-31Z" fill="#8e3d34" stroke="#7f352e" stroke-width="2"/>
+    <rect x="-18" y="7" width="36" height="44" fill="#f2dfc2" stroke="#8f3b31" stroke-width="2"/>
+    <path d="M-18 7 18 51M18 7-18 51" stroke="#c39a72" stroke-width="2"/>
+    <rect x="-42" y="-11" width="22" height="19" fill="#cfe5ed" stroke="#f2dfc2" stroke-width="3"/>
+  </g>
+  <g transform="translate(520 220)">
+    <rect x="-9" y="8" width="18" height="56" rx="4" fill="#76553b"/>
+    <circle cx="0" cy="-18" r="47" fill="#53965a"/>
+    <circle cx="-30" cy="4" r="30" fill="#65a966"/>
+    <circle cx="31" cy="3" r="29" fill="#498b50"/>
+    <circle cx="7" cy="12" r="32" fill="#5da260"/>
+  </g>
+  <g transform="translate(790 430)">
+    <ellipse rx="98" ry="49" fill="#75bad6" stroke="#5ba0be" stroke-width="2.5"/>
+    <path d="M-59-10q28-10 56 0M17 14q22-8 43 0" fill="none" stroke="#b7deeb" stroke-width="3" stroke-linecap="round"/>
+    <path d="M-76 26q-8-26 1-43M-69 24q-2-23 8-37M79 26q-8-26 1-43M86 24q-2-23 8-37" fill="none" stroke="#527f4a" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(260 515)">
+    <rect x="-77" y="-17" width="154" height="9" rx="3" fill="#dfc493"/>
+    <rect x="-77" y="9" width="154" height="9" rx="3" fill="#dfc493"/>
+    <g fill="#c9a875">
+      <rect x="-68" y="-32" width="10" height="67" rx="2"/>
+      <rect x="-34" y="-32" width="10" height="67" rx="2"/>
+      <rect x="0" y="-32" width="10" height="67" rx="2"/>
+      <rect x="34" y="-32" width="10" height="67" rx="2"/>
+      <rect x="68" y="-32" width="10" height="67" rx="2"/>
+    </g>
+  </g>
+  <g fill="#fff4d6" stroke="#f6a9bd" stroke-width="3" opacity=".9">
+    <circle cx="360" cy="490" r="5"/><circle cx="410" cy="542" r="5"/><circle cx="602" cy="476" r="5"/>
+    <circle cx="685" cy="535" r="5"/><circle cx="895" cy="480" r="5"/><circle cx="126" cy="570" r="5"/>
+  </g>
+</svg>
