@@ -196,11 +196,40 @@ function pageAsset(pageId) {
     assetManifest.pages[pageId] || null;
 }
 
+function visualViewportBox() {
+  const viewport = window.visualViewport;
+  const width = viewport && Number.isFinite(viewport.width)
+    ? viewport.width
+    : (window.innerWidth || document.documentElement.clientWidth || PAGE_W);
+  const height = viewport && Number.isFinite(viewport.height)
+    ? viewport.height
+    : (window.innerHeight || document.documentElement.clientHeight || PAGE_H);
+
+  return { width, height };
+}
+
+function syncViewportCssVars() {
+  const { width, height } = visualViewportBox();
+  document.documentElement.style.setProperty("--app-vw", width + "px");
+  document.documentElement.style.setProperty("--app-vh", height + "px");
+}
+
 function portraitViewport() {
-  return Boolean(
-    window.matchMedia &&
-    window.matchMedia("(orientation: portrait)").matches
-  );
+  const { width, height } = visualViewportBox();
+  return height > width;
+}
+
+function coverViewportClass() {
+  const { width, height } = visualViewportBox();
+  const ratio = width / Math.max(height, 1);
+
+  if (height > width) return "portrait";
+
+  // Short/wide browser rectangles need their own composition class even
+  // when they come from a desktop window rather than a phone.
+  if (height <= 560 || ratio >= 2.35) return "landscape_phone";
+
+  return "desktop";
 }
 
 function visualVariant(asset, orientation) {
@@ -235,7 +264,17 @@ function visualVariant(asset, orientation) {
 }
 
 function coverVariant() {
-  return visualVariant(assetManifest && assetManifest.cover);
+  const cover = assetManifest && assetManifest.cover;
+  if (!cover) return null;
+
+  const variants = cover.variants || {};
+  const wanted = coverViewportClass();
+
+  if (variants[wanted] && variants[wanted].src) {
+    return variants[wanted];
+  }
+
+  return visualVariant(cover, wanted === "portrait" ? "portrait" : "landscape");
 }
 
 function pageVariant(pageId, orientation) {
@@ -1064,14 +1103,14 @@ function drawCover() {
     );
     document.getElementById("cover-scene").setAttribute(
       "preserveAspectRatio",
-      "xMidYMid meet"
+      "xMidYMid slice"
     );
 
     coverPicture.replaceChildren(
       el("image", {
         href: variant.src,
         x: 0, y: 0, width, height,
-        preserveAspectRatio: "xMidYMid meet",
+        preserveAspectRatio: "xMidYMid slice",
       })
     );
     coverDecor.replaceChildren();
@@ -2317,7 +2356,10 @@ async function boot() {
 }
 
 
-function handleOrientationChange() {
+let viewportChangeTimer = null;
+
+function handleViewportChange() {
+  syncViewportCssVars();
   drawCover();
 
   if (state) {
@@ -2329,17 +2371,27 @@ function handleOrientationChange() {
   }
 }
 
+function scheduleViewportChange() {
+  clearTimeout(viewportChangeTimer);
+  viewportChangeTimer = setTimeout(handleViewportChange, 60);
+}
+
 if (window.matchMedia) {
   const orientationQuery = window.matchMedia("(orientation: portrait)");
   if (typeof orientationQuery.addEventListener === "function") {
-    orientationQuery.addEventListener("change", handleOrientationChange);
+    orientationQuery.addEventListener("change", scheduleViewportChange);
   } else if (typeof orientationQuery.addListener === "function") {
-    orientationQuery.addListener(handleOrientationChange);
+    orientationQuery.addListener(scheduleViewportChange);
   }
 }
 
-window.addEventListener("orientationchange", () => {
-  setTimeout(handleOrientationChange, 50);
-});
+window.addEventListener("resize", scheduleViewportChange);
+window.addEventListener("orientationchange", scheduleViewportChange);
 
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", scheduleViewportChange);
+  window.visualViewport.addEventListener("scroll", scheduleViewportChange);
+}
+
+syncViewportCssVars();
 boot();
