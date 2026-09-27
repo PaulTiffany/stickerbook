@@ -126,7 +126,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
 
     def test_sticker_manifest_models_visuals_as_clip_packages(self):
         path = os.path.join(
-            self.bridge_module.STATIC_DIR, "assets", "manifest.json")
+            bridge_mod.STATIC_DIR, "assets", "manifest.json")
         with open(path, "r", encoding="utf-8") as handle:
             manifest = json.load(handle)
 
