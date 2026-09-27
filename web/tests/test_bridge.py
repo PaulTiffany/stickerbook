@@ -101,6 +101,18 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             self.assertIn(marker, page)
         self.assertNotIn(b'id="book-screen"', page)
 
+    def test_creator_surfaces_offer_upload_and_assisted_paths(self):
+        with urllib.request.urlopen(self.url("/"), timeout=5) as r:
+            page = r.read()
+        self.assertGreaterEqual(page.count(b"Make with StickerBook"), 2)
+        for marker in (
+                b'id="page-agent-prompt"',
+                b'id="page-agent-go"',
+                b'id="sticker-agent-prompt"',
+                b'id="sticker-agent-go"',
+                b'data-clip-intent="animate"'):
+            self.assertIn(marker, page)
+
     def test_manifest_driven_visual_assets_are_served(self):
         cases = (
             ("/static/assets/manifest.json", "application/json"),
