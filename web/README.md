@@ -42,7 +42,14 @@ it. Today that means Farm remains the connected governed page.
 ## Library → sheet → page
 
 The bottom hotbar is the child's working sticker sheet, not the complete
-inventory.
+inventory. It is flush to the screen edges. In landscape, StickerBook reserves
+a bottom control strip for it so the hotbar does not obscure the playable page
+image. In portrait, the image remains maximized while preserving the complete
+native composition.
+
+The cover, page stage, and gallery thumbnails avoid decorative paper margins.
+Full pages stay uncropped; gallery thumbnails may crop slightly because they
+are previews rather than the playable scene.
 
 ```text
 STICKER LIBRARY
