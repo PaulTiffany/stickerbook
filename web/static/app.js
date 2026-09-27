@@ -97,7 +97,7 @@ async function loadAssetManifest() {
     const res = await fetch("static/assets/manifest.json", { cache: "no-store" });
     if (!res.ok) throw new Error("asset manifest: HTTP " + res.status);
     const manifest = await res.json();
-    if (!manifest || ![1, 2].includes(manifest.version)) {
+    if (!manifest || ![1, 2, 3].includes(manifest.version)) {
       throw new Error("unsupported asset manifest");
     }
     assetManifest = manifest;
@@ -194,6 +194,71 @@ function pageAsset(pageId) {
   return assetManifest &&
     assetManifest.pages &&
     assetManifest.pages[pageId] || null;
+}
+
+function portraitViewport() {
+  return Boolean(
+    window.matchMedia &&
+    window.matchMedia("(orientation: portrait)").matches
+  );
+}
+
+function visualVariant(asset, orientation) {
+  if (!asset) return null;
+
+  const wanted = orientation || (portraitViewport() ? "portrait" : "landscape");
+  const variants = asset.variants || {};
+
+  if (variants[wanted] && variants[wanted].src) {
+    return variants[wanted];
+  }
+
+  if (variants.landscape && variants.landscape.src) {
+    return variants.landscape;
+  }
+
+  if (variants.portrait && variants.portrait.src) {
+    return variants.portrait;
+  }
+
+  // Manifest v1/v2 compatibility.
+  if (asset.src) {
+    return {
+      src: asset.src,
+      width: Number(asset.width) || PAGE_W,
+      height: Number(asset.height) || PAGE_H,
+      thumbnail: asset.thumbnail || null,
+    };
+  }
+
+  return null;
+}
+
+function coverVariant() {
+  return visualVariant(assetManifest && assetManifest.cover);
+}
+
+function pageVariant(pageId, orientation) {
+  return visualVariant(pageAsset(pageId), orientation);
+}
+
+function pageMetrics(pageId) {
+  const variant = pageVariant(pageId);
+  return {
+    width: Number(variant && variant.width) || PAGE_W,
+    height: Number(variant && variant.height) || PAGE_H,
+  };
+}
+
+function activePageMetrics() {
+  return pageMetrics(state && state.page && state.page.id || "farm");
+}
+
+function applyActivePageViewport() {
+  const metrics = activePageMetrics();
+  svg.setAttribute("viewBox", "0 0 " + metrics.width + " " + metrics.height);
+  svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  svg.style.setProperty("--page-aspect", metrics.width + " / " + metrics.height);
 }
 
 function svgImage(src, x, y, width, height) {
@@ -613,12 +678,14 @@ function drawScene(target, picture, mode, pageId) {
 
   if (mode !== "cover") {
     const id = pageId || state && state.page && state.page.id || "farm";
-    const asset = pageAsset(id);
-    if (asset && asset.src) {
+    const variant = pageVariant(id);
+    if (variant && variant.src) {
+      const width = Number(variant.width) || PAGE_W;
+      const height = Number(variant.height) || PAGE_H;
       target.appendChild(el("image", {
-        href: asset.src,
-        x: 0, y: 0, width: PAGE_W, height: PAGE_H,
-        preserveAspectRatio: "xMidYMid slice",
+        href: variant.src,
+        x: 0, y: 0, width, height,
+        preserveAspectRatio: "xMidYMid meet",
       }));
       return;
     }
@@ -961,13 +1028,26 @@ function miniature(kind) {
 
 function drawCover() {
   const cover = assetManifest && assetManifest.cover;
+  const variant = coverVariant();
 
-  if (cover && cover.src) {
+  if (cover && variant && variant.src) {
+    const width = Number(variant.width) || PAGE_W;
+    const height = Number(variant.height) || PAGE_H;
+
+    document.getElementById("cover-scene").setAttribute(
+      "viewBox",
+      "0 0 " + width + " " + height
+    );
+    document.getElementById("cover-scene").setAttribute(
+      "preserveAspectRatio",
+      "xMidYMid meet"
+    );
+
     coverPicture.replaceChildren(
       el("image", {
-        href: cover.src,
-        x: 0, y: 0, width: PAGE_W, height: PAGE_H,
-        preserveAspectRatio: "xMidYMid slice",
+        href: variant.src,
+        x: 0, y: 0, width, height,
+        preserveAspectRatio: "xMidYMid meet",
       })
     );
     coverDecor.replaceChildren();
@@ -995,23 +1075,31 @@ function drawCover() {
 // ------------------------------------------------------------- gallery
 
 function makeThumbSvg(pageId) {
+  const asset = pageAsset(pageId);
+  const variant = pageVariant(pageId, "landscape") || pageVariant(pageId);
+  const width = Number(variant && variant.width) || PAGE_W;
+  const height = Number(variant && variant.height) || PAGE_H;
+
   const thumb = el("svg", {
-    viewBox: "0 0 1000 640",
-    preserveAspectRatio: "xMidYMid slice",
+    viewBox: "0 0 " + width + " " + height,
+    preserveAspectRatio: "xMidYMid meet",
     "aria-hidden": "true",
   });
 
-  const asset = pageAsset(pageId);
-  const src = asset && (asset.thumbnail || asset.src);
+  const src = variant && (
+    variant.thumbnail ||
+    asset && asset.thumbnail ||
+    variant.src
+  );
 
   if (src) {
     thumb.appendChild(el("image", {
       href: src,
       x: 0,
       y: 0,
-      width: PAGE_W,
-      height: PAGE_H,
-      preserveAspectRatio: "xMidYMid slice",
+      width,
+      height,
+      preserveAspectRatio: "xMidYMid meet",
     }));
     return thumb;
   }
@@ -1089,7 +1177,12 @@ function drawStickers(stickers) {
     node.setAttribute("data-id", sticker.id);
     node.setAttribute(
       "transform",
-      "translate(" + (sticker.x * PAGE_W) + " " + (sticker.y * PAGE_H) + ")"
+      (() => {
+        const metrics = activePageMetrics();
+        return "translate(" +
+          (sticker.x * metrics.width) + " " +
+          (sticker.y * metrics.height) + ")";
+      })()
     );
     node.setAttribute("tabindex", "0");
     node.setAttribute("role", "button");
@@ -1167,6 +1260,7 @@ function drawTray() {
 function render() {
   if (!state) return;
 
+  applyActivePageViewport();
   drawScene(layers.picture, state.picture, "play", state.page && state.page.id);
   drawStickers(state.stickers);
   drawTray();
@@ -1240,10 +1334,11 @@ function pageFraction(event) {
   const point = new DOMPoint(event.clientX, event.clientY)
     .matrixTransform(ctm.inverse());
 
+  const metrics = activePageMetrics();
   const clamp = (value) => Math.min(Math.max(value, 0), 1);
   return {
-    x: clamp(point.x / PAGE_W),
-    y: clamp(point.y / PAGE_H),
+    x: clamp(point.x / metrics.width),
+    y: clamp(point.y / metrics.height),
   };
 }
 
@@ -1254,8 +1349,9 @@ function overPage(event) {
   const point = new DOMPoint(event.clientX, event.clientY)
     .matrixTransform(ctm.inverse());
 
-  return point.x >= 0 && point.x <= PAGE_W &&
-         point.y >= 0 && point.y <= PAGE_H;
+  const metrics = activePageMetrics();
+  return point.x >= 0 && point.x <= metrics.width &&
+         point.y >= 0 && point.y <= metrics.height;
 }
 
 function overTrayZone(event) {
@@ -1326,7 +1422,12 @@ function grabPlaced(event, sticker) {
     const point = pageFraction(moveEvent);
     node.setAttribute(
       "transform",
-      "translate(" + (point.x * PAGE_W) + " " + (point.y * PAGE_H) + ")"
+      (() => {
+        const metrics = activePageMetrics();
+        return "translate(" +
+          (point.x * metrics.width) + " " +
+          (point.y * metrics.height) + ")";
+      })()
     );
     trayZone.classList.toggle("drop-ready", overTrayZone(moveEvent));
   };
@@ -1541,7 +1642,12 @@ function showPlacementPreview(event) {
 
   placementPreview.setAttribute(
     "transform",
-    "translate(" + (point.x * PAGE_W) + " " + (point.y * PAGE_H) + ")"
+    (() => {
+        const metrics = activePageMetrics();
+        return "translate(" +
+          (point.x * metrics.width) + " " +
+          (point.y * metrics.height) + ")";
+      })()
   );
 }
 
@@ -2176,5 +2282,31 @@ async function boot() {
     }
   }
 }
+
+
+function handleOrientationChange() {
+  drawCover();
+
+  if (state) {
+    render();
+  }
+
+  if (!screens.gallery.hidden) {
+    drawGallery();
+  }
+}
+
+if (window.matchMedia) {
+  const orientationQuery = window.matchMedia("(orientation: portrait)");
+  if (typeof orientationQuery.addEventListener === "function") {
+    orientationQuery.addEventListener("change", handleOrientationChange);
+  } else if (typeof orientationQuery.addListener === "function") {
+    orientationQuery.addListener(handleOrientationChange);
+  }
+}
+
+window.addEventListener("orientationchange", () => {
+  setTimeout(handleOrientationChange, 50);
+});
 
 boot();
