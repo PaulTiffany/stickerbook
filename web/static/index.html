@@ -2,49 +2,37 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>StickerBook — Farm</title>
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<header>
-  <h1>StickerBook <span class="sub">farm page</span></h1>
-  <p class="note">
-    Drag a sticker anywhere. The browser only <em>proposes</em>; the Python
-    authority kernel decides, and this page redraws from what it returns.
-  </p>
-</header>
 
-<main>
+<main id="book">
+  <!-- The page is the product. Everything else gets out of its way. -->
   <div id="page-wrap">
-    <svg id="page" viewBox="0 0 1000 640" role="img"
-         aria-label="A farm page with stickers">
-      <!-- passive painted backdrop: scenery, not governed objects -->
-      <g id="backdrop" aria-hidden="true"></g>
-      <!-- stickers: the only things any principal can act on -->
+    <svg id="page" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet"
+         role="img" aria-label="A farm page you can put stickers on">
+      <g id="picture" aria-hidden="true"></g>
       <g id="stickers"></g>
     </svg>
   </div>
 
-  <aside id="panel">
-    <div class="row">
-      <span class="label">revision</span>
-      <span id="revision" class="value">–</span>
-    </div>
-    <div class="row">
-      <span class="label">acting as</span>
-      <span id="principal" class="value">–</span>
-    </div>
-    <div id="verdict" class="verdict idle">drag a sticker to begin</div>
-    <h2>receipts</h2>
-    <ol id="receipts"></ol>
-    <p class="fineprint">
-      The page is yours: you can drag either sticker anywhere. The butterfly
-      still records an agent principal as its owner, and moving it does not
-      change that. No agent is running.
-    </p>
-  </aside>
+  <!-- The sticker sheet, below the page, as in a physical book. -->
+  <div id="tray" aria-label="Sticker tray">
+    <div id="tray-items"></div>
+  </div>
 </main>
+
+<!-- Proof harness. Hidden unless ?dev=1 -- the receipts are our evidence
+     that the authority boundary holds, so they are kept, not deleted. -->
+<aside id="dev" hidden>
+  <div class="row"><span>revision</span><span id="revision">–</span></div>
+  <div class="row"><span>acting as</span><span id="principal">–</span></div>
+  <div id="verdict" class="verdict idle">drag a sticker</div>
+  <h2>receipts</h2>
+  <ol id="receipts"></ol>
+</aside>
 
 <script src="/static/app.js"></script>
 </body>

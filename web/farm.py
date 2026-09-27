@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "core"))
 
 from stickerbook_core import (  # noqa: E402
-    AGENT, ANIMATE_OWN_STICKER, AssetDef, HUMAN, Kernel, MOVE_STICKER,
+    ADD_OWN_STICKER, AGENT, ANIMATE_OWN_STICKER, AssetDef, HUMAN, Kernel, MOVE_STICKER,
     NOOP, OBSERVE, PROFILES, Principal, REMOVE_AGENT_STICKER,
     REMOVE_OWN_STICKER, StickerInstance,
 )
@@ -42,13 +42,17 @@ BACKDROP_FEATURES = [
 ]
 
 
+# What this page's tray offers. Supply is unlimited: a screen has no reason
+# to run out, and a child expects it not to.
 ASSETS = {
     "cow": AssetDef("cow", ("none", "chew")),
     "butterfly": AssetDef("butterfly", ("none", "flutter")),
+    "duck": AssetDef("duck", ("none", "paddle")),
+    "hen": AssetDef("hen", ("none", "peck")),
 }
 
 HUMAN_TOOLS = frozenset({
-    OBSERVE, NOOP, MOVE_STICKER, ANIMATE_OWN_STICKER,
+    OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_STICKER, ANIMATE_OWN_STICKER,
     REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER,
 })
 # Registered, but nothing drives this principal in this milestone.
@@ -75,9 +79,10 @@ def build_world(profile: str = "local-single-agent") -> Kernel:
 def page_chrome() -> dict:
     """Everything the renderer needs that is not authoritative state."""
     return {
-        "backdrop": {
+        "picture": {
             "description": "a small farm at midday",
             "features": BACKDROP_FEATURES,
         },
+        "tray": sorted(ASSETS),
 
     }

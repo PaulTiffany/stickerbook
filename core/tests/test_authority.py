@@ -680,3 +680,33 @@ class ThePageBelongsToTheHuman(unittest.TestCase):
                                   "moth-a", (("x", x), ("y", y))))
             self.assertTrue(r.accepted, "%s,%s -> %s" % (x, y, r.reason))
             self.assertAlmostEqual(k.sticker("moth-a").x, x)
+
+
+class TakingAStickerOffThePage(unittest.TestCase):
+    """Removal follows the same rule as moving: the page is the human's.
+
+    Not new authority -- a human could already remove agent content through
+    remove-agent-sticker. This only means the interaction needs one verb
+    rather than two.
+    """
+
+    def test_human_may_remove_an_agent_owned_sticker(self):
+        k = build()
+        r = k.propose(Command(REMOVE_OWN_STICKER, "human:kid", "c1", "moth-a"))
+        self.assertTrue(r.accepted, r.reason)
+        self.assertIsNone(k.sticker("moth-a"))
+
+    def test_human_may_remove_their_own_sticker(self):
+        k = build()
+        r = k.propose(Command(REMOVE_OWN_STICKER, "human:kid", "c1",
+                              "lantern-h"))
+        self.assertTrue(r.accepted, r.reason)
+        self.assertIsNone(k.sticker("lantern-h"))
+
+    def test_an_agent_still_cannot_remove_a_human_sticker(self):
+        k = build()
+        r = k.propose(Command(REMOVE_OWN_STICKER, "agent:jev", "c1",
+                              "lantern-h"))
+        self.assertFalse(r.accepted)
+        self.assertEqual(r.reason, "not-owner")
+        self.assertIsNotNone(k.sticker("lantern-h"))

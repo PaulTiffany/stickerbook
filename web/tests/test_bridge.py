@@ -82,7 +82,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
 
     def test_page_and_assets_are_served(self):
         for path, needle in (("/", b"StickerBook"),
-                             ("/static/app.js", b"proposeMove"),
+                             ("/static/app.js", b"grabFromTray"),
                              ("/static/style.css", b".sticker")):
             with urllib.request.urlopen(self.url(path), timeout=5) as r:
                 self.assertEqual(r.status, 200)
@@ -307,7 +307,7 @@ class Q7_BackdropIsPassiveScenery(ServerCase):
 
     def test_backdrop_is_present_for_rendering_only(self):
         _, state = self.get("/api/state")
-        drawn = {f["id"] for f in state["backdrop"]["features"]}
+        drawn = {f["id"] for f in state["picture"]["features"]}
         self.assertEqual(drawn, {"barn", "pond", "tree", "fence"})
         governed = {s["id"] for s in state["stickers"]}
         self.assertFalse(drawn & governed)
@@ -375,3 +375,100 @@ class Q10_NoSecondAuthorityKernel(ServerCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class TrayPlacement(ServerCase):
+    """Putting a sticker down from the tray, and taking one off."""
+
+    def place(self, asset, x, y, command_id="a1", based_on=None):
+        return self.post("/api/place", {
+            "asset": asset, "command_id": command_id,
+            "point": {"x": x, "y": y}, "based_on_revision": based_on})
+
+    def take_off(self, sticker, command_id="r1", based_on=None):
+        return self.post("/api/remove", {
+            "sticker": sticker, "command_id": command_id,
+            "based_on_revision": based_on})
+
+    def test_the_tray_offers_the_pages_stickers(self):
+        _, state = self.get("/api/state")
+        self.assertEqual(sorted(state["tray"]),
+                         ["butterfly", "cow", "duck", "hen"])
+
+    def test_placing_from_the_tray_creates_a_sticker_at_that_point(self):
+        before = set(self.bridge.kernel.sticker_ids())
+        _, out = self.place("duck", 0.66, 0.41)
+        self.assertTrue(out["receipt"]["accepted"], out["receipt"]["reason"])
+        new = set(self.bridge.kernel.sticker_ids()) - before
+        self.assertEqual(len(new), 1)
+        sticker = self.bridge.kernel.sticker(new.pop())
+        self.assertEqual(sticker.asset, "duck")
+        self.assertAlmostEqual(sticker.x, 0.66)
+        self.assertAlmostEqual(sticker.y, 0.41)
+
+    def test_a_placed_sticker_belongs_to_the_person_who_placed_it(self):
+        _, out = self.place("hen", 0.3, 0.3)
+        sticker = self.bridge.kernel.sticker(out["receipt"]["object"])
+        self.assertEqual(sticker.owner, farm.HUMAN_ID)
+        self.assertEqual(sticker.created_by, farm.HUMAN_ID)
+
+    def test_supply_is_unlimited(self):
+        for i in range(5):
+            _, out = self.place("duck", 0.5, 0.5, command_id="d%d" % i)
+            self.assertTrue(out["receipt"]["accepted"])
+        ducks = [s for s in self.bridge.kernel.sticker_ids()
+                 if s.startswith("duck")]
+        self.assertEqual(len(ducks), 5)
+
+    def test_an_unknown_asset_is_refused_by_the_kernel(self):
+        _, out = self.place("dragon", 0.5, 0.5)
+        self.assertFalse(out["receipt"]["accepted"])
+        self.assertEqual(out["receipt"]["reason"], "unknown-asset")
+
+    def test_placing_off_the_page_is_refused(self):
+        before = set(self.bridge.kernel.sticker_ids())
+        _, out = self.place("duck", 1.4, 0.5)
+        self.assertFalse(out["receipt"]["accepted"])
+        self.assertEqual(out["receipt"]["reason"], "position-out-of-page")
+        self.assertEqual(set(self.bridge.kernel.sticker_ids()), before)
+
+    def test_taking_a_sticker_off_removes_it(self):
+        _, out = self.take_off("cow-1")
+        self.assertTrue(out["receipt"]["accepted"], out["receipt"]["reason"])
+        self.assertIsNone(self.bridge.kernel.sticker("cow-1"))
+
+    def test_one_verb_takes_off_any_sticker_on_the_page(self):
+        """The child cannot perceive who placed it, so neither should the UI."""
+        _, out = self.take_off("butterfly-1")
+        self.assertTrue(out["receipt"]["accepted"], out["receipt"]["reason"])
+        self.assertIsNone(self.bridge.kernel.sticker("butterfly-1"))
+
+    def test_malformed_place_and_remove_never_reach_the_kernel(self):
+        before_rev = self.bridge.kernel.revision
+        for path, body in [
+            ("/api/place", {"command_id": "c", "point": {"x": 0.5, "y": 0.5}}),
+            ("/api/place", {"asset": "duck", "point": {"x": 0.5, "y": 0.5}}),
+            ("/api/place", {"asset": "duck", "command_id": "c"}),
+            ("/api/place", {"asset": 7, "command_id": "c",
+                            "point": {"x": 0.5, "y": 0.5}}),
+            ("/api/remove", {}),
+            ("/api/remove", {"sticker": "cow-1"}),
+            ("/api/remove", {"sticker": 5, "command_id": "c"}),
+        ]:
+            with self.subTest(path=path, body=body):
+                status, out = self.post(path, body)
+                self.assertEqual(status, 400)
+                self.assertNotIn("receipt", out)
+        self.assertEqual(self.bridge.kernel.revision, before_rev)
+
+    def test_the_browser_still_cannot_choose_its_principal_when_placing(self):
+        _, out = self.post("/api/place", {
+            "asset": "duck", "command_id": "c1",
+            "point": {"x": 0.5, "y": 0.5}, "actor": farm.AGENT_ID})
+        self.assertEqual(out["receipt"]["actor"], farm.HUMAN_ID)
+        sticker = self.bridge.kernel.sticker(out["receipt"]["object"])
+        self.assertEqual(sticker.owner, farm.HUMAN_ID)
+
+    def test_unknown_write_routes_are_404(self):
+        status, _ = self.post("/api/animate", {"sticker": "cow-1"})
+        self.assertEqual(status, 404)

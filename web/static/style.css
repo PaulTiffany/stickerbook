@@ -1,81 +1,184 @@
+/* StickerBook.
+ *
+ * The page dominates. The tray sits under it like the sticker sheet in a
+ * physical book. Everything else is hidden unless ?dev=1.
+ *
+ * Landscape is the first target because a page benefits from width and the
+ * tray costs height -- but nothing here assumes it. In portrait the same
+ * hierarchy survives: page first, stickers at the bottom, minimal chrome.
+ * The answer to a small screen is less visible machinery, not smaller
+ * machinery.
+ */
+
 :root {
-  --ink: #23303a;
-  --muted: #6b7c88;
-  --line: #d6dfe5;
-  --paper: #f7f9fa;
-  --accept: #1d7a4c;
-  --reject: #a8332a;
+  --ink: #2a3540;
+  --paper: #eef1f0;
+  --tray: #ffffff;
+  --edge: #d9e0e3;
+  --sky: #cfe8f5;
+  --grass: #93c47d;
 }
 
 * { box-sizing: border-box; }
 
-body {
+html, body {
   margin: 0;
-  padding: 24px;
-  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
-  color: var(--ink);
+  height: 100%;
+  overflow: hidden;
   background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
 }
 
-header { max-width: 1180px; margin: 0 auto 16px; }
-h1 { font-size: 20px; margin: 0 0 4px; font-weight: 650; }
-h1 .sub { color: var(--muted); font-weight: 400; }
-.note { margin: 0; color: var(--muted); max-width: 70ch; }
-
-main {
-  max-width: 1180px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
-  gap: 20px;
-  align-items: start;
+#book {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(6px, 1.4vmin, 16px);
+  padding-bottom: calc(clamp(6px, 1.4vmin, 16px) + env(safe-area-inset-bottom));
+  gap: clamp(6px, 1.2vmin, 14px);
 }
+
+/* --- the page ---------------------------------------------------------- */
 
 #page-wrap {
+  flex: 1 1 auto;
+  min-height: 0;                 /* lets the page shrink instead of the tray */
+  display: flex;
   background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 10px;
+  border: 1px solid var(--edge);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(20, 40, 60, .07);
   overflow: hidden;
 }
 
-#page { display: block; width: 100%; height: auto; touch-action: none; }
+#page {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;            /* we handle the gestures */
+}
 
+/* --- stickers ---------------------------------------------------------- */
 
 .sticker { cursor: grab; }
-.sticker.dragging { cursor: grabbing; opacity: 0.75; }
-.sticker.pending { opacity: 0.5; }
-.sticker-label { font-size: 13px; text-anchor: middle; fill: var(--ink); }
-.owner-tag { font-size: 11px; text-anchor: middle; fill: var(--muted); }
+.sticker > * { pointer-events: none; }   /* grab the whole thing, not a leg */
+.sticker.held { cursor: grabbing; }
+.sticker.held .art { filter: drop-shadow(0 10px 8px rgba(20, 40, 60, .28)); }
 
-#panel {
-  background: #fff;
-  border: 1px solid var(--line);
+.art { transition: transform .12s ease; }
+.sticker.held .art { transform: scale(1.08); }
+.sticker.settling .art { animation: settle .22s ease; }
+
+@keyframes settle {
+  0%   { transform: scale(1.08); }
+  60%  { transform: scale(.97); }
+  100% { transform: scale(1); }
+}
+
+/* A refused move: the sticker does not go. Same feedback a real sticker
+   gives when it will not stick. */
+.sticker.refused .art { animation: refuse .3s ease; }
+@keyframes refuse {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-4px); }
+  75%      { transform: translateX(4px); }
+}
+
+/* --- the tray ---------------------------------------------------------- */
+
+#tray {
+  flex: 0 0 auto;
+  background: var(--tray);
+  border: 1px solid var(--edge);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(20, 40, 60, .07);
+  padding: clamp(4px, 1vmin, 10px);
+  transition: background .15s ease, border-color .15s ease;
+}
+
+/* Dragging a placed sticker down here takes it off the page. */
+#tray.open { background: #f2f8f4; border-color: #9ccbb0; }
+
+#tray-items {
+  display: flex;
+  align-items: center;
+  gap: clamp(4px, 1.4vmin, 18px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+.tray-sticker {
+  flex: 0 0 auto;
+  width: clamp(54px, 11vmin, 96px);
+  height: clamp(54px, 11vmin, 96px);
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: grab;
+  touch-action: none;
   border-radius: 10px;
-  padding: 16px;
 }
-#panel h2 {
-  font-size: 12px; text-transform: uppercase; letter-spacing: .07em;
-  color: var(--muted); margin: 18px 0 8px;
-}
-.row { display: flex; justify-content: space-between; padding: 3px 0; }
-.label { color: var(--muted); }
-.value { font-variant-numeric: tabular-nums; font-weight: 600; }
+.tray-sticker:active { cursor: grabbing; }
+.tray-sticker svg { width: 100%; height: 100%; display: block; }
+.tray-sticker:hover svg { transform: scale(1.06); }
+.tray-sticker svg { transition: transform .12s ease; }
 
-.verdict {
-  margin-top: 12px; padding: 9px 11px; border-radius: 7px;
-  border: 1px solid var(--line); font-size: 14px;
+/* the piece that follows your finger between tray and page */
+#ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 10;
+  width: clamp(54px, 11vmin, 96px);
+  height: clamp(54px, 11vmin, 96px);
+  transform: translate(-50%, -50%) scale(1.1);
+  filter: drop-shadow(0 10px 8px rgba(20, 40, 60, .3));
 }
-.verdict.idle { color: var(--muted); }
-.verdict.accepted { border-color: #b9e2cd; background: #eefaf3; color: var(--accept); }
-.verdict.rejected { border-color: #f0c9c5; background: #fdf1f0; color: var(--reject); }
 
-#receipts { list-style: none; margin: 0; padding: 0; font-size: 12.5px; }
+/* --- developer view (?dev=1) ------------------------------------------- */
+
+#dev[hidden] { display: none; }
+#dev {
+  position: fixed;
+  top: 10px; right: 10px;
+  width: 290px;
+  max-height: 80vh;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid var(--edge);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 13px;
+  box-shadow: 0 4px 16px rgba(20, 40, 60, .14);
+}
+#dev .row { display: flex; justify-content: space-between; padding: 2px 0; }
+#dev .row span:first-child { color: #6b7c88; }
+#dev h2 {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .07em;
+  color: #6b7c88; margin: 14px 0 6px;
+}
+.verdict { margin-top: 10px; padding: 7px 9px; border-radius: 6px;
+           border: 1px solid var(--edge); }
+.verdict.idle { color: #6b7c88; }
+.verdict.accepted { border-color: #b9e2cd; background: #eefaf3; color: #1d7a4c; }
+.verdict.rejected { border-color: #f0c9c5; background: #fdf1f0; color: #a8332a; }
+#receipts { list-style: none; margin: 0; padding: 0; font-size: 11.5px; }
 #receipts li {
-  border-top: 1px solid var(--line); padding: 7px 0;
-  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
-  word-break: break-word;
+  border-top: 1px solid var(--edge); padding: 5px 0;
+  font-family: ui-monospace, Consolas, monospace; word-break: break-word;
 }
-#receipts li .ok { color: var(--accept); font-weight: 600; }
-#receipts li .no { color: var(--reject); font-weight: 600; }
+#receipts .ok { color: #1d7a4c; font-weight: 600; }
+#receipts .no { color: #a8332a; font-weight: 600; }
 
-.fineprint { margin-top: 16px; font-size: 12.5px; color: var(--muted); }
+/* --- portrait ----------------------------------------------------------
+   Same hierarchy, not a different interface: the page still comes first
+   and the tray still sits beneath it. Only the breathing room changes. */
+@media (orientation: portrait) {
+  #book { padding: clamp(4px, 1vmin, 10px); gap: 8px; }
+  .tray-sticker { width: clamp(50px, 15vmin, 84px);
+                  height: clamp(50px, 15vmin, 84px); }
+  #dev { width: min(290px, calc(100vw - 20px)); }
+}

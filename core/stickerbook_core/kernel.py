@@ -419,7 +419,13 @@ class Kernel:
         sticker, why = self._target(command)
         if why:
             return self._reject(command, why)
-        if sticker.owner != command.actor:
+        # Same rule as _do_move: the page belongs to the human. This is not
+        # new authority -- a human could already remove agent-created content
+        # via remove-agent-sticker. It removes the need for the UI to pick a
+        # different verb depending on who placed the sticker, which no child
+        # could perceive. See docs/MEDIUM.md section 8: remove-agent-sticker
+        # is now redundant for humans and should be retired deliberately.
+        if p.kind not in (HUMAN, OPERATOR) and sticker.owner != command.actor:
             return self._reject(command, "not-owner")
         self.revision += 1
         del self._stickers[sticker.id]

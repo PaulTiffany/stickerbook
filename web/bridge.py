@@ -36,7 +36,9 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import farm  # noqa: E402
-from stickerbook_core import Command, MOVE_STICKER  # noqa: E402
+from stickerbook_core import (  # noqa: E402
+    ADD_OWN_STICKER, Command, MOVE_STICKER, REMOVE_OWN_STICKER,
+)
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 
@@ -77,7 +79,8 @@ class Bridge:
         return {
             "revision": view["revision"],
             "principal": BROWSER_PRINCIPAL,
-            "backdrop": chrome["backdrop"],
+            "picture": chrome["picture"],
+            "tray": chrome["tray"],
             "stickers": stickers,
         }
 
@@ -124,6 +127,70 @@ class Bridge:
         return {"ok": True, "receipt": receipt.to_dict(),
                 "state": self.state()}
 
+    def place(self, body: dict) -> dict:
+        """Put a new sticker on the page, from the tray."""
+        fields = self._common(body, ("asset",))
+        if isinstance(fields, dict):
+            return fields
+        command_id, point, based_on, (asset,) = fields
+        receipt = self.kernel.propose(Command(
+            action=ADD_OWN_STICKER,
+            actor=BROWSER_PRINCIPAL,
+            command_id=command_id,
+            params=(("asset", asset), ("x", point.get("x")),
+                    ("y", point.get("y"))),
+            based_on_revision=based_on,
+        ))
+        return {"ok": True, "receipt": receipt.to_dict(), "state": self.state()}
+
+    def remove(self, body: dict) -> dict:
+        """Take a sticker off the page, back to the tray."""
+        if not isinstance(body, dict):
+            return self._bad_request("body is not a JSON object")
+        sticker_id = body.get("sticker")
+        command_id = body.get("command_id")
+        based_on = body.get("based_on_revision")
+        if not isinstance(sticker_id, str) or not sticker_id:
+            return self._bad_request("missing sticker id")
+        if not isinstance(command_id, str) or not command_id:
+            return self._bad_request("missing command id")
+        if based_on is not None and not isinstance(based_on, int):
+            return self._bad_request("based_on_revision must be an integer")
+        receipt = self.kernel.propose(Command(
+            action=REMOVE_OWN_STICKER,
+            actor=BROWSER_PRINCIPAL,
+            command_id=command_id,
+            object_id=sticker_id,
+            based_on_revision=based_on,
+        ))
+        return {"ok": True, "receipt": receipt.to_dict(), "state": self.state()}
+
+    def _common(self, body, extra=()):
+        """Shape validation shared by the pointer-driven write paths.
+
+        Shape is the bridge's business; VALUES are the kernel's. A coordinate
+        that is off the page or not a number is a well-formed proposal with a
+        bad value, so it goes to the kernel and the refusal is receipted.
+        """
+        if not isinstance(body, dict):
+            return self._bad_request("body is not a JSON object")
+        command_id = body.get("command_id")
+        point = body.get("point")
+        based_on = body.get("based_on_revision")
+        if not isinstance(command_id, str) or not command_id:
+            return self._bad_request("missing command id")
+        if not isinstance(point, dict):
+            return self._bad_request("missing pointer position")
+        if based_on is not None and not isinstance(based_on, int):
+            return self._bad_request("based_on_revision must be an integer")
+        values = []
+        for name in extra:
+            value = body.get(name)
+            if not isinstance(value, str) or not value:
+                return self._bad_request("missing " + name)
+            values.append(value)
+        return command_id, point, based_on, tuple(values)
+
     def _bad_request(self, reason: str) -> dict:
         """Malformed input never reaches the kernel and never mutates."""
         return {"ok": False, "error": reason, "state": self.state()}
@@ -167,8 +234,13 @@ def make_handler(bridge: Bridge, quiet: bool = False):
                 return self._static(path[len("/static/"):])
             return self._send(404, {"error": "not found"})
 
+        ROUTES = {"/api/propose-move": "propose_move",
+                  "/api/place": "place",
+                  "/api/remove": "remove"}
+
         def do_POST(self):
-            if self.path.split("?")[0] != "/api/propose-move":
+            route = self.ROUTES.get(self.path.split("?")[0])
+            if route is None:
                 return self._send(404, {"error": "not found"})
             try:
                 length = int(self.headers.get("Content-Length") or 0)
@@ -182,7 +254,7 @@ def make_handler(bridge: Bridge, quiet: bool = False):
             except (ValueError, UnicodeDecodeError):
                 return self._send(400, {"ok": False, "error": "body is not JSON",
                                         "state": bridge.state()})
-            result = bridge.propose_move(body)
+            result = getattr(bridge, route)(body)
             return self._send(200 if result.get("ok") else 400, result)
 
         def _static(self, name):
