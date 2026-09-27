@@ -208,16 +208,34 @@ function svgImage(src, x, y, width, height) {
 
 const DEMO_BOOK = {
   title: "StickerBook",
-  subtitle: "Farm Book",
+  subtitle: "Pages",
   pages: [
     {
       id: "farm",
       name: "The Farm",
-      summary: "Barn, pond, tree and fence.",
+      summary: "Barns, fields and farm animals.",
     },
   ],
   coming: [],
 };
+
+function mechanicalBook() {
+  const pages = assetManifest && assetManifest.pages || {};
+  const entries = Object.entries(pages);
+
+  if (!entries.length) return copy(DEMO_BOOK);
+
+  return {
+    title: "StickerBook",
+    subtitle: "Pages",
+    pages: entries.map(([id, page]) => ({
+      id,
+      name: page.name || id.replace(/[-_]/g, " "),
+      summary: page.summary || "",
+    })),
+    coming: [],
+  };
+}
 
 const DEMO_SEED = {
   revision: 2,
@@ -276,6 +294,9 @@ function createMechanicalWorld() {
   let worldState = copy(DEMO_SEED);
   let receipts = [];
   let instanceSeq = 2;
+  const pageStickers = {
+    farm: copy(worldState.stickers),
+  };
 
   const definition = (name) =>
     worldState.definitions.find((item) => item.id === name);
@@ -290,9 +311,17 @@ function createMechanicalWorld() {
     point.x >= 0 && point.x <= 1 &&
     point.y >= 0 && point.y <= 1;
 
+  const rememberPage = () => {
+    if (worldState.page && worldState.page.id) {
+      pageStickers[worldState.page.id] = copy(worldState.stickers);
+    }
+  };
+
   const commit = (action, object, mutate) => {
     worldState.revision += 1;
     mutate(worldState.revision);
+    rememberPage();
+
     const receipt = {
       accepted: true,
       action,
@@ -320,21 +349,39 @@ function createMechanicalWorld() {
 
   return {
     name: "public mechanical",
+
     async state() {
       return copy(worldState);
     },
+
     async book() {
-      return copy(DEMO_BOOK);
+      return copy(mechanicalBook());
     },
+
+    async selectPage(pageId) {
+      const page = mechanicalBook().pages.find((item) => item.id === pageId);
+      if (!page) {
+        return { ok: false, error: "unknown-page", state: copy(worldState) };
+      }
+
+      rememberPage();
+      worldState.page = { id: page.id, name: page.name };
+      worldState.stickers = copy(pageStickers[page.id] || []);
+      return { ok: true, state: copy(worldState) };
+    },
+
     async receipts() {
       return { receipts: copy(receipts) };
     },
+
     async creatorDraft() {
       return { ok: false, error: "creator-agent-unavailable" };
     },
+
     async converse() {
       return { ok: false, error: "conversational-agent-unavailable" };
     },
+
     async send(path, body) {
       if (path === "/api/place") {
         const def = definition(body.asset);
@@ -416,6 +463,18 @@ const kernelWorld = {
     const res = await fetch("/api/book", { cache: "no-store" });
     if (!res.ok) throw new Error("book: HTTP " + res.status);
     return res.json();
+  },
+
+  async selectPage(pageId) {
+    const current = await this.state();
+    if (current.page && current.page.id === pageId) {
+      return { ok: true, state: current };
+    }
+    return {
+      ok: false,
+      error: "page-not-governed",
+      state: current,
+    };
   },
 
   async receipts() {
@@ -549,11 +608,11 @@ function cloudNode(x, y, scale, fill) {
   return g;
 }
 
-function drawScene(target, picture, mode) {
+function drawScene(target, picture, mode, pageId) {
   target.replaceChildren();
 
   if (mode !== "cover") {
-    const id = state && state.page && state.page.id || "farm";
+    const id = pageId || state && state.page && state.page.id || "farm";
     const asset = pageAsset(id);
     if (asset && asset.src) {
       target.appendChild(el("image", {
@@ -935,20 +994,36 @@ function drawCover() {
 
 // ------------------------------------------------------------- gallery
 
-function makeThumbSvg() {
+function makeThumbSvg(pageId) {
   const thumb = el("svg", {
     viewBox: "0 0 1000 640",
     preserveAspectRatio: "xMidYMid slice",
     "aria-hidden": "true",
   });
+
+  const asset = pageAsset(pageId);
+  const src = asset && (asset.thumbnail || asset.src);
+
+  if (src) {
+    thumb.appendChild(el("image", {
+      href: src,
+      x: 0,
+      y: 0,
+      width: PAGE_W,
+      height: PAGE_H,
+      preserveAspectRatio: "xMidYMid slice",
+    }));
+    return thumb;
+  }
+
   const scene = el("g");
   thumb.appendChild(scene);
-  drawScene(scene, state ? state.picture : DEMO_SEED.picture, "thumb");
-
-  const frog = stickerNode("frog", "", false, null);
-  frog.setAttribute("transform", "translate(700 460) scale(1.05)");
-  scene.appendChild(frog);
-
+  drawScene(
+    scene,
+    state ? state.picture : DEMO_SEED.picture,
+    "thumb",
+    pageId
+  );
   return thumb;
 }
 
@@ -970,7 +1045,7 @@ async function drawGallery() {
     button.className = "page-tile";
     button.type = "button";
     button.setAttribute("aria-label", "Open " + page.name);
-    button.appendChild(makeThumbSvg());
+    button.appendChild(makeThumbSvg(page.id));
 
     const label = document.createElement("span");
     label.className = "page-tile-label";
@@ -1092,7 +1167,7 @@ function drawTray() {
 function render() {
   if (!state) return;
 
-  drawScene(layers.picture, state.picture, "play");
+  drawScene(layers.picture, state.picture, "play", state.page && state.page.id);
   drawStickers(state.stickers);
   drawTray();
 
@@ -1134,12 +1209,26 @@ function showScreen(name) {
   updateConversationControls();
 }
 
-function enterPlay(pageId) {
-  if (pageId && state && state.page && pageId !== state.page.id) {
-    speak("That page is not connected yet");
+async function enterPlay(pageId) {
+  try {
+    const result = await world.selectPage(pageId);
+
+    if (!result || !result.ok) {
+      speak(
+        world.name === "public mechanical"
+          ? "That page is unavailable."
+          : "That page has art, but its governed world is not connected yet."
+      );
+      return;
+    }
+
+    if (result.state) state = result.state;
+    showScreen("play");
+    render();
+  } catch (error) {
+    console.error(error);
+    speak("That page could not be opened.");
   }
-  showScreen("play");
-  render();
 }
 
 // --------------------------------------------------------------- input

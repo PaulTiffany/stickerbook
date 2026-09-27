@@ -176,6 +176,9 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             ("/static/assets/manifest.json", "application/json"),
             ("/static/assets/cover.svg", "image/svg+xml"),
             ("/static/assets/pages/farm.svg", "image/svg+xml"),
+            ("/static/assets/pages/beach.svg", "image/svg+xml"),
+            ("/static/assets/pages/park.svg", "image/svg+xml"),
+            ("/static/assets/pages/space.svg", "image/svg+xml"),
             ("/static/assets/stickers/frog.svg", "image/svg+xml"),
         )
         for path, content_type in cases:
@@ -201,6 +204,9 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             manifest = json.load(handle)
 
         self.assertEqual(manifest["version"], 2)
+        self.assertEqual(
+            set(manifest["pages"]),
+            {"farm", "beach", "park", "space"})
         self.assertTrue(manifest["stickers"])
 
         for kind, package in manifest["stickers"].items():
