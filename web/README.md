@@ -1,105 +1,134 @@
-# web — the farm page
+# web — StickerBook browser surface
 
-A localhost, human-only sticker book page, backed by the existing Python
-authority kernel in [`../core`](../core). See
-[`../docs/MEDIUM.md`](../docs/MEDIUM.md) for what this is trying to be.
+The browser surface is shared by two intentionally different worlds:
 
-Maximal play surface, minimal persistent chrome. The only permanent
-interface is the page and the hot-bar beneath it:
+- **localhost**: browser gestures are proposals to the Python authority kernel;
+- **GitHub Pages**: a deterministic mechanical world with no live agent,
+  credential, kernel, or privileged backend.
 
-    +-------------------------------+
-    |                               |
-    |          ACTIVE PAGE          |
-    |                               |
-    +---------------------------+---+
-    |  butterfly cow duck hen + | = |
-    +---------------------------+---+
-        sticker hot-bar          menu
+The renderer and child-facing navigation are the same in both profiles.
 
-The grammar is four gestures and nothing else:
+## Navigation
 
-    drag a sticker      "I want this here."
-    double-tap          "Bring this to life."
-    +                   "I want another thing."
-    menu                "I want another world, or the book."
+StickerBook is image-forward rather than app-menu-forward:
 
-Navigation and the sticker library open as sheets that REPLACE play rather
-than shrinking it. On a phone the answer to limited space is less visible
-machinery, not smaller machinery. Nothing numeric is shown.
+```text
+cover
+  |
+  v
+page gallery  ---->  page creator / uploader
+  |
+  v
+active page
+  |
+  +---- home button -> cover
+  |
+  +---- sticker-library button -> popup over the page
+```
 
-Add `?dev=1` for the proof harness: revision, acting principal, the last
-verdict, and the receipt stream.
+The title page is one large visual hit target. Touching it opens the page
+gallery. A small bottom-right title-page target is reserved for responsible
+adult / developer controls.
 
-**If you change Python, restart the bridge.** Static files are read per
-request, so the browser picks up HTML/CSS/JS immediately -- but the kernel
-is imported once at startup. A running bridge will happily serve a new page
-on top of old logic. Starting a second bridge now fails loudly rather than
-leaving the old one answering.
+The gallery is thumbnail-first. It currently exposes the connected farm page
+plus a **+ Make a page** tile that opens an uploader/creator interface.
+
+## Library → sheet → page
+
+The bottom hotbar is the child's working sticker sheet, not the complete
+inventory.
+
+```text
+STICKER LIBRARY
+      |
+      | drag / tap
+      v
+WORKING SHEET (hotbar)
+      |
+      | drag
+      v
+ACTIVE PAGE
+```
+
+The sticker library floats above the page while leaving the hotbar available,
+so a child can drag a sticker thumbnail from the larger library into the
+working sheet.
+
+The hotbar has three regions:
+
+```text
++----------------------------------------------------+
+| home |        working sticker sheet        |  +   |
++----------------------------------------------------+
+```
+
+- **home** returns directly to the title page;
+- the **middle** is the current small set of stickers;
+- **+** opens the larger sticker library.
+
+The library also contains a **+ Make a sticker** path into an upload/preview
+interface. It is intentionally not a powered Sticker Maker yet.
+
+## Page gestures
+
+- drag from hotbar to page: place a StickerInstance;
+- drag a placed sticker: move it;
+- drag a placed sticker back to the hotbar: remove it;
+- double-tap: toggle the definition's declared mechanical animation.
+
+Direct human manipulation suspends animation while the sticker is held.
+
+## Governed localhost path
+
+```text
+pointer gesture
+    -> browser POSTs a proposal:
+         /api/place
+         /api/propose-move
+         /api/remove
+         /api/animate
+    -> bridge validates request shape and fixes the actor
+    -> authority kernel validates values, ownership, revision, budget
+    -> kernel accepts or refuses and issues a Receipt
+    -> browser redraws from authoritative state
+```
+
+The browser is trusted to report pointer input and which sticker was grabbed.
+It is not trusted to choose identity, bypass ownership, establish success, or
+mutate authoritative state.
+
+Add `?dev=1` for revision, acting principal, last verdict, and receipt stream.
+
+**If Python changes, restart the bridge.** Static HTML/CSS/JS are read per
+request, but the kernel is imported once at startup.
 
 ```bash
-cd web && python bridge.py          # then open http://127.0.0.1:8756/
+cd web
+python bridge.py
+# http://127.0.0.1:8756/
 ```
 
-No dependencies beyond the standard library. No agent, no model, no
-credential, no outbound network: the server binds loopback only.
-
-## The path a drag takes
-
-```
-pointer drag
-    -> browser POSTs a proposal:
-         /api/place        {asset, command_id, point}    from the tray
-         /api/propose-move {sticker, command_id, point}   around the page
-         /api/remove       {sticker, command_id}          back to the tray
-         /api/animate      {sticker, command_id}          bring it to life
-    -> bridge validates the SHAPE and fixes the actor      (bridge.py)
-    -> kernel validates the VALUES: position, ownership,
-       revision, budget                                    (../core)
-    -> kernel accepts or refuses, and issues a Receipt
-    -> bridge returns receipt + authoritative state
-    -> browser redraws from that state
-```
-
-## What the browser is trusted with
-
-Reporting where the pointer went, and which sticker was grabbed. That is all.
-
-## What it is explicitly not trusted with
-
-| | Enforced by |
-|---|---|
-| Its own identity — an `actor` field in the body is ignored | `BROWSER_PRINCIPAL` is a constant in `bridge.py` |
-| The position it claims | the kernel checks the coordinate is on the page |
-| Choosing an action | each endpoint issues exactly one command type |
-| Being believed about success | every response carries authoritative state, and the renderer draws that, never its own proposal |
-
-A refused drag is not an error state: the sticker simply does not go, which
-is what a real sticker does when it will not stick. In `?dev=1` the receipt
-says why.
+Add `?mechanical=1` to exercise the same public mechanical adapter locally.
 
 ## Page model
 
-```
+The connected farm page still separates passive scenery from governed objects:
+
+```text
 farm page
-├── passive backdrop        barn · pond · tree · fence
-│     scenery. Not kernel objects. Nothing can act on them, so the
-│     authority kernel is never told they exist.
-└── stickers                cow-1 (human) · butterfly-1 (agent)
-      governed. Owned. The only things any principal can act on.
-      The tray offers cow, butterfly, duck and hen, in unlimited supply.
+├── passive backdrop   barn · pond · tree · fence
+└── StickerInstances   governed, owned, receipt-producing
 ```
 
-Positions are coordinates, fractions of the page. A sticker may go
-anywhere on it. Pixel values are presentation and input detail, never
-authority.
+Positions are page-relative fractions. Pixels remain presentation and input
+detail, never authority.
 
 ## Tests
 
 ```bash
-cd web && python -m unittest discover -s tests      # 52 tests
+cd web
+python -m unittest discover -s tests
 ```
 
-They run a real server on an ephemeral loopback port, because the seam is
-the thing being tested. UI behaviour is not evidence. Test classes map to the
-questions the milestone set out to answer, including that the bridge contains
-no ownership logic of its own — asserted by reading its source.
+The test suite runs a real bridge on an ephemeral loopback port to exercise
+the browser/kernel seam. GitHub Actions also syntax-checks `static/app.js`.
