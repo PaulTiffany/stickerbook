@@ -29,6 +29,7 @@ const sheets = {
   stickers: document.getElementById("sticker-screen"),
 };
 const status = document.getElementById("a11y-status");
+const worldNote = document.getElementById("world-note");
 const dev = {
   panel: document.getElementById("dev"),
   mode: document.getElementById("world-mode"),
@@ -657,6 +658,14 @@ function render() {
   drawPicture(state.picture);
   drawStickers(state.stickers);
   drawTray(state.definitions);
+
+  if (worldNote) {
+    const publicDemo = world.name === "public mechanical";
+    worldNote.hidden = !publicDemo;
+    worldNote.textContent = publicDemo
+      ? "Public demo: animations are mechanical. No Omega/Jev agent runtime is connected."
+      : "";
+  }
 
   if (DEV) {
     dev.mode.textContent = world.name;

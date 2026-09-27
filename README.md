@@ -27,6 +27,8 @@ These are deliberately different deployment profiles.
 
 ### GitHub Pages
 
+Public demo: https://paultiffany.github.io/stickerbook/
+
 The public site is a **mechanical demonstration only**.
 
 It contains no Omega runtime, Jev model call, API key, Python bridge, authority

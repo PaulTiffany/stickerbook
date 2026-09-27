@@ -404,6 +404,19 @@ button { font: inherit; }
   color: var(--muted);
 }
 
+.world-note {
+  display: inline-block;
+  max-width: 680px;
+  padding: 7px 10px;
+  border: 1px solid rgba(85,126,90,.22);
+  border-radius: 999px;
+  background: rgba(255,253,247,.62);
+  color: #5f685e !important;
+  font-size: 12.5px;
+}
+
+.world-note[hidden] { display: none; }
+
 .sheet-body {
   width: min(960px, 100%);
   margin: 0 auto;
