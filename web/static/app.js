@@ -86,7 +86,7 @@ async function loadAssetManifest() {
     const res = await fetch("static/assets/manifest.json", { cache: "no-store" });
     if (!res.ok) throw new Error("asset manifest: HTTP " + res.status);
     const manifest = await res.json();
-    if (!manifest || manifest.version !== 1) {
+    if (!manifest || ![1, 2].includes(manifest.version)) {
       throw new Error("unsupported asset manifest");
     }
     assetManifest = manifest;
@@ -100,6 +100,83 @@ function stickerAsset(kind) {
   return assetManifest &&
     assetManifest.stickers &&
     assetManifest.stickers[kind] || null;
+}
+
+function stickerClip(kind, requestedClip) {
+  const asset = stickerAsset(kind);
+  if (!asset) return null;
+
+  // Manifest v1 compatibility: a single source behaves like an idle clip.
+  if (asset.src) {
+    return {
+      frames: [asset.src],
+      loop: false,
+      motion: asset.animation || null,
+    };
+  }
+
+  const clips = asset.clips || {};
+  const defaultName = asset.default_clip || "idle";
+  const name = requestedClip && requestedClip !== "none"
+    ? requestedClip
+    : defaultName;
+
+  return clips[name] || clips[defaultName] || null;
+}
+
+function clipImage(clip) {
+  if (!clip || !Array.isArray(clip.frames) || !clip.frames.length) return null;
+
+  const image = svgImage(clip.frames[0], -72, -72, 144, 144);
+
+  if (clip.frames.length > 1) {
+    image.dataset.stickerFramePlayer = "1";
+    image._stickerFrames = clip.frames.slice();
+    image._stickerFrameMs = Math.max(40, Number(clip.frame_ms) || 120);
+    image._stickerLoop = clip.loop !== false;
+    image.dataset.stickerFrameIndex = "0";
+  }
+
+  return image;
+}
+
+let frameTickerStarted = false;
+
+function startStickerFrameTicker() {
+  if (frameTickerStarted) return;
+  frameTickerStarted = true;
+
+  const reduced = window.matchMedia &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const tick = (now) => {
+    if (!reduced) {
+      for (const image of document.querySelectorAll(
+        'image[data-sticker-frame-player="1"]'
+      )) {
+        const frames = image._stickerFrames || [];
+        if (frames.length < 2) continue;
+
+        const ms = image._stickerFrameMs || 120;
+        let index = Math.floor(now / ms);
+
+        if (image._stickerLoop) {
+          index %= frames.length;
+        } else {
+          index = Math.min(index, frames.length - 1);
+        }
+
+        if (String(index) !== image.dataset.stickerFrameIndex) {
+          image.setAttribute("href", frames[index]);
+          image.dataset.stickerFrameIndex = String(index);
+        }
+      }
+    }
+
+    requestAnimationFrame(tick);
+  };
+
+  requestAnimationFrame(tick);
 }
 
 function pageAsset(pageId) {
@@ -744,7 +821,7 @@ function installStickerPaper(targetSvg, id) {
   targetSvg.appendChild(defs);
 }
 
-function stickerNode(kind, cls, grabbable, filterId) {
+function stickerNode(kind, cls, grabbable, filterId, clipName) {
   const g = el("g", { class: cls || "sticker" });
 
   if (grabbable) {
@@ -759,9 +836,11 @@ function stickerNode(kind, cls, grabbable, filterId) {
     filter: "url(#" + (filterId || "sticker-paper") + ")",
   });
 
-  const asset = stickerAsset(kind);
-  if (asset && asset.src) {
-    paper.appendChild(svgImage(asset.src, -72, -72, 144, 144));
+  const clip = stickerClip(kind, clipName);
+  const image = clipImage(clip);
+
+  if (image) {
+    paper.appendChild(image);
   } else {
     (ART[kind] || ART.flower)(paper);
   }
@@ -882,7 +961,16 @@ function drawStickers(stickers) {
   layers.stickers.replaceChildren();
 
   for (const sticker of stickers) {
-    const node = stickerNode(sticker.definition, "sticker", true);
+    const clipName = sticker.animation && sticker.animation !== "none"
+      ? sticker.animation
+      : null;
+    const node = stickerNode(
+      sticker.definition,
+      "sticker",
+      true,
+      null,
+      clipName
+    );
     node.setAttribute("data-id", sticker.id);
     node.setAttribute(
       "transform",
@@ -897,7 +985,11 @@ function drawStickers(stickers) {
 
     if (sticker.animation && sticker.animation !== "none") {
       node.classList.add("alive");
-      node.setAttribute("data-alive", sticker.animation);
+      const clip = stickerClip(sticker.definition, sticker.animation);
+      node.setAttribute(
+        "data-alive",
+        clip && clip.motion || sticker.animation
+      );
     }
 
     node.addEventListener("pointerdown", (event) => grabPlaced(event, sticker));
@@ -1628,6 +1720,7 @@ if (DEV) dev.panel.hidden = false;
 
 async function boot() {
   await loadAssetManifest();
+  startStickerFrameTicker();
   drawCover();
   showScreen("cover");
 
