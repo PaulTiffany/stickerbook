@@ -37,6 +37,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import book  # noqa: E402
 import farm  # noqa: E402
+from agent_runtime import DisabledAgentRuntime  # noqa: E402
 from stickerbook_core import (  # noqa: E402
     ADD_OWN_STICKER, ANIMATE_OWN_STICKER, Command, MOVE_STICKER,
     REMOVE_OWN_STICKER,
@@ -63,8 +64,9 @@ MAX_BODY_BYTES = 8192
 class Bridge:
     """Kernel-facing logic, kept free of HTTP so it can be tested directly."""
 
-    def __init__(self, kernel=None):
+    def __init__(self, kernel=None, agent_runtime=None):
         self.kernel = kernel or farm.build_world()
+        self.agent_runtime = agent_runtime or DisabledAgentRuntime()
 
     # -- reads -------------------------------------------------------------
 
@@ -96,11 +98,135 @@ class Bridge:
                 {"id": name, "animations": list(d.animations)}
                 for name, d in sorted(farm.ASSETS.items())
             ],
+            "capabilities": self._agent_capabilities(),
             "stickers": stickers,
         }
 
     def receipts(self, limit: int = 12) -> list:
         return [r.to_dict() for r in self.kernel.receipts[-limit:]]
+
+    def _agent_capabilities(self) -> dict:
+        """Expose only small boolean feature flags to the browser."""
+        try:
+            raw = self.agent_runtime.capabilities()
+        except Exception:
+            raw = {}
+        if not isinstance(raw, dict):
+            raw = {}
+        return {
+            "creator_agent": bool(raw.get("creator_agent", False)),
+            "conversational_agent": bool(
+                raw.get("conversational_agent", False)),
+        }
+
+    def converse(self, body: dict) -> dict:
+        """Return language only. This is not a kernel command path."""
+        if not isinstance(body, dict):
+            return self._bad_request("body is not a JSON object")
+
+        text = body.get("text")
+        if not isinstance(text, str) or not text.strip():
+            return self._bad_request("missing conversation text")
+        text = text.strip()
+        if len(text) > 2000:
+            return self._bad_request("conversation text too long")
+
+        if not self._agent_capabilities()["conversational_agent"]:
+            return {"ok": False,
+                    "error": "conversational-agent-unavailable",
+                    "state": self.state()}
+
+        try:
+            result = self.agent_runtime.converse(
+                text=text,
+                principal=BROWSER_PRINCIPAL,
+                scene=self.state())
+        except Exception:
+            return {"ok": False, "error": "agent-runtime-error",
+                    "state": self.state()}
+
+        if not isinstance(result, dict):
+            return {"ok": False, "error": "invalid-agent-response",
+                    "state": self.state()}
+
+        if not result.get("ok"):
+            error = result.get("error")
+            return {"ok": False,
+                    "error": error if isinstance(error, str)
+                    else "agent-runtime-error",
+                    "state": self.state()}
+
+        reply = result.get("reply")
+        if not isinstance(reply, str) or not reply.strip():
+            return {"ok": False, "error": "invalid-agent-response",
+                    "state": self.state()}
+
+        return {"ok": True, "reply": reply.strip(), "state": self.state()}
+
+    def creator_draft(self, body: dict) -> dict:
+        """Return a non-authoritative page/sticker draft description."""
+        if not isinstance(body, dict):
+            return self._bad_request("body is not a JSON object")
+
+        kind = body.get("kind")
+        prompt = body.get("prompt")
+        animation_intent = body.get("animation_intent")
+        schema = body.get("asset_schema_version")
+
+        if kind not in ("page", "sticker"):
+            return self._bad_request("unknown creator kind")
+        if not isinstance(prompt, str) or not prompt.strip():
+            return self._bad_request("missing creator prompt")
+        prompt = prompt.strip()
+        if len(prompt) > 500:
+            return self._bad_request("creator prompt too long")
+
+        if kind == "sticker":
+            if animation_intent not in ("still", "move", "animate"):
+                return self._bad_request("invalid animation intent")
+            if schema != 2:
+                return self._bad_request("unsupported asset schema")
+        else:
+            animation_intent = None
+            schema = None
+
+        if not self._agent_capabilities()["creator_agent"]:
+            return {"ok": False, "error": "creator-agent-unavailable",
+                    "state": self.state()}
+
+        try:
+            result = self.agent_runtime.creator_draft(
+                kind=kind,
+                prompt=prompt,
+                animation_intent=animation_intent,
+                asset_schema_version=schema,
+                principal=BROWSER_PRINCIPAL,
+                scene=self.state())
+        except Exception:
+            return {"ok": False, "error": "agent-runtime-error",
+                    "state": self.state()}
+
+        if not isinstance(result, dict):
+            return {"ok": False, "error": "invalid-agent-response",
+                    "state": self.state()}
+
+        try:
+            encoded = json.dumps(result)
+        except (TypeError, ValueError):
+            return {"ok": False, "error": "invalid-agent-response",
+                    "state": self.state()}
+        if len(encoded.encode("utf-8")) > 65536:
+            return {"ok": False, "error": "agent-response-too-large",
+                    "state": self.state()}
+
+        if not result.get("ok") or not isinstance(result.get("draft"), dict):
+            error = result.get("error")
+            return {"ok": False,
+                    "error": error if isinstance(error, str)
+                    else "invalid-agent-response",
+                    "state": self.state()}
+
+        return {"ok": True, "draft": result["draft"], "state": self.state()}
 
     # -- the one write path ------------------------------------------------
 
@@ -294,7 +420,9 @@ def make_handler(bridge: Bridge, quiet: bool = False):
         ROUTES = {"/api/propose-move": "propose_move",
                   "/api/place": "place",
                   "/api/remove": "remove",
-                  "/api/animate": "animate"}
+                  "/api/animate": "animate",
+                  "/api/agent/converse": "converse",
+                  "/api/creator/draft": "creator_draft"}
 
         def do_POST(self):
             route = self.ROUTES.get(self.path.split("?")[0])
@@ -355,8 +483,9 @@ def make_handler(bridge: Bridge, quiet: bool = False):
     return Handler
 
 
-def serve(host="127.0.0.1", port=8756, kernel=None, quiet=False):
-    bridge = Bridge(kernel)
+def serve(host="127.0.0.1", port=8756, kernel=None, quiet=False,
+          agent_runtime=None):
+    bridge = Bridge(kernel, agent_runtime=agent_runtime)
     httpd = ThreadingHTTPServer((host, port), make_handler(bridge, quiet))
     return httpd, bridge
 
