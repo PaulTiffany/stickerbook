@@ -7,37 +7,94 @@ files and do not carry authority or executable agent behavior.
 
 ## Replace the cover
 
-1. Put the replacement image in this directory, for example:
-   `cover.jpg`.
-2. Change `manifest.json`:
+Manifest v3 supports orientation-specific visual variants.
+
+A landscape-only cover is valid and will always be shown in full. On a portrait
+screen it will be letterboxed rather than cropped:
 
 ```json
 "cover": {
-  "src": "static/assets/cover.jpg",
   "show_title": false,
-  "alt": "StickerBook cover"
+  "alt": "StickerBook cover",
+  "variants": {
+    "landscape": {
+      "src": "static/assets/cover.svg",
+      "width": 1000,
+      "height": 640
+    }
+  }
 }
 ```
+
+If you make a dedicated portrait composition, add it without removing the
+landscape version:
+
+```json
+"cover": {
+  "show_title": false,
+  "alt": "StickerBook cover",
+  "variants": {
+    "landscape": {
+      "src": "static/assets/cover.svg",
+      "width": 1000,
+      "height": 640
+    },
+    "portrait": {
+      "src": "static/assets/cover-portrait.svg",
+      "width": 640,
+      "height": 1000
+    }
+  }
+}
+```
+
+StickerBook automatically selects the portrait asset after phone rotation when
+one is available. If it is not available, the landscape artwork remains fully
+visible instead of being cropped.
 
 Use `show_title: true` when the image does not already contain the StickerBook
 title and the browser should draw the title layer over it.
 
 ## Add or replace a page background
 
-Store page art under `pages/`. The farm page currently uses:
+Page backgrounds use the same orientation-variant structure:
 
 ```json
 "pages": {
   "farm": {
-    "src": "static/assets/pages/farm.svg",
+    "name": "The Farm",
+    "summary": "Barns, fields and farm animals.",
     "thumbnail": "static/assets/pages/farm.svg",
-    "alt": "Sunny farm with barn, tree, pond and fence"
+    "alt": "Farm StickerBook page",
+    "variants": {
+      "landscape": {
+        "src": "static/assets/pages/farm.svg",
+        "width": 1000,
+        "height": 640
+      }
+    }
   }
 }
 ```
 
-A PNG, JPEG, WebP or SVG can be used. Page artwork is passive scenery. Governed
-StickerInstances remain separate objects on top of the background.
+A future portrait composition can be added as:
+
+```json
+"portrait": {
+  "src": "static/assets/pages/farm-portrait.svg",
+  "width": 640,
+  "height": 1000
+}
+```
+
+A PNG, JPEG, WebP or SVG can be used. High-quality page art is intentionally
+allowed to remain large. StickerBook uses `meet` fitting so the complete
+native composition stays visible. Portrait assets are therefore an artistic
+upgrade, not a requirement for correctness.
+
+Page artwork is passive scenery. Governed StickerInstances remain separate
+objects on top of the background, and their normalized positions map across
+landscape and portrait variants.
 
 ## Add or replace a sticker
 
