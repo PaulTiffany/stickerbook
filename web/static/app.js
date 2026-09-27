@@ -659,6 +659,14 @@ function render() {
   drawStickers(state.stickers);
   drawTray(state.definitions);
 
+  if (worldNote) {
+    const publicDemo = world.name === "public mechanical";
+    worldNote.hidden = !publicDemo;
+    worldNote.textContent = publicDemo
+      ? "Public demo: animations are mechanical. No Omega/Jev agent runtime is connected."
+      : "";
+  }
+
   if (DEV) {
     dev.mode.textContent = world.name;
     dev.revision.textContent = state.revision;
