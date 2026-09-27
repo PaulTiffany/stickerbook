@@ -171,6 +171,22 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             self.assertIn(marker, page)
         self.assertIn(b"Speech recognition may use your browser", page)
 
+    def test_phone_layout_keeps_art_contained_and_hotbar_on_bottom_edge(self):
+        with urllib.request.urlopen(self.url("/"), timeout=5) as r:
+            page = r.read()
+        self.assertIn(
+            b'preserveAspectRatio="xMidYMid meet"',
+            page)
+
+        with urllib.request.urlopen(
+                self.url("/static/style.css"), timeout=5) as r:
+            css = r.read().decode("utf-8")
+        hotbar_start = css.index(".hotbar {")
+        hotbar_end = css.index("}", hotbar_start)
+        hotbar_rule = css[hotbar_start:hotbar_end]
+        self.assertIn("bottom: 0;", hotbar_rule)
+        self.assertIn("width: min(100%, 1120px);", hotbar_rule)
+
     def test_manifest_driven_visual_assets_are_served(self):
         cases = (
             ("/static/assets/manifest.json", "application/json"),
@@ -203,10 +219,21 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         with open(path, "r", encoding="utf-8") as handle:
             manifest = json.load(handle)
 
-        self.assertEqual(manifest["version"], 2)
+        self.assertEqual(manifest["version"], 3)
         self.assertEqual(
             set(manifest["pages"]),
             {"farm", "beach", "park", "space"})
+
+        cover_landscape = manifest["cover"]["variants"]["landscape"]
+        self.assertTrue(cover_landscape["src"])
+        self.assertGreater(cover_landscape["width"], 0)
+        self.assertGreater(cover_landscape["height"], 0)
+
+        for page_id, page in manifest["pages"].items():
+            landscape = page["variants"]["landscape"]
+            self.assertTrue(landscape["src"], page_id)
+            self.assertGreater(landscape["width"], 0, page_id)
+            self.assertGreater(landscape["height"], 0, page_id)
         self.assertTrue(manifest["stickers"])
 
         for kind, package in manifest["stickers"].items():
