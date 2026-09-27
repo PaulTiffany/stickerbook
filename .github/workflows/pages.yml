@@ -37,6 +37,7 @@ jobs:
           cp web/static/app.js _site/static/app.js
           cp web/static/style.css _site/static/style.css
           cp -R web/static/assets _site/static/assets
+          rm -f _site/static/assets/README.md
           touch _site/.nojekyll
 
           # Assets are data only. Keep executable/runtime material out of the
