@@ -24,6 +24,9 @@ jobs:
       - name: Validate browser JavaScript
         run: node --check web/static/app.js
 
+      - name: Validate asset manifest
+        run: python -m json.tool web/static/assets/manifest.json >/dev/null
+
       - name: Build public-only artifact
         shell: bash
         run: |
@@ -33,14 +36,28 @@ jobs:
           cp web/static/index.html _site/index.html
           cp web/static/app.js _site/static/app.js
           cp web/static/style.css _site/static/style.css
+          cp -R web/static/assets _site/static/assets
           touch _site/.nojekyll
 
-          # The Pages artifact is intentionally allow-listed. It must never
-          # contain the Python bridge, authority kernel, Omega/Jev code,
-          # credentials, local configuration, or repository history.
-          expected=$'_site/.nojekyll\n_site/index.html\n_site/static/app.js\n_site/static/style.css'
-          actual="$(find _site -type f | sort)"
-          test "$actual" = "$expected"
+          # Assets are data only. Keep executable/runtime material out of the
+          # public artifact even as the asset library grows.
+          if find _site/static/assets -type f \
+            ! -name '*.svg' \
+            ! -name '*.png' \
+            ! -name '*.jpg' \
+            ! -name '*.jpeg' \
+            ! -name '*.webp' \
+            ! -name '*.json' \
+            ! -name '*.txt' \
+            -print -quit | grep -q .; then
+            echo "Unexpected public asset type"
+            exit 1
+          fi
+
+          # Root deployment remains allow-listed. Everything else must live
+          # below static/assets and satisfy the data-only extension gate above.
+          unexpected="$(find _site -type f | sort | grep -Ev             '^_site/(\.nojekyll|index\.html|static/(app\.js|style\.css|assets/.+))$' || true)"
+          test -z "$unexpected"
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
