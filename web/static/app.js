@@ -42,6 +42,7 @@ const trayZone = document.getElementById("tray-zone");
 const trayItems = document.getElementById("tray-items");
 const trayEmpty = document.getElementById("tray-empty");
 const stickerOverlay = document.getElementById("sticker-overlay");
+const stickerLibraryPanel = document.querySelector(".sticker-library-panel");
 const stickerLibraryGrid = document.getElementById("sticker-library-grid");
 const stickerLibraryView = document.getElementById("sticker-library-view");
 const stickerMakerView = document.getElementById("sticker-maker-view");
@@ -968,6 +969,15 @@ function overTrayZone(event) {
          event.clientY <= box.bottom;
 }
 
+function overLibraryPanel(event) {
+  if (stickerOverlay.hidden || !stickerLibraryPanel) return false;
+  const box = stickerLibraryPanel.getBoundingClientRect();
+  return event.clientX >= box.left &&
+         event.clientX <= box.right &&
+         event.clientY >= box.top &&
+         event.clientY <= box.bottom;
+}
+
 async function tapSticker(sticker) {
   const now = performance.now();
   const isDouble = lastTap.id === sticker.id && now - lastTap.at <= 380;
@@ -1081,6 +1091,13 @@ function grabFromTray(event, kind) {
   const placeGhost = (moveEvent) => {
     ghost.style.left = moveEvent.clientX + "px";
     ghost.style.top = moveEvent.clientY + "px";
+
+    if (stickerLibraryPanel) {
+      stickerLibraryPanel.classList.toggle(
+        "return-ready",
+        overLibraryPanel(moveEvent)
+      );
+    }
   };
 
   placeGhost(event);
@@ -1090,14 +1107,27 @@ function grabFromTray(event, kind) {
     button.removeEventListener("pointerup", onUp);
     button.removeEventListener("pointercancel", onCancel);
     ghost.remove();
+
+    if (stickerLibraryPanel) {
+      stickerLibraryPanel.classList.remove("return-ready");
+    }
   };
 
   const onMove = (moveEvent) => placeGhost(moveEvent);
   const onCancel = () => cleanup();
 
   const onUp = async (upEvent) => {
+    const returnedToLibrary = overLibraryPanel(upEvent);
     cleanup();
 
+    if (returnedToLibrary) {
+      removeFromHotbar(kind);
+      return;
+    }
+
+    // While the library is open, the hotbar is in "organize my sheet" mode.
+    // Do not let a drop through the overlay place a sticker on the page.
+    if (!stickerOverlay.hidden) return;
     if (!overPage(upEvent)) return;
 
     await send("/api/place", {
@@ -1122,6 +1152,15 @@ function addToHotbar(kind) {
   }
 
   speak(kind + " added to your sticker sheet");
+}
+
+function removeFromHotbar(kind) {
+  const index = hotbarKinds.indexOf(kind);
+  if (index === -1) return;
+
+  hotbarKinds.splice(index, 1);
+  drawTray();
+  speak(kind + " returned to the sticker library");
 }
 
 function grabFromLibrary(event, kind) {

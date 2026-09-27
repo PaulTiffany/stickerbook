@@ -702,6 +702,13 @@ button:focus-visible, a:focus-visible, label:focus-within {
     0 22px 60px rgba(37,33,27,.28);
 }
 
+.sticker-library-panel.return-ready {
+  border-color: rgba(239,86,81,.72);
+  box-shadow:
+    0 0 0 4px rgba(239,86,81,.16),
+    0 22px 60px rgba(37,33,27,.28);
+}
+
 .library-header {
   display: flex;
   align-items: center;
