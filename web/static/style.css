@@ -648,7 +648,7 @@ button:focus-visible, a:focus-visible, label:focus-within {
   bottom: 0;
   transform: translateX(-50%);
   flex: 0 0 auto;
-  width: min(calc(100% - 16px), 1120px);
+  width: min(100%, 1120px);
   padding-bottom: env(safe-area-inset-bottom);
   align-self: center;
   min-height: calc(var(--hot) + 14px);
@@ -760,6 +760,12 @@ button:focus-visible, a:focus-visible, label:focus-within {
 .tray-zone.drop-ready {
   background: #edf8ec;
   box-shadow: inset 0 0 0 3px rgba(53,173,98,.22);
+}
+
+.hotbar.drop-ready {
+  box-shadow:
+    inset 0 0 0 4px rgba(53,173,98,.24),
+    0 8px 24px rgba(75,63,49,.11);
 }
 
 #tray-items {
