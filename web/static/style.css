@@ -371,6 +371,133 @@ button:focus-visible, a:focus-visible, label:focus-within {
   font-size: 12.5px;
 }
 
+.creator-mode-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  padding: 6px;
+  border: 1px solid #d2c7b7;
+  border-radius: 18px;
+  background: rgba(255,253,247,.62);
+}
+
+.creator-mode-switch.compact {
+  margin-bottom: 14px;
+}
+
+.creator-mode {
+  min-height: 70px;
+  border: 0;
+  border-radius: 13px;
+  background: transparent;
+  color: #746c60;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+.creator-mode span { font-size: 22px; }
+
+.creator-mode.active {
+  background: #fffdf7;
+  color: #315f3c;
+  box-shadow:
+    0 2px 0 rgba(109,91,66,.08),
+    0 7px 18px rgba(72,61,47,.10);
+}
+
+.agent-creator {
+  min-height: min(54vh, 480px);
+  display: grid;
+  align-content: center;
+  justify-items: stretch;
+  gap: 12px;
+  padding: clamp(20px, 4vw, 42px);
+  border: 1px solid #d0c6b7;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255,255,255,.76), transparent 35%),
+    #f7f0e5;
+}
+
+.agent-creator.compact {
+  min-height: 300px;
+  padding: 22px;
+}
+
+.agent-creator-icon {
+  justify-self: center;
+  font-size: 38px;
+}
+
+.agent-creator label {
+  font-weight: 800;
+  color: #526258;
+}
+
+.agent-creator textarea {
+  width: 100%;
+  min-height: 130px;
+  resize: vertical;
+  border: 1px solid #cbbfac;
+  border-radius: 14px;
+  background: #fffdf8;
+  color: var(--ink);
+  padding: 13px 14px;
+  font: inherit;
+  line-height: 1.4;
+}
+
+.agent-go {
+  justify-self: start;
+  min-height: 46px;
+  border: 0;
+  border-radius: 999px;
+  background: #476f52;
+  color: white;
+  font-weight: 800;
+  padding: 0 20px;
+  cursor: pointer;
+}
+
+.agent-go:hover,
+.agent-go:focus-visible {
+  background: #365a41;
+}
+
+.agent-status {
+  min-height: 1.4em;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.clip-intent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.clip-intent button {
+  border: 1px solid #cbbfac;
+  border-radius: 999px;
+  background: #fffdf8;
+  color: #766e62;
+  padding: 6px 11px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.clip-intent button.active {
+  border-color: #7da387;
+  background: #eaf5ea;
+  color: #315f3c;
+}
+
 /* ---------------------------------------------------------------- play */
 
 .play-screen {
