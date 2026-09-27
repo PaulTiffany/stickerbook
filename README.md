@@ -6,8 +6,10 @@ state, and behavior. It uses Omega as the agent runtime, Jev for typed
 decision selection, and constrained multi-agent control interfaces for
 coordinating how stickers act within shared illustrated environments.
 
-The medium comes first: a person arranges stickers on a page, and machine
-agency may inhabit that shared surface without acquiring authority over it.
+The medium comes first: a child should be able to understand StickerBook by
+recognizing pictures, moving stickers, and touching obvious visual targets.
+Machine agency may inhabit that shared surface without acquiring authority over
+it.
 
 > **Capability is not authority.**
 > More reasoning, memory, confidence, specialization, recursion, or tool skill
@@ -18,8 +20,54 @@ agency may inhabit that shared surface without acquiring authority over it.
 | | |
 |---|---|
 | **`core/`** | Headless authority kernel: principals, sticker ownership, revisions, receipts, deployment ceilings, action budgets, and legal-action tables. Standard library only. 67 tests. |
-| **`web/`** | The StickerBook surface: farm page, reusable StickerDefinitions, placed StickerInstances, drag/place/remove interaction, mechanical animation, book and sticker sheets, and a developer receipt view. The same renderer supports a governed localhost world and a mechanical public world. 52 bridge tests. |
+| **`web/`** | Child-facing StickerBook surface with a title page, image-forward page gallery, active page, working sticker hotbar, overlay sticker library, mechanical animations, and responsible-adult/developer access. The same renderer supports a governed localhost world and a mechanical public world. |
 | **`jev/`** | OmegaJev: typed Jev decision selection inside a bounded Omega path. The model selects from host-provided legal choices; the host validates the choice and the kernel decides. 40 unit tests plus container/host verification suites. |
+
+## Child-facing navigation
+
+StickerBook intentionally avoids app-style navigation chrome.
+
+```text
+TITLE / COVER
+     |
+     v
+PAGE GALLERY  ---->  + MAKE A PAGE
+     |
+     v
+ACTIVE PAGE
+     |
+     +---- bottom-left: back to title
+     |
+     +---- bottom-right: sticker library popup
+```
+
+The page gallery is thumbnail-first, like an image browser. The title page is
+itself the primary navigation target: touch the cover to open the page gallery.
+
+On an active page, the persistent bottom bar has three parts:
+
+```text
++------------------------------------------------------+
+| home |       MY WORKING STICKER SHEET        |  +   |
++------------------------------------------------------+
+```
+
+The middle is not the complete sticker inventory. StickerBook now distinguishes
+three visual layers:
+
+**Library → Sheet → Page**
+
+- **Library**: everything available to use.
+- **Sheet / hotbar**: the small set the child has brought to the current page.
+- **Page**: placed StickerInstances participating in the scene.
+
+The sticker library appears as a popup over the current page rather than
+navigating away. Sticker thumbnails can be dragged from the library into the
+hotbar, then from the hotbar onto the page.
+
+The title page also reserves a quiet bottom-right target for responsible-adult
+and developer controls. That path is intentionally separate from normal child
+navigation.
 
 ## Public demo versus powered runtime
 
@@ -67,31 +115,31 @@ human gesture / agent choice
 Omega/Jev integration remains local and bounded. Models do not directly mutate
 the page.
 
-## The current interaction model
+## Page and sticker creation
 
-The persistent child-facing surface is intentionally small:
+The page gallery contains a simple **+ Make a page** route into an
+image-uploader/creator surface. The sticker library similarly contains a
+**+ Make a sticker** route.
 
-```text
-+----------------------------------+
-|                                  |
-|           ACTIVE PAGE            |
-|                                  |
-+------------------------------+---+
-|   sticker sheet / hot-bar    | book |
-+------------------------------+---+
-```
+These are deliberately lightweight interfaces at this stage. The public demo
+can preview uploaded artwork in browser memory, but it does not claim
+persistence or a powered Sticker Maker service yet.
 
-The main gestures are:
+The intended future Sticker Maker output is a validated StickerDefinition
+package, not arbitrary generated runtime code.
 
-- drag a sticker from the sheet onto the page;
+## Main gestures
+
+- touch the title page to open the page gallery;
+- touch a page thumbnail to enter it;
+- drag a library sticker into the hotbar;
+- drag a hotbar sticker onto the page;
 - drag a placed sticker to move it;
-- drag a placed sticker back to the sheet to remove it;
-- double-tap a placed sticker to bring its declared mechanical animation to life;
-- open the sticker sheet to choose another design;
-- open the book to visit pages.
+- drag a placed sticker back to the hotbar to remove it;
+- double-tap a placed sticker to bring its declared mechanical animation to life.
 
 A StickerDefinition is a reusable design. A StickerInstance is one placement
-of that design on a page.
+of that design on one page.
 
 ## Security boundary
 
@@ -123,7 +171,7 @@ cd ../web && python -m unittest discover -s tests
 cd ../jev && python -m unittest discover -s tests
 ```
 
-Browser JavaScript is also syntax-checked in GitHub Actions.
+Browser JavaScript is syntax-checked in GitHub Actions.
 
 ## Documents
 
@@ -132,19 +180,21 @@ Browser JavaScript is also syntax-checked in GitHub Actions.
 | [`SECURITY.md`](SECURITY.md) | Constitutional security model and implementation status. |
 | [`docs/MEDIUM.md`](docs/MEDIUM.md) | Why the sticker-book medium is itself the experiment. |
 | [`core/README.md`](core/README.md) | Authority kernel. |
-| [`web/README.md`](web/README.md) | Current page/bridge behavior. |
+| [`web/README.md`](web/README.md) | Browser, page, and bridge behavior. |
 | [`jev/SECURITY.md`](jev/SECURITY.md) | OmegaJev boundaries and verification. |
 | [`jev/EXPERIMENT.md`](jev/EXPERIMENT.md) | Experimental record, including failures and retractions. |
 | [`NOTICE`](NOTICE) | Third-party attribution and upstream modifications. |
 
 ## Current direction
 
-The immediate product problem is the shared scene, not more autonomous
-capability. The next useful integrations should make bounded agent behavior
-visible on the same surface already used by the human, while preserving human
-superiority and kernel adjudication.
+The immediate product problem is the shared visual medium, not more autonomous
+capability. The UI should remain recognizable to a child before we expand
+agent behavior.
 
-Sticker Maker, persistence, accounts, social discovery, generated art, and
+The next agent integration should expose bounded, legal sticker behavior on the
+same page without creating a second authority system.
+
+Persistence, accounts, social discovery, powered Sticker Maker behavior, and
 broader multi-agent delegation remain separate future work.
 
 ## Built on
