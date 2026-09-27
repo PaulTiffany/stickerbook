@@ -174,13 +174,28 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
     def test_phone_layout_is_edge_to_edge_without_cropping_native_art(self):
         with urllib.request.urlopen(self.url("/"), timeout=5) as r:
             page = r.read()
+
+        # The cover is decorative and should own the whole visible browser
+        # rectangle. The interactive page remains uncropped so normalized
+        # child/agent coordinates stay inside the semantic world.
         self.assertIn(
+            b'id="cover-scene" class="cover-scene" viewBox="0 0 1000 640" '
+            b'preserveAspectRatio="xMidYMid slice"',
+            page)
+        self.assertIn(
+            b'id="page" viewBox="0 0 1000 640" '
             b'preserveAspectRatio="xMidYMid meet"',
             page)
 
         with urllib.request.urlopen(
                 self.url("/static/style.css"), timeout=5) as r:
             css = r.read().decode("utf-8")
+
+        screen_start = css.index(".screen {")
+        screen_end = css.index("}", screen_start)
+        screen_rule = css[screen_start:screen_end]
+        self.assertIn("width: var(--app-vw, 100dvw);", screen_rule)
+        self.assertIn("height: var(--app-vh, 100dvh);", screen_rule)
 
         hotbar_start = css.index(".hotbar {")
         hotbar_end = css.index("}", hotbar_start)
@@ -201,17 +216,18 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         tile_rule = css[tile_start:tile_end]
         self.assertIn("border: 0;", tile_rule)
 
-        landscape_start = css.index("@media (orientation: landscape)")
-        landscape = css[landscape_start:landscape_start + 300]
-        self.assertIn("#page-wrap", landscape)
+        page_wrap_start = css.index("#page-wrap {")
+        page_wrap_end = css.index("}", page_wrap_start)
+        page_wrap_rule = css[page_wrap_start:page_wrap_end]
         self.assertIn(
-            "bottom: calc(var(--hot) + 14px + env(safe-area-inset-bottom));",
-            landscape)
+            "inset: 0 0 calc(var(--hot) + 14px + "
+            "env(safe-area-inset-bottom)) 0;",
+            page_wrap_rule)
 
     def test_manifest_driven_visual_assets_are_served(self):
         cases = (
             ("/static/assets/manifest.json", "application/json"),
-            ("/static/assets/cover-landscape.svg", "image/svg+xml"),
+            ("/static/assets/cover.svg", "image/svg+xml"),
             ("/static/assets/cover-vertical.svg", "image/svg+xml"),
             ("/static/assets/pages/farm.svg", "image/svg+xml"),
             ("/static/assets/pages/beach.svg", "image/svg+xml"),
@@ -247,15 +263,18 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             {"farm", "beach", "park", "space"})
 
         cover_variants = manifest["cover"]["variants"]
-        self.assertEqual(set(cover_variants), {"landscape", "portrait"})
+        self.assertEqual(
+            set(cover_variants),
+            {"desktop", "landscape_phone", "landscape", "portrait"})
 
-        cover_landscape = cover_variants["landscape"]
-        self.assertEqual(
-            cover_landscape["src"],
-            "static/assets/cover-landscape.svg")
-        self.assertEqual(
-            (cover_landscape["width"], cover_landscape["height"]),
-            (1672, 941))
+        for name in ("desktop", "landscape_phone", "landscape"):
+            cover_landscape = cover_variants[name]
+            self.assertEqual(
+                cover_landscape["src"],
+                "static/assets/cover.svg")
+            self.assertEqual(
+                (cover_landscape["width"], cover_landscape["height"]),
+                (1916, 821))
 
         cover_portrait = cover_variants["portrait"]
         self.assertEqual(

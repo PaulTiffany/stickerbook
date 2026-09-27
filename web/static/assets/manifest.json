@@ -4,10 +4,20 @@
     "show_title": false,
     "alt": "StickerBook title page",
     "variants": {
+      "desktop": {
+        "src": "static/assets/cover.svg",
+        "width": 1916,
+        "height": 821
+      },
+      "landscape_phone": {
+        "src": "static/assets/cover.svg",
+        "width": 1916,
+        "height": 821
+      },
       "landscape": {
-        "src": "static/assets/cover-landscape.svg",
-        "width": 1672,
-        "height": 941
+        "src": "static/assets/cover.svg",
+        "width": 1916,
+        "height": 821
       },
       "portrait": {
         "src": "static/assets/cover-vertical.svg",
