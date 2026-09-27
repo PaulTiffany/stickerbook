@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "cover": {
     "src": "static/assets/cover.svg",
     "show_title": false,
@@ -14,40 +14,175 @@
   },
   "stickers": {
     "bird": {
-      "src": "static/assets/stickers/bird.svg",
-      "animation": "flutter"
+      "default_clip": "idle",
+      "clips": {
+        "idle": {
+          "frames": [
+            "static/assets/stickers/bird.svg"
+          ],
+          "loop": false
+        },
+        "flutter": {
+          "frames": [
+            "static/assets/stickers/bird.svg"
+          ],
+          "frame_ms": 120,
+          "loop": true,
+          "motion": "flutter"
+        }
+      }
     },
     "butterfly": {
-      "src": "static/assets/stickers/butterfly.svg",
-      "animation": "flutter"
+      "default_clip": "idle",
+      "clips": {
+        "idle": {
+          "frames": [
+            "static/assets/stickers/butterfly.svg"
+          ],
+          "loop": false
+        },
+        "flutter": {
+          "frames": [
+            "static/assets/stickers/butterfly.svg"
+          ],
+          "frame_ms": 120,
+          "loop": true,
+          "motion": "flutter"
+        }
+      }
     },
     "frog": {
-      "src": "static/assets/stickers/frog.svg",
-      "animation": "hop"
+      "default_clip": "idle",
+      "clips": {
+        "idle": {
+          "frames": [
+            "static/assets/stickers/frog.svg"
+          ],
+          "loop": false
+        },
+        "hop": {
+          "frames": [
+            "static/assets/stickers/frog.svg"
+          ],
+          "frame_ms": 120,
+          "loop": true,
+          "motion": "hop"
+        }
+      }
     },
     "fish": {
-      "src": "static/assets/stickers/fish.svg",
-      "animation": "swim"
+      "default_clip": "idle",
+      "clips": {
+        "idle": {
+          "frames": [
+            "static/assets/stickers/fish.svg"
+          ],
+          "loop": false
+        },
+        "swim": {
+          "frames": [
+            "static/assets/stickers/fish.svg"
+          ],
+          "frame_ms": 120,
+          "loop": true,
+          "motion": "swim"
+        }
+      }
     },
     "flower": {
-      "src": "static/assets/stickers/flower.svg",
-      "animation": "sway"
+      "default_clip": "idle",
+      "clips": {
+        "idle": {
+          "frames": [
+            "static/assets/stickers/flower.svg"
+          ],
+          "loop": false
+        },
+        "sway": {
+          "frames": [
+            "static/assets/stickers/flower.svg"
+          ],
+          "frame_ms": 120,
+          "loop": true,
+          "motion": "sway"
+        }
+      }
     },
     "cloud": {
-      "src": "static/assets/stickers/cloud.svg",
-      "animation": "drift"
+      "default_clip": "idle",
+      "clips": {
+        "idle": {
+          "frames": [
+            "static/assets/stickers/cloud.svg"
+          ],
+          "loop": false
+        },
+        "drift": {
+          "frames": [
+            "static/assets/stickers/cloud.svg"
+          ],
+          "frame_ms": 120,
+          "loop": true,
+          "motion": "drift"
+        }
+      }
     },
     "cow": {
-      "src": "static/assets/stickers/cow.svg",
-      "animation": "chew"
+      "default_clip": "idle",
+      "clips": {
+        "idle": {
+          "frames": [
+            "static/assets/stickers/cow.svg"
+          ],
+          "loop": false
+        },
+        "chew": {
+          "frames": [
+            "static/assets/stickers/cow.svg"
+          ],
+          "frame_ms": 120,
+          "loop": true,
+          "motion": "chew"
+        }
+      }
     },
     "duck": {
-      "src": "static/assets/stickers/duck.svg",
-      "animation": "paddle"
+      "default_clip": "idle",
+      "clips": {
+        "idle": {
+          "frames": [
+            "static/assets/stickers/duck.svg"
+          ],
+          "loop": false
+        },
+        "paddle": {
+          "frames": [
+            "static/assets/stickers/duck.svg"
+          ],
+          "frame_ms": 120,
+          "loop": true,
+          "motion": "paddle"
+        }
+      }
     },
     "hen": {
-      "src": "static/assets/stickers/hen.svg",
-      "animation": "peck"
+      "default_clip": "idle",
+      "clips": {
+        "idle": {
+          "frames": [
+            "static/assets/stickers/hen.svg"
+          ],
+          "loop": false
+        },
+        "peck": {
+          "frames": [
+            "static/assets/stickers/hen.svg"
+          ],
+          "frame_ms": 120,
+          "loop": true,
+          "motion": "peck"
+        }
+      }
     }
   }
 }
