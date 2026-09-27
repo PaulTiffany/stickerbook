@@ -250,6 +250,13 @@ function pageMetrics(pageId) {
   };
 }
 
+function cssAssetUrl(src) {
+  if (!src) return "none";
+  return 'url("' + String(src)
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"') + '")';
+}
+
 function activePageMetrics() {
   return pageMetrics(state && state.page && state.page.id || "farm");
 }
@@ -682,12 +689,24 @@ function drawScene(target, picture, mode, pageId) {
     if (variant && variant.src) {
       const width = Number(variant.width) || PAGE_W;
       const height = Number(variant.height) || PAGE_H;
+
+      if (mode === "play") {
+        screens.play.style.setProperty(
+          "--page-art",
+          cssAssetUrl(variant.src)
+        );
+      }
+
       target.appendChild(el("image", {
         href: variant.src,
         x: 0, y: 0, width, height,
         preserveAspectRatio: "xMidYMid meet",
       }));
       return;
+    }
+
+    if (mode === "play") {
+      screens.play.style.setProperty("--page-art", "none");
     }
   }
 
@@ -1034,6 +1053,11 @@ function drawCover() {
     const width = Number(variant.width) || PAGE_W;
     const height = Number(variant.height) || PAGE_H;
 
+    screens.cover.style.setProperty(
+      "--cover-art",
+      cssAssetUrl(variant.src)
+    );
+
     document.getElementById("cover-scene").setAttribute(
       "viewBox",
       "0 0 " + width + " " + height
@@ -1082,7 +1106,7 @@ function makeThumbSvg(pageId) {
 
   const thumb = el("svg", {
     viewBox: "0 0 " + width + " " + height,
-    preserveAspectRatio: "xMidYMid meet",
+    preserveAspectRatio: "xMidYMid slice",
     "aria-hidden": "true",
   });
 
@@ -1099,7 +1123,7 @@ function makeThumbSvg(pageId) {
       y: 0,
       width,
       height,
-      preserveAspectRatio: "xMidYMid meet",
+      preserveAspectRatio: "xMidYMid slice",
     }));
     return thumb;
   }

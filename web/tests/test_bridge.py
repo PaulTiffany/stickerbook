@@ -171,7 +171,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             self.assertIn(marker, page)
         self.assertIn(b"Speech recognition may use your browser", page)
 
-    def test_phone_layout_keeps_art_contained_and_hotbar_on_bottom_edge(self):
+    def test_phone_layout_is_edge_to_edge_without_cropping_native_art(self):
         with urllib.request.urlopen(self.url("/"), timeout=5) as r:
             page = r.read()
         self.assertIn(
@@ -181,11 +181,32 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         with urllib.request.urlopen(
                 self.url("/static/style.css"), timeout=5) as r:
             css = r.read().decode("utf-8")
+
         hotbar_start = css.index(".hotbar {")
         hotbar_end = css.index("}", hotbar_start)
         hotbar_rule = css[hotbar_start:hotbar_end]
+        self.assertIn("left: 0;", hotbar_rule)
+        self.assertIn("right: 0;", hotbar_rule)
         self.assertIn("bottom: 0;", hotbar_rule)
-        self.assertIn("width: min(100%, 1120px);", hotbar_rule)
+        self.assertIn("width: 100%;", hotbar_rule)
+        self.assertIn("border-radius: 0;", hotbar_rule)
+
+        cover_start = css.index(".cover-enter::before")
+        cover_end = css.index("}", cover_start)
+        cover_rule = css[cover_start:cover_end]
+        self.assertIn("background-image: var(--cover-art);", cover_rule)
+
+        tile_start = css.index(".page-tile {")
+        tile_end = css.index("}", tile_start)
+        tile_rule = css[tile_start:tile_end]
+        self.assertIn("border: 0;", tile_rule)
+
+        landscape_start = css.index("@media (orientation: landscape)")
+        landscape = css[landscape_start:landscape_start + 300]
+        self.assertIn("#page-wrap", landscape)
+        self.assertIn(
+            "bottom: calc(var(--hot) + 14px + env(safe-area-inset-bottom));",
+            landscape)
 
     def test_manifest_driven_visual_assets_are_served(self):
         cases = (

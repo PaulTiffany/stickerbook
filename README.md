@@ -58,14 +58,18 @@ On an active page, the persistent bottom bar has three parts:
 +------------------------------------------------------+
 ```
 
-The active artwork is a full-viewport stage. StickerBook preserves the complete
-native image instead of cropping it to fill an arbitrary phone shape. The
-hotbar is docked directly to the bottom edge so a child can remove a placed
-sticker with the simple gesture "drag it down."
+The active artwork is an edge-to-edge stage. StickerBook preserves the complete
+native image instead of cropping it to fill an arbitrary phone shape. Any
+unused aspect-ratio space is filled with a soft full-bleed copy of the same
+artwork rather than decorative margins.
+
+The hotbar is flush to the left, right, and bottom edges. In landscape it owns
+a reserved bottom strip, so it never covers the playable image. A child can
+remove a placed sticker with the simple gesture "drag it down."
 
 Cover and page assets support optional landscape and portrait variants. If a
 portrait-specific composition is absent, the landscape artwork remains fully
-visible with safe letterboxing rather than disappearing off-screen.
+visible while the ambient background fills the rest of the viewport.
 
 The middle is not the complete sticker inventory. StickerBook now distinguishes
 three visual layers:
