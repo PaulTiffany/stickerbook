@@ -211,7 +211,8 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
     def test_manifest_driven_visual_assets_are_served(self):
         cases = (
             ("/static/assets/manifest.json", "application/json"),
-            ("/static/assets/cover.svg", "image/svg+xml"),
+            ("/static/assets/cover-landscape.svg", "image/svg+xml"),
+            ("/static/assets/cover-vertical.svg", "image/svg+xml"),
             ("/static/assets/pages/farm.svg", "image/svg+xml"),
             ("/static/assets/pages/beach.svg", "image/svg+xml"),
             ("/static/assets/pages/park.svg", "image/svg+xml"),
@@ -245,10 +246,24 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             set(manifest["pages"]),
             {"farm", "beach", "park", "space"})
 
-        cover_landscape = manifest["cover"]["variants"]["landscape"]
-        self.assertTrue(cover_landscape["src"])
-        self.assertGreater(cover_landscape["width"], 0)
-        self.assertGreater(cover_landscape["height"], 0)
+        cover_variants = manifest["cover"]["variants"]
+        self.assertEqual(set(cover_variants), {"landscape", "portrait"})
+
+        cover_landscape = cover_variants["landscape"]
+        self.assertEqual(
+            cover_landscape["src"],
+            "static/assets/cover-landscape.svg")
+        self.assertEqual(
+            (cover_landscape["width"], cover_landscape["height"]),
+            (1672, 941))
+
+        cover_portrait = cover_variants["portrait"]
+        self.assertEqual(
+            cover_portrait["src"],
+            "static/assets/cover-vertical.svg")
+        self.assertEqual(
+            (cover_portrait["width"], cover_portrait["height"]),
+            (941, 1672))
 
         for page_id, page in manifest["pages"].items():
             landscape = page["variants"]["landscape"]
