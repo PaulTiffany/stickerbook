@@ -916,7 +916,7 @@ button:focus-visible, a:focus-visible, label:focus-within {
   }
 
   .sticker-overlay {
-    inset-bottom: calc(var(--hot) + 20px + env(safe-area-inset-bottom));
+    bottom: calc(var(--hot) + 20px + env(safe-area-inset-bottom));
   }
 }
 
