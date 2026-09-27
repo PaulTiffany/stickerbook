@@ -1362,6 +1362,14 @@ function overTrayZone(event) {
          event.clientY <= box.bottom;
 }
 
+function overHotbar(event) {
+  const box = hotbar.getBoundingClientRect();
+  return event.clientX >= box.left &&
+         event.clientX <= box.right &&
+         event.clientY >= box.top &&
+         event.clientY <= box.bottom;
+}
+
 function overLibraryPanel(event) {
   if (stickerOverlay.hidden || !stickerLibraryPanel) return false;
   const box = stickerLibraryPanel.getBoundingClientRect();
@@ -1409,6 +1417,7 @@ function grabPlaced(event, sticker) {
     node.removeEventListener("pointercancel", onCancel);
     node.classList.remove("held");
     trayZone.classList.remove("drop-ready");
+    hotbar.classList.remove("drop-ready");
   };
 
   const onMove = (moveEvent) => {
@@ -1429,7 +1438,7 @@ function grabPlaced(event, sticker) {
           (point.y * metrics.height) + ")";
       })()
     );
-    trayZone.classList.toggle("drop-ready", overTrayZone(moveEvent));
+    hotbar.classList.toggle("drop-ready", overHotbar(moveEvent));
   };
 
   const onCancel = () => {
@@ -1440,7 +1449,7 @@ function grabPlaced(event, sticker) {
   const onUp = async (upEvent) => {
     cleanup();
 
-    if (overTrayZone(upEvent) && moved) {
+    if (overHotbar(upEvent) && moved) {
       await send("/api/remove", {
         sticker: sticker.id,
         command_id: nextId("remove"),
