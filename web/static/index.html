@@ -72,15 +72,36 @@
   </header>
 
   <div class="creator-body">
-    <label class="upload-card" for="page-upload">
-      <input id="page-upload" type="file" accept="image/*" hidden>
-      <div id="page-upload-preview" class="upload-preview">
-        <span class="upload-plus">+</span>
-        <strong>Choose a picture</strong>
-        <small>photo or artwork</small>
-      </div>
-    </label>
-    <div class="creator-note">Page saving is not enabled in the public demo yet.</div>
+    <div class="creator-mode-switch" aria-label="How to make this page">
+      <button class="creator-mode active" type="button" data-page-mode="upload">
+        <span aria-hidden="true">🖼️</span><strong>Upload</strong>
+      </button>
+      <button class="creator-mode" type="button" data-page-mode="assist">
+        <span aria-hidden="true">✨</span><strong>Make with StickerBook</strong>
+      </button>
+    </div>
+
+    <div id="page-upload-mode">
+      <label class="upload-card" for="page-upload">
+        <input id="page-upload" type="file" accept="image/*" hidden>
+        <div id="page-upload-preview" class="upload-preview">
+          <span class="upload-plus">+</span>
+          <strong>Choose a picture</strong>
+          <small>photo or artwork</small>
+        </div>
+      </label>
+    </div>
+
+    <div id="page-assist-mode" class="agent-creator" hidden>
+      <div class="agent-creator-icon" aria-hidden="true">✨</div>
+      <label for="page-agent-prompt">What kind of world?</label>
+      <textarea id="page-agent-prompt" maxlength="500"
+        placeholder="A moonlit pond with fireflies..."></textarea>
+      <button id="page-agent-go" class="agent-go" type="button">Make a draft</button>
+      <div id="page-agent-status" class="agent-status" role="status"></div>
+    </div>
+
+    <div class="creator-note">Uploads and agent drafts stay local to the active creator flow until saving is added.</div>
   </div>
 </section>
 
@@ -151,14 +172,40 @@
 
     <div id="sticker-maker-view" class="sticker-maker-view" hidden>
       <button id="sticker-maker-back" class="maker-back" type="button">‹ stickers</button>
-      <label class="upload-card compact" for="sticker-upload">
-        <input id="sticker-upload" type="file" accept="image/*" hidden>
-        <div id="sticker-upload-preview" class="upload-preview">
-          <span class="upload-plus">+</span>
-          <strong>Choose your art</strong>
-          <small>Sticker Maker will refine this later</small>
+
+      <div class="creator-mode-switch compact" aria-label="How to make this sticker">
+        <button class="creator-mode active" type="button" data-sticker-mode="upload">
+          <span aria-hidden="true">🖼️</span><strong>Upload</strong>
+        </button>
+        <button class="creator-mode" type="button" data-sticker-mode="assist">
+          <span aria-hidden="true">✨</span><strong>Make with StickerBook</strong>
+        </button>
+      </div>
+
+      <div id="sticker-upload-mode">
+        <label class="upload-card compact" for="sticker-upload">
+          <input id="sticker-upload" type="file" accept="image/*" hidden>
+          <div id="sticker-upload-preview" class="upload-preview">
+            <span class="upload-plus">+</span>
+            <strong>Choose your art</strong>
+            <small>drawing, photo or picture</small>
+          </div>
+        </label>
+      </div>
+
+      <div id="sticker-assist-mode" class="agent-creator compact" hidden>
+        <div class="agent-creator-icon" aria-hidden="true">✨</div>
+        <label for="sticker-agent-prompt">What sticker should we make?</label>
+        <textarea id="sticker-agent-prompt" maxlength="500"
+          placeholder="A sleepy purple dragon..."></textarea>
+        <div class="clip-intent" aria-label="Animation intent">
+          <button type="button" data-clip-intent="still" class="active">still</button>
+          <button type="button" data-clip-intent="move">move</button>
+          <button type="button" data-clip-intent="animate">frames</button>
         </div>
-      </label>
+        <button id="sticker-agent-go" class="agent-go" type="button">Make a draft</button>
+        <div id="sticker-agent-status" class="agent-status" role="status"></div>
+      </div>
     </div>
   </div>
 </section>

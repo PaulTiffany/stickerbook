@@ -137,15 +137,24 @@ sticker asset.
 
 ## Page and sticker creation
 
-The page gallery contains a simple **+ Make a page** route into an
-image-uploader/creator surface. The sticker library similarly contains a
-**+ Make a sticker** route.
+Both creator surfaces now offer two explicit routes:
 
-These are deliberately lightweight interfaces at this stage. The public demo
-can preview uploaded artwork in browser memory, but it does not claim
-persistence or a powered Sticker Maker service yet.
+- **Upload**: choose existing artwork from the device.
+- **Make with StickerBook**: describe the desired page or sticker to a future
+  local creator agent.
 
-The intended future Sticker Maker output is a validated StickerDefinition
+The public Pages demo does not pretend that an agent is connected. Selecting
+the assisted path explains that powered creation belongs in the local runtime.
+
+The browser-side contract is already defined for that future runtime. Page
+drafts send a textual prompt. Sticker drafts additionally send an animation
+intent and request asset schema version 2, whose output is expected to be a
+validated visual package with an idle clip and optional movement/frame clips.
+
+This seam returns a draft only. It does not grant authority, mutate the kernel,
+or install generated executable code.
+
+The intended Sticker Maker output is a validated StickerDefinition visual
 package, not arbitrary generated runtime code.
 
 ## Main gestures

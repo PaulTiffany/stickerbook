@@ -212,6 +212,11 @@ const DEMO_SEED = {
   revision: 2,
   principal: "human:player",
   page: { id: "farm", name: "The Farm" },
+  capabilities: {
+    creator_agent: false,
+    conversational_agent: false,
+    voice: false,
+  },
   picture: {
     description: "a small farm at midday",
     features: [
@@ -313,6 +318,9 @@ function createMechanicalWorld() {
     async receipts() {
       return { receipts: copy(receipts) };
     },
+    async creatorDraft() {
+      return { ok: false, error: "creator-agent-unavailable" };
+    },
     async send(path, body) {
       if (path === "/api/place") {
         const def = definition(body.asset);
@@ -399,6 +407,15 @@ const kernelWorld = {
   async receipts() {
     const res = await fetch("/api/receipts", { cache: "no-store" });
     if (!res.ok) throw new Error("receipts: HTTP " + res.status);
+    return res.json();
+  },
+
+  async creatorDraft(body) {
+    const res = await fetch("/api/creator/draft", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
     return res.json();
   },
 
@@ -1639,6 +1656,92 @@ function previewUpload(input, preview, kind) {
   }
 }
 
+function setCreatorMode(kind, mode) {
+  const prefix = kind === "page" ? "page" : "sticker";
+  const upload = document.getElementById(prefix + "-upload-mode");
+  const assist = document.getElementById(prefix + "-assist-mode");
+  const buttons = document.querySelectorAll(
+    '[data-' + prefix + '-mode]'
+  );
+
+  for (const button of buttons) {
+    button.classList.toggle(
+      "active",
+      button.dataset[prefix + "Mode"] === mode
+    );
+  }
+
+  upload.hidden = mode !== "upload";
+  assist.hidden = mode !== "assist";
+}
+
+function creatorCapabilities() {
+  return state && state.capabilities || {};
+}
+
+function creatorUnavailableMessage() {
+  if (world.name === "public mechanical") {
+    return "Agent-assisted creation is not connected on the public demo. Use Upload here, or open the powered local StickerBook.";
+  }
+  return "The creator-agent seam is ready, but no local creator agent is connected yet.";
+}
+
+let stickerClipIntent = "still";
+
+async function requestCreatorDraft(kind) {
+  const isSticker = kind === "sticker";
+  const prompt = document.getElementById(
+    isSticker ? "sticker-agent-prompt" : "page-agent-prompt"
+  ).value.trim();
+  const statusNode = document.getElementById(
+    isSticker ? "sticker-agent-status" : "page-agent-status"
+  );
+
+  if (!prompt) {
+    statusNode.textContent = isSticker
+      ? "Describe the sticker you want."
+      : "Describe the world you want.";
+    return;
+  }
+
+  const capabilities = creatorCapabilities();
+  if (!capabilities.creator_agent) {
+    statusNode.textContent = creatorUnavailableMessage();
+    return;
+  }
+
+  statusNode.textContent = "Making a draft…";
+
+  try {
+    const payload = await world.creatorDraft({
+      kind,
+      prompt,
+      animation_intent: isSticker ? stickerClipIntent : null,
+      asset_schema_version: 2,
+      based_on_revision: state ? state.revision : null,
+    });
+
+    if (!payload || !payload.ok) {
+      statusNode.textContent =
+        payload && payload.error || "Creator agent did not return a draft.";
+      return;
+    }
+
+    if (isSticker) {
+      statusNode.textContent =
+        "Draft package ready: " +
+        (payload.draft && payload.draft.summary || "idle + behavior clips");
+    } else {
+      statusNode.textContent =
+        "Draft page ready: " +
+        (payload.draft && payload.draft.summary || "preview available");
+    }
+  } catch (error) {
+    console.error(error);
+    statusNode.textContent = "Creator agent is unavailable.";
+  }
+}
+
 // --------------------------------------------------------------- boot
 
 document.getElementById("cover-enter").addEventListener("click", () => {
@@ -1689,6 +1792,35 @@ document.getElementById("sticker-upload").addEventListener("change", (event) => 
     document.getElementById("sticker-upload-preview"),
     "sticker"
   );
+});
+
+for (const button of document.querySelectorAll("[data-page-mode]")) {
+  button.addEventListener("click", () => {
+    setCreatorMode("page", button.dataset.pageMode);
+  });
+}
+
+for (const button of document.querySelectorAll("[data-sticker-mode]")) {
+  button.addEventListener("click", () => {
+    setCreatorMode("sticker", button.dataset.stickerMode);
+  });
+}
+
+for (const button of document.querySelectorAll("[data-clip-intent]")) {
+  button.addEventListener("click", () => {
+    stickerClipIntent = button.dataset.clipIntent;
+    for (const peer of document.querySelectorAll("[data-clip-intent]")) {
+      peer.classList.toggle("active", peer === button);
+    }
+  });
+}
+
+document.getElementById("page-agent-go").addEventListener("click", () => {
+  requestCreatorDraft("page");
+});
+
+document.getElementById("sticker-agent-go").addEventListener("click", () => {
+  requestCreatorDraft("sticker");
 });
 
 document.addEventListener("keydown", (event) => {
