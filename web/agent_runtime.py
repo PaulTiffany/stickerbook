@@ -4,7 +4,8 @@ The browser can talk to an agent runtime through the bridge, but the runtime
 does not receive the authority kernel object. It receives only:
   * the fixed browser principal id,
   * a JSON scene view,
-  * validated user text / creator intent.
+  * validated user text / creator intent,
+  * an optional transient child deictic reference for the current turn.
 
 This seam returns language or draft metadata only. It is not an alternate
 write path into the StickerBook authority kernel.
@@ -25,7 +26,9 @@ class DisabledAgentRuntime:
             "conversational_agent": False,
         }
 
-    def converse(self, *, text: str, principal: str, scene: dict) -> dict:
+    def converse(
+            self, *, text: str, principal: str, scene: dict,
+            reference: dict | None = None) -> dict:
         return {
             "ok": False,
             "error": "conversational-agent-unavailable",

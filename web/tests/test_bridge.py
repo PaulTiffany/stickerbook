@@ -30,6 +30,7 @@ class FakeAgentRuntime:
     def __init__(self):
         self.last_principal = None
         self.last_scene = None
+        self.last_reference = None
         self.last_creator = None
 
     def capabilities(self):
@@ -38,9 +39,10 @@ class FakeAgentRuntime:
             "conversational_agent": True,
         }
 
-    def converse(self, *, text, principal, scene):
+    def converse(self, *, text, principal, scene, reference=None):
         self.last_principal = principal
         self.last_scene = scene
+        self.last_reference = reference
         return {"ok": True, "reply": "Omega heard: " + text}
 
     def creator_draft(
@@ -527,14 +529,17 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
 
         self.assertTrue(manifest["stickers"])
 
-        self.assertEqual(len(manifest["stickers"]), 9)
+        self.assertEqual(len(manifest["stickers"]), 33)
 
+        themes_seen = set()
         for kind, package in manifest["stickers"].items():
             for key in (
-                    "name", "category", "tags", "aliases", "sprites",
+                    "name", "category", "themes", "tags", "aliases", "sprites",
                     "default_clip", "clips", "scale_bounds"):
                 self.assertIn(key, package, (kind, key))
 
+            self.assertTrue(package["themes"], kind)
+            themes_seen.update(package["themes"])
             self.assertGreaterEqual(len(package["sprites"]), 4, kind)
             self.assertIn(package["default_clip"], package["clips"], kind)
             self.assertEqual(package["scale_bounds"], {"min": 0.9, "max": 1.1})
@@ -554,6 +559,11 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
                     self.assertIn(frame, package["sprites"],
                                   (kind, clip_name, frame))
 
+        self.assertEqual(
+            themes_seen,
+            {"farm", "beach", "playground", "space"},
+        )
+
     def test_each_sticker_carries_its_authoritative_transform(self):
         _, state = self.get("/api/state")
         for s in state["stickers"]:
@@ -561,12 +571,15 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             self.assertAlmostEqual(s["x"], kernel_sticker.x)
             self.assertAlmostEqual(s["y"], kernel_sticker.y)
             self.assertAlmostEqual(s["scale"], kernel_sticker.scale)
+            self.assertEqual(s["facing"], kernel_sticker.facing)
 
     def test_catalog_search_and_categories_are_served(self):
         with urllib.request.urlopen(self.url("/"), timeout=5) as r:
             page = r.read()
         self.assertIn(b'id="sticker-search"', page)
+        self.assertIn(b'id="sticker-themes"', page)
         self.assertIn(b'id="sticker-categories"', page)
+        self.assertIn(b'id="reference-layer"', page)
 
         with urllib.request.urlopen(
                 self.url("/static/app.js"), timeout=5) as r:
@@ -574,6 +587,11 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         self.assertIn("function stickerCatalogMatches", app)
         self.assertIn("entry.tags", app)
         self.assertIn("entry.aliases", app)
+        self.assertIn("entry.themes", app)
+        self.assertIn("function drawStickerThemes", app)
+        self.assertIn("function startDeicticGesture", app)
+        self.assertIn("body.reference = reference", app)
+        self.assertIn('sticker.facing === "left"', app)
         self.assertIn("stickerSearch.addEventListener", app)
         self.assertIn("stickerCategory", app)
         self.assertIn("if (clip && clip.motion)", app)
@@ -610,6 +628,62 @@ class Q1b_AgentInterfacesStayOutsideKernelAuthority(ServerCase):
             self.bridge.agent_runtime.last_principal,
             bridge_mod.BROWSER_PRINCIPAL)
         self.assertNotIn("kernel", self.bridge.agent_runtime.last_scene)
+        self.assertIsNone(self.bridge.agent_runtime.last_reference)
+
+    def test_transient_point_reference_accompanies_one_conversation(self):
+        before = self.bridge.kernel.revision
+        status, body = self.post("/api/agent/converse", {
+            "text": "the ducks swim here",
+            "reference": {
+                "kind": "point",
+                "point": {"x": 0.71, "y": 0.58},
+            },
+        })
+        self.assertEqual(status, 200)
+        self.assertTrue(body["ok"], body)
+        self.assertEqual(self.bridge.kernel.revision, before)
+        self.assertEqual(self.bridge.agent_runtime.last_reference, {
+            "kind": "point",
+            "page": "farm",
+            "point": {"x": 0.71, "y": 0.58},
+        })
+        _, state = self.get("/api/state")
+        self.assertNotIn("reference", state)
+        self.assertNotIn("references", state)
+
+    def test_transient_box_reference_is_normalized_conversation_context(self):
+        before = self.bridge.kernel.revision
+        status, body = self.post("/api/agent/converse", {
+            "text": "nothing should go in this area",
+            "reference": {
+                "kind": "box",
+                "box": {"x1": 0.1, "y1": 0.2, "x2": 0.6, "y2": 0.7},
+            },
+        })
+        self.assertEqual(status, 200)
+        self.assertTrue(body["ok"], body)
+        self.assertEqual(self.bridge.kernel.revision, before)
+        self.assertEqual(self.bridge.agent_runtime.last_reference["kind"], "box")
+        self.assertEqual(self.bridge.agent_runtime.last_reference["page"], "farm")
+
+    def test_bad_deictic_reference_is_rejected_before_runtime(self):
+        before = self.bridge.kernel.revision
+        bad = (
+            {"kind": "point", "point": {"x": -0.1, "y": 0.4}},
+            {"kind": "box", "box": {"x1": 0.8, "y1": 0.2,
+                                    "x2": 0.3, "y2": 0.7}},
+            {"kind": "lasso", "points": []},
+        )
+        for reference in bad:
+            with self.subTest(reference=reference):
+                status, body = self.post("/api/agent/converse", {
+                    "text": "here",
+                    "reference": reference,
+                })
+                self.assertEqual(status, 400)
+                self.assertFalse(body["ok"])
+        self.assertEqual(self.bridge.kernel.revision, before)
+        self.assertIsNone(self.bridge.agent_runtime.last_reference)
 
     def test_creator_draft_targets_v2_package_without_mutating_kernel(self):
         before = self.bridge.kernel.revision
@@ -802,6 +876,34 @@ class Q2b_StickerScaleIsAGovernedWorldTransform(ServerCase):
         self.assertFalse(body["receipt"]["accepted"])
         self.assertEqual(
             body["receipt"]["action"], "resize-own-sticker")
+
+
+class Q2c_StickerFacingIsAGovernedWorldTransform(ServerCase):
+
+    def test_human_can_flip_sticker_facing(self):
+        status, body = self.post("/api/facing", {
+            "sticker": "cow-1",
+            "command_id": "face-left",
+            "facing": "left",
+        })
+        self.assertEqual(status, 200)
+        self.assertTrue(body["receipt"]["accepted"], body["receipt"])
+        self.assertEqual(
+            self.bridge.kernel.sticker("cow-1").facing, "left")
+        by_id = {item["id"]: item for item in body["state"]["stickers"]}
+        self.assertEqual(by_id["cow-1"]["facing"], "left")
+
+    def test_unknown_facing_is_receipted_and_refused(self):
+        status, body = self.post("/api/facing", {
+            "sticker": "cow-1",
+            "command_id": "face-bad",
+            "facing": "upside-down",
+        })
+        self.assertEqual(status, 200)
+        self.assertFalse(body["receipt"]["accepted"])
+        self.assertEqual(
+            body["receipt"]["reason"], "facing-not-supported")
+        self.assertEqual(self.bridge.kernel.sticker("cow-1").facing, "right")
 
 
 class Q3_EveryMutationPassesTheAuthorityGate(ServerCase):
@@ -1066,8 +1168,7 @@ class TrayPlacement(ServerCase):
         _, state = self.get("/api/state")
         self.assertEqual(
             sorted(d["id"] for d in state["definitions"]),
-            ["bird", "butterfly", "cloud", "cow", "duck", "fish",
-             "flower", "frog", "hen"],
+            sorted(farm.ASSETS),
         )
 
     def test_placing_from_the_tray_creates_a_sticker_at_that_point(self):
@@ -1156,11 +1257,7 @@ class DefinitionsAndInstances(ServerCase):
     def test_state_separates_definitions_from_instances(self):
         _, st = self.get("/api/state")
         designs = {d["id"] for d in st["definitions"]}
-        self.assertEqual(
-            designs,
-            {"bird", "butterfly", "frog", "fish", "flower", "cloud",
-             "cow", "duck", "hen"},
-        )
+        self.assertEqual(designs, set(farm.ASSETS))
         for d in st["definitions"]:
             self.assertIn("none", d["animations"])
             self.assertEqual(d["rest_clip"], "rest")

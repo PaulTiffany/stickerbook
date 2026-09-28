@@ -106,6 +106,23 @@ surface for accessibility. There is no separate adult-panel chat path.
 The public mechanical build allows that text surface to be exercised with a
 fixed stub reply; no conversational model is called.
 
+## Child deictic page reference
+
+Conversation may carry one optional transient reference alongside the child's
+utterance. The browser creates it only from a bare-page tap or rectangular
+drag and sends normalized page coordinates:
+
+```json
+{"kind":"point","point":{"x":0.71,"y":0.58}}
+{"kind":"box","box":{"x1":0.1,"y1":0.2,"x2":0.6,"y2":0.7}}
+```
+
+The localhost bridge validates the coordinates, attaches the governed page id,
+and gives the reference to conversational Omega only for that turn. It never
+enters kernel state and is not automatically included in a Jev observation.
+Thus pointing at pixels can help Omega understand what the child means without
+silently turning painted background content into governed objects.
+
 ## Sticker action substrate
 
 The shipped sticker substrate deliberately separates visual pose from governed
@@ -117,9 +134,11 @@ scale plus its current clip (still exposed on the historic `animation` wire
 field for compatibility). The v4 built-ins use frame sprites for clips; their
 clip recipes do not smuggle locomotion through CSS transforms.
 
-Translation and apparent depth are world state. Scale is currently bounded to
-0.90–1.10 globally, and the host-generated agent action table offers only
-bounded 0.02 scale steps. The kernel validates the final value independently.
+Translation, apparent depth, and horizontal facing are world state. Scale is
+currently bounded to 0.90–1.10 globally, and the host-generated agent action
+table offers only bounded 0.02 scale steps. Facing is a typed left/right
+transform with host-generated FACE choices. The kernel validates both
+independently.
 
 The current local agent authority profiles intentionally contain no sticker
 removal capability. Human control retains removal. This is non-representability,

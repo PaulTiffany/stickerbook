@@ -579,6 +579,49 @@ button:focus-visible, a:focus-visible, label:focus-within {
 
 #page.placing:hover { cursor: copy; }
 
+#reference-layer {
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity .42s ease;
+}
+
+#reference-layer.reference-fade {
+  opacity: 0;
+}
+
+.deictic-reference {
+  pointer-events: none;
+}
+
+.deictic-point {
+  fill: rgba(255, 246, 183, .26);
+  stroke: rgba(255, 250, 224, .98);
+  stroke-width: 5;
+  stroke-dasharray: 10 7;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 2px 5px rgba(50, 58, 48, .28));
+}
+
+.deictic-point-core {
+  fill: rgba(255, 241, 141, .92);
+  stroke: rgba(74, 83, 69, .48);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.deictic-box {
+  fill: rgba(255, 246, 183, .15);
+  stroke: rgba(255, 250, 224, .98);
+  stroke-width: 5;
+  stroke-dasharray: 14 9;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 2px 5px rgba(50, 58, 48, .28));
+}
+
+.deictic-reference-drafting {
+  opacity: .78;
+}
+
 /* ------------------------------------------------------------- stickers */
 
 .sticker {
@@ -1049,6 +1092,23 @@ button:focus-visible, a:focus-visible, label:focus-within {
   overflow-x: auto;
   padding-bottom: 2px;
   scrollbar-width: thin;
+}
+
+.sticker-themes {
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(126, 111, 89, .12);
+}
+
+.sticker-theme {
+  background: rgba(239, 247, 250, .88);
+  border-color: #c4d5dc;
+}
+
+.sticker-theme.active,
+.sticker-theme[aria-pressed="true"] {
+  background: #e7f2f6;
+  border-color: #81aebf;
+  color: #315f70;
 }
 
 .sticker-category {

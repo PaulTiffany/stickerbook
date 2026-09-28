@@ -89,7 +89,7 @@ claim we must be able to defend:
 
 * `pages-demo` sets `agent_ceiling = ∅`. There is no action any agent
   principal can take — not a disabled feature, an empty intersection.
-* **VERIFIED (core):** in `pages-demo`, every one of the nine actions is
+* **VERIFIED (core):** in `pages-demo`, every one of the ten actions is
   rejected for an agent principal; the generated action table is empty; and a
   principal registered with *every* tool still has an empty effective
   authority. Humans are unaffected.
@@ -289,6 +289,15 @@ See the nine `TestBoundedView` cases in `jev/tests/test_jev_core.py`.
 
 ---
 
+### Transient deictic conversation context
+
+A child's bare-page point or rectangular box may accompany one conversational
+Omega turn. It is validated normalized page data, not a world mutation. It is
+never stored in the authority kernel, never becomes a governed background
+object merely by being pointed at, and is not automatically projected into a
+Jev view. This preserves the views-as-capabilities rule: conversational
+reference does not silently widen the decision actor's observation surface.
+
 ## 6. Typed action surfaces
 
 **REQUIRED.** All agent-caused mutation passes through a small typed command
@@ -314,9 +323,10 @@ produces no receipts.
 ownership-aware, revision-aware and receipted, with bounded argument domains
 and explicit rejection reasons. VERIFIED (core) — including that every key the
 table offers is actually accepted, so no offered key is a trap. Sticker scale
-is a separate typed world transform: definitions may only tighten the global
-0.90–1.10 envelope, and generated agent choices expose bounded 0.02 steps
-rather than arbitrary model-selected transform values.
+and horizontal facing are separate typed world transforms: definitions may
+only tighten the global 0.90–1.10 scale envelope; generated scale choices are
+bounded 0.02 steps; facing accepts only left/right host-owned choices rather
+than arbitrary model-selected transforms.
 
 ---
 
