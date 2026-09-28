@@ -2426,6 +2426,484 @@
           "loop": true
         }
       }
+    },
+    "rabbit": {
+      "name": "Rabbit",
+      "category": "animals",
+      "themes": [
+        "farm",
+        "playground"
+      ],
+      "tags": [
+        "rabbit",
+        "bunny",
+        "animal",
+        "farm",
+        "playground",
+        "hop"
+      ],
+      "aliases": [
+        "bunny"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/rabbit/rest.svg",
+        "sniff": "static/assets/stickers/rabbit/sniff.svg",
+        "hop": "static/assets/stickers/rabbit/hop.svg",
+        "sit": "static/assets/stickers/rabbit/sit.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest",
+            "rest",
+            "sniff",
+            "rest"
+          ],
+          "frame_ms": 720,
+          "loop": true
+        },
+        "sniff": {
+          "frames": [
+            "rest",
+            "sniff"
+          ],
+          "frame_ms": 260,
+          "loop": true
+        },
+        "hop": {
+          "frames": [
+            "sit",
+            "hop",
+            "rest"
+          ],
+          "frame_ms": 170,
+          "loop": true
+        }
+      }
+    },
+    "scarecrow": {
+      "name": "Scarecrow",
+      "category": "objects",
+      "themes": [
+        "farm"
+      ],
+      "tags": [
+        "scarecrow",
+        "farm",
+        "field",
+        "straw"
+      ],
+      "aliases": [
+        "field scarecrow"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/scarecrow/rest.svg",
+        "sway-left": "static/assets/stickers/scarecrow/sway-left.svg",
+        "sway-right": "static/assets/stickers/scarecrow/sway-right.svg",
+        "wave": "static/assets/stickers/scarecrow/wave.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "sway": {
+          "frames": [
+            "sway-left",
+            "rest",
+            "sway-right",
+            "rest"
+          ],
+          "frame_ms": 260,
+          "loop": true
+        },
+        "wave": {
+          "frames": [
+            "rest",
+            "wave",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        }
+      }
+    },
+    "octopus": {
+      "name": "Octopus",
+      "category": "animals",
+      "themes": [
+        "beach"
+      ],
+      "tags": [
+        "octopus",
+        "ocean",
+        "beach",
+        "sea",
+        "tentacles"
+      ],
+      "aliases": [
+        "sea octopus"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/octopus/rest.svg",
+        "wave": "static/assets/stickers/octopus/wave.svg",
+        "swim": "static/assets/stickers/octopus/swim.svg",
+        "squish": "static/assets/stickers/octopus/squish.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "wave": {
+          "frames": [
+            "rest",
+            "wave",
+            "rest"
+          ],
+          "frame_ms": 280,
+          "loop": true
+        },
+        "swim": {
+          "frames": [
+            "rest",
+            "swim"
+          ],
+          "frame_ms": 190,
+          "loop": true
+        },
+        "squish": {
+          "frames": [
+            "rest",
+            "squish",
+            "rest"
+          ],
+          "frame_ms": 220,
+          "loop": true
+        }
+      }
+    },
+    "surfboard": {
+      "name": "Surfboard",
+      "category": "objects",
+      "themes": [
+        "beach"
+      ],
+      "tags": [
+        "surfboard",
+        "beach",
+        "surf",
+        "wave",
+        "board"
+      ],
+      "aliases": [
+        "surf board"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/surfboard/rest.svg",
+        "tilt-left": "static/assets/stickers/surfboard/tilt-left.svg",
+        "tilt-right": "static/assets/stickers/surfboard/tilt-right.svg",
+        "ride": "static/assets/stickers/surfboard/ride.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "sway": {
+          "frames": [
+            "tilt-left",
+            "rest",
+            "tilt-right",
+            "rest"
+          ],
+          "frame_ms": 240,
+          "loop": true
+        },
+        "ride": {
+          "frames": [
+            "tilt-left",
+            "ride",
+            "tilt-right"
+          ],
+          "frame_ms": 180,
+          "loop": true
+        }
+      }
+    },
+    "yo-yo": {
+      "name": "Yo-Yo",
+      "category": "toys",
+      "themes": [
+        "playground"
+      ],
+      "tags": [
+        "yo-yo",
+        "yoyo",
+        "toy",
+        "playground",
+        "spin"
+      ],
+      "aliases": [
+        "yoyo"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/yo-yo/rest.svg",
+        "drop": "static/assets/stickers/yo-yo/drop.svg",
+        "spin": "static/assets/stickers/yo-yo/spin.svg",
+        "return": "static/assets/stickers/yo-yo/return.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "drop": {
+          "frames": [
+            "rest",
+            "drop"
+          ],
+          "frame_ms": 180,
+          "loop": true
+        },
+        "spin": {
+          "frames": [
+            "drop",
+            "spin"
+          ],
+          "frame_ms": 120,
+          "loop": true
+        },
+        "return": {
+          "frames": [
+            "spin",
+            "return",
+            "rest"
+          ],
+          "frame_ms": 160,
+          "loop": false
+        }
+      }
+    },
+    "teddy-bear": {
+      "name": "Teddy Bear",
+      "category": "toys",
+      "themes": [
+        "playground"
+      ],
+      "tags": [
+        "teddy bear",
+        "bear",
+        "toy",
+        "playground",
+        "plush"
+      ],
+      "aliases": [
+        "teddy"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/teddy-bear/rest.svg",
+        "wave": "static/assets/stickers/teddy-bear/wave.svg",
+        "hug": "static/assets/stickers/teddy-bear/hug.svg",
+        "bounce": "static/assets/stickers/teddy-bear/bounce.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "wave": {
+          "frames": [
+            "rest",
+            "wave",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "hug": {
+          "frames": [
+            "rest",
+            "hug",
+            "rest"
+          ],
+          "frame_ms": 340,
+          "loop": true
+        },
+        "bounce": {
+          "frames": [
+            "rest",
+            "bounce",
+            "rest"
+          ],
+          "frame_ms": 180,
+          "loop": true
+        }
+      }
+    },
+    "comet": {
+      "name": "Comet",
+      "category": "space",
+      "themes": [
+        "space"
+      ],
+      "tags": [
+        "comet",
+        "space",
+        "meteor",
+        "tail",
+        "glow"
+      ],
+      "aliases": [
+        "shooting star"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/comet/rest.svg",
+        "glow": "static/assets/stickers/comet/glow.svg",
+        "swoop": "static/assets/stickers/comet/swoop.svg",
+        "spark": "static/assets/stickers/comet/spark.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "glow": {
+          "frames": [
+            "rest",
+            "glow",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        },
+        "swoop": {
+          "frames": [
+            "rest",
+            "swoop"
+          ],
+          "frame_ms": 180,
+          "loop": true
+        },
+        "spark": {
+          "frames": [
+            "swoop",
+            "spark",
+            "rest"
+          ],
+          "frame_ms": 220,
+          "loop": true
+        }
+      }
+    },
+    "rover": {
+      "name": "Space Rover",
+      "category": "space",
+      "themes": [
+        "space"
+      ],
+      "tags": [
+        "rover",
+        "space",
+        "vehicle",
+        "robot",
+        "mars"
+      ],
+      "aliases": [
+        "moon rover",
+        "mars rover"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/rover/rest.svg",
+        "roll-a": "static/assets/stickers/rover/roll-a.svg",
+        "roll-b": "static/assets/stickers/rover/roll-b.svg",
+        "scan": "static/assets/stickers/rover/scan.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "roll": {
+          "frames": [
+            "roll-a",
+            "roll-b"
+          ],
+          "frame_ms": 170,
+          "loop": true
+        },
+        "scan": {
+          "frames": [
+            "rest",
+            "scan",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        }
+      }
     }
   }
 }

@@ -103,6 +103,16 @@ ASSETS = {
     "jump-rope": _definition("jump-rope", "swing", "spin"),
     "alien": _definition("alien", "wave", "float", "hop"),
     "robot": _definition("robot", "wave", "roll", "beep"),
+
+    # Round-three packs.
+    "rabbit": _definition("rabbit", "sniff", "hop"),
+    "scarecrow": _definition("scarecrow", "sway", "wave"),
+    "octopus": _definition("octopus", "wave", "swim", "squish"),
+    "surfboard": _definition("surfboard", "sway", "ride"),
+    "yo-yo": _definition("yo-yo", "drop", "spin", "return"),
+    "teddy-bear": _definition("teddy-bear", "wave", "hug", "bounce"),
+    "comet": _definition("comet", "glow", "swoop", "spark"),
+    "rover": _definition("rover", "roll", "scan"),
 }
 
 HUMAN_TOOLS = frozenset({
