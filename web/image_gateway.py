@@ -192,10 +192,13 @@ def build_openrouter_payload(
         "data:" + content_type + ";base64,"
         + base64.b64encode(image_bytes).decode("ascii")
     )
+    # OpenRouter's unified Image API currently standardizes reference-image
+    # editing, but exact pixel-size controls are model-dependent. The exact
+    # target remains in the fixed prompt, and we mechanically reject any
+    # returned image whose intrinsic dimensions are not the requested canvas.
     return {
         "model": model,
         "prompt": prompt,
-        "size": f"{width}x{height}",
         "n": 1,
         "input_references": [
             {
