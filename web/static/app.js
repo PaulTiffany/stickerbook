@@ -528,6 +528,7 @@ function createMechanicalWorld() {
         return commit("move-sticker", target.id, (revision) => {
           target.x = body.point.x;
           target.y = body.point.y;
+          target.animation = "none";
           target.revision = revision;
         });
       }
@@ -1508,7 +1509,14 @@ function grabPlaced(event, sticker) {
       moveEvent.clientX - startX,
       moveEvent.clientY - startY
     );
-    if (distance > 7) moved = true;
+    if (distance > 7 && !moved) {
+      moved = true;
+      // The physical metaphor is "pick it up, set it down." Once a human
+      // drag begins, freeze the visual immediately; the accepted move also
+      // records animation="none" in authoritative state.
+      node.classList.remove("alive");
+      node.removeAttribute("data-alive");
+    }
     if (!moved) return;
 
     const point = pageFraction(moveEvent);

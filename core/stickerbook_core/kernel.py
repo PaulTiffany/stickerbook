@@ -406,11 +406,19 @@ class Kernel:
         if why:
             return self._reject(command, why)
         self.revision += 1
+        # Direct human manipulation interrupts autonomous motion. A moved
+        # sticker is set down still and must be explicitly animated again.
+        # Agent movement does not silently rewrite a separately chosen
+        # animation state.
+        animation = (
+            "none" if p.kind in (HUMAN, OPERATOR)
+            else sticker.animation
+        )
         self._stickers[sticker.id] = StickerInstance(
             id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
             asset=sticker.asset, page=sticker.page,
             x=position[0], y=position[1],
-            animation=sticker.animation, revision=self.revision,
+            animation=animation, revision=self.revision,
         )
         return self._accept(command, "ok", object_id=sticker.id)
 
