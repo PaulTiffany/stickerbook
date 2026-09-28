@@ -20,8 +20,8 @@ from .model import (
     StickerDefinition, CREATE_AGENT, Command, HUMAN, MOVE_STICKER,
     MUTATING_ACTIONS, NOOP, OBSERVE, OPERATOR, POSITION_MAX,
     POSITION_MIN, PROFILES, Principal, Receipt, RESIZE_OWN_STICKER,
-    SCALE_MAX, SCALE_MIN, REMOVE_AGENT_STICKER, REMOVE_OWN_STICKER,
-    StickerInstance,
+    SCALE_MAX, SCALE_MIN, SET_STICKER_FACING, REMOVE_AGENT_STICKER,
+    REMOVE_OWN_STICKER, StickerInstance,
 )
 
 
@@ -80,8 +80,8 @@ class Kernel:
         seeded = StickerInstance(
             id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
             asset=sticker.asset, page=sticker.page, x=sticker.x, y=sticker.y,
-            scale=sticker.scale, animation=sticker.animation,
-            revision=self.revision,
+            scale=sticker.scale, facing=sticker.facing,
+            animation=sticker.animation, revision=self.revision,
         )
         self._stickers[seeded.id] = seeded
         return seeded
@@ -214,7 +214,8 @@ class Kernel:
             stickers.append({
                 "id": s.id, "owner": s.owner, "createdBy": s.created_by,
                 "asset": s.asset, "x": s.x, "y": s.y, "scale": s.scale,
-                "animation": s.animation, "revision": s.revision,
+                "facing": s.facing, "animation": s.animation,
+                "revision": s.revision,
                 "mine": s.owner == principal_id,
             })
         return copy.deepcopy({
@@ -275,6 +276,13 @@ class Kernel:
                 if up > s.scale:
                     add("SCALE:%s:UP" % s.id, RESIZE_OWN_STICKER,
                         s.id, (("scale", up),))
+            if SET_STICKER_FACING in tools:
+                if s.facing != "left":
+                    add("FACE:%s:LEFT" % s.id, SET_STICKER_FACING,
+                        s.id, (("facing", "left"),))
+                if s.facing != "right":
+                    add("FACE:%s:RIGHT" % s.id, SET_STICKER_FACING,
+                        s.id, (("facing", "right"),))
             if REMOVE_OWN_STICKER in tools:
                 add("REMOVE:%s" % s.id, REMOVE_OWN_STICKER, s.id)
 
@@ -375,6 +383,7 @@ class Kernel:
             MOVE_STICKER: self._do_move,
             ANIMATE_OWN_STICKER: self._do_animate,
             RESIZE_OWN_STICKER: self._do_resize,
+            SET_STICKER_FACING: self._do_facing,
             REMOVE_OWN_STICKER: self._do_remove_own,
             REMOVE_AGENT_STICKER: self._do_remove_agent,
             CREATE_AGENT: self._do_create_agent,
@@ -414,7 +423,7 @@ class Kernel:
         self._stickers[new_id] = StickerInstance(
             id=new_id, owner=command.actor, created_by=command.actor,
             asset=asset, page=self.page, x=position[0], y=position[1],
-            scale=1.0, animation=definition.rest_animation,
+            scale=1.0, facing="right", animation=definition.rest_animation,
             revision=self.revision,
         )
         return self._accept(command, "ok", object_id=new_id)
@@ -467,7 +476,8 @@ class Kernel:
             id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
             asset=sticker.asset, page=sticker.page,
             x=position[0], y=position[1], scale=sticker.scale,
-            animation=animation, revision=self.revision,
+            facing=sticker.facing, animation=animation,
+            revision=self.revision,
         )
         return self._accept(command, "ok", object_id=sticker.id)
 
@@ -488,7 +498,8 @@ class Kernel:
         self._stickers[sticker.id] = StickerInstance(
             id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
             asset=sticker.asset, page=sticker.page, x=sticker.x, y=sticker.y,
-            scale=sticker.scale, animation=animation, revision=self.revision,
+            scale=sticker.scale, facing=sticker.facing,
+            animation=animation, revision=self.revision,
         )
         return self._accept(command, "ok", object_id=sticker.id)
 
@@ -517,7 +528,27 @@ class Kernel:
         self._stickers[sticker.id] = StickerInstance(
             id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
             asset=sticker.asset, page=sticker.page, x=sticker.x, y=sticker.y,
-            scale=scale, animation=sticker.animation, revision=self.revision,
+            scale=scale, facing=sticker.facing,
+            animation=sticker.animation, revision=self.revision,
+        )
+        return self._accept(command, "ok", object_id=sticker.id)
+
+    def _do_facing(self, command, p):
+        sticker, why = self._target(command)
+        if why:
+            return self._reject(command, why)
+        if not self.may_act_on(p, sticker):
+            return self._reject(command, "not-owner")
+        facing = command.param("facing")
+        if facing not in ("left", "right"):
+            return self._reject(command, "facing-not-supported")
+
+        self.revision += 1
+        self._stickers[sticker.id] = StickerInstance(
+            id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
+            asset=sticker.asset, page=sticker.page, x=sticker.x, y=sticker.y,
+            scale=sticker.scale, facing=facing,
+            animation=sticker.animation, revision=self.revision,
         )
         return self._accept(command, "ok", object_id=sticker.id)
 
