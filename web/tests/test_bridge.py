@@ -312,6 +312,22 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         self.assertIn("if (!overPage(upEvent))", placed_rule)
         self.assertIn('speak("Keep stickers on the page")', placed_rule)
 
+    def test_public_mechanical_move_also_stops_animation(self):
+        with urllib.request.urlopen(
+                self.url("/static/app.js"), timeout=5) as r:
+            app = r.read().decode("utf-8")
+
+        move_start = app.index('if (path === "/api/propose-move")')
+        move_end = app.index('if (path === "/api/remove")', move_start)
+        move_rule = app[move_start:move_end]
+        self.assertIn('target.animation = "none";', move_rule)
+
+        drag_start = app.index("function grabPlaced")
+        drag_end = app.index("function ghostFor", drag_start)
+        drag_rule = app[drag_start:drag_end]
+        self.assertIn('node.classList.remove("alive")', drag_rule)
+        self.assertIn('node.removeAttribute("data-alive")', drag_rule)
+
     def test_manifest_driven_visual_assets_are_served(self):
         cases = (
             ("/static/assets/manifest.json", "application/json"),
@@ -548,6 +564,31 @@ class Q2_HumanCanMoveAStickerThroughTheKernel(ServerCase):
         self.assertTrue(body["receipt"]["accepted"], body["receipt"])
         self.assertEqual(self.pos_of("cow-1"), (0.71, 0.29))
         self.assertNotEqual(before, (0.71, 0.29))
+
+    def test_dragging_an_animated_sticker_sets_it_down_still(self):
+        _, animated = self.post("/api/animate", {
+            "sticker": "cow-1",
+            "command_id": "animate-before-drag",
+        })
+        self.assertTrue(animated["receipt"]["accepted"], animated)
+        self.assertEqual(
+            self.bridge.kernel.sticker("cow-1").animation,
+            "chew",
+        )
+
+        _, moved = self.move(
+            "cow-1",
+            0.61,
+            0.37,
+            command_id="human-drag",
+        )
+        self.assertTrue(moved["receipt"]["accepted"], moved)
+        self.assertEqual(
+            self.bridge.kernel.sticker("cow-1").animation,
+            "none",
+        )
+        by_id = {item["id"]: item for item in moved["state"]["stickers"]}
+        self.assertEqual(by_id["cow-1"]["animation"], "none")
 
     def test_the_page_belongs_to_the_human(self):
         """The one authority change: drag the agent-owned butterfly too."""
