@@ -1168,8 +1168,7 @@ class TrayPlacement(ServerCase):
         _, state = self.get("/api/state")
         self.assertEqual(
             sorted(d["id"] for d in state["definitions"]),
-            ["bird", "butterfly", "cloud", "cow", "duck", "fish",
-             "flower", "frog", "hen"],
+            sorted(farm.ASSETS),
         )
 
     def test_placing_from_the_tray_creates_a_sticker_at_that_point(self):
