@@ -1178,49 +1178,6 @@ button:focus-visible, a:focus-visible, label:focus-within {
   font-size: 12px;
 }
 
-.adult-text-fallback {
-  display: grid;
-  gap: 7px;
-  margin-top: 12px;
-}
-
-.adult-text-fallback > label {
-  color: #5f685e;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.adult-chat-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 7px;
-}
-
-.adult-chat-row input {
-  min-width: 0;
-  border: 1px solid #cbbfac;
-  border-radius: 10px;
-  background: #fffdf8;
-  padding: 9px 10px;
-  color: var(--ink);
-}
-
-.adult-chat-row button {
-  border: 0;
-  border-radius: 10px;
-  background: #557e5a;
-  color: white;
-  padding: 0 13px;
-  font-weight: 800;
-  cursor: pointer;
-}
-
-.adult-chat-reply {
-  min-height: 1.4em;
-  color: #59665d;
-  font-size: 12.5px;
-}
-
 /* ------------------------------------------------------------ developer */
 
 #dev[hidden] { display: none; }

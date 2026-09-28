@@ -53,9 +53,6 @@ const voiceOrbState = document.getElementById("voice-orb-state");
 const voiceEnable = document.getElementById("voice-enable");
 const agentAdultControls = document.getElementById("agent-adult-controls");
 const voicePrivacyNote = document.getElementById("voice-privacy-note");
-const adultChatInput = document.getElementById("adult-chat-input");
-const adultChatSend = document.getElementById("adult-chat-send");
-const adultChatReply = document.getElementById("adult-chat-reply");
 const textChatEnable = document.getElementById("text-chat-enable");
 const accessibilityChat = document.getElementById("accessibility-chat");
 const accessibilityChatClose = document.getElementById("accessibility-chat-close");
@@ -2294,8 +2291,6 @@ function updateConversationControls() {
     textChatEnable.disabled = !textAvailable;
   }
 
-  if (adultChatInput) adultChatInput.disabled = !textAvailable;
-  if (adultChatSend) adultChatSend.disabled = !textAvailable;
   if (accessibilityChatInput) accessibilityChatInput.disabled = !textAvailable;
   if (accessibilityChatSend) accessibilityChatSend.disabled = !textAvailable;
 
@@ -2364,9 +2359,6 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
   const stub = world.name === "public mechanical";
   if (!connected && !stub) {
     const message = "No conversational Omega runtime is connected.";
-    if (adultChatReply) {
-      adultChatReply.textContent = message;
-    }
     if (mirrorToAccessibility) {
       appendAccessibilityChatLine("StickerBook", message);
     }
@@ -2388,7 +2380,6 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
       const message = payload && payload.error
         ? payload.error
         : "Conversation runtime did not return a reply.";
-      if (adultChatReply) adultChatReply.textContent = message;
       if (mirrorToAccessibility) {
         appendAccessibilityChatLine("StickerBook", message);
       }
@@ -2397,7 +2388,6 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
     }
 
     const reply = payload.reply.trim();
-    if (adultChatReply) adultChatReply.textContent = reply;
     if (mirrorToAccessibility) {
       appendAccessibilityChatLine("StickerBook", reply);
     }
@@ -2424,9 +2414,6 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
   } catch (error) {
     console.error(error);
     voiceBusy = false;
-    if (adultChatReply) {
-      adultChatReply.textContent = "Conversation runtime is unavailable.";
-    }
     if (mirrorToAccessibility) {
       appendAccessibilityChatLine(
         "StickerBook",
@@ -2612,19 +2599,6 @@ accessibilityChatInput.addEventListener("keydown", (event) => {
   if (event.key !== "Enter") return;
   event.preventDefault();
   accessibilityChatSend.click();
-});
-
-adultChatSend.addEventListener("click", () => {
-  const text = adultChatInput.value;
-  if (!text.trim()) return;
-  adultChatInput.value = "";
-  converseWithStickerBook(text, false);
-});
-
-adultChatInput.addEventListener("keydown", (event) => {
-  if (event.key !== "Enter") return;
-  event.preventDefault();
-  adultChatSend.click();
 });
 
 function closeDeveloperReceipts() {
