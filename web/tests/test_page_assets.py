@@ -61,6 +61,27 @@ class PageAssetSpecificationTests(unittest.TestCase):
 
 class OpenRouterImageRequestTests(unittest.TestCase):
 
+    def test_generated_dimensions_are_read_mechanically(self):
+        png = (
+            b"\x89PNG\r\n\x1a\n"
+            + b"\x00\x00\x00\x0dIHDR"
+            + (1916).to_bytes(4, "big")
+            + (717).to_bytes(4, "big")
+        )
+        self.assertEqual(
+            image_gateway.image_dimensions(png, "image/png"),
+            (1916, 717),
+        )
+
+        svg = (
+            b'<svg xmlns="http://www.w3.org/2000/svg" '
+            b'width="941" height="1574" viewBox="0 0 941 1574"/>'
+        )
+        self.assertEqual(
+            image_gateway.image_dimensions(svg, "image/svg+xml"),
+            (941, 1574),
+        )
+
     def test_reference_image_and_exact_size_are_sent_to_openrouter(self):
         raw = b"sample-image-bytes"
         payload = image_gateway.build_openrouter_payload(
