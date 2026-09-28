@@ -1451,6 +1451,9 @@ function render() {
   applyActivePageViewport();
   drawScene(layers.picture, state.picture, "play", state.page && state.page.id);
   drawStickers(state.stickers);
+  if (!deicticGesture) {
+    drawDeicticReference(pendingDeicticReference, false);
+  }
   drawTray();
 
   if (DEV) {
@@ -2246,7 +2249,10 @@ function stickerCatalogMatches(entry) {
 function drawStickerLibrary() {
   const entries = stickerCatalogEntries();
   drawStickerThemes(entries);
-  drawStickerCategories(entries);
+  const categoryEntries = stickerTheme === "all"
+    ? entries
+    : entries.filter((entry) => entry.themes.includes(stickerTheme));
+  drawStickerCategories(categoryEntries);
   stickerLibraryGrid.replaceChildren();
 
   const visible = entries.filter(stickerCatalogMatches);
