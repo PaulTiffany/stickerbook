@@ -1093,6 +1093,25 @@ function stickerNode(kind, cls, grabbable, filterId, clipName) {
   return g;
 }
 
+function resetStickerVisualToRest(node, kind) {
+  const paper = node && node.querySelector(".paper");
+  if (!paper) return;
+
+  // Animated clips may use a different frame/pose from the idle sticker.
+  // Grabbing a sticker means picking up the physical sticker itself, so swap
+  // the visual back to its default/rest clip before it follows the pointer.
+  paper.replaceChildren();
+
+  const clip = stickerClip(kind, null);
+  const image = clipImage(clip);
+
+  if (image) {
+    paper.appendChild(image);
+  } else {
+    (ART[kind] || ART.flower)(paper);
+  }
+}
+
 function miniature(kind) {
   const mini = el("svg", { viewBox: "-72 -72 144 144", "aria-hidden": "true" });
   const filterId = "paper-" + kind + "-" + (++seq);
@@ -1492,6 +1511,11 @@ function grabPlaced(event, sticker) {
   const startY = event.clientY;
   let moved = false;
 
+  if (sticker.animation && sticker.animation !== "none") {
+    resetStickerVisualToRest(node, sticker.definition);
+    node.classList.remove("alive");
+    node.removeAttribute("data-alive");
+  }
   node.classList.add("held");
   try { node.setPointerCapture(event.pointerId); } catch (_) {}
 
@@ -1511,11 +1535,9 @@ function grabPlaced(event, sticker) {
     );
     if (distance > 7 && !moved) {
       moved = true;
-      // The physical metaphor is "pick it up, set it down." Once a human
-      // drag begins, freeze the visual immediately; the accepted move also
-      // records animation="none" in authoritative state.
-      node.classList.remove("alive");
-      node.removeAttribute("data-alive");
+      // From here on the sticker's outer translation is the pointer's page
+      // coordinate. The held art itself has no offset, so its rest-state
+      // center stays directly under the pointer.
     }
     if (!moved) return;
 

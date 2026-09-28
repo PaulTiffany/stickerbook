@@ -123,8 +123,10 @@ edge; the browser redraws the last authoritative in-page position instead.
 This is especially relevant to short/wide phone-landscape viewports where
 small side margins may remain.
 
-Direct human manipulation suspends animation while the sticker is held. Once
-a human drag actually begins and the move is accepted, the sticker is set down
+Direct human manipulation suspends animation while the sticker is held. Grabbing
+an animated sticker immediately restores its default/rest artwork and removes
+animation offsets, so the sticker's visual center sits directly under the
+pointer while it is dragged. Once the move is accepted, the sticker is set down
 with `animation = none`. It remains still until the child explicitly
 double-taps/clicks it to bring it to life again.
 

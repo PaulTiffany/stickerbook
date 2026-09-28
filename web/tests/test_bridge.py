@@ -325,8 +325,34 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         drag_start = app.index("function grabPlaced")
         drag_end = app.index("function ghostFor", drag_start)
         drag_rule = app[drag_start:drag_end]
+        self.assertIn(
+            "resetStickerVisualToRest(node, sticker.definition)",
+            drag_rule,
+        )
         self.assertIn('node.classList.remove("alive")', drag_rule)
         self.assertIn('node.removeAttribute("data-alive")', drag_rule)
+
+    def test_grab_uses_idle_art_and_keeps_held_art_centered(self):
+        with urllib.request.urlopen(
+                self.url("/static/app.js"), timeout=5) as r:
+            app = r.read().decode("utf-8")
+        with urllib.request.urlopen(
+                self.url("/static/style.css"), timeout=5) as r:
+            css = r.read().decode("utf-8")
+
+        rest_start = app.index("function resetStickerVisualToRest")
+        rest_end = app.index("function miniature", rest_start)
+        rest_rule = app[rest_start:rest_end]
+        self.assertIn("stickerClip(kind, null)", rest_rule)
+        self.assertIn("paper.replaceChildren()", rest_rule)
+
+        held_start = css.index(".sticker.held .art {")
+        held_end = css.index("}", held_start)
+        held_rule = css[held_start:held_end]
+        self.assertIn("animation: none !important;", held_rule)
+        self.assertIn("transition: none;", held_rule)
+        self.assertIn("transform: none;", held_rule)
+        self.assertNotIn("translate", held_rule)
 
     def test_manifest_driven_visual_assets_are_served(self):
         cases = (
