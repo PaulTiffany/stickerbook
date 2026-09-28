@@ -45,8 +45,8 @@ The page gallery is thumbnail-first, like an image browser. The title page is
 itself the primary navigation target: touch the cover to open the page gallery.
 
 The current public mechanical book includes four visual pages from the asset
-manifest: **Farm, Beach, Park, and Space**. Each page keeps its own in-memory
-StickerInstances during the demo session. The governed localhost world still
+manifest: **Farm, Beach, Playground, and Space**. Each page keeps its own
+in-memory StickerInstances during the demo session. The governed localhost world still
 only exposes pages that the authority kernel actually implements; additional
 art does not silently create governed state.
 
@@ -67,9 +67,11 @@ The hotbar is flush to the left, right, and bottom edges. In landscape it owns
 a reserved bottom strip, so it never covers the playable image. A child can
 remove a placed sticker with the simple gesture "drag it down."
 
-Cover and page assets support optional landscape and portrait variants. If a
-portrait-specific composition is absent, the landscape artwork remains fully
-visible while the ambient background fills the rest of the viewport.
+Cover and page assets support landscape and portrait variants. The built-in
+playable page artboards are **1916 × 717** and **941 × 1574**, deliberately
+excluding the hotbar so child gestures and Omega/Jev actions share one complete
+page coordinate surface. The cover uses separate **1916 × 821** and
+**941 × 1672** artboards.
 
 The middle is not the complete sticker inventory. StickerBook now distinguishes
 three visual layers:
@@ -156,22 +158,26 @@ sticker asset.
 
 ## Page and sticker creation
 
-Both creator surfaces now offer two explicit routes:
+Both creator surfaces expose **Upload** and **Make with StickerBook**.
 
-- **Upload**: choose existing artwork from the device.
-- **Make with StickerBook**: describe the desired page or sticker to a future
-  local creator agent.
+Page uploads accept SVG, PNG, JPEG/JPG, and WebP. The public Pages demo keeps
+an upload as a local browser preview and never sends it to a model. In powered
+local mode an operator can separately enable a loopback page-image gateway.
+That gateway uses the original upload as the reference for two OpenRouter image
+edit jobs: **1916 × 717** horizontal and **941 × 1574** portrait. The naming
+contract is `<name>.<ext>` and `<name>-vertical.<ext>`.
 
-The public Pages demo does not pretend that an agent is connected. Selecting
-the assisted path explains that powered creation belongs in the local runtime.
+The browser and authority-kernel bridge never receive the OpenRouter API key.
+The separate image gateway may hold that provider credential but receives no
+StickerBook principal, kernel object, or world-mutation authority.
 
-The browser-side contract is already defined for that future runtime. Page
-drafts send a textual prompt. Sticker drafts additionally send an animation
-intent and request asset schema version 2, whose output is expected to be a
-validated visual package with an idle clip and optional movement/frame clips.
+The textual creator-agent seam remains available for proposed page/sticker
+draft metadata. Sticker drafts additionally send an animation intent and
+request asset schema version 2, whose output is expected to be a validated
+visual package with an idle clip and optional movement/frame clips.
 
-This seam returns a draft only. It does not grant authority, mutate the kernel,
-or install generated executable code.
+Generation returns drafts only. It does not grant authority, mutate the kernel,
+install generated executable code, or silently save a generated page.
 
 The intended Sticker Maker output is a validated StickerDefinition visual
 package, not arbitrary generated runtime code.
