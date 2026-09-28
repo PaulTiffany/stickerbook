@@ -113,6 +113,16 @@ ASSETS = {
     "teddy-bear": _definition("teddy-bear", "wave", "hug", "bounce"),
     "comet": _definition("comet", "glow", "swoop", "spark"),
     "rover": _definition("rover", "roll", "scan"),
+
+    # Round-four packs.
+    "rooster": _definition("rooster", "crow", "step", "flap"),
+    "bee": _definition("bee", "fly", "buzz"),
+    "jellyfish": _definition("jellyfish", "pulse", "drift", "squish"),
+    "pelican": _definition("pelican", "call", "flap", "glide"),
+    "hula-hoop": _definition("hula-hoop", "sway", "spin"),
+    "toy-airplane": _definition("toy-airplane", "bank", "zoom"),
+    "asteroid": _definition("asteroid", "spin", "spark"),
+    "space-station": _definition("space-station", "orbit", "beacon"),
 }
 
 HUMAN_TOOLS = frozenset({

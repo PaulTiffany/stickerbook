@@ -2904,6 +2904,472 @@
           "loop": true
         }
       }
+    },
+    "rooster": {
+      "name": "Rooster",
+      "category": "animals",
+      "themes": [
+        "farm"
+      ],
+      "tags": [
+        "rooster",
+        "chicken",
+        "bird",
+        "farm",
+        "crow"
+      ],
+      "aliases": [
+        "cock"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/rooster/rest.svg",
+        "crow": "static/assets/stickers/rooster/crow.svg",
+        "step": "static/assets/stickers/rooster/step.svg",
+        "flap": "static/assets/stickers/rooster/flap.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "crow": {
+          "frames": [
+            "rest",
+            "crow",
+            "rest"
+          ],
+          "frame_ms": 280,
+          "loop": true
+        },
+        "step": {
+          "frames": [
+            "rest",
+            "step"
+          ],
+          "frame_ms": 190,
+          "loop": true
+        },
+        "flap": {
+          "frames": [
+            "rest",
+            "flap",
+            "rest"
+          ],
+          "frame_ms": 170,
+          "loop": true
+        }
+      }
+    },
+    "bee": {
+      "name": "Bee",
+      "category": "animals",
+      "themes": [
+        "farm",
+        "playground"
+      ],
+      "tags": [
+        "bee",
+        "insect",
+        "farm",
+        "garden",
+        "flying",
+        "pollinator"
+      ],
+      "aliases": [
+        "honeybee"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/bee/rest.svg",
+        "wings-up": "static/assets/stickers/bee/wings-up.svg",
+        "wings-down": "static/assets/stickers/bee/wings-down.svg",
+        "buzz": "static/assets/stickers/bee/buzz.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "fly": {
+          "frames": [
+            "wings-up",
+            "wings-down"
+          ],
+          "frame_ms": 100,
+          "loop": true
+        },
+        "buzz": {
+          "frames": [
+            "wings-up",
+            "buzz",
+            "wings-down"
+          ],
+          "frame_ms": 120,
+          "loop": true
+        }
+      }
+    },
+    "jellyfish": {
+      "name": "Jellyfish",
+      "category": "animals",
+      "themes": [
+        "beach"
+      ],
+      "tags": [
+        "jellyfish",
+        "ocean",
+        "beach",
+        "sea",
+        "drift"
+      ],
+      "aliases": [
+        "jelly"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/jellyfish/rest.svg",
+        "pulse": "static/assets/stickers/jellyfish/pulse.svg",
+        "drift": "static/assets/stickers/jellyfish/drift.svg",
+        "squish": "static/assets/stickers/jellyfish/squish.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "pulse": {
+          "frames": [
+            "rest",
+            "pulse"
+          ],
+          "frame_ms": 220,
+          "loop": true
+        },
+        "drift": {
+          "frames": [
+            "rest",
+            "drift"
+          ],
+          "frame_ms": 260,
+          "loop": true
+        },
+        "squish": {
+          "frames": [
+            "rest",
+            "squish",
+            "rest"
+          ],
+          "frame_ms": 220,
+          "loop": true
+        }
+      }
+    },
+    "pelican": {
+      "name": "Pelican",
+      "category": "animals",
+      "themes": [
+        "beach"
+      ],
+      "tags": [
+        "pelican",
+        "bird",
+        "beach",
+        "shore",
+        "flying"
+      ],
+      "aliases": [
+        "shore bird"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/pelican/rest.svg",
+        "beak-open": "static/assets/stickers/pelican/beak-open.svg",
+        "wings-up": "static/assets/stickers/pelican/wings-up.svg",
+        "glide": "static/assets/stickers/pelican/glide.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "call": {
+          "frames": [
+            "rest",
+            "beak-open",
+            "rest"
+          ],
+          "frame_ms": 280,
+          "loop": true
+        },
+        "flap": {
+          "frames": [
+            "wings-up",
+            "glide"
+          ],
+          "frame_ms": 170,
+          "loop": true
+        },
+        "glide": {
+          "frames": [
+            "wings-up",
+            "glide"
+          ],
+          "frame_ms": 230,
+          "loop": true
+        }
+      }
+    },
+    "hula-hoop": {
+      "name": "Hula Hoop",
+      "category": "toys",
+      "themes": [
+        "playground"
+      ],
+      "tags": [
+        "hula hoop",
+        "hoop",
+        "toy",
+        "playground",
+        "spin"
+      ],
+      "aliases": [
+        "hoop"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/hula-hoop/rest.svg",
+        "tilt-left": "static/assets/stickers/hula-hoop/tilt-left.svg",
+        "tilt-right": "static/assets/stickers/hula-hoop/tilt-right.svg",
+        "spin": "static/assets/stickers/hula-hoop/spin.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "sway": {
+          "frames": [
+            "tilt-left",
+            "rest",
+            "tilt-right",
+            "rest"
+          ],
+          "frame_ms": 220,
+          "loop": true
+        },
+        "spin": {
+          "frames": [
+            "tilt-left",
+            "spin",
+            "tilt-right"
+          ],
+          "frame_ms": 130,
+          "loop": true
+        }
+      }
+    },
+    "toy-airplane": {
+      "name": "Toy Airplane",
+      "category": "toys",
+      "themes": [
+        "playground"
+      ],
+      "tags": [
+        "toy airplane",
+        "airplane",
+        "plane",
+        "toy",
+        "playground",
+        "flying"
+      ],
+      "aliases": [
+        "toy plane"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/toy-airplane/rest.svg",
+        "bank-left": "static/assets/stickers/toy-airplane/bank-left.svg",
+        "bank-right": "static/assets/stickers/toy-airplane/bank-right.svg",
+        "zoom": "static/assets/stickers/toy-airplane/zoom.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "bank": {
+          "frames": [
+            "bank-left",
+            "rest",
+            "bank-right",
+            "rest"
+          ],
+          "frame_ms": 180,
+          "loop": true
+        },
+        "zoom": {
+          "frames": [
+            "bank-left",
+            "zoom",
+            "bank-right"
+          ],
+          "frame_ms": 150,
+          "loop": true
+        }
+      }
+    },
+    "asteroid": {
+      "name": "Asteroid",
+      "category": "space",
+      "themes": [
+        "space"
+      ],
+      "tags": [
+        "asteroid",
+        "space",
+        "rock",
+        "meteor",
+        "spin"
+      ],
+      "aliases": [
+        "space rock"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/asteroid/rest.svg",
+        "spin-a": "static/assets/stickers/asteroid/spin-a.svg",
+        "spin-b": "static/assets/stickers/asteroid/spin-b.svg",
+        "spark": "static/assets/stickers/asteroid/spark.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "spin": {
+          "frames": [
+            "spin-a",
+            "spin-b"
+          ],
+          "frame_ms": 180,
+          "loop": true
+        },
+        "spark": {
+          "frames": [
+            "spin-a",
+            "spark",
+            "spin-b"
+          ],
+          "frame_ms": 220,
+          "loop": true
+        }
+      }
+    },
+    "space-station": {
+      "name": "Space Station",
+      "category": "space",
+      "themes": [
+        "space"
+      ],
+      "tags": [
+        "space station",
+        "space",
+        "station",
+        "orbit",
+        "satellite"
+      ],
+      "aliases": [
+        "orbital station"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/space-station/rest.svg",
+        "panel-left": "static/assets/stickers/space-station/panel-left.svg",
+        "panel-right": "static/assets/stickers/space-station/panel-right.svg",
+        "beacon": "static/assets/stickers/space-station/beacon.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "orbit": {
+          "frames": [
+            "panel-left",
+            "rest",
+            "panel-right",
+            "rest"
+          ],
+          "frame_ms": 250,
+          "loop": true
+        },
+        "beacon": {
+          "frames": [
+            "rest",
+            "beacon",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        }
+      }
     }
   }
 }

@@ -21,7 +21,7 @@ The catalog may grow large. Discovery is therefore metadata-driven rather than
 assuming every installed definition fits in one tile grid. The browser performs
 deterministic local search over name, aliases, theme, category and tags, with
 world/theme and category chips as filters. No model is involved in catalog
-search. The current built-in catalog has **49 definitions / 196 pose sprites**
+search. The current built-in catalog has **57 definitions / 228 pose sprites**
 spanning Farm, Beach, Playground and Space.
 
 ## StickerDefinition: reusable visual package
@@ -54,7 +54,7 @@ The installed visual manifest is version 4. A built-in definition may contain:
 Sprites are drawings. Clips are recipes over sprite names. A definition may
 have any useful set of poses; only a default/rest clip is a common convention.
 
-The built-in catalog currently has 49 definitions. Each starts with four pose
+The built-in catalog currently has 57 definitions. Each starts with four pose
 sprites; four is a useful starter package, not a schema limit. New definitions
 are grouped by the four current page themes while shared stickers may appear in
 more than one theme.
