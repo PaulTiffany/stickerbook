@@ -169,8 +169,10 @@ Add `?mechanical=1` to exercise the same public mechanical adapter locally.
 ### Optional local page-image gateway
 
 Page generation is deliberately a separate process from the bridge. Choose an
-OpenRouter image model that supports reference-image editing and the requested
-output sizes, then start the gateway:
+OpenRouter image model that supports reference-image editing, then start the
+gateway. Exact pixel-size controls vary by model, so StickerBook keeps the
+required canvas dimensions in the fixed prompt and mechanically rejects any
+returned image that is not exactly 1916 × 717 or 941 × 1574:
 
 ```bash
 cd web
