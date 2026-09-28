@@ -31,7 +31,16 @@ class DisabledPageImageRuntime:
 class GatewayPageImageRuntime:
     """Client for a separately started, loopback-only image gateway."""
 
+    LOOPBACK_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
+
     def __init__(self, base_url: str, timeout: float = 300.0):
+        parsed = urllib.parse.urlparse(base_url)
+        if (
+                parsed.scheme not in ("http", "https")
+                or parsed.hostname not in self.LOOPBACK_HOSTS
+                or parsed.username is not None
+                or parsed.password is not None):
+            raise ValueError("page image gateway must be a loopback URL")
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
 
