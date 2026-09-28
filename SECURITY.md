@@ -89,7 +89,7 @@ claim we must be able to defend:
 
 * `pages-demo` sets `agent_ceiling = ∅`. There is no action any agent
   principal can take — not a disabled feature, an empty intersection.
-* **VERIFIED (core):** in `pages-demo`, every one of the eight actions is
+* **VERIFIED (core):** in `pages-demo`, every one of the nine actions is
   rejected for an agent principal; the generated action table is empty; and a
   principal registered with *every* tool still has an empty effective
   authority. Humans are unaffected.
@@ -313,7 +313,10 @@ produces no receipts.
 **Core status:** the kernel surface is all four. Commands are principal-aware,
 ownership-aware, revision-aware and receipted, with bounded argument domains
 and explicit rejection reasons. VERIFIED (core) — including that every key the
-table offers is actually accepted, so no offered key is a trap.
+table offers is actually accepted, so no offered key is a trap. Sticker scale
+is a separate typed world transform: definitions may only tighten the global
+0.90–1.10 envelope, and generated agent choices expose bounded 0.02 steps
+rather than arbitrary model-selected transform values.
 
 ---
 
@@ -573,10 +576,12 @@ trusted origins, or arbitrary executable behaviour. A sticker may declare what
 animations exist; it does not decide who may invoke them. Animation backends
 live beneath the authority boundary.
 
-**Core status: VERIFIED (core).** `Kernel.load_asset` reads only `name` and
-`animations`; hostile `owner`, `capabilities`, `tools`, `principals`,
-`policy` and `script` fields are discarded rather than interpreted. A
-declared animation confers no right to invoke it.
+**Core status: VERIFIED (core).** `Kernel.load_definition` reads only
+declarative visual/world fields: name, declared clip names/default clip, and
+bounded scale limits. Hostile `owner`, `capabilities`, `tools`,
+`principals`, `policy` and `script` fields are discarded rather than
+interpreted. A declared clip or scale range confers no right to invoke the
+corresponding action.
 
 **OmegaJev status: N/A YET.**
 
@@ -926,7 +931,7 @@ unless a test actually proves it.** Current status:
 | # | Invariant | Status | Evidence |
 |---|---|---|---|
 | 1 | Agent cannot modify human-owned sticker | **VERIFIED (core)** | `T01` — rejected `not-owner`; also never appears in the agent's action table |
-| 2 | Agent cannot remove human-owned sticker | **VERIFIED (core)** | `T02` — both the owner path and the human-only tool refuse |
+| 2 | Agent cannot remove human-owned sticker | **VERIFIED (core)** | `T02` — the current agent profile contains no sticker-removal capability; the human-only agent-content removal tool also refuses agent use |
 | 3 | Agent cannot alter ownership | **VERIFIED (core)** | `T03` — no action changes an owner; created stickers are owned by the actor, not by request |
 | 4 | Unknown action rejects | **VERIFIED (core + omegajev)** | `T04`; `test_jev_core.py` |
 | 5 | Malformed fields reject | **VERIFIED (core + omegajev)** | `T05` — out-of-domain argument, missing/unknown object, unknown asset, undeclared animation |
@@ -948,9 +953,10 @@ unless a test actually proves it.** Current status:
 | 21 | Confused-deputy / laundering attempts fail | **VERIFIED (core)** | `T21` — `requestedBy` is recorded and never consulted, including when the operator is claimed |
 | 22 | Expired agents cannot continue acting | **VERIFIED (core)** | `T22` |
 
-Additionally verified in core: deployment-profile enforcement (4 tests),
-action-table integrity (every offered key is accepted; the table tracks world
-state; budgets enforced; read-only actions are free), and receipt schema.
+Additionally verified in core: deployment-profile enforcement, action-table
+integrity (every offered key is accepted; the table tracks world state; budgets
+enforced; read-only actions are free), bounded sticker scale (including
+out-of-range refusal), and receipt schema.
 
 **53 kernel tests, plus 27 adapter tests and 4 container/host suites for
 OmegaJev.** The kernel suite is mutation-checked: disabling the ownership
