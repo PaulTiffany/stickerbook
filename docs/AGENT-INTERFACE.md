@@ -41,6 +41,42 @@ and each clip can contain one or many related image frames.
 A creator draft does not install itself and cannot grant a behavior that the
 world/kernel definition does not already permit.
 
+## Page-image creation is a separate media seam
+
+Child-selected page artwork uses a third non-authoritative path:
+
+`POST /api/creator/page-image`
+
+The browser sends the original image bytes to the local bridge. The bridge
+accepts only SVG, PNG, JPEG/JPG, or WebP, enforces an upload-size ceiling, and
+does not itself hold a provider credential.
+
+Only when a responsible operator has explicitly configured
+`STICKERBOOK_IMAGE_GATEWAY_URL` does the bridge forward the validated image
+to a separately started loopback page-image gateway. That process may hold
+`OPENROUTER_API_KEY`, but it has no StickerBook principal, kernel object,
+legal-action table, or world-mutation interface.
+
+The gateway asks the configured OpenRouter image-editing model to produce two
+drafts from the **same original upload**:
+
+- horizontal: exactly **1916 × 717**, named `<stem>.<ext>`;
+- portrait: exactly **941 × 1574**, named `<stem>-vertical.<ext>`.
+
+Both jobs use the fixed reframe/outpaint instructions in `web/page_assets.py`:
+preserve the original artwork and composition, do not reinterpret it, expand
+surrounding background rather than stretching, and add no unrelated objects,
+text, or design elements.
+
+Provider output remains media/data. The generated files are stored only in
+ignored local runtime storage until an explicit save/install path exists.
+Generation therefore cannot add a page to the governed book or gain authority
+over StickerInstances.
+
+The public GitHub Pages profile contains no Python bridge, page-image gateway,
+provider credential, or model call. Upload there is a local browser preview
+only.
+
 ## Voice-first child interface
 
 Normal child-facing play has no persistent chat panel.
@@ -77,3 +113,8 @@ the mechanical static profile.
 
 A future local Omega adapter should implement the same small interface rather
 than reaching around the bridge into the kernel.
+
+The page-image gateway is intentionally **not** an Omega capability. It is a
+narrow media transformer started by the operator, and successful image
+generation does not imply any permission to save, install, publish, or mutate
+a StickerBook world.
