@@ -1233,7 +1233,7 @@ button:focus-visible, a:focus-visible, label:focus-within {
   width: 300px;
   max-height: min(78vh, 680px);
   overflow: auto;
-  padding: 12px;
+  padding: 42px 12px 12px;
   border: 1px solid #cdc7bb;
   border-radius: 10px;
   background: rgba(255,255,255,.95);
@@ -1243,12 +1243,12 @@ button:focus-visible, a:focus-visible, label:focus-within {
 }
 
 .dev-close {
-  position: sticky;
-  top: 0;
-  float: right;
+  position: absolute;
+  top: 8px;
+  right: 8px;
   width: 30px;
   height: 30px;
-  margin: -4px -4px 4px 8px;
+  margin: 0;
   border: 1px solid #cdc7bb;
   border-radius: 50%;
   background: rgba(255,255,255,.96);
