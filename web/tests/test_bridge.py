@@ -391,7 +391,10 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         move_start = app.index('if (path === "/api/propose-move")')
         move_end = app.index('if (path === "/api/remove")', move_start)
         move_rule = app[move_start:move_end]
-        self.assertIn('target.animation = "none";', move_rule)
+        self.assertIn(
+            'target.animation = def && def.rest_clip || "none";',
+            move_rule,
+        )
 
         drag_start = app.index("function grabPlaced")
         drag_end = app.index("function ghostFor", drag_start)
@@ -422,6 +425,8 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         rest_rule = app[rest_start:rest_end]
         self.assertIn("stickerClip(kind, null)", rest_rule)
         self.assertIn("paper.replaceChildren()", rest_rule)
+        self.assertIn("const firstFrame =", rest_rule)
+        self.assertNotIn("clipImage(clip)", rest_rule)
 
         held_start = css.index(".sticker.held .art {")
         held_end = css.index("}", held_start)
@@ -445,6 +450,8 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             ("/static/assets/pages/space.svg", "image/svg+xml"),
             ("/static/assets/pages/space-vertical.svg", "image/svg+xml"),
             ("/static/assets/stickers/frog.svg", "image/svg+xml"),
+            ("/static/assets/stickers/bird/flight-up.svg", "image/svg+xml"),
+            ("/static/assets/stickers/butterfly/wings-down.svg", "image/svg+xml"),
         )
         for path, content_type in cases:
             with urllib.request.urlopen(self.url(path), timeout=5) as r:
@@ -468,7 +475,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         with open(path, "r", encoding="utf-8") as handle:
             manifest = json.load(handle)
 
-        self.assertEqual(manifest["version"], 3)
+        self.assertEqual(manifest["version"], 4)
         self.assertEqual(
             set(manifest["pages"]),
             {"farm", "beach", "playground", "space"})
@@ -520,25 +527,55 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
 
         self.assertTrue(manifest["stickers"])
 
+        self.assertEqual(len(manifest["stickers"]), 9)
+
         for kind, package in manifest["stickers"].items():
-            self.assertIn("default_clip", package, kind)
-            self.assertIn("clips", package, kind)
+            for key in (
+                    "name", "category", "tags", "aliases", "sprites",
+                    "default_clip", "clips", "scale_bounds"):
+                self.assertIn(key, package, (kind, key))
+
+            self.assertGreaterEqual(len(package["sprites"]), 4, kind)
             self.assertIn(package["default_clip"], package["clips"], kind)
+            self.assertEqual(package["scale_bounds"], {"min": 0.9, "max": 1.1})
+
+            for sprite_name, path in package["sprites"].items():
+                self.assertTrue(sprite_name, kind)
+                self.assertTrue(
+                    path.startswith("static/assets/stickers/%s/" % kind),
+                    (kind, sprite_name, path),
+                )
 
             for clip_name, clip in package["clips"].items():
                 self.assertIsInstance(clip.get("frames"), list,
                                       (kind, clip_name))
                 self.assertTrue(clip["frames"], (kind, clip_name))
                 for frame in clip["frames"]:
-                    self.assertTrue(frame.startswith("static/assets/"),
-                                    (kind, clip_name, frame))
+                    self.assertIn(frame, package["sprites"],
+                                  (kind, clip_name, frame))
 
-    def test_each_sticker_carries_its_authoritative_position(self):
+    def test_each_sticker_carries_its_authoritative_transform(self):
         _, state = self.get("/api/state")
         for s in state["stickers"]:
             kernel_sticker = self.bridge.kernel.sticker(s["id"])
             self.assertAlmostEqual(s["x"], kernel_sticker.x)
             self.assertAlmostEqual(s["y"], kernel_sticker.y)
+            self.assertAlmostEqual(s["scale"], kernel_sticker.scale)
+
+    def test_catalog_search_and_categories_are_served(self):
+        with urllib.request.urlopen(self.url("/"), timeout=5) as r:
+            page = r.read()
+        self.assertIn(b'id="sticker-search"', page)
+        self.assertIn(b'id="sticker-categories"', page)
+
+        with urllib.request.urlopen(
+                self.url("/static/app.js"), timeout=5) as r:
+            app = r.read().decode("utf-8")
+        self.assertIn("function stickerCatalogMatches", app)
+        self.assertIn("entry.tags", app)
+        self.assertIn("entry.aliases", app)
+        self.assertIn("stickerSearch.addEventListener", app)
+        self.assertIn("stickerCategory", app)
 
 
 class Q1b_AgentInterfacesStayOutsideKernelAuthority(ServerCase):
@@ -688,10 +725,10 @@ class Q2_HumanCanMoveAStickerThroughTheKernel(ServerCase):
         self.assertTrue(moved["receipt"]["accepted"], moved)
         self.assertEqual(
             self.bridge.kernel.sticker("cow-1").animation,
-            "none",
+            "rest",
         )
         by_id = {item["id"]: item for item in moved["state"]["stickers"]}
-        self.assertEqual(by_id["cow-1"]["animation"], "none")
+        self.assertEqual(by_id["cow-1"]["animation"], "rest")
 
     def test_the_page_belongs_to_the_human(self):
         """The one authority change: drag the agent-owned butterfly too."""
@@ -717,6 +754,48 @@ class Q2_HumanCanMoveAStickerThroughTheKernel(ServerCase):
             self.assertFalse(body["receipt"]["accepted"])
             self.assertEqual(body["receipt"]["reason"], "position-out-of-page")
         self.assertEqual(self.pos_of("cow-1"), before)
+
+
+class Q2b_StickerScaleIsAGovernedWorldTransform(ServerCase):
+
+    def test_human_can_resize_within_definition_bounds(self):
+        status, body = self.post("/api/resize", {
+            "sticker": "cow-1",
+            "command_id": "scale-1",
+            "scale": 1.08,
+        })
+        self.assertEqual(status, 200)
+        self.assertTrue(body["receipt"]["accepted"], body["receipt"])
+        self.assertAlmostEqual(
+            self.bridge.kernel.sticker("cow-1").scale, 1.08)
+        by_id = {item["id"]: item for item in body["state"]["stickers"]}
+        self.assertAlmostEqual(by_id["cow-1"]["scale"], 1.08)
+
+    def test_scale_outside_definition_bounds_is_receipted_and_refused(self):
+        before = self.bridge.kernel.sticker("cow-1").scale
+        status, body = self.post("/api/resize", {
+            "sticker": "cow-1",
+            "command_id": "scale-too-large",
+            "scale": 1.11,
+        })
+        self.assertEqual(status, 200)
+        self.assertFalse(body["receipt"]["accepted"])
+        self.assertEqual(
+            body["receipt"]["reason"], "scale-out-of-bounds")
+        self.assertAlmostEqual(
+            self.bridge.kernel.sticker("cow-1").scale, before)
+
+    def test_browser_cannot_turn_resize_into_an_unbounded_transform(self):
+        _, body = self.post("/api/resize", {
+            "sticker": "cow-1",
+            "command_id": "scale-spoof",
+            "scale": 7,
+            "min": 0,
+            "max": 99,
+        })
+        self.assertFalse(body["receipt"]["accepted"])
+        self.assertEqual(
+            body["receipt"]["action"], "resize-own-sticker")
 
 
 class Q3_EveryMutationPassesTheAuthorityGate(ServerCase):
@@ -1068,9 +1147,18 @@ class DefinitionsAndInstances(ServerCase):
     def test_state_separates_definitions_from_instances(self):
         _, st = self.get("/api/state")
         designs = {d["id"] for d in st["definitions"]}
-        self.assertEqual(designs, {"butterfly", "cow", "duck", "hen"})
+        self.assertEqual(
+            designs,
+            {"bird", "butterfly", "frog", "fish", "flower", "cloud",
+             "cow", "duck", "hen"},
+        )
         for d in st["definitions"]:
             self.assertIn("none", d["animations"])
+            self.assertEqual(d["rest_clip"], "rest")
+            self.assertEqual(
+                d["scale_bounds"],
+                {"min": 0.9, "max": 1.1},
+            )
         for instance in st["stickers"]:
             self.assertIn(instance["definition"], designs)
 
@@ -1122,7 +1210,7 @@ class BringingAStickerToLife(ServerCase):
         _, out = self.animate("butterfly-1", "a2")
         self.assertTrue(out["receipt"]["accepted"])
         self.assertEqual(self.bridge.kernel.sticker("butterfly-1").animation,
-                         "none")
+                         "rest")
 
     def test_the_browser_does_not_choose_the_animation(self):
         """It sends a gesture, not a value. The host reads the definition."""
