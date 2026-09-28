@@ -437,8 +437,8 @@ class Bridge:
     def resize(self, body: dict) -> dict:
         """Set a sticker's bounded apparent scale.
 
-        This is an authoritative world transform. The bridge does not clamp;
-        the kernel validates the value against the StickerDefinition bounds
+        This is an authoritative world transform. The bridge forwards the
+        proposed value unchanged; the kernel validates it against definition bounds
         and receipts either acceptance or refusal.
         """
         if not isinstance(body, dict):
