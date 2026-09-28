@@ -1064,8 +1064,11 @@ class TrayPlacement(ServerCase):
 
     def test_the_hotbar_offers_the_pages_sticker_definitions(self):
         _, state = self.get("/api/state")
-        self.assertEqual(sorted(d["id"] for d in state["definitions"]),
-                         ["butterfly", "cow", "duck", "hen"])
+        self.assertEqual(
+            sorted(d["id"] for d in state["definitions"]),
+            ["bird", "butterfly", "cloud", "cow", "duck", "fish",
+             "flower", "frog", "hen"],
+        )
 
     def test_placing_from_the_tray_creates_a_sticker_at_that_point(self):
         before = set(self.bridge.kernel.sticker_ids())
