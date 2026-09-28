@@ -167,12 +167,14 @@ class StickerInstance:
     page: int
     x: float = 0.5
     y: float = 0.5
-    scale: float = 1.0
     # animation is the authoritative current clip name. Kept under its
     # historic field name for wire compatibility while the visual manifest
     # calls these clip recipes.
     animation: str = "none"
     revision: int = 0          # world revision at which this last changed
+    # Added after the historic fields so positional construction from older
+    # callers keeps its meaning. New code should pass this by name.
+    scale: float = 1.0
 
 
 @dataclass(frozen=True)
