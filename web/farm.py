@@ -28,7 +28,7 @@ from stickerbook_core import (  # noqa: E402
     ADD_OWN_STICKER, AGENT, ANIMATE_OWN_STICKER, StickerDefinition, HUMAN,
     Kernel, MOVE_STICKER, NOOP, OBSERVE, PROFILES, Principal,
     REMOVE_AGENT_STICKER, REMOVE_OWN_STICKER, RESIZE_OWN_STICKER,
-    StickerInstance,
+    SET_STICKER_FACING, StickerInstance,
 )
 
 HUMAN_ID = "human:kid"
@@ -45,43 +45,65 @@ BACKDROP_FEATURES = [
 
 # What this page's tray offers. Supply is unlimited: a screen has no reason
 # to run out, and a child expects it not to.
+def _definition(name, *clips):
+    return StickerDefinition(
+        name, ("none", "rest") + tuple(clips), rest_animation="rest")
+
+
 ASSETS = {
-    "bird": StickerDefinition(
-        "bird", ("none", "rest", "flight", "land"),
-        rest_animation="rest"),
-    "butterfly": StickerDefinition(
-        "butterfly", ("none", "rest", "flutter", "land"),
-        rest_animation="rest"),
-    "frog": StickerDefinition(
-        "frog", ("none", "rest", "hop", "land"),
-        rest_animation="rest"),
-    "fish": StickerDefinition(
-        "fish", ("none", "rest", "swim", "dive"),
-        rest_animation="rest"),
-    "flower": StickerDefinition(
-        "flower", ("none", "rest", "sway", "bloom"),
-        rest_animation="rest"),
-    "cloud": StickerDefinition(
-        "cloud", ("none", "rest", "drift", "stretch"),
-        rest_animation="rest"),
-    "cow": StickerDefinition(
-        "cow", ("none", "rest", "chew", "look", "step"),
-        rest_animation="rest"),
-    "duck": StickerDefinition(
-        "duck", ("none", "rest", "paddle", "dive"),
-        rest_animation="rest"),
-    "hen": StickerDefinition(
-        "hen", ("none", "rest", "peck", "look", "flap"),
-        rest_animation="rest"),
+    # Shared / original set.
+    "bird": _definition("bird", "flight", "land"),
+    "butterfly": _definition("butterfly", "flutter", "land"),
+    "frog": _definition("frog", "hop", "land"),
+    "fish": _definition("fish", "swim", "dive"),
+    "flower": _definition("flower", "sway", "bloom"),
+    "cloud": _definition("cloud", "drift", "stretch"),
+    "cow": _definition("cow", "chew", "look", "step"),
+    "duck": _definition("duck", "paddle", "dive"),
+    "hen": _definition("hen", "peck", "look", "flap"),
+
+    # Farm pack.
+    "horse": _definition("horse", "walk", "look"),
+    "pig": _definition("pig", "sniff", "step"),
+    "sheep": _definition("sheep", "walk", "look"),
+    "goat": _definition("goat", "walk", "hop"),
+    "tractor": _definition("tractor", "roll", "bounce"),
+    "hay-bale": _definition("hay-bale", "wobble", "tumble"),
+
+    # Beach pack.
+    "crab": _definition("crab", "scuttle", "wave"),
+    "starfish": _definition("starfish", "wiggle", "stretch"),
+    "turtle": _definition("turtle", "swim", "tuck"),
+    "dolphin": _definition("dolphin", "swim", "leap"),
+    "umbrella": _definition("umbrella", "sway", "blow"),
+    "shell": _definition("shell", "wiggle", "open"),
+
+    # Playground pack.
+    "ball": _definition("ball", "roll", "bounce"),
+    "kite": _definition("kite", "sway", "dive"),
+    "scooter": _definition("scooter", "roll", "lean"),
+    "skateboard": _definition("skateboard", "roll", "tilt"),
+    "balloon": _definition("balloon", "sway", "rise"),
+    "frisbee": _definition("frisbee", "spin", "tilt"),
+
+    # Space pack.
+    "rocket": _definition("rocket", "thrust", "launch"),
+    "astronaut": _definition("astronaut", "wave", "float"),
+    "planet": _definition("planet", "spin", "glow"),
+    "moon": _definition("moon", "wink", "glow"),
+    "ufo": _definition("ufo", "hover", "beam"),
+    "satellite": _definition("satellite", "orbit", "signal"),
 }
 
 HUMAN_TOOLS = frozenset({
     OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_STICKER, ANIMATE_OWN_STICKER,
-    RESIZE_OWN_STICKER, REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER,
+    RESIZE_OWN_STICKER, SET_STICKER_FACING,
+    REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER,
 })
 # Registered, but nothing drives this principal in this milestone.
 AGENT_TOOLS = frozenset({
     OBSERVE, NOOP, MOVE_STICKER, ANIMATE_OWN_STICKER, RESIZE_OWN_STICKER,
+    SET_STICKER_FACING,
 })
 
 
