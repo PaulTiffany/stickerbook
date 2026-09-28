@@ -331,6 +331,12 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         )
         self.assertIn('node.classList.remove("alive")', drag_rule)
         self.assertIn('node.removeAttribute("data-alive")', drag_rule)
+        self.assertIn("const grabOffset = pointAtGrab ?", drag_rule)
+        self.assertIn("const draggedFraction = (pointerEvent)", drag_rule)
+        self.assertIn("point.x - grabOffset.x", drag_rule)
+        self.assertIn("point.y - grabOffset.y", drag_rule)
+        self.assertIn("point: draggedFraction(upEvent)", drag_rule)
+        self.assertNotIn("point: pageFraction(upEvent)", drag_rule)
 
     def test_grab_uses_idle_art_and_keeps_held_art_centered(self):
         with urllib.request.urlopen(

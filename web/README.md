@@ -125,9 +125,10 @@ small side margins may remain.
 
 Direct human manipulation suspends animation while the sticker is held. Grabbing
 an animated sticker immediately restores its default/rest artwork and removes
-animation offsets, so the sticker's visual center sits directly under the
-pointer while it is dragged. Once the move is accepted, the sticker is set down
-with `animation = none`. It remains still until the child explicitly
+animation offsets. The drag preserves the exact point where the child grabbed
+the sticker: beginning a drag never teleports the sticker's center underneath
+the pointer. Once the move is accepted, the sticker is set down with
+`animation = none`. It remains still until the child explicitly
 double-taps/clicks it to bring it to life again.
 
 ## Conversational / creator seams
