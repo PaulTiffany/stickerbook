@@ -110,6 +110,53 @@ class T03_AgentCannotAlterOwnership(unittest.TestCase):
         self.assertEqual(k.sticker(r.object_id).created_by, "agent:jev")
 
 
+class HumanMovementStopsAnimation(unittest.TestCase):
+
+    def test_human_move_sets_an_animated_sticker_down_still(self):
+        k = build()
+        animated = k.propose(Command(
+            ANIMATE_OWN_STICKER,
+            "human:kid",
+            "animate-human",
+            "lantern-h",
+            (("animation", "glow"),),
+        ))
+        self.assertTrue(animated.accepted)
+        self.assertEqual(k.sticker("lantern-h").animation, "glow")
+
+        moved = k.propose(Command(
+            MOVE_STICKER,
+            "human:kid",
+            "move-human",
+            "lantern-h",
+            (("x", 0.6), ("y", 0.4)),
+        ))
+        self.assertTrue(moved.accepted)
+        self.assertEqual(k.sticker("lantern-h").animation, "none")
+
+    def test_agent_move_does_not_implicitly_cancel_its_animation(self):
+        k = build()
+        animated = k.propose(Command(
+            ANIMATE_OWN_STICKER,
+            "agent:jev",
+            "animate-agent",
+            "moth-a",
+            (("animation", "flutter"),),
+        ))
+        self.assertTrue(animated.accepted)
+        self.assertEqual(k.sticker("moth-a").animation, "flutter")
+
+        moved = k.propose(Command(
+            MOVE_STICKER,
+            "agent:jev",
+            "move-agent",
+            "moth-a",
+            (("x", 0.6), ("y", 0.4)),
+        ))
+        self.assertTrue(moved.accepted)
+        self.assertEqual(k.sticker("moth-a").animation, "flutter")
+
+
 class T04_UnknownActionRejects(unittest.TestCase):
 
     def test_04_unknown_action_name(self):
