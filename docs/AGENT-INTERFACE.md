@@ -66,7 +66,10 @@ drafts from the **same original upload**:
 Both jobs use the fixed reframe/outpaint instructions in `web/page_assets.py`:
 preserve the original artwork and composition, do not reinterpret it, expand
 surrounding background rather than stretching, and add no unrelated objects,
-text, or design elements.
+text, or design elements. OpenRouter image parameters differ by model, so the
+gateway does not assume a universal custom-size control. It verifies the
+intrinsic dimensions of each returned SVG/PNG/JPEG/WebP and rejects a result
+unless it is exactly the requested canvas.
 
 Provider output remains media/data. The generated files are stored only in
 ignored local runtime storage until an explicit save/install path exists.
