@@ -1443,12 +1443,14 @@ function overTrayZone(event) {
          event.clientY <= box.bottom;
 }
 
-function overHotbar(event) {
+function overRemovalZone(event) {
   const box = hotbar.getBoundingClientRect();
-  return event.clientX >= box.left &&
-         event.clientX <= box.right &&
-         event.clientY >= box.top &&
-         event.clientY <= box.bottom;
+
+  // "Drag it down" is a bottom-edge gesture, not a precision drop target.
+  // Once the pointer crosses the hotbar's top edge, releasing anywhere
+  // farther down still means remove — including coordinates reported below
+  // the bar/visual viewport while pointer capture is active.
+  return event.clientY >= box.top;
 }
 
 function overLibraryPanel(event) {
@@ -1519,7 +1521,7 @@ function grabPlaced(event, sticker) {
           (point.y * metrics.height) + ")";
       })()
     );
-    hotbar.classList.toggle("drop-ready", overHotbar(moveEvent));
+    hotbar.classList.toggle("drop-ready", overRemovalZone(moveEvent));
   };
 
   const onCancel = () => {
@@ -1530,7 +1532,7 @@ function grabPlaced(event, sticker) {
   const onUp = async (upEvent) => {
     cleanup();
 
-    if (overHotbar(upEvent) && moved) {
+    if (overRemovalZone(upEvent) && moved) {
       await send("/api/remove", {
         sticker: sticker.id,
         command_id: nextId("remove"),
@@ -1542,6 +1544,15 @@ function grabPlaced(event, sticker) {
     if (!moved && performance.now() - startedAt < 520) {
       render();
       await tapSticker(sticker);
+      return;
+    }
+
+    // Ambient/letterbox space is not part of the governed page. A release
+    // there never turns into a clamped edge move; the sticker snaps back to
+    // authoritative state instead.
+    if (!overPage(upEvent)) {
+      render();
+      speak("Keep stickers on the page");
       return;
     }
 
