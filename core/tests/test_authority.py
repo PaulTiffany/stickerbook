@@ -20,7 +20,7 @@ from stickerbook_core import (  # noqa: E402
     CREATE_AGENT, HUMAN, Kernel, LOCAL_MULTI_AGENT, LOCAL_SINGLE_AGENT, NOOP,
     MOVE_STICKER, OBSERVE, OPERATOR, PAGES_DEMO, Principal,
     REMOVE_AGENT_STICKER, REMOVE_OWN_STICKER, RESIZE_OWN_STICKER,
-    StickerInstance,
+    SET_STICKER_FACING, StickerInstance,
 )
 
 ASSETS = {
@@ -30,7 +30,7 @@ ASSETS = {
 
 AGENT_TOOLS = frozenset({
     OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_STICKER, ANIMATE_OWN_STICKER,
-    RESIZE_OWN_STICKER,
+    RESIZE_OWN_STICKER, SET_STICKER_FACING,
 })
 HUMAN_TOOLS = AGENT_TOOLS | {REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER}
 
@@ -268,6 +268,66 @@ class StickerScaleBounds(unittest.TestCase):
         self.assertEqual(definition.scale_max, 1.07)
         self.assertFalse(hasattr(definition, "tools"))
         self.assertFalse(hasattr(definition, "owner"))
+
+
+class StickerFacingTransform(unittest.TestCase):
+
+    def test_agent_can_face_own_sticker_left_and_right(self):
+        k = build()
+        left = k.propose(Command(
+            SET_STICKER_FACING, "agent:jev", "face-left", "moth-a",
+            (("facing", "left"),),
+        ))
+        self.assertTrue(left.accepted, left.reason)
+        self.assertEqual(k.sticker("moth-a").facing, "left")
+
+        right = k.propose(Command(
+            SET_STICKER_FACING, "agent:jev", "face-right", "moth-a",
+            (("facing", "right"),),
+        ))
+        self.assertTrue(right.accepted, right.reason)
+        self.assertEqual(k.sticker("moth-a").facing, "right")
+
+    def test_facing_rejects_unknown_values(self):
+        k = build()
+        r = k.propose(Command(
+            SET_STICKER_FACING, "agent:jev", "face-bad", "moth-a",
+            (("facing", "inside-out"),),
+        ))
+        self.assertFalse(r.accepted)
+        self.assertEqual(r.reason, "facing-not-supported")
+        self.assertEqual(k.sticker("moth-a").facing, "right")
+
+    def test_agent_action_table_offers_only_other_facing(self):
+        k = build()
+        keys = set(k.available_actions("agent:jev"))
+        self.assertIn("FACE:moth-a:LEFT", keys)
+        self.assertNotIn("FACE:moth-a:RIGHT", keys)
+
+        k.propose_key("agent:jev", "FACE:moth-a:LEFT", "face-key")
+        keys = set(k.available_actions("agent:jev"))
+        self.assertIn("FACE:moth-a:RIGHT", keys)
+        self.assertNotIn("FACE:moth-a:LEFT", keys)
+
+    def test_facing_survives_move_animation_and_resize(self):
+        k = build()
+        self.assertTrue(k.propose(Command(
+            SET_STICKER_FACING, "agent:jev", "f1", "moth-a",
+            (("facing", "left"),),
+        )).accepted)
+        self.assertTrue(k.propose(Command(
+            MOVE_STICKER, "agent:jev", "f2", "moth-a",
+            (("x", 0.7), ("y", 0.6)),
+        )).accepted)
+        self.assertTrue(k.propose(Command(
+            ANIMATE_OWN_STICKER, "agent:jev", "f3", "moth-a",
+            (("animation", "flutter"),),
+        )).accepted)
+        self.assertTrue(k.propose(Command(
+            RESIZE_OWN_STICKER, "agent:jev", "f4", "moth-a",
+            (("scale", 1.04),),
+        )).accepted)
+        self.assertEqual(k.sticker("moth-a").facing, "left")
 
 
 class T06_AgentCannotExpandCapabilities(unittest.TestCase):
