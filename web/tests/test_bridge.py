@@ -230,16 +230,54 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
                 b'data-clip-intent="animate"'):
             self.assertIn(marker, page)
 
-    def test_voice_is_child_facing_only_when_enabled_by_adult(self):
+    def test_voice_and_accessible_chat_are_adult_enabled(self):
         with urllib.request.urlopen(self.url("/"), timeout=5) as r:
             page = r.read()
         for marker in (
                 b'id="voice-orb"',
                 b'id="voice-enable"',
+                b'id="text-chat-enable"',
+                b'id="accessibility-chat"',
+                b'id="accessibility-chat-log"',
+                b'id="accessibility-chat-input"',
                 b'id="adult-text-fallback"',
                 b'id="adult-chat-input"'):
             self.assertIn(marker, page)
-        self.assertIn(b"Speech recognition may use your browser", page)
+        self.assertIn(
+            b'href="https://github.com/PaulTiffany/stickerbook"',
+            page,
+        )
+        self.assertIn(b"GitHub repository", page)
+        self.assertIn(
+            b'Accessibility option: adds a translucent text interface',
+            page,
+        )
+
+        with urllib.request.urlopen(
+                self.url("/static/app.js"), timeout=5) as r:
+            app = r.read().decode("utf-8")
+        self.assertIn(
+            "textChatEnabled &&\n      onPlaySurface",
+            app,
+        )
+        self.assertIn(
+            'converseWithStickerBook(text, false, true)',
+            app,
+        )
+        self.assertIn(
+            'converseWithStickerBook(transcript, true, textChatEnabled)',
+            app,
+        )
+
+        with urllib.request.urlopen(
+                self.url("/static/style.css"), timeout=5) as r:
+            css = r.read().decode("utf-8")
+        chat_start = css.index(".accessibility-chat {")
+        chat_end = css.index("}", chat_start)
+        chat_rule = css[chat_start:chat_end]
+        self.assertIn("position: fixed;", chat_rule)
+        self.assertIn("background: rgba(255,253,247,.72);", chat_rule)
+        self.assertIn("backdrop-filter: blur(12px)", chat_rule)
 
     def test_phone_layout_is_edge_to_edge_without_cropping_native_art(self):
         with urllib.request.urlopen(self.url("/"), timeout=5) as r:
