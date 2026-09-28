@@ -90,8 +90,9 @@ class Kernel:
     def load_definition(manifest: dict) -> StickerDefinition:
         """Load a declarative asset manifest.
 
-        Total by construction: only `name` and `animations` are read. Any
-        other field -- owner, capabilities, principals, tools, policy,
+        Total by construction: only visual/world declaration fields are read:
+        name, clip names/default clip, and bounded scale limits. Any authority-
+        looking field -- owner, capabilities, principals, tools, policy,
         scripts -- is discarded rather than interpreted. A book or sticker
         cannot declare authority (root SECURITY.md section 16).
         """
