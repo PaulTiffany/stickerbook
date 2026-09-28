@@ -161,6 +161,22 @@
     <span class="voice-orb-icon" aria-hidden="true">🎙️</span>
     <span id="voice-orb-state" class="sr-only">ready</span>
   </button>
+
+  <section id="accessibility-chat" class="accessibility-chat" hidden
+           aria-label="Text chat with StickerBook">
+    <div class="accessibility-chat-header">
+      <strong>StickerBook chat</strong>
+      <button id="accessibility-chat-close" type="button"
+              aria-label="Hide text chat">×</button>
+    </div>
+    <div id="accessibility-chat-log" class="accessibility-chat-log"
+         role="log" aria-live="polite" aria-relevant="additions"></div>
+    <div class="accessibility-chat-compose">
+      <input id="accessibility-chat-input" type="text" maxlength="2000"
+             autocomplete="off" placeholder="Type to StickerBook">
+      <button id="accessibility-chat-send" type="button">Send</button>
+    </div>
+  </section>
 </main>
 
 <section id="sticker-overlay" class="sticker-overlay" hidden aria-label="Sticker library">
@@ -235,6 +251,14 @@
         Voice is push-to-talk. Speech recognition may use your browser or device speech service.
       </p>
 
+      <label class="adult-toggle" for="text-chat-enable">
+        <input id="text-chat-enable" type="checkbox">
+        <span>Show text chat on the play surface</span>
+      </label>
+      <p class="adult-note">
+        Accessibility option: adds a translucent text interface near the top of the page using the same conversational Omega path as voice.
+      </p>
+
       <div id="adult-text-fallback" class="adult-text-fallback">
         <label for="adult-chat-input">Text fallback</label>
         <div class="adult-chat-row">
@@ -246,7 +270,11 @@
       </div>
     </div>
 
-    <a id="dev-link" href="?dev=1">Developer receipts</a>
+    <div class="adult-links">
+      <a id="repo-link" href="https://github.com/PaulTiffany/stickerbook"
+         target="_blank" rel="noopener noreferrer">GitHub repository</a>
+      <a id="dev-link" href="?dev=1">Developer receipts</a>
+    </div>
   </div>
 </section>
 
