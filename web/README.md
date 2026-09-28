@@ -111,7 +111,7 @@ sprite dictionary, a default/rest clip, behavior clips that compose those
 sprites, and bounded scale metadata. The two version numbers describe different
 layers: creator draft interchange versus installed visual assets.
 
-The current built-ins contain 49 definitions with four initial pose sprites
+The current built-ins contain 57 definitions with four initial pose sprites
 each. Those sprites are a starter pose set, not a claim that every future
 sticker must have exactly four. All creator/image seams return drafts only and
 do not mutate the authority kernel or install generated media into a governed
