@@ -170,6 +170,10 @@ Generated filenames follow the same convention:
 <source-stem>-vertical.<provider-output-ext>
 ```
 
+For the automated child-upload path, provider output is restricted to raster
+PNG/JPEG/WebP. SVG is accepted as an input and is fine for trusted repository
+assets, but model-generated SVG is rejected until an explicit sanitizer exists.
+
 Generation is non-authoritative and does not install a page into the governed
 world. Saving/persistence remains a separate action.
 
