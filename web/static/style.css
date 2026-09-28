@@ -1021,6 +1021,63 @@ button:focus-visible, a:focus-visible, label:focus-within {
 
 .library-header h2 { font-size: clamp(24px, 4vw, 36px); }
 
+.sticker-catalog-tools {
+  display: grid;
+  gap: 10px;
+  margin: -2px 0 14px;
+}
+
+.sticker-search input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #cfc3af;
+  border-radius: 13px;
+  background: rgba(255,253,247,.96);
+  padding: 9px 12px;
+  color: var(--ink);
+  font: inherit;
+}
+
+.sticker-search input:focus {
+  outline: 2px solid rgba(85,126,90,.28);
+  outline-offset: 1px;
+}
+
+.sticker-categories {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+
+.sticker-category {
+  flex: 0 0 auto;
+  min-height: 34px;
+  border: 1px solid #d4c9b8;
+  border-radius: 999px;
+  background: rgba(255,253,247,.86);
+  padding: 6px 11px;
+  color: #6d665b;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.sticker-category.active,
+.sticker-category[aria-pressed="true"] {
+  border-color: #8eae93;
+  background: #edf5ec;
+  color: #42634a;
+}
+
+.sticker-library-empty {
+  margin: 12px 2px 0;
+  color: #81786b;
+  font-size: 13px;
+}
+
 .sticker-library-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));

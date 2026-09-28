@@ -191,7 +191,19 @@
     </header>
 
     <div id="sticker-library-view">
+      <div class="sticker-catalog-tools">
+        <label class="sticker-search" for="sticker-search">
+          <span class="sr-only">Search stickers</span>
+          <input id="sticker-search" type="search" autocomplete="off"
+                 placeholder="Search stickers">
+        </label>
+        <div id="sticker-categories" class="sticker-categories"
+             aria-label="Sticker categories"></div>
+      </div>
       <div id="sticker-library-grid" class="sticker-library-grid"></div>
+      <p id="sticker-library-empty" class="sticker-library-empty" hidden>
+        No stickers match that search.
+      </p>
     </div>
 
     <div id="sticker-maker-view" class="sticker-maker-view" hidden>

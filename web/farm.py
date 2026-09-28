@@ -25,9 +25,10 @@ sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "core"))
 
 from stickerbook_core import (  # noqa: E402
-    ADD_OWN_STICKER, AGENT, ANIMATE_OWN_STICKER, StickerDefinition, HUMAN, Kernel, MOVE_STICKER,
-    NOOP, OBSERVE, PROFILES, Principal, REMOVE_AGENT_STICKER,
-    REMOVE_OWN_STICKER, StickerInstance,
+    ADD_OWN_STICKER, AGENT, ANIMATE_OWN_STICKER, StickerDefinition, HUMAN,
+    Kernel, MOVE_STICKER, NOOP, OBSERVE, PROFILES, Principal,
+    REMOVE_AGENT_STICKER, REMOVE_OWN_STICKER, RESIZE_OWN_STICKER,
+    StickerInstance,
 )
 
 HUMAN_ID = "human:kid"
@@ -45,18 +46,43 @@ BACKDROP_FEATURES = [
 # What this page's tray offers. Supply is unlimited: a screen has no reason
 # to run out, and a child expects it not to.
 ASSETS = {
-    "cow": StickerDefinition("cow", ("none", "chew")),
-    "butterfly": StickerDefinition("butterfly", ("none", "flutter")),
-    "duck": StickerDefinition("duck", ("none", "paddle")),
-    "hen": StickerDefinition("hen", ("none", "peck")),
+    "bird": StickerDefinition(
+        "bird", ("none", "rest", "flight", "land"),
+        rest_animation="rest"),
+    "butterfly": StickerDefinition(
+        "butterfly", ("none", "rest", "flutter", "land"),
+        rest_animation="rest"),
+    "frog": StickerDefinition(
+        "frog", ("none", "rest", "hop", "land"),
+        rest_animation="rest"),
+    "fish": StickerDefinition(
+        "fish", ("none", "rest", "swim", "dive"),
+        rest_animation="rest"),
+    "flower": StickerDefinition(
+        "flower", ("none", "rest", "sway", "bloom"),
+        rest_animation="rest"),
+    "cloud": StickerDefinition(
+        "cloud", ("none", "rest", "drift", "stretch"),
+        rest_animation="rest"),
+    "cow": StickerDefinition(
+        "cow", ("none", "rest", "chew", "look", "step"),
+        rest_animation="rest"),
+    "duck": StickerDefinition(
+        "duck", ("none", "rest", "paddle", "dive"),
+        rest_animation="rest"),
+    "hen": StickerDefinition(
+        "hen", ("none", "rest", "peck", "look", "flap"),
+        rest_animation="rest"),
 }
 
 HUMAN_TOOLS = frozenset({
     OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_STICKER, ANIMATE_OWN_STICKER,
-    REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER,
+    RESIZE_OWN_STICKER, REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER,
 })
 # Registered, but nothing drives this principal in this milestone.
-AGENT_TOOLS = frozenset({OBSERVE, NOOP, MOVE_STICKER, ANIMATE_OWN_STICKER})
+AGENT_TOOLS = frozenset({
+    OBSERVE, NOOP, MOVE_STICKER, ANIMATE_OWN_STICKER, RESIZE_OWN_STICKER,
+})
 
 
 def build_world(profile: str = "local-single-agent") -> Kernel:
@@ -68,11 +94,13 @@ def build_world(profile: str = "local-single-agent") -> Kernel:
     kernel.register_principal(Principal(AGENT_ID, AGENT, tools=AGENT_TOOLS,
                                         delegable=frozenset()))
     kernel.place_sticker(StickerInstance(
-        "cow-1", HUMAN_ID, HUMAN_ID, "cow", 1, x=0.24, y=0.86))
+        "cow-1", HUMAN_ID, HUMAN_ID, "cow", 1,
+        x=0.24, y=0.86, animation="rest"))
     # Agent-owned provenance, kept so ownership stays visible. The human
     # can still drag it: the page belongs to the human.
     kernel.place_sticker(StickerInstance(
-        "butterfly-1", AGENT_ID, AGENT_ID, "butterfly", 1, x=0.52, y=0.38))
+        "butterfly-1", AGENT_ID, AGENT_ID, "butterfly", 1,
+        x=0.52, y=0.38, animation="rest"))
     return kernel
 
 

@@ -97,16 +97,39 @@ adult panel states this explicitly.
 The recognized text is sent to the local conversational endpoint. A returned
 reply may be spoken with the browser's speech-synthesis facility.
 
-## Text fallback
+## Optional text projection
 
-A small text interface exists only inside the responsible-adult/developer
-panel. This provides:
+Voice and text are two projections of the same conversational interface. A
+responsible adult may optionally expose the translucent text chat on the play
+surface for accessibility. There is no separate adult-panel chat path.
 
-- an accessibility/debug fallback;
-- a way to test conversational Omega without occupying the child's page;
-- an inspectable language path while voice behavior is developed.
+The public mechanical build allows that text surface to be exercised with a
+fixed stub reply; no conversational model is called.
 
-It is not intended to become the primary child-facing interface.
+## Sticker action substrate
+
+The shipped sticker substrate deliberately separates visual pose from governed
+world transforms.
+
+A StickerDefinition declares visual sprite names, clip names, a default/rest
+clip, and scale bounds. A StickerInstance carries authoritative position and
+scale plus its current clip (still exposed on the historic `animation` wire
+field for compatibility). The v4 built-ins use frame sprites for clips; their
+clip recipes do not smuggle locomotion through CSS transforms.
+
+Translation and apparent depth are world state. Scale is currently bounded to
+0.90–1.10 globally, and the host-generated agent action table offers only
+bounded 0.02 scale steps. The kernel validates the final value independently.
+
+The current local agent authority profiles intentionally contain no sticker
+removal capability. Human control retains removal. This is non-representability,
+not a prompt instruction.
+
+Jev integration is still a future experiment. When connected, its scene view
+must contain only explicitly declared objects/state, and a generated action key
+must not reveal an undeclared object merely by naming it. The intended play
+delegation is Child > OmegaLLM > OmegaJev, while the authority kernel remains
+the independent gate beneath all three.
 
 ## Default runtime
 

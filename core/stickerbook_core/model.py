@@ -26,19 +26,20 @@ ADD_OWN_STICKER = "add-own-sticker"
 # Kernel._do_move). Nothing else in the vocabulary changed.
 MOVE_STICKER = "move-sticker"
 ANIMATE_OWN_STICKER = "animate-own-sticker"
+RESIZE_OWN_STICKER = "resize-own-sticker"
 REMOVE_OWN_STICKER = "remove-own-sticker"
 REMOVE_AGENT_STICKER = "remove-agent-sticker"
 CREATE_AGENT = "create-agent"
 
 ALL_ACTIONS: FrozenSet[str] = frozenset({
     NOOP, OBSERVE, ADD_OWN_STICKER, MOVE_STICKER, ANIMATE_OWN_STICKER,
-    REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER, CREATE_AGENT,
+    RESIZE_OWN_STICKER, REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER, CREATE_AGENT,
 })
 
 # Actions that mutate the world. Everything else is read-only.
 MUTATING_ACTIONS: FrozenSet[str] = frozenset({
     ADD_OWN_STICKER, MOVE_STICKER, ANIMATE_OWN_STICKER,
-    REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER, CREATE_AGENT,
+    RESIZE_OWN_STICKER, REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER, CREATE_AGENT,
 })
 
 # A sticker's position is a coordinate on the page, as a fraction of its
@@ -46,6 +47,12 @@ MUTATING_ACTIONS: FrozenSet[str] = frozenset({
 # sticker book whose stickers snap to five dots is not a sticker book.
 POSITION_MIN = 0.0
 POSITION_MAX = 1.0
+
+# Apparent depth remains a bounded world transform rather than being baked
+# into pose artwork. Definitions may tighten these bounds, but never widen
+# them beyond this global envelope.
+SCALE_MIN = 0.90
+SCALE_MAX = 1.10
 
 
 # ---------------------------------------------------------------------------
@@ -122,7 +129,7 @@ LOCAL_SINGLE_AGENT = AuthorityProfile(
     name="local-single-agent",
     agent_ceiling=frozenset({
         OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_STICKER,
-        ANIMATE_OWN_STICKER, REMOVE_OWN_STICKER,
+        ANIMATE_OWN_STICKER, RESIZE_OWN_STICKER,
     }),
     max_agents=1,
     max_delegation_depth=0,
@@ -132,7 +139,7 @@ LOCAL_MULTI_AGENT = AuthorityProfile(
     name="local-multi-agent",
     agent_ceiling=frozenset({
         OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_STICKER,
-        ANIMATE_OWN_STICKER, REMOVE_OWN_STICKER, CREATE_AGENT,
+        ANIMATE_OWN_STICKER, RESIZE_OWN_STICKER, CREATE_AGENT,
     }),
     max_agents=4,
     max_delegation_depth=2,
@@ -160,8 +167,14 @@ class StickerInstance:
     page: int
     x: float = 0.5
     y: float = 0.5
+    # animation is the authoritative current clip name. Kept under its
+    # historic field name for wire compatibility while the visual manifest
+    # calls these clip recipes.
     animation: str = "none"
     revision: int = 0          # world revision at which this last changed
+    # Added after the historic fields so positional construction from older
+    # callers keeps its meaning. New code should pass this by name.
+    scale: float = 1.0
 
 
 @dataclass(frozen=True)
@@ -176,6 +189,9 @@ class StickerDefinition:
 
     name: str
     animations: Tuple[str, ...] = ("none",)
+    rest_animation: str = "none"
+    scale_min: float = SCALE_MIN
+    scale_max: float = SCALE_MAX
 
 
 @dataclass(frozen=True)
@@ -234,8 +250,9 @@ class Receipt:
 
 __all__ = [
     "NOOP", "OBSERVE", "ADD_OWN_STICKER", "MOVE_STICKER",
-    "ANIMATE_OWN_STICKER", "REMOVE_OWN_STICKER", "REMOVE_AGENT_STICKER",
-    "CREATE_AGENT", "ALL_ACTIONS", "MUTATING_ACTIONS", "POSITION_MIN", "POSITION_MAX",
+    "ANIMATE_OWN_STICKER", "RESIZE_OWN_STICKER", "REMOVE_OWN_STICKER",
+    "REMOVE_AGENT_STICKER", "CREATE_AGENT", "ALL_ACTIONS", "MUTATING_ACTIONS",
+    "POSITION_MIN", "POSITION_MAX", "SCALE_MIN", "SCALE_MAX",
     "HUMAN", "AGENT", "OPERATOR", "Principal", "AuthorityProfile",
     "PAGES_DEMO", "LOCAL_SINGLE_AGENT", "LOCAL_MULTI_AGENT", "PROFILES",
     "StickerInstance", "StickerDefinition", "Command", "Receipt", "replace", "field",

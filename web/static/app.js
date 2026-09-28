@@ -45,6 +45,9 @@ const trayEmpty = document.getElementById("tray-empty");
 const stickerOverlay = document.getElementById("sticker-overlay");
 const stickerLibraryPanel = document.querySelector(".sticker-library-panel");
 const stickerLibraryGrid = document.getElementById("sticker-library-grid");
+const stickerLibraryEmpty = document.getElementById("sticker-library-empty");
+const stickerSearch = document.getElementById("sticker-search");
+const stickerCategories = document.getElementById("sticker-categories");
 const stickerLibraryView = document.getElementById("sticker-library-view");
 const stickerMakerView = document.getElementById("sticker-maker-view");
 const adultPanel = document.getElementById("adult-panel");
@@ -77,6 +80,8 @@ let pendingDefinition = null;
 let placementPreview = null;
 let lastTap = { id: null, at: 0 };
 let hotbarKinds = [];
+let stickerSearchQuery = "";
+let stickerCategory = "all";
 let bookCache = null;
 let pagePreviewUrl = null;
 let pageUploadDraft = null;
@@ -102,7 +107,7 @@ async function loadAssetManifest() {
     const res = await fetch("static/assets/manifest.json", { cache: "no-store" });
     if (!res.ok) throw new Error("asset manifest: HTTP " + res.status);
     const manifest = await res.json();
-    if (!manifest || ![1, 2, 3].includes(manifest.version)) {
+    if (!manifest || ![1, 2, 3, 4].includes(manifest.version)) {
       throw new Error("unsupported asset manifest");
     }
     assetManifest = manifest;
@@ -136,8 +141,14 @@ function stickerClip(kind, requestedClip) {
   const name = requestedClip && requestedClip !== "none"
     ? requestedClip
     : defaultName;
+  const raw = clips[name] || clips[defaultName] || null;
+  if (!raw) return null;
 
-  return clips[name] || clips[defaultName] || null;
+  const sprites = asset.sprites || {};
+  return {
+    ...raw,
+    frames: (raw.frames || []).map((frame) => sprites[frame] || frame),
+  };
 }
 
 function clipImage(clip) {
@@ -150,6 +161,7 @@ function clipImage(clip) {
     image._stickerFrames = clip.frames.slice();
     image._stickerFrameMs = Math.max(40, Number(clip.frame_ms) || 120);
     image._stickerLoop = clip.loop !== false;
+    image._stickerFrameStartedAt = performance.now();
     image.dataset.stickerFrameIndex = "0";
   }
 
@@ -174,7 +186,8 @@ function startStickerFrameTicker() {
         if (frames.length < 2) continue;
 
         const ms = image._stickerFrameMs || 120;
-        let index = Math.floor(now / ms);
+        const startedAt = Number(image._stickerFrameStartedAt) || now;
+        let index = Math.floor(Math.max(0, now - startedAt) / ms);
 
         if (image._stickerLoop) {
           index %= frames.length;
@@ -373,15 +386,15 @@ const DEMO_SEED = {
     ],
   },
   definitions: [
-    { id: "bird", animations: ["none", "flutter"] },
-    { id: "butterfly", animations: ["none", "flutter"] },
-    { id: "frog", animations: ["none", "hop"] },
-    { id: "fish", animations: ["none", "swim"] },
-    { id: "flower", animations: ["none", "sway"] },
-    { id: "cloud", animations: ["none", "drift"] },
-    { id: "cow", animations: ["none", "chew"] },
-    { id: "duck", animations: ["none", "paddle"] },
-    { id: "hen", animations: ["none", "peck"] },
+    { id: "bird", animations: ["none", "rest", "flight", "land"], rest_clip: "rest", scale_bounds: { min: .9, max: 1.1 } },
+    { id: "butterfly", animations: ["none", "rest", "flutter", "land"], rest_clip: "rest", scale_bounds: { min: .9, max: 1.1 } },
+    { id: "frog", animations: ["none", "rest", "hop", "land"], rest_clip: "rest", scale_bounds: { min: .9, max: 1.1 } },
+    { id: "fish", animations: ["none", "rest", "swim", "dive"], rest_clip: "rest", scale_bounds: { min: .9, max: 1.1 } },
+    { id: "flower", animations: ["none", "rest", "sway", "bloom"], rest_clip: "rest", scale_bounds: { min: .9, max: 1.1 } },
+    { id: "cloud", animations: ["none", "rest", "drift", "stretch"], rest_clip: "rest", scale_bounds: { min: .9, max: 1.1 } },
+    { id: "cow", animations: ["none", "rest", "chew", "look", "step"], rest_clip: "rest", scale_bounds: { min: .9, max: 1.1 } },
+    { id: "duck", animations: ["none", "rest", "paddle", "dive"], rest_clip: "rest", scale_bounds: { min: .9, max: 1.1 } },
+    { id: "hen", animations: ["none", "rest", "peck", "look", "flap"], rest_clip: "rest", scale_bounds: { min: .9, max: 1.1 } },
   ],
   stickers: [
     {
@@ -391,7 +404,8 @@ const DEMO_SEED = {
       y: 0.86,
       owner: "human:player",
       mine: true,
-      animation: "none",
+      scale: 1,
+      animation: "rest",
       revision: 1,
     },
     {
@@ -401,7 +415,8 @@ const DEMO_SEED = {
       y: 0.34,
       owner: "agent:jev-visual-1",
       mine: false,
-      animation: "none",
+      scale: 1,
+      animation: "rest",
       revision: 1,
     },
   ],
@@ -523,7 +538,8 @@ function createMechanicalWorld() {
             y: body.point.y,
             owner: worldState.principal,
             mine: true,
-            animation: "none",
+            scale: 1,
+            animation: def.rest_clip || "none",
             revision,
           });
         });
@@ -537,7 +553,8 @@ function createMechanicalWorld() {
         return commit("move-sticker", target.id, (revision) => {
           target.x = body.point.x;
           target.y = body.point.y;
-          target.animation = "none";
+          const def = definition(target.definition);
+          target.animation = def && def.rest_clip || "none";
           target.revision = revision;
         });
       }
@@ -560,14 +577,30 @@ function createMechanicalWorld() {
           return refuse("animate-own-sticker", body.sticker, "unknown-sticker");
         }
         const def = definition(target.definition);
-        const alive = (def && def.animations || []).find(
-          (name) => name !== "none"
+        const rest = def && def.rest_clip || "none";
+        const active = (def && def.animations || []).find(
+          (name) => name !== "none" && name !== rest
         );
-        if (!alive) {
+        if (!active) {
           return refuse("animate-own-sticker", target.id, "no-animation");
         }
         return commit("animate-own-sticker", target.id, (revision) => {
-          target.animation = target.animation === "none" ? alive : "none";
+          target.animation = target.animation === rest ? active : rest;
+          target.revision = revision;
+        });
+      }
+
+      if (path === "/api/resize") {
+        const target = sticker(body.sticker);
+        const def = target && definition(target.definition);
+        const bounds = def && def.scale_bounds || { min: .9, max: 1.1 };
+        const scale = Number(body.scale);
+        if (!target || !Number.isFinite(scale) ||
+            scale < bounds.min || scale > bounds.max) {
+          return refuse("resize-own-sticker", body.sticker, "scale-out-of-bounds");
+        }
+        return commit("resize-own-sticker", target.id, (revision) => {
+          target.scale = scale;
           target.revision = revision;
         });
       }
@@ -1112,7 +1145,10 @@ function resetStickerVisualToRest(node, kind) {
   paper.replaceChildren();
 
   const clip = stickerClip(kind, null);
-  const image = clipImage(clip);
+  const firstFrame = clip && Array.isArray(clip.frames) && clip.frames[0];
+  const image = firstFrame
+    ? svgImage(firstFrame, -72, -72, 144, 144)
+    : null;
 
   if (image) {
     paper.appendChild(image);
@@ -1291,7 +1327,8 @@ function drawStickers(stickers) {
         const metrics = activePageMetrics();
         return "translate(" +
           (sticker.x * metrics.width) + " " +
-          (sticker.y * metrics.height) + ")";
+          (sticker.y * metrics.height) + ") scale(" +
+          (Number.isFinite(sticker.scale) ? sticker.scale : 1) + ")";
       })()
     );
     node.setAttribute("tabindex", "0");
@@ -1304,10 +1341,12 @@ function drawStickers(stickers) {
     if (sticker.animation && sticker.animation !== "none") {
       node.classList.add("alive");
       const clip = stickerClip(sticker.definition, sticker.animation);
-      node.setAttribute(
-        "data-alive",
-        clip && clip.motion || sticker.animation
-      );
+      // CSS motion is legacy/explicit only. A v4 clip name such as "flight"
+      // or "flutter" must not silently become a transform animation merely
+      // because an old CSS keyframe happens to share that name.
+      if (clip && clip.motion) {
+        node.setAttribute("data-alive", clip.motion);
+      }
     }
 
     node.addEventListener("pointerdown", (event) => grabPlaced(event, sticker));
@@ -1532,7 +1571,10 @@ function grabPlaced(event, sticker) {
   } : { x: 0, y: 0 };
   let moved = false;
 
-  if (sticker.animation && sticker.animation !== "none") {
+  const definition = state && state.definitions &&
+    state.definitions.find((item) => item.id === sticker.definition);
+  const restClip = definition && definition.rest_clip || "none";
+  if (sticker.animation && sticker.animation !== restClip) {
     resetStickerVisualToRest(node, sticker.definition);
     node.classList.remove("alive");
     node.removeAttribute("data-alive");
@@ -1580,7 +1622,8 @@ function grabPlaced(event, sticker) {
         const metrics = activePageMetrics();
         return "translate(" +
           (point.x * metrics.width) + " " +
-          (point.y * metrics.height) + ")";
+          (point.y * metrics.height) + ") scale(" +
+          (Number.isFinite(sticker.scale) ? sticker.scale : 1) + ")";
       })()
     );
     hotbar.classList.toggle("drop-ready", overRemovalZone(moveEvent));
@@ -1856,21 +1899,104 @@ svg.addEventListener("contextmenu", (event) => event.preventDefault());
 
 // ------------------------------------------------------ sticker library
 
+function stickerCatalogEntry(definition) {
+  const asset = stickerAsset(definition.id) || {};
+  const fallbackName = definition.id
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+  return {
+    definition,
+    id: definition.id,
+    name: asset.name || fallbackName,
+    category: asset.category || "other",
+    tags: Array.isArray(asset.tags) ? asset.tags : [],
+    aliases: Array.isArray(asset.aliases) ? asset.aliases : [],
+  };
+}
+
+function stickerCatalogEntries() {
+  return (state && state.definitions || []).map(stickerCatalogEntry);
+}
+
+function drawStickerCategories(entries) {
+  if (!stickerCategories) return;
+
+  const categories = Array.from(new Set(
+    entries.map((entry) => entry.category).filter(Boolean)
+  )).sort((a, b) => a.localeCompare(b));
+
+  if (
+    stickerCategory !== "all" &&
+    !categories.includes(stickerCategory)
+  ) {
+    stickerCategory = "all";
+  }
+
+  stickerCategories.replaceChildren();
+
+  for (const category of ["all", ...categories]) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "sticker-category";
+    button.textContent = category === "all"
+      ? "All"
+      : category.replace(/[-_]+/g, " ").replace(
+          /\b\w/g,
+          (letter) => letter.toUpperCase()
+        );
+    button.classList.toggle("active", category === stickerCategory);
+    button.setAttribute(
+      "aria-pressed",
+      category === stickerCategory ? "true" : "false"
+    );
+    button.addEventListener("click", () => {
+      stickerCategory = category;
+      drawStickerLibrary();
+    });
+    stickerCategories.appendChild(button);
+  }
+}
+
+function stickerCatalogMatches(entry) {
+  if (stickerCategory !== "all" && entry.category !== stickerCategory) {
+    return false;
+  }
+
+  const query = stickerSearchQuery.trim().toLowerCase();
+  if (!query) return true;
+
+  const haystack = [
+    entry.id,
+    entry.name,
+    entry.category,
+    ...entry.tags,
+    ...entry.aliases,
+  ].join(" ").toLowerCase();
+
+  return query.split(/\s+/).every((term) => haystack.includes(term));
+}
+
 function drawStickerLibrary() {
+  const entries = stickerCatalogEntries();
+  drawStickerCategories(entries);
   stickerLibraryGrid.replaceChildren();
 
-  for (const definition of state && state.definitions || []) {
+  const visible = entries.filter(stickerCatalogMatches);
+
+  for (const entry of visible) {
+    const definition = entry.definition;
     const card = document.createElement("button");
     card.className = "library-sticker";
     card.type = "button";
     card.setAttribute(
       "aria-label",
-      "Drag " + definition.id + " to your sticker sheet"
+      "Drag " + entry.name + " to your sticker sheet"
     );
     card.appendChild(miniature(definition.id));
 
     const label = document.createElement("span");
-    label.textContent = definition.id;
+    label.textContent = entry.name;
     card.appendChild(label);
 
     card.addEventListener(
@@ -1886,6 +2012,10 @@ function drawStickerLibrary() {
     });
 
     stickerLibraryGrid.appendChild(card);
+  }
+
+  if (stickerLibraryEmpty) {
+    stickerLibraryEmpty.hidden = visible.length !== 0;
   }
 
   const make = document.createElement("button");
@@ -2511,6 +2641,13 @@ document.getElementById("library-close").addEventListener("click", closeLibrary)
 document.getElementById("library-backdrop").addEventListener("click", closeLibrary);
 document.getElementById("sticker-maker-back")
   .addEventListener("click", backToStickerLibrary);
+
+if (stickerSearch) {
+  stickerSearch.addEventListener("input", () => {
+    stickerSearchQuery = stickerSearch.value;
+    drawStickerLibrary();
+  });
+}
 
 document.getElementById("page-upload").addEventListener("change", (event) => {
   handlePageUpload(event.currentTarget);

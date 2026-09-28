@@ -19,8 +19,9 @@ from .model import (
     ADD_OWN_STICKER, AGENT, ALL_ACTIONS, ANIMATE_OWN_STICKER,
     StickerDefinition, CREATE_AGENT, Command, HUMAN, MOVE_STICKER,
     MUTATING_ACTIONS, NOOP, OBSERVE, OPERATOR, POSITION_MAX,
-    POSITION_MIN, PROFILES, Principal, Receipt,
-    REMOVE_AGENT_STICKER, REMOVE_OWN_STICKER, StickerInstance,
+    POSITION_MIN, PROFILES, Principal, Receipt, RESIZE_OWN_STICKER,
+    SCALE_MAX, SCALE_MIN, REMOVE_AGENT_STICKER, REMOVE_OWN_STICKER,
+    StickerInstance,
 )
 
 
@@ -79,7 +80,8 @@ class Kernel:
         seeded = StickerInstance(
             id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
             asset=sticker.asset, page=sticker.page, x=sticker.x, y=sticker.y,
-            animation=sticker.animation, revision=self.revision,
+            scale=sticker.scale, animation=sticker.animation,
+            revision=self.revision,
         )
         self._stickers[seeded.id] = seeded
         return seeded
@@ -88,17 +90,47 @@ class Kernel:
     def load_definition(manifest: dict) -> StickerDefinition:
         """Load a declarative asset manifest.
 
-        Total by construction: only `name` and `animations` are read. Any
-        other field -- owner, capabilities, principals, tools, policy,
+        Total by construction: only visual/world declaration fields are read:
+        name, clip names/default clip, and bounded scale limits. Any authority-
+        looking field -- owner, capabilities, principals, tools, policy,
         scripts -- is discarded rather than interpreted. A book or sticker
         cannot declare authority (root SECURITY.md section 16).
         """
         name = str(manifest.get("name", ""))
-        raw = manifest.get("animations", ("none",))
-        animations = tuple(str(a) for a in raw) if isinstance(raw, (list, tuple)) else ("none",)
+        raw = manifest.get("animations")
+        if raw is None and isinstance(manifest.get("clips"), dict):
+            raw = tuple(manifest["clips"].keys())
+        animations = (
+            tuple(str(a) for a in raw)
+            if isinstance(raw, (list, tuple)) else ("none",)
+        )
         if "none" not in animations:
             animations = ("none",) + animations
-        return StickerDefinition(name=name, animations=animations)
+
+        rest = str(manifest.get("default_clip", "none"))
+        if rest not in animations:
+            rest = "none"
+
+        bounds = manifest.get("scale_bounds")
+        if not isinstance(bounds, dict):
+            bounds = {}
+        try:
+            scale_min = float(bounds.get("min", SCALE_MIN))
+            scale_max = float(bounds.get("max", SCALE_MAX))
+        except (TypeError, ValueError):
+            scale_min, scale_max = SCALE_MIN, SCALE_MAX
+        scale_min = max(SCALE_MIN, min(scale_min, SCALE_MAX))
+        scale_max = min(SCALE_MAX, max(scale_max, SCALE_MIN))
+        if scale_min > scale_max:
+            scale_min, scale_max = SCALE_MIN, SCALE_MAX
+
+        return StickerDefinition(
+            name=name,
+            animations=animations,
+            rest_animation=rest,
+            scale_min=scale_min,
+            scale_max=scale_max,
+        )
 
     # -- authority computation ---------------------------------------------
 
@@ -181,7 +213,7 @@ class Kernel:
                 continue
             stickers.append({
                 "id": s.id, "owner": s.owner, "createdBy": s.created_by,
-                "asset": s.asset, "x": s.x, "y": s.y,
+                "asset": s.asset, "x": s.x, "y": s.y, "scale": s.scale,
                 "animation": s.animation, "revision": s.revision,
                 "mine": s.owner == principal_id,
             })
@@ -231,6 +263,18 @@ class Kernel:
                     if anim != s.animation:
                         add("ANIMATE:%s:%s" % (s.id, anim),
                             ANIMATE_OWN_STICKER, s.id, (("animation", anim),))
+            if RESIZE_OWN_STICKER in tools:
+                asset = self.assets.get(s.asset)
+                lo = asset.scale_min if asset else SCALE_MIN
+                hi = asset.scale_max if asset else SCALE_MAX
+                down = round(max(lo, s.scale - 0.02), 2)
+                up = round(min(hi, s.scale + 0.02), 2)
+                if down < s.scale:
+                    add("SCALE:%s:DOWN" % s.id, RESIZE_OWN_STICKER,
+                        s.id, (("scale", down),))
+                if up > s.scale:
+                    add("SCALE:%s:UP" % s.id, RESIZE_OWN_STICKER,
+                        s.id, (("scale", up),))
             if REMOVE_OWN_STICKER in tools:
                 add("REMOVE:%s" % s.id, REMOVE_OWN_STICKER, s.id)
 
@@ -330,6 +374,7 @@ class Kernel:
             ADD_OWN_STICKER: self._do_add,
             MOVE_STICKER: self._do_move,
             ANIMATE_OWN_STICKER: self._do_animate,
+            RESIZE_OWN_STICKER: self._do_resize,
             REMOVE_OWN_STICKER: self._do_remove_own,
             REMOVE_AGENT_STICKER: self._do_remove_agent,
             CREATE_AGENT: self._do_create_agent,
@@ -365,9 +410,11 @@ class Kernel:
         new_id = "%s-%d" % (asset, self._next_sticker)
         self._next_sticker += 1
         self.revision += 1
+        definition = self.assets[asset]
         self._stickers[new_id] = StickerInstance(
             id=new_id, owner=command.actor, created_by=command.actor,
             asset=asset, page=self.page, x=position[0], y=position[1],
+            scale=1.0, animation=definition.rest_animation,
             revision=self.revision,
         )
         return self._accept(command, "ok", object_id=new_id)
@@ -410,14 +457,16 @@ class Kernel:
         # sticker is set down still and must be explicitly animated again.
         # Agent movement does not silently rewrite a separately chosen
         # animation state.
+        asset = self.assets.get(sticker.asset)
         animation = (
-            "none" if p.kind in (HUMAN, OPERATOR)
+            (asset.rest_animation if asset else "none")
+            if p.kind in (HUMAN, OPERATOR)
             else sticker.animation
         )
         self._stickers[sticker.id] = StickerInstance(
             id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
             asset=sticker.asset, page=sticker.page,
-            x=position[0], y=position[1],
+            x=position[0], y=position[1], scale=sticker.scale,
             animation=animation, revision=self.revision,
         )
         return self._accept(command, "ok", object_id=sticker.id)
@@ -439,7 +488,36 @@ class Kernel:
         self._stickers[sticker.id] = StickerInstance(
             id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
             asset=sticker.asset, page=sticker.page, x=sticker.x, y=sticker.y,
-            animation=animation, revision=self.revision,
+            scale=sticker.scale, animation=animation, revision=self.revision,
+        )
+        return self._accept(command, "ok", object_id=sticker.id)
+
+    def _do_resize(self, command, p):
+        sticker, why = self._target(command)
+        if why:
+            return self._reject(command, why)
+        if not self.may_act_on(p, sticker):
+            return self._reject(command, "not-owner")
+        raw = command.param("scale")
+        if raw is None or isinstance(raw, bool):
+            return self._reject(command, "scale-not-numeric")
+        try:
+            scale = float(raw)
+        except (TypeError, ValueError):
+            return self._reject(command, "scale-not-numeric")
+        if scale != scale or scale in (float("inf"), float("-inf")):
+            return self._reject(command, "scale-not-finite")
+        asset = self.assets.get(sticker.asset)
+        lo = asset.scale_min if asset else SCALE_MIN
+        hi = asset.scale_max if asset else SCALE_MAX
+        if not (lo <= scale <= hi):
+            return self._reject(command, "scale-out-of-bounds")
+
+        self.revision += 1
+        self._stickers[sticker.id] = StickerInstance(
+            id=sticker.id, owner=sticker.owner, created_by=sticker.created_by,
+            asset=sticker.asset, page=sticker.page, x=sticker.x, y=sticker.y,
+            scale=scale, animation=sticker.animation, revision=self.revision,
         )
         return self._accept(command, "ok", object_id=sticker.id)
 

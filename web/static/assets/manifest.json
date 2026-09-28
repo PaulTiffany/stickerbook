@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "cover": {
     "show_title": false,
     "alt": "StickerBook title page",
@@ -102,173 +102,490 @@
   },
   "stickers": {
     "bird": {
-      "default_clip": "idle",
+      "name": "Bird",
+      "category": "animals",
+      "tags": [
+        "bird",
+        "flying",
+        "farm",
+        "nature"
+      ],
+      "aliases": [
+        "blue bird"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/bird/rest.svg",
+        "alert": "static/assets/stickers/bird/alert.svg",
+        "flight-up": "static/assets/stickers/bird/flight-up.svg",
+        "flight-down": "static/assets/stickers/bird/flight-down.svg"
+      },
       "clips": {
-        "idle": {
+        "rest": {
           "frames": [
-            "static/assets/stickers/bird.svg"
+            "rest",
+            "rest",
+            "alert",
+            "rest"
           ],
-          "loop": false
+          "frame_ms": 650,
+          "loop": true
         },
-        "flutter": {
+        "flight": {
           "frames": [
-            "static/assets/stickers/bird.svg"
+            "flight-up",
+            "flight-down"
           ],
-          "frame_ms": 120,
-          "loop": true,
-          "motion": "flutter"
+          "frame_ms": 150,
+          "loop": true
+        },
+        "land": {
+          "frames": [
+            "flight-down",
+            "rest"
+          ],
+          "frame_ms": 180,
+          "loop": false
         }
       }
     },
     "butterfly": {
-      "default_clip": "idle",
+      "name": "Butterfly",
+      "category": "animals",
+      "tags": [
+        "butterfly",
+        "insect",
+        "flying",
+        "garden"
+      ],
+      "aliases": [
+        "monarch"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/butterfly/rest.svg",
+        "wings-up": "static/assets/stickers/butterfly/wings-up.svg",
+        "wings-down": "static/assets/stickers/butterfly/wings-down.svg",
+        "land": "static/assets/stickers/butterfly/land.svg"
+      },
       "clips": {
-        "idle": {
+        "rest": {
           "frames": [
-            "static/assets/stickers/butterfly.svg"
+            "rest",
+            "rest",
+            "wings-up",
+            "rest"
           ],
-          "loop": false
+          "frame_ms": 700,
+          "loop": true
         },
         "flutter": {
           "frames": [
-            "static/assets/stickers/butterfly.svg"
+            "wings-up",
+            "wings-down"
           ],
           "frame_ms": 120,
-          "loop": true,
-          "motion": "flutter"
+          "loop": true
+        },
+        "land": {
+          "frames": [
+            "wings-down",
+            "land",
+            "rest"
+          ],
+          "frame_ms": 180,
+          "loop": false
         }
       }
     },
     "frog": {
-      "default_clip": "idle",
+      "name": "Frog",
+      "category": "animals",
+      "tags": [
+        "frog",
+        "pond",
+        "amphibian",
+        "jump"
+      ],
+      "aliases": [
+        "green frog"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/frog/rest.svg",
+        "crouch": "static/assets/stickers/frog/crouch.svg",
+        "hop": "static/assets/stickers/frog/hop.svg",
+        "land": "static/assets/stickers/frog/land.svg"
+      },
       "clips": {
-        "idle": {
+        "rest": {
           "frames": [
-            "static/assets/stickers/frog.svg"
+            "rest"
           ],
-          "loop": false
+          "loop": true
         },
         "hop": {
           "frames": [
-            "static/assets/stickers/frog.svg"
+            "crouch",
+            "hop",
+            "land",
+            "rest"
           ],
-          "frame_ms": 120,
-          "loop": true,
-          "motion": "hop"
+          "frame_ms": 140,
+          "loop": true
+        },
+        "land": {
+          "frames": [
+            "hop",
+            "land",
+            "rest"
+          ],
+          "frame_ms": 150,
+          "loop": false
         }
       }
     },
     "fish": {
-      "default_clip": "idle",
+      "name": "Fish",
+      "category": "animals",
+      "tags": [
+        "fish",
+        "water",
+        "pond",
+        "swim"
+      ],
+      "aliases": [
+        "orange fish"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/fish/rest.svg",
+        "swim-a": "static/assets/stickers/fish/swim-a.svg",
+        "swim-b": "static/assets/stickers/fish/swim-b.svg",
+        "dive": "static/assets/stickers/fish/dive.svg"
+      },
       "clips": {
-        "idle": {
+        "rest": {
           "frames": [
-            "static/assets/stickers/fish.svg"
+            "rest"
           ],
-          "loop": false
+          "loop": true
         },
         "swim": {
           "frames": [
-            "static/assets/stickers/fish.svg"
+            "swim-a",
+            "swim-b"
           ],
-          "frame_ms": 120,
-          "loop": true,
-          "motion": "swim"
+          "frame_ms": 170,
+          "loop": true
+        },
+        "dive": {
+          "frames": [
+            "swim-a",
+            "dive",
+            "swim-b"
+          ],
+          "frame_ms": 170,
+          "loop": true
         }
       }
     },
     "flower": {
-      "default_clip": "idle",
+      "name": "Flower",
+      "category": "plants",
+      "tags": [
+        "flower",
+        "plant",
+        "garden",
+        "pink"
+      ],
+      "aliases": [
+        "blossom"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/flower/rest.svg",
+        "sway-left": "static/assets/stickers/flower/sway-left.svg",
+        "sway-right": "static/assets/stickers/flower/sway-right.svg",
+        "bloom": "static/assets/stickers/flower/bloom.svg"
+      },
       "clips": {
-        "idle": {
+        "rest": {
           "frames": [
-            "static/assets/stickers/flower.svg"
+            "rest"
           ],
-          "loop": false
+          "loop": true
         },
         "sway": {
           "frames": [
-            "static/assets/stickers/flower.svg"
+            "sway-left",
+            "rest",
+            "sway-right",
+            "rest"
           ],
-          "frame_ms": 120,
-          "loop": true,
-          "motion": "sway"
+          "frame_ms": 260,
+          "loop": true
+        },
+        "bloom": {
+          "frames": [
+            "rest",
+            "bloom",
+            "rest"
+          ],
+          "frame_ms": 420,
+          "loop": true
         }
       }
     },
     "cloud": {
-      "default_clip": "idle",
+      "name": "Cloud",
+      "category": "weather",
+      "tags": [
+        "cloud",
+        "sky",
+        "weather",
+        "white"
+      ],
+      "aliases": [
+        "puffy cloud"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/cloud/rest.svg",
+        "puff-left": "static/assets/stickers/cloud/puff-left.svg",
+        "puff-right": "static/assets/stickers/cloud/puff-right.svg",
+        "stretch": "static/assets/stickers/cloud/stretch.svg"
+      },
       "clips": {
-        "idle": {
+        "rest": {
           "frames": [
-            "static/assets/stickers/cloud.svg"
+            "rest"
           ],
-          "loop": false
+          "loop": true
         },
         "drift": {
           "frames": [
-            "static/assets/stickers/cloud.svg"
+            "puff-left",
+            "rest",
+            "puff-right",
+            "rest"
           ],
-          "frame_ms": 120,
-          "loop": true,
-          "motion": "drift"
+          "frame_ms": 340,
+          "loop": true
+        },
+        "stretch": {
+          "frames": [
+            "rest",
+            "stretch",
+            "rest"
+          ],
+          "frame_ms": 380,
+          "loop": true
         }
       }
     },
     "cow": {
-      "default_clip": "idle",
+      "name": "Cow",
+      "category": "animals",
+      "tags": [
+        "cow",
+        "farm",
+        "animal"
+      ],
+      "aliases": [
+        "cattle"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/cow/rest.svg",
+        "chew": "static/assets/stickers/cow/chew.svg",
+        "look": "static/assets/stickers/cow/look.svg",
+        "step": "static/assets/stickers/cow/step.svg"
+      },
       "clips": {
-        "idle": {
+        "rest": {
           "frames": [
-            "static/assets/stickers/cow.svg"
+            "rest",
+            "rest",
+            "look",
+            "rest"
           ],
-          "loop": false
+          "frame_ms": 750,
+          "loop": true
         },
         "chew": {
           "frames": [
-            "static/assets/stickers/cow.svg"
+            "rest",
+            "chew"
           ],
-          "frame_ms": 120,
-          "loop": true,
-          "motion": "chew"
+          "frame_ms": 300,
+          "loop": true
+        },
+        "look": {
+          "frames": [
+            "rest",
+            "look",
+            "rest"
+          ],
+          "frame_ms": 420,
+          "loop": true
+        },
+        "step": {
+          "frames": [
+            "rest",
+            "step"
+          ],
+          "frame_ms": 240,
+          "loop": true
         }
       }
     },
     "duck": {
-      "default_clip": "idle",
+      "name": "Duck",
+      "category": "animals",
+      "tags": [
+        "duck",
+        "bird",
+        "pond",
+        "water"
+      ],
+      "aliases": [
+        "waterfowl"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/duck/rest.svg",
+        "paddle-a": "static/assets/stickers/duck/paddle-a.svg",
+        "paddle-b": "static/assets/stickers/duck/paddle-b.svg",
+        "dive": "static/assets/stickers/duck/dive.svg"
+      },
       "clips": {
-        "idle": {
+        "rest": {
           "frames": [
-            "static/assets/stickers/duck.svg"
+            "rest"
           ],
-          "loop": false
+          "loop": true
         },
         "paddle": {
           "frames": [
-            "static/assets/stickers/duck.svg"
+            "paddle-a",
+            "paddle-b"
           ],
-          "frame_ms": 120,
-          "loop": true,
-          "motion": "paddle"
+          "frame_ms": 190,
+          "loop": true
+        },
+        "dive": {
+          "frames": [
+            "rest",
+            "dive",
+            "rest"
+          ],
+          "frame_ms": 260,
+          "loop": true
         }
       }
     },
     "hen": {
-      "default_clip": "idle",
+      "name": "Hen",
+      "category": "animals",
+      "tags": [
+        "hen",
+        "chicken",
+        "bird",
+        "farm"
+      ],
+      "aliases": [
+        "chicken"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/hen/rest.svg",
+        "peck": "static/assets/stickers/hen/peck.svg",
+        "look": "static/assets/stickers/hen/look.svg",
+        "flap": "static/assets/stickers/hen/flap.svg"
+      },
       "clips": {
-        "idle": {
+        "rest": {
           "frames": [
-            "static/assets/stickers/hen.svg"
+            "rest",
+            "rest",
+            "look",
+            "rest"
           ],
-          "loop": false
+          "frame_ms": 700,
+          "loop": true
         },
         "peck": {
           "frames": [
-            "static/assets/stickers/hen.svg"
+            "rest",
+            "peck",
+            "rest"
           ],
-          "frame_ms": 120,
-          "loop": true,
-          "motion": "peck"
+          "frame_ms": 220,
+          "loop": true
+        },
+        "look": {
+          "frames": [
+            "rest",
+            "look",
+            "rest"
+          ],
+          "frame_ms": 400,
+          "loop": true
+        },
+        "flap": {
+          "frames": [
+            "rest",
+            "flap",
+            "rest"
+          ],
+          "frame_ms": 180,
+          "loop": true
         }
       }
     }

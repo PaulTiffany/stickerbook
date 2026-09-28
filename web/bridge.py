@@ -47,7 +47,7 @@ from page_image_runtime import (  # noqa: E402
 )
 from stickerbook_core import (  # noqa: E402
     ADD_OWN_STICKER, ANIMATE_OWN_STICKER, Command, MOVE_STICKER,
-    REMOVE_OWN_STICKER,
+    REMOVE_OWN_STICKER, RESIZE_OWN_STICKER,
 )
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -94,6 +94,7 @@ class Bridge:
                 "definition": s["asset"],
                 "x": s["x"],
                 "y": s["y"],
+                "scale": s["scale"],
                 "owner": s["owner"],
                 "mine": s["mine"],
                 "animation": s["animation"],
@@ -108,7 +109,15 @@ class Bridge:
             # StickerDefinitions: reusable designs the tray offers. One
             # design, many instances.
             "definitions": [
-                {"id": name, "animations": list(d.animations)}
+                {
+                    "id": name,
+                    "animations": list(d.animations),
+                    "rest_clip": d.rest_animation,
+                    "scale_bounds": {
+                        "min": d.scale_min,
+                        "max": d.scale_max,
+                    },
+                }
                 for name, d in sorted(farm.ASSETS.items())
             ],
             "capabilities": self._agent_capabilities(),
@@ -404,11 +413,16 @@ class Bridge:
         if sticker is None:
             return self._bad_request("no such sticker")
         definition = self.kernel.assets.get(sticker.asset)
-        alive = [a for a in (definition.animations if definition else ())
-                 if a != "none"]
-        # A toggle: bring it to life, or let it settle.
-        wanted = "none" if sticker.animation != "none" else (
-            alive[0] if alive else "none")
+        rest = definition.rest_animation if definition else "none"
+        active = [
+            a for a in (definition.animations if definition else ())
+            if a not in ("none", rest)
+        ]
+        # A toggle: use the definition's living rest clip as the settled
+        # state, and the first declared active clip as the simple child
+        # double-tap behavior.
+        wanted = rest if sticker.animation != rest else (
+            active[0] if active else rest)
 
         receipt = self.kernel.propose(Command(
             action=ANIMATE_OWN_STICKER,
@@ -416,6 +430,36 @@ class Bridge:
             command_id=command_id,
             object_id=sticker_id,
             params=(("animation", wanted),),
+            based_on_revision=based_on,
+        ))
+        return {"ok": True, "receipt": receipt.to_dict(), "state": self.state()}
+
+    def resize(self, body: dict) -> dict:
+        """Set a sticker's bounded apparent scale.
+
+        This is an authoritative world transform. The bridge forwards the
+        proposed value unchanged; the kernel validates it against definition bounds
+        and receipts either acceptance or refusal.
+        """
+        if not isinstance(body, dict):
+            return self._bad_request("body is not a JSON object")
+        sticker_id = body.get("sticker")
+        command_id = body.get("command_id")
+        based_on = body.get("based_on_revision")
+        scale = body.get("scale")
+        if not isinstance(sticker_id, str) or not sticker_id:
+            return self._bad_request("missing sticker id")
+        if not isinstance(command_id, str) or not command_id:
+            return self._bad_request("missing command id")
+        if based_on is not None and not isinstance(based_on, int):
+            return self._bad_request("based_on_revision must be an integer")
+
+        receipt = self.kernel.propose(Command(
+            action=RESIZE_OWN_STICKER,
+            actor=BROWSER_PRINCIPAL,
+            command_id=command_id,
+            object_id=sticker_id,
+            params=(("scale", scale),),
             based_on_revision=based_on,
         ))
         return {"ok": True, "receipt": receipt.to_dict(), "state": self.state()}
@@ -497,6 +541,7 @@ def make_handler(bridge: Bridge, quiet: bool = False):
                   "/api/place": "place",
                   "/api/remove": "remove",
                   "/api/animate": "animate",
+                  "/api/resize": "resize",
                   "/api/agent/converse": "converse",
                   "/api/creator/draft": "creator_draft"}
 
