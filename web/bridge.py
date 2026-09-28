@@ -236,7 +236,7 @@ class Bridge:
                 return "invalid deictic coordinate"
             if value != value or value in (float("inf"), float("-inf")):
                 return "invalid deictic coordinate"
-            if not (0.0 <= value <= 1.0):
+            if value < 0.0 or value > 1.0:
                 return "deictic coordinate outside page"
             clean[name] = value
 
