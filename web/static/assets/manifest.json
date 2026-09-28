@@ -3370,6 +3370,584 @@
           "loop": true
         }
       }
+    },
+    "ben-goertzel": {
+      "name": "Ben Goertzel",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "agi",
+        "artificial intelligence",
+        "speaker",
+        "expressive gestures"
+      ],
+      "aliases": [
+        "Ben",
+        "Goertzel"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/ben-goertzel/rest.svg",
+        "gesture": "static/assets/stickers/ben-goertzel/gesture.svg",
+        "think": "static/assets/stickers/ben-goertzel/think.svg",
+        "celebrate": "static/assets/stickers/ben-goertzel/celebrate.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "gesture": {
+          "frames": [
+            "rest",
+            "gesture",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        },
+        "celebrate": {
+          "frames": [
+            "gesture",
+            "celebrate",
+            "rest"
+          ],
+          "frame_ms": 220,
+          "loop": true
+        }
+      }
+    },
+    "aubrey-de-grey": {
+      "name": "Aubrey de Grey",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "longevity",
+        "aging",
+        "beard",
+        "speaker"
+      ],
+      "aliases": [
+        "Aubrey",
+        "de Grey",
+        "Aubrey deGray"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/aubrey-de-grey/rest.svg",
+        "wave": "static/assets/stickers/aubrey-de-grey/wave.svg",
+        "explain": "static/assets/stickers/aubrey-de-grey/explain.svg",
+        "think": "static/assets/stickers/aubrey-de-grey/think.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "wave": {
+          "frames": [
+            "rest",
+            "wave",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "explain": {
+          "frames": [
+            "rest",
+            "explain",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        }
+      }
+    },
+    "ray-kurzweil": {
+      "name": "Ray Kurzweil",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "singularity",
+        "inventor",
+        "author",
+        "speaker"
+      ],
+      "aliases": [
+        "Ray",
+        "Kurzweil"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/ray-kurzweil/rest.svg",
+        "present": "static/assets/stickers/ray-kurzweil/present.svg",
+        "point": "static/assets/stickers/ray-kurzweil/point.svg",
+        "think": "static/assets/stickers/ray-kurzweil/think.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "present": {
+          "frames": [
+            "rest",
+            "present",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "point": {
+          "frames": [
+            "rest",
+            "point",
+            "rest"
+          ],
+          "frame_ms": 280,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        }
+      }
+    },
+    "david-eagleman": {
+      "name": "David Eagleman",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "neuroscience",
+        "brain",
+        "author",
+        "speaker"
+      ],
+      "aliases": [
+        "David",
+        "Eagleman"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/david-eagleman/rest.svg",
+        "explain": "static/assets/stickers/david-eagleman/explain.svg",
+        "present": "static/assets/stickers/david-eagleman/present.svg",
+        "think": "static/assets/stickers/david-eagleman/think.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "explain": {
+          "frames": [
+            "rest",
+            "explain",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "present": {
+          "frames": [
+            "rest",
+            "present",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        }
+      }
+    },
+    "nick-bostrom": {
+      "name": "Nick Bostrom",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "philosophy",
+        "ai safety",
+        "future of humanity",
+        "author"
+      ],
+      "aliases": [
+        "Nick",
+        "Bostrom"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/nick-bostrom/rest.svg",
+        "explain": "static/assets/stickers/nick-bostrom/explain.svg",
+        "think": "static/assets/stickers/nick-bostrom/think.svg",
+        "present": "static/assets/stickers/nick-bostrom/present.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "explain": {
+          "frames": [
+            "rest",
+            "explain",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        },
+        "present": {
+          "frames": [
+            "rest",
+            "present",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        }
+      }
+    },
+    "max-more": {
+      "name": "Max More",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "extropy",
+        "extropian",
+        "philosophy",
+        "speaker"
+      ],
+      "aliases": [
+        "Max",
+        "More"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/max-more/rest.svg",
+        "wave": "static/assets/stickers/max-more/wave.svg",
+        "present": "static/assets/stickers/max-more/present.svg",
+        "think": "static/assets/stickers/max-more/think.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "wave": {
+          "frames": [
+            "rest",
+            "wave",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "present": {
+          "frames": [
+            "rest",
+            "present",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        }
+      }
+    },
+    "natasha-vita-more": {
+      "name": "Natasha Vita-More",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "extropy",
+        "design",
+        "future",
+        "speaker"
+      ],
+      "aliases": [
+        "Natasha",
+        "Vita-More",
+        "Natasha Vita More"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/natasha-vita-more/rest.svg",
+        "wave": "static/assets/stickers/natasha-vita-more/wave.svg",
+        "present": "static/assets/stickers/natasha-vita-more/present.svg",
+        "think": "static/assets/stickers/natasha-vita-more/think.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "wave": {
+          "frames": [
+            "rest",
+            "wave",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "present": {
+          "frames": [
+            "rest",
+            "present",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        }
+      }
+    },
+    "eliezer-yudkowsky": {
+      "name": "Eliezer Yudkowsky",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "ai alignment",
+        "ai safety",
+        "rationality",
+        "speaker"
+      ],
+      "aliases": [
+        "Eliezer",
+        "Yudkowsky"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/eliezer-yudkowsky/rest.svg",
+        "explain": "static/assets/stickers/eliezer-yudkowsky/explain.svg",
+        "think": "static/assets/stickers/eliezer-yudkowsky/think.svg",
+        "present": "static/assets/stickers/eliezer-yudkowsky/present.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "explain": {
+          "frames": [
+            "rest",
+            "explain",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        },
+        "present": {
+          "frames": [
+            "rest",
+            "present",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        }
+      }
     }
   }
 }

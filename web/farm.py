@@ -123,6 +123,16 @@ ASSETS = {
     "toy-airplane": _definition("toy-airplane", "bank", "zoom"),
     "asteroid": _definition("asteroid", "spin", "spark"),
     "space-station": _definition("space-station", "orbit", "beacon"),
+
+    # H+ people pack.
+    "ben-goertzel": _definition("ben-goertzel", "gesture", "think", "celebrate"),
+    "aubrey-de-grey": _definition("aubrey-de-grey", "wave", "explain", "think"),
+    "ray-kurzweil": _definition("ray-kurzweil", "present", "point", "think"),
+    "david-eagleman": _definition("david-eagleman", "explain", "present", "think"),
+    "nick-bostrom": _definition("nick-bostrom", "explain", "think", "present"),
+    "max-more": _definition("max-more", "wave", "present", "think"),
+    "natasha-vita-more": _definition("natasha-vita-more", "wave", "present", "think"),
+    "eliezer-yudkowsky": _definition("eliezer-yudkowsky", "explain", "think", "present"),
 }
 
 HUMAN_TOOLS = frozenset({
