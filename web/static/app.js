@@ -56,6 +56,12 @@ const voicePrivacyNote = document.getElementById("voice-privacy-note");
 const adultChatInput = document.getElementById("adult-chat-input");
 const adultChatSend = document.getElementById("adult-chat-send");
 const adultChatReply = document.getElementById("adult-chat-reply");
+const textChatEnable = document.getElementById("text-chat-enable");
+const accessibilityChat = document.getElementById("accessibility-chat");
+const accessibilityChatClose = document.getElementById("accessibility-chat-close");
+const accessibilityChatLog = document.getElementById("accessibility-chat-log");
+const accessibilityChatInput = document.getElementById("accessibility-chat-input");
+const accessibilityChatSend = document.getElementById("accessibility-chat-send");
 const status = document.getElementById("a11y-status");
 
 const dev = {
@@ -79,6 +85,7 @@ let pagePreviewUrl = null;
 let pageUploadDraft = null;
 let stickerPreviewUrl = null;
 let voiceEnabled = false;
+let textChatEnabled = false;
 let voiceRecognition = null;
 let voiceBusy = false;
 
@@ -2257,21 +2264,36 @@ function updateConversationControls() {
   const SpeechRecognitionCtor = speechRecognitionConstructor();
   const onPlaySurface = screens.play && !screens.play.hidden;
 
-  agentAdultControls.hidden = !connected;
+  // Keep the adult-facing options visible in the public/mechanical profile so
+  // the interface documents what can be enabled in a powered deployment.
+  agentAdultControls.hidden = false;
 
   if (!connected) {
     voiceEnabled = false;
+    textChatEnabled = false;
     if (voiceEnable) voiceEnable.checked = false;
+    if (textChatEnable) textChatEnable.checked = false;
   }
 
   if (voiceEnable) {
     voiceEnable.disabled = !connected || !SpeechRecognitionCtor;
   }
 
+  if (textChatEnable) {
+    textChatEnable.disabled = !connected;
+  }
+
+  if (adultChatInput) adultChatInput.disabled = !connected;
+  if (adultChatSend) adultChatSend.disabled = !connected;
+  if (accessibilityChatInput) accessibilityChatInput.disabled = !connected;
+  if (accessibilityChatSend) accessibilityChatSend.disabled = !connected;
+
   if (voicePrivacyNote) {
-    voicePrivacyNote.textContent = !SpeechRecognitionCtor
-      ? "Voice recognition is unavailable in this browser. The adult text fallback remains available."
-      : "Voice is push-to-talk. Speech recognition may use your browser or device speech service; StickerBook sends the resulting text to the local conversational runtime.";
+    voicePrivacyNote.textContent = !connected
+      ? "Voice and text chat require the powered local conversational Omega runtime; the public demo does not connect one."
+      : !SpeechRecognitionCtor
+        ? "Voice recognition is unavailable in this browser. Text chat remains available."
+        : "Voice is push-to-talk. Speech recognition may use your browser or device speech service; StickerBook sends the resulting text to the local conversational runtime.";
   }
 
   voiceOrb.hidden = !(
@@ -2280,6 +2302,33 @@ function updateConversationControls() {
     SpeechRecognitionCtor &&
     onPlaySurface
   );
+
+  if (accessibilityChat) {
+    accessibilityChat.hidden = !(
+      connected &&
+      textChatEnabled &&
+      onPlaySurface
+    );
+  }
+}
+
+function appendAccessibilityChatLine(speaker, text) {
+  if (!accessibilityChatLog || !textChatEnabled) return;
+
+  const line = document.createElement("div");
+  line.className = "accessibility-chat-line";
+
+  const label = document.createElement("strong");
+  label.textContent = speaker + ": ";
+
+  line.append(label, document.createTextNode(String(text || "")));
+  accessibilityChatLog.appendChild(line);
+
+  while (accessibilityChatLog.children.length > 12) {
+    accessibilityChatLog.firstElementChild.remove();
+  }
+
+  accessibilityChatLog.scrollTop = accessibilityChatLog.scrollHeight;
 }
 
 function setVoiceOrbState(name) {
@@ -2289,9 +2338,13 @@ function setVoiceOrbState(name) {
   if (voiceOrbState) voiceOrbState.textContent = name || "ready";
 }
 
-async function converseWithStickerBook(text, aloud) {
+async function converseWithStickerBook(text, aloud, mirrorToAccessibility = false) {
   const clean = String(text || "").trim();
   if (!clean) return null;
+
+  if (mirrorToAccessibility) {
+    appendAccessibilityChatLine("You", clean);
+  }
 
   const capabilities = conversationCapabilities();
   if (!capabilities.conversational_agent) {
@@ -2317,12 +2370,18 @@ async function converseWithStickerBook(text, aloud) {
         ? payload.error
         : "Conversation runtime did not return a reply.";
       if (adultChatReply) adultChatReply.textContent = message;
+      if (mirrorToAccessibility) {
+        appendAccessibilityChatLine("StickerBook", message);
+      }
       if (aloud) setVoiceOrbState("error");
       return null;
     }
 
     const reply = payload.reply.trim();
     if (adultChatReply) adultChatReply.textContent = reply;
+    if (mirrorToAccessibility) {
+      appendAccessibilityChatLine("StickerBook", reply);
+    }
     speak(reply);
 
     if (aloud && reply && "speechSynthesis" in window) {
@@ -2348,6 +2407,12 @@ async function converseWithStickerBook(text, aloud) {
     voiceBusy = false;
     if (adultChatReply) {
       adultChatReply.textContent = "Conversation runtime is unavailable.";
+    }
+    if (mirrorToAccessibility) {
+      appendAccessibilityChatLine(
+        "StickerBook",
+        "Conversation runtime is unavailable."
+      );
     }
     if (aloud) setVoiceOrbState("error");
     return null;
@@ -2381,7 +2446,7 @@ function startVoiceConversation() {
     const result = event.results && event.results[0];
     const transcript = result && result[0] && result[0].transcript;
     if (transcript) {
-      converseWithStickerBook(transcript, true);
+      converseWithStickerBook(transcript, true, textChatEnabled);
     }
   };
 
@@ -2491,6 +2556,34 @@ voiceEnable.addEventListener("change", () => {
 });
 
 voiceOrb.addEventListener("click", startVoiceConversation);
+
+textChatEnable.addEventListener("change", () => {
+  textChatEnabled = textChatEnable.checked;
+  updateConversationControls();
+
+  if (textChatEnabled && !accessibilityChat.hidden) {
+    requestAnimationFrame(() => accessibilityChatInput.focus());
+  }
+});
+
+accessibilityChatClose.addEventListener("click", () => {
+  textChatEnabled = false;
+  textChatEnable.checked = false;
+  updateConversationControls();
+});
+
+accessibilityChatSend.addEventListener("click", () => {
+  const text = accessibilityChatInput.value;
+  if (!text.trim()) return;
+  accessibilityChatInput.value = "";
+  converseWithStickerBook(text, false, true);
+});
+
+accessibilityChatInput.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  accessibilityChatSend.click();
+});
 
 adultChatSend.addEventListener("click", () => {
   const text = adultChatInput.value;
