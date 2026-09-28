@@ -805,7 +805,9 @@ The bridge accepts only SVG, PNG, JPEG/JPG, or WebP for this seam and applies a
 20 MiB request ceiling. The gateway receives only image bytes, a filename, and
 fixed page-reframe instructions. It receives no kernel object, principal,
 action table, receipt stream, repository credential, or save/install
-capability.
+capability. The bridge also enforces that the configured gateway URL resolves
+to loopback. Automated model output is restricted to raster PNG/JPEG/WebP;
+model-generated SVG is rejected until a sanitizer exists.
 
 The two generated variants are **draft media**: 1916×717 horizontal and
 941×1574 portrait. Their intrinsic dimensions are mechanically checked before
