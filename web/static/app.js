@@ -503,7 +503,12 @@ function createMechanicalWorld() {
     },
 
     async converse() {
-      return { ok: false, error: "conversational-agent-unavailable" };
+      return {
+        ok: true,
+        stub: true,
+        reply: "Public demo chat only — no model is connected. A powered local StickerBook uses this same text window for Omega conversation.",
+        state: copy(worldState),
+      };
     },
 
     async send(path, body) {
@@ -2261,17 +2266,23 @@ function updateConversationControls() {
 
   const capabilities = conversationCapabilities();
   const connected = Boolean(capabilities.conversational_agent);
+  const stub = world.name === "public mechanical";
+  const textAvailable = connected || stub;
   const SpeechRecognitionCtor = speechRecognitionConstructor();
   const onPlaySurface = screens.play && !screens.play.hidden;
 
-  // Keep the adult-facing options visible in the public/mechanical profile so
-  // the interface documents what can be enabled in a powered deployment.
+  // Keep the adult-facing options visible in the public/mechanical profile.
+  // Voice still requires the powered runtime; text chat may be opened in the
+  // public build so the accessibility UI itself is testable as a clear stub.
   agentAdultControls.hidden = false;
 
   if (!connected) {
     voiceEnabled = false;
-    textChatEnabled = false;
     if (voiceEnable) voiceEnable.checked = false;
+  }
+
+  if (!textAvailable) {
+    textChatEnabled = false;
     if (textChatEnable) textChatEnable.checked = false;
   }
 
@@ -2280,20 +2291,22 @@ function updateConversationControls() {
   }
 
   if (textChatEnable) {
-    textChatEnable.disabled = !connected;
+    textChatEnable.disabled = !textAvailable;
   }
 
-  if (adultChatInput) adultChatInput.disabled = !connected;
-  if (adultChatSend) adultChatSend.disabled = !connected;
-  if (accessibilityChatInput) accessibilityChatInput.disabled = !connected;
-  if (accessibilityChatSend) accessibilityChatSend.disabled = !connected;
+  if (adultChatInput) adultChatInput.disabled = !textAvailable;
+  if (adultChatSend) adultChatSend.disabled = !textAvailable;
+  if (accessibilityChatInput) accessibilityChatInput.disabled = !textAvailable;
+  if (accessibilityChatSend) accessibilityChatSend.disabled = !textAvailable;
 
   if (voicePrivacyNote) {
-    voicePrivacyNote.textContent = !connected
-      ? "Voice and text chat require the powered local conversational Omega runtime; the public demo does not connect one."
-      : !SpeechRecognitionCtor
-        ? "Voice recognition is unavailable in this browser. Text chat remains available."
-        : "Voice is push-to-talk. Speech recognition may use your browser or device speech service; StickerBook sends the resulting text to the local conversational runtime.";
+    voicePrivacyNote.textContent = stub
+      ? "Voice requires the powered local Omega runtime. Text chat is available here as a mechanical stub and does not call a model."
+      : !connected
+        ? "Voice and text chat require the powered local conversational Omega runtime."
+        : !SpeechRecognitionCtor
+          ? "Voice recognition is unavailable in this browser. Text chat remains available."
+          : "Voice is push-to-talk. Speech recognition may use your browser or device speech service; StickerBook sends the resulting text to the local conversational runtime.";
   }
 
   voiceOrb.hidden = !(
@@ -2305,7 +2318,7 @@ function updateConversationControls() {
 
   if (accessibilityChat) {
     accessibilityChat.hidden = !(
-      connected &&
+      textAvailable &&
       textChatEnabled &&
       onPlaySurface
     );
@@ -2347,9 +2360,15 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
   }
 
   const capabilities = conversationCapabilities();
-  if (!capabilities.conversational_agent) {
+  const connected = Boolean(capabilities.conversational_agent);
+  const stub = world.name === "public mechanical";
+  if (!connected && !stub) {
+    const message = "No conversational Omega runtime is connected.";
     if (adultChatReply) {
-      adultChatReply.textContent = "No conversational Omega runtime is connected.";
+      adultChatReply.textContent = message;
+    }
+    if (mirrorToAccessibility) {
+      appendAccessibilityChatLine("StickerBook", message);
     }
     return null;
   }
@@ -2562,6 +2581,16 @@ textChatEnable.addEventListener("change", () => {
   updateConversationControls();
 
   if (textChatEnabled && !accessibilityChat.hidden) {
+    if (
+      world.name === "public mechanical" &&
+      accessibilityChatLog &&
+      !accessibilityChatLog.children.length
+    ) {
+      appendAccessibilityChatLine(
+        "StickerBook",
+        "Demo chat is active. Messages stay mechanical here; no model is connected."
+      );
+    }
     requestAnimationFrame(() => accessibilityChatInput.focus());
   }
 });
@@ -2598,8 +2627,33 @@ adultChatInput.addEventListener("keydown", (event) => {
   adultChatSend.click();
 });
 
+function closeDeveloperReceipts() {
+  dev.panel.hidden = true;
+
+  const url = new URL(window.location.href);
+  url.searchParams.delete("dev");
+  const query = url.searchParams.toString();
+  window.history.replaceState(
+    {},
+    "",
+    url.pathname + (query ? "?" + query : "") + url.hash
+  );
+
+  showScreen("cover");
+}
+
+document.getElementById("dev-close").addEventListener(
+  "click",
+  closeDeveloperReceipts
+);
+
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Escape") return;
+
+  if (!dev.panel.hidden) {
+    closeDeveloperReceipts();
+    return;
+  }
 
   if (!adultPanel.hidden) {
     adultPanel.hidden = true;
