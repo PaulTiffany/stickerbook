@@ -21,11 +21,14 @@ from __future__ import annotations
 import base64
 import json
 import os
+import re
+import struct
 import sys
 import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
+import xml.etree.ElementTree as ET
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from page_assets import (
@@ -61,6 +64,118 @@ def _media_type_from_bytes(raw: bytes, declared: str | None) -> str | None:
         return "image/webp"
     if raw.lstrip().startswith(b"<svg"):
         return "image/svg+xml"
+    return None
+
+
+def _jpeg_dimensions(raw: bytes) -> tuple[int, int] | None:
+    if not raw.startswith(b"\xff\xd8"):
+        return None
+    index = 2
+    sof = {
+        0xC0, 0xC1, 0xC2, 0xC3,
+        0xC5, 0xC6, 0xC7,
+        0xC9, 0xCA, 0xCB,
+        0xCD, 0xCE, 0xCF,
+    }
+    while index + 4 <= len(raw):
+        if raw[index] != 0xFF:
+            index += 1
+            continue
+        while index < len(raw) and raw[index] == 0xFF:
+            index += 1
+        if index >= len(raw):
+            break
+        marker = raw[index]
+        index += 1
+        if marker in (0xD8, 0xD9):
+            continue
+        if index + 2 > len(raw):
+            break
+        length = int.from_bytes(raw[index:index + 2], "big")
+        if length < 2 or index + length > len(raw):
+            break
+        if marker in sof and length >= 7:
+            height = int.from_bytes(raw[index + 3:index + 5], "big")
+            width = int.from_bytes(raw[index + 5:index + 7], "big")
+            return width, height
+        index += length
+    return None
+
+
+def _svg_dimensions(raw: bytes) -> tuple[int, int] | None:
+    try:
+        root = ET.fromstring(raw)
+    except ET.ParseError:
+        return None
+
+    def number(value):
+        if not isinstance(value, str):
+            return None
+        match = re.fullmatch(
+            r"\s*([0-9]+(?:\.[0-9]+)?)\s*(?:px)?\s*", value)
+        return float(match.group(1)) if match else None
+
+    width = number(root.attrib.get("width"))
+    height = number(root.attrib.get("height"))
+    if width is not None and height is not None:
+        if width.is_integer() and height.is_integer():
+            return int(width), int(height)
+        return None
+
+    view_box = root.attrib.get("viewBox")
+    if isinstance(view_box, str):
+        parts = re.split(r"[\s,]+", view_box.strip())
+        if len(parts) == 4:
+            try:
+                width = float(parts[2])
+                height = float(parts[3])
+            except ValueError:
+                return None
+            if width.is_integer() and height.is_integer():
+                return int(width), int(height)
+    return None
+
+
+def image_dimensions(
+        raw: bytes, media_type: str) -> tuple[int, int] | None:
+    """Read output dimensions without an image-processing dependency."""
+    if media_type == "image/png":
+        if (
+                len(raw) >= 24
+                and raw.startswith(b"\x89PNG\r\n\x1a\n")
+                and raw[12:16] == b"IHDR"):
+            return struct.unpack(">II", raw[16:24])
+        return None
+
+    if media_type in ("image/jpeg", "image/jpg"):
+        return _jpeg_dimensions(raw)
+
+    if media_type == "image/svg+xml":
+        return _svg_dimensions(raw)
+
+    if media_type == "image/webp":
+        if len(raw) < 30 or raw[:4] != b"RIFF" or raw[8:12] != b"WEBP":
+            return None
+        chunk = raw[12:16]
+        if chunk == b"VP8X":
+            width = 1 + int.from_bytes(raw[24:27], "little")
+            height = 1 + int.from_bytes(raw[27:30], "little")
+            return width, height
+        if chunk == b"VP8L" and len(raw) >= 25 and raw[20] == 0x2F:
+            b1, b2, b3, b4 = raw[21:25]
+            width = 1 + b1 + ((b2 & 0x3F) << 8)
+            height = 1 + ((b2 & 0xC0) >> 6) + (b3 << 2) + (
+                (b4 & 0x0F) << 10)
+            return width, height
+        if (
+                chunk == b"VP8 "
+                and len(raw) >= 30
+                and raw[23:26] == b"\x9d\x01\x2a"):
+            width = int.from_bytes(raw[26:28], "little") & 0x3FFF
+            height = int.from_bytes(raw[28:30], "little") & 0x3FFF
+            return width, height
+        return None
+
     return None
 
 
@@ -155,6 +270,11 @@ class OpenRouterPageGateway:
                 image, item.get("media_type"))
             if media_type not in _OUTPUT_EXTENSIONS:
                 raise ValueError("unsupported output image type")
+            dimensions = image_dimensions(image, media_type)
+            if dimensions != (width, height):
+                raise ValueError(
+                    "provider output dimensions %r, expected %dx%d"
+                    % (dimensions, width, height))
             cost = result.get("usage", {}).get("cost")
             if not isinstance(cost, (int, float)):
                 cost = None
