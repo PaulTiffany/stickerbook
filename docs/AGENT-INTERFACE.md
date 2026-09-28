@@ -71,8 +71,10 @@ gateway does not assume a universal custom-size control. It verifies the
 intrinsic dimensions of each returned SVG/PNG/JPEG/WebP and rejects a result
 unless it is exactly the requested canvas.
 
-Provider output remains media/data. The generated files are stored only in
-ignored local runtime storage until an explicit save/install path exists.
+Provider output remains media/data. Automated output is restricted to raster
+PNG/JPEG/WebP; SVG may be uploaded as source art but model-generated SVG is
+rejected until it has a dedicated sanitizer. Generated files are stored only
+in ignored local runtime storage until an explicit save/install path exists.
 Generation therefore cannot add a page to the governed book or gain authority
 over StickerInstances.
 
