@@ -458,6 +458,10 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             ("/static/assets/stickers/sandcastle/splash.svg", "image/svg+xml"),
             ("/static/assets/stickers/alien/float.svg", "image/svg+xml"),
             ("/static/assets/stickers/robot/beep.svg", "image/svg+xml"),
+            ("/static/assets/stickers/rabbit/hop.svg", "image/svg+xml"),
+            ("/static/assets/stickers/octopus/swim.svg", "image/svg+xml"),
+            ("/static/assets/stickers/yo-yo/spin.svg", "image/svg+xml"),
+            ("/static/assets/stickers/rover/scan.svg", "image/svg+xml"),
         )
         for path, content_type in cases:
             with urllib.request.urlopen(self.url(path), timeout=5) as r:
@@ -533,7 +537,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
 
         self.assertTrue(manifest["stickers"])
 
-        self.assertEqual(len(manifest["stickers"]), 41)
+        self.assertEqual(len(manifest["stickers"]), 49)
 
         themes_seen = set()
         for kind, package in manifest["stickers"].items():
@@ -570,6 +574,11 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         for added in (
                 "puppy", "cat", "seagull", "sandcastle", "pinwheel",
                 "jump-rope", "alien", "robot"):
+            self.assertIn(added, manifest["stickers"])
+            self.assertEqual(len(manifest["stickers"][added]["sprites"]), 4)
+        for added in (
+                "rabbit", "scarecrow", "octopus", "surfboard",
+                "yo-yo", "teddy-bear", "comet", "rover"):
             self.assertIn(added, manifest["stickers"])
             self.assertEqual(len(manifest["stickers"][added]["sprites"]), 4)
 
