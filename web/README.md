@@ -93,8 +93,10 @@ The hotbar has three regions:
 The library also contains a **+ Make a sticker** path. Both page and sticker
 creators expose **Upload** and **Make with StickerBook**. The installed sticker
 catalog is no longer assumed to fit comfortably in one tiled view: the library
-has deterministic text search over names, aliases, categories and tags, plus
-category chips. Search is local catalog filtering, not a model call.
+has deterministic text search over names, aliases, themes, categories and tags,
+plus world/theme and category chips. Search is local catalog filtering, not a
+model call. The current built-in catalog contains 33 sticker definitions / 132
+initial pose sprites across Farm, Beach, Playground and Space.
 
 Page uploads accept SVG, PNG, JPEG/JPG, and WebP. On public GitHub Pages the
 selected file remains a local browser preview and is never sent to a model. In
@@ -109,13 +111,20 @@ sprite dictionary, a default/rest clip, behavior clips that compose those
 sprites, and bounded scale metadata. The two version numbers describe different
 layers: creator draft interchange versus installed visual assets.
 
-The current built-ins contain nine definitions with four initial pose sprites
-each. Those sprites are a first coherent pose set, not a claim that every
-future sticker must have exactly four. All creator/image seams return drafts
-only and do not mutate the authority kernel or install generated media into a
-governed page.
+The current built-ins contain 33 definitions with four initial pose sprites
+each. Those sprites are a starter pose set, not a claim that every future
+sticker must have exactly four. All creator/image seams return drafts only and
+do not mutate the authority kernel or install generated media into a governed
+page.
 
 ## Page gestures
+
+Bare-page gestures also provide temporary conversational pointing: a tap marks
+one normalized point and a drag marks one rectangular region. The mark belongs
+only to the child's next voice/text conversational turn, then fades. It is not
+saved as page state, is not a sticker, and is not automatically visible to Jev.
+Starting on a sticker still grabs the sticker, so object manipulation and
+background reference remain distinct.
 
 - drag from hotbar to page: place a StickerInstance;
 - drag a placed sticker: move it;
@@ -201,6 +210,7 @@ pointer gesture
          /api/remove
          /api/animate
          /api/resize
+         /api/facing
     -> bridge validates request shape and fixes the actor
     -> authority kernel validates values, ownership, revision, budget
     -> kernel accepts or refuses and issues a Receipt
@@ -267,9 +277,11 @@ farm page
 └── StickerInstances   governed, owned, receipt-producing
 ```
 
-Positions are page-relative fractions. Sticker scale is a separate authoritative
-world transform and is currently bounded to 0.90–1.10. Pixels remain
-presentation and input detail, never authority. Position bounds still govern
+Positions are page-relative fractions. Sticker scale and horizontal facing are
+separate authoritative world transforms. Scale is currently bounded to
+0.90–1.10; facing is left/right and renders by mirroring the same sticker
+package around its center. Pixels remain presentation and input detail, never
+authority. Position bounds still govern
 the sticker center; footprint-safe agent locomotion is a separate host-action
 generation problem to solve before live Jev movement.
 
