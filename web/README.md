@@ -74,8 +74,9 @@ working sheet.
 
 When a local conversational runtime is connected, the child-facing language
 interface is voice-first: a responsible adult may enable a small push-to-talk
-microphone for the current session. The text fallback stays inside the
-responsible-adult panel.
+microphone for the current session. The optional translucent play-surface text
+chat is the single text projection of that same conversation; there is no
+separate adult-panel chat box.
 
 The hotbar has three regions:
 
