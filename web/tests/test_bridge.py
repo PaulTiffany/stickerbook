@@ -17,6 +17,7 @@ import sys
 import threading
 import unittest
 import urllib.error
+import urllib.parse
 import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -67,16 +68,63 @@ class FakeAgentRuntime:
         }
 
 
+class FakePageImageRuntime:
+    def __init__(self):
+        self.last_upload = None
+
+    def available(self):
+        return True
+
+    def reframe_page(self, *, image_bytes, content_type, filename):
+        self.last_upload = {
+            "image_bytes": image_bytes,
+            "content_type": content_type,
+            "filename": filename,
+        }
+        return {
+            "ok": True,
+            "draft": {
+                "summary": "horizontal and portrait page variants ready",
+                "source_name": filename,
+                "variants": {
+                    "landscape": {
+                        "src": "/generated-pages/fake/example.png",
+                        "filename": "example.png",
+                        "width": 1916,
+                        "height": 717,
+                        "media_type": "image/png",
+                    },
+                    "portrait": {
+                        "src": "/generated-pages/fake/example-vertical.png",
+                        "filename": "example-vertical.png",
+                        "width": 941,
+                        "height": 1574,
+                        "media_type": "image/png",
+                    },
+                },
+            },
+        }
+
+
 class ServerCase(unittest.TestCase):
     """A fresh farm and a fresh server per test."""
 
     agent_runtime_factory = None
+    page_image_runtime_factory = None
 
     def setUp(self):
         runtime = (self.agent_runtime_factory()
                    if self.agent_runtime_factory else None)
+        page_runtime = (
+            self.page_image_runtime_factory()
+            if self.page_image_runtime_factory else None)
         self.httpd, self.bridge = bridge_mod.serve(
-            "127.0.0.1", 0, quiet=True, agent_runtime=runtime)
+            "127.0.0.1",
+            0,
+            quiet=True,
+            agent_runtime=runtime,
+            page_image_runtime=page_runtime,
+        )
         self.port = self.httpd.server_address[1]
         # poll_interval matters: shutdown() waits up to one interval, and
         # the default 0.5s dominates the runtime of a suite this size.
@@ -102,6 +150,26 @@ class ServerCase(unittest.TestCase):
         req = urllib.request.Request(
             self.url(path), data=data, method="POST",
             headers={"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=5) as r:
+                return r.status, json.loads(r.read().decode())
+        except urllib.error.HTTPError as exc:
+            return exc.code, json.loads(exc.read().decode())
+
+    def post_image(
+            self, path, raw, *,
+            filename="drawing.png",
+            content_type="image/png"):
+        req = urllib.request.Request(
+            self.url(path),
+            data=raw,
+            method="POST",
+            headers={
+                "Content-Type": content_type,
+                "X-StickerBook-Filename": urllib.parse.quote(
+                    filename, safe=""),
+            },
+        )
         try:
             with urllib.request.urlopen(req, timeout=5) as r:
                 return r.status, json.loads(r.read().decode())
@@ -153,6 +221,8 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             page = r.read()
         self.assertGreaterEqual(page.count(b"Make with StickerBook"), 2)
         for marker in (
+                b'id="page-upload-status"',
+                b'image/svg+xml,image/png,image/jpeg,image/webp',
                 b'id="page-agent-prompt"',
                 b'id="page-agent-go"',
                 b'id="sticker-agent-prompt"',
@@ -230,9 +300,13 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             ("/static/assets/cover.svg", "image/svg+xml"),
             ("/static/assets/cover-vertical.svg", "image/svg+xml"),
             ("/static/assets/pages/farm.svg", "image/svg+xml"),
+            ("/static/assets/pages/farm-vertical.svg", "image/svg+xml"),
             ("/static/assets/pages/beach.svg", "image/svg+xml"),
-            ("/static/assets/pages/park.svg", "image/svg+xml"),
+            ("/static/assets/pages/beach-vertical.svg", "image/svg+xml"),
+            ("/static/assets/pages/playground.svg", "image/svg+xml"),
+            ("/static/assets/pages/playground-vertical.svg", "image/svg+xml"),
             ("/static/assets/pages/space.svg", "image/svg+xml"),
+            ("/static/assets/pages/space-vertical.svg", "image/svg+xml"),
             ("/static/assets/stickers/frog.svg", "image/svg+xml"),
         )
         for path, content_type in cases:
@@ -260,7 +334,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         self.assertEqual(manifest["version"], 3)
         self.assertEqual(
             set(manifest["pages"]),
-            {"farm", "beach", "park", "space"})
+            {"farm", "beach", "playground", "space"})
 
         cover_variants = manifest["cover"]["variants"]
         self.assertEqual(
@@ -285,10 +359,28 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             (941, 1672))
 
         for page_id, page in manifest["pages"].items():
-            landscape = page["variants"]["landscape"]
-            self.assertTrue(landscape["src"], page_id)
-            self.assertGreater(landscape["width"], 0, page_id)
-            self.assertGreater(landscape["height"], 0, page_id)
+            variants = page["variants"]
+            self.assertEqual(set(variants), {"landscape", "portrait"}, page_id)
+
+            landscape = variants["landscape"]
+            self.assertEqual(
+                (landscape["width"], landscape["height"]),
+                (1916, 717),
+                page_id,
+            )
+            self.assertTrue(
+                landscape["src"].startswith("static/assets/pages/"),
+                page_id,
+            )
+
+            portrait = variants["portrait"]
+            self.assertEqual(
+                (portrait["width"], portrait["height"]),
+                (941, 1574),
+                page_id,
+            )
+            self.assertIn("-vertical.", portrait["src"], page_id)
+
         self.assertTrue(manifest["stickers"])
 
         for kind, package in manifest["stickers"].items():
@@ -321,6 +413,7 @@ class Q1b_AgentInterfacesStayOutsideKernelAuthority(ServerCase):
         self.assertEqual(state["capabilities"], {
             "creator_agent": True,
             "conversational_agent": True,
+            "page_image_creator": False,
         })
 
     def test_conversation_returns_language_without_mutating_kernel(self):
@@ -374,6 +467,58 @@ class Q1b_AgentInterfacesStayOutsideKernelAuthority(ServerCase):
         self.assertEqual(status, 400)
         self.assertFalse(body["ok"])
         self.assertEqual(self.bridge.kernel.revision, before)
+
+
+class Q1c_PageImageCreationStaysOutsideKernelAuthority(ServerCase):
+
+    page_image_runtime_factory = FakePageImageRuntime
+
+    def test_page_image_capability_is_explicit(self):
+        _, state = self.get("/api/state")
+        self.assertTrue(state["capabilities"]["page_image_creator"])
+        self.assertFalse(state["capabilities"]["creator_agent"])
+
+    def test_page_upload_reframes_without_mutating_kernel(self):
+        before = self.bridge.kernel.revision
+        status, body = self.post_image(
+            "/api/creator/page-image",
+            b"not-a-real-png-but-valid-for-the-fake-runtime",
+            filename="My Garden.png",
+            content_type="image/png",
+        )
+        self.assertEqual(status, 200)
+        self.assertTrue(body["ok"], body)
+        self.assertEqual(self.bridge.kernel.revision, before)
+
+        draft = body["draft"]
+        self.assertEqual(
+            (draft["variants"]["landscape"]["width"],
+             draft["variants"]["landscape"]["height"]),
+            (1916, 717),
+        )
+        self.assertEqual(
+            (draft["variants"]["portrait"]["width"],
+             draft["variants"]["portrait"]["height"]),
+            (941, 1574),
+        )
+        self.assertEqual(
+            self.bridge.page_image_runtime.last_upload["filename"],
+            "My Garden.png",
+        )
+
+    def test_page_upload_rejects_unapproved_media_before_runtime(self):
+        before = self.bridge.kernel.revision
+        status, body = self.post_image(
+            "/api/creator/page-image",
+            b"<html>not an image</html>",
+            filename="drawing.html",
+            content_type="text/html",
+        )
+        self.assertEqual(status, 400)
+        self.assertFalse(body["ok"])
+        self.assertEqual(body["error"], "unsupported-page-image-type")
+        self.assertEqual(self.bridge.kernel.revision, before)
+        self.assertIsNone(self.bridge.page_image_runtime.last_upload)
 
 
 class Q2_HumanCanMoveAStickerThroughTheKernel(ServerCase):
