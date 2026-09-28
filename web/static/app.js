@@ -1895,21 +1895,104 @@ svg.addEventListener("contextmenu", (event) => event.preventDefault());
 
 // ------------------------------------------------------ sticker library
 
+function stickerCatalogEntry(definition) {
+  const asset = stickerAsset(definition.id) || {};
+  const fallbackName = definition.id
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+  return {
+    definition,
+    id: definition.id,
+    name: asset.name || fallbackName,
+    category: asset.category || "other",
+    tags: Array.isArray(asset.tags) ? asset.tags : [],
+    aliases: Array.isArray(asset.aliases) ? asset.aliases : [],
+  };
+}
+
+function stickerCatalogEntries() {
+  return (state && state.definitions || []).map(stickerCatalogEntry);
+}
+
+function drawStickerCategories(entries) {
+  if (!stickerCategories) return;
+
+  const categories = Array.from(new Set(
+    entries.map((entry) => entry.category).filter(Boolean)
+  )).sort((a, b) => a.localeCompare(b));
+
+  if (
+    stickerCategory !== "all" &&
+    !categories.includes(stickerCategory)
+  ) {
+    stickerCategory = "all";
+  }
+
+  stickerCategories.replaceChildren();
+
+  for (const category of ["all", ...categories]) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "sticker-category";
+    button.textContent = category === "all"
+      ? "All"
+      : category.replace(/[-_]+/g, " ").replace(
+          /\b\w/g,
+          (letter) => letter.toUpperCase()
+        );
+    button.classList.toggle("active", category === stickerCategory);
+    button.setAttribute(
+      "aria-pressed",
+      category === stickerCategory ? "true" : "false"
+    );
+    button.addEventListener("click", () => {
+      stickerCategory = category;
+      drawStickerLibrary();
+    });
+    stickerCategories.appendChild(button);
+  }
+}
+
+function stickerCatalogMatches(entry) {
+  if (stickerCategory !== "all" && entry.category !== stickerCategory) {
+    return false;
+  }
+
+  const query = stickerSearchQuery.trim().toLowerCase();
+  if (!query) return true;
+
+  const haystack = [
+    entry.id,
+    entry.name,
+    entry.category,
+    ...entry.tags,
+    ...entry.aliases,
+  ].join(" ").toLowerCase();
+
+  return query.split(/\s+/).every((term) => haystack.includes(term));
+}
+
 function drawStickerLibrary() {
+  const entries = stickerCatalogEntries();
+  drawStickerCategories(entries);
   stickerLibraryGrid.replaceChildren();
 
-  for (const definition of state && state.definitions || []) {
+  const visible = entries.filter(stickerCatalogMatches);
+
+  for (const entry of visible) {
+    const definition = entry.definition;
     const card = document.createElement("button");
     card.className = "library-sticker";
     card.type = "button";
     card.setAttribute(
       "aria-label",
-      "Drag " + definition.id + " to your sticker sheet"
+      "Drag " + entry.name + " to your sticker sheet"
     );
     card.appendChild(miniature(definition.id));
 
     const label = document.createElement("span");
-    label.textContent = definition.id;
+    label.textContent = entry.name;
     card.appendChild(label);
 
     card.addEventListener(
@@ -1925,6 +2008,10 @@ function drawStickerLibrary() {
     });
 
     stickerLibraryGrid.appendChild(card);
+  }
+
+  if (stickerLibraryEmpty) {
+    stickerLibraryEmpty.hidden = visible.length !== 0;
   }
 
   const make = document.createElement("button");
@@ -2550,6 +2637,13 @@ document.getElementById("library-close").addEventListener("click", closeLibrary)
 document.getElementById("library-backdrop").addEventListener("click", closeLibrary);
 document.getElementById("sticker-maker-back")
   .addEventListener("click", backToStickerLibrary);
+
+if (stickerSearch) {
+  stickerSearch.addEventListener("input", () => {
+    stickerSearchQuery = stickerSearch.value;
+    drawStickerLibrary();
+  });
+}
 
 document.getElementById("page-upload").addEventListener("change", (event) => {
   handlePageUpload(event.currentTarget);
