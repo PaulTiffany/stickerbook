@@ -27,19 +27,22 @@ ADD_OWN_STICKER = "add-own-sticker"
 MOVE_STICKER = "move-sticker"
 ANIMATE_OWN_STICKER = "animate-own-sticker"
 RESIZE_OWN_STICKER = "resize-own-sticker"
+SET_STICKER_FACING = "set-sticker-facing"
 REMOVE_OWN_STICKER = "remove-own-sticker"
 REMOVE_AGENT_STICKER = "remove-agent-sticker"
 CREATE_AGENT = "create-agent"
 
 ALL_ACTIONS: FrozenSet[str] = frozenset({
     NOOP, OBSERVE, ADD_OWN_STICKER, MOVE_STICKER, ANIMATE_OWN_STICKER,
-    RESIZE_OWN_STICKER, REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER, CREATE_AGENT,
+    RESIZE_OWN_STICKER, SET_STICKER_FACING, REMOVE_OWN_STICKER,
+    REMOVE_AGENT_STICKER, CREATE_AGENT,
 })
 
 # Actions that mutate the world. Everything else is read-only.
 MUTATING_ACTIONS: FrozenSet[str] = frozenset({
     ADD_OWN_STICKER, MOVE_STICKER, ANIMATE_OWN_STICKER,
-    RESIZE_OWN_STICKER, REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER, CREATE_AGENT,
+    RESIZE_OWN_STICKER, SET_STICKER_FACING, REMOVE_OWN_STICKER,
+    REMOVE_AGENT_STICKER, CREATE_AGENT,
 })
 
 # A sticker's position is a coordinate on the page, as a fraction of its
@@ -129,7 +132,7 @@ LOCAL_SINGLE_AGENT = AuthorityProfile(
     name="local-single-agent",
     agent_ceiling=frozenset({
         OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_STICKER,
-        ANIMATE_OWN_STICKER, RESIZE_OWN_STICKER,
+        ANIMATE_OWN_STICKER, RESIZE_OWN_STICKER, SET_STICKER_FACING,
     }),
     max_agents=1,
     max_delegation_depth=0,
@@ -139,7 +142,8 @@ LOCAL_MULTI_AGENT = AuthorityProfile(
     name="local-multi-agent",
     agent_ceiling=frozenset({
         OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_STICKER,
-        ANIMATE_OWN_STICKER, RESIZE_OWN_STICKER, CREATE_AGENT,
+        ANIMATE_OWN_STICKER, RESIZE_OWN_STICKER, SET_STICKER_FACING,
+        CREATE_AGENT,
     }),
     max_agents=4,
     max_delegation_depth=2,
@@ -175,6 +179,7 @@ class StickerInstance:
     # Added after the historic fields so positional construction from older
     # callers keeps its meaning. New code should pass this by name.
     scale: float = 1.0
+    facing: str = "right"
 
 
 @dataclass(frozen=True)
@@ -250,7 +255,8 @@ class Receipt:
 
 __all__ = [
     "NOOP", "OBSERVE", "ADD_OWN_STICKER", "MOVE_STICKER",
-    "ANIMATE_OWN_STICKER", "RESIZE_OWN_STICKER", "REMOVE_OWN_STICKER",
+    "ANIMATE_OWN_STICKER", "RESIZE_OWN_STICKER", "SET_STICKER_FACING",
+    "REMOVE_OWN_STICKER",
     "REMOVE_AGENT_STICKER", "CREATE_AGENT", "ALL_ACTIONS", "MUTATING_ACTIONS",
     "POSITION_MIN", "POSITION_MAX", "SCALE_MIN", "SCALE_MAX",
     "HUMAN", "AGENT", "OPERATOR", "Principal", "AuthorityProfile",
