@@ -799,12 +799,12 @@ class TakingAStickerOffThePage(unittest.TestCase):
         self.assertTrue(r.accepted, r.reason)
         self.assertIsNone(k.sticker("lantern-h"))
 
-    def test_an_agent_still_cannot_remove_a_human_sticker(self):
+    def test_agent_profile_has_no_sticker_removal_action(self):
         k = build()
         r = k.propose(Command(REMOVE_OWN_STICKER, "agent:jev", "c1",
                               "lantern-h"))
         self.assertFalse(r.accepted)
-        self.assertEqual(r.reason, "not-owner")
+        self.assertEqual(r.reason, "action-not-in-effective-authority")
         self.assertIsNotNone(k.sticker("lantern-h"))
 
 
