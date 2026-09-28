@@ -31,6 +31,7 @@ const screens = {
 const svg = document.getElementById("page");
 const layers = {
   picture: document.getElementById("picture"),
+  reference: document.getElementById("reference-layer"),
   stickers: document.getElementById("stickers"),
   placement: document.getElementById("placement-layer"),
 };
@@ -47,6 +48,7 @@ const stickerLibraryPanel = document.querySelector(".sticker-library-panel");
 const stickerLibraryGrid = document.getElementById("sticker-library-grid");
 const stickerLibraryEmpty = document.getElementById("sticker-library-empty");
 const stickerSearch = document.getElementById("sticker-search");
+const stickerThemes = document.getElementById("sticker-themes");
 const stickerCategories = document.getElementById("sticker-categories");
 const stickerLibraryView = document.getElementById("sticker-library-view");
 const stickerMakerView = document.getElementById("sticker-maker-view");
@@ -81,7 +83,11 @@ let placementPreview = null;
 let lastTap = { id: null, at: 0 };
 let hotbarKinds = [];
 let stickerSearchQuery = "";
+let stickerTheme = "all";
 let stickerCategory = "all";
+let pendingDeicticReference = null;
+let deicticGesture = null;
+let deicticReferenceSerial = 0;
 let bookCache = null;
 let pagePreviewUrl = null;
 let pageUploadDraft = null;
@@ -405,6 +411,7 @@ const DEMO_SEED = {
       owner: "human:player",
       mine: true,
       scale: 1,
+      facing: "right",
       animation: "rest",
       revision: 1,
     },
@@ -416,6 +423,7 @@ const DEMO_SEED = {
       owner: "agent:jev-visual-1",
       mine: false,
       scale: 1,
+      facing: "right",
       animation: "rest",
       revision: 1,
     },
@@ -442,6 +450,18 @@ function createMechanicalWorld() {
     Number.isFinite(point.y) &&
     point.x >= 0 && point.x <= 1 &&
     point.y >= 0 && point.y <= 1;
+
+  const syncDefinitionsFromManifest = () => {
+    const stickers = assetManifest && assetManifest.stickers;
+    if (!stickers) return;
+
+    worldState.definitions = Object.entries(stickers).map(([id, asset]) => ({
+      id,
+      animations: ["none", ...Object.keys(asset.clips || {})],
+      rest_clip: asset.default_clip || "none",
+      scale_bounds: asset.scale_bounds || { min: .9, max: 1.1 },
+    }));
+  };
 
   const rememberPage = () => {
     if (worldState.page && worldState.page.id) {
@@ -483,6 +503,7 @@ function createMechanicalWorld() {
     name: "public mechanical",
 
     async state() {
+      syncDefinitionsFromManifest();
       return copy(worldState);
     },
 
@@ -491,6 +512,7 @@ function createMechanicalWorld() {
     },
 
     async selectPage(pageId) {
+      syncDefinitionsFromManifest();
       const page = mechanicalBook().pages.find((item) => item.id === pageId);
       if (!page) {
         return { ok: false, error: "unknown-page", state: copy(worldState) };
@@ -514,11 +536,14 @@ function createMechanicalWorld() {
       return { ok: false, error: "page-image-creator-unavailable" };
     },
 
-    async converse() {
+    async converse(body) {
+      const pointed = body && body.reference;
       return {
         ok: true,
         stub: true,
-        reply: "Public demo chat only — no model is connected. A powered local StickerBook uses this same text window for Omega conversation.",
+        reply: pointed
+          ? "Public demo only — your temporary page reference would accompany this message to Omega in the powered local StickerBook. No model is connected here."
+          : "Public demo chat only — no model is connected. A powered local StickerBook uses this same text window for Omega conversation.",
         state: copy(worldState),
       };
     },
@@ -539,6 +564,7 @@ function createMechanicalWorld() {
             owner: worldState.principal,
             mine: true,
             scale: 1,
+            facing: "right",
             animation: def.rest_clip || "none",
             revision,
           });
@@ -601,6 +627,17 @@ function createMechanicalWorld() {
         }
         return commit("resize-own-sticker", target.id, (revision) => {
           target.scale = scale;
+          target.revision = revision;
+        });
+      }
+
+      if (path === "/api/facing") {
+        const target = sticker(body.sticker);
+        if (!target || !["left", "right"].includes(body.facing)) {
+          return refuse("set-sticker-facing", body.sticker, "facing-not-supported");
+        }
+        return commit("set-sticker-facing", target.id, (revision) => {
+          target.facing = body.facing;
           target.revision = revision;
         });
       }
@@ -1325,10 +1362,12 @@ function drawStickers(stickers) {
       "transform",
       (() => {
         const metrics = activePageMetrics();
+        const scale = Number.isFinite(sticker.scale) ? sticker.scale : 1;
+        const scaleX = sticker.facing === "left" ? -scale : scale;
         return "translate(" +
           (sticker.x * metrics.width) + " " +
           (sticker.y * metrics.height) + ") scale(" +
-          (Number.isFinite(sticker.scale) ? sticker.scale : 1) + ")";
+          scaleX + " " + scale + ")";
       })()
     );
     node.setAttribute("tabindex", "0");
@@ -1440,6 +1479,7 @@ function speak(message) {
 function showScreen(name) {
   closeLibrary();
   clearPlacement();
+  if (name !== "play") clearDeicticReference(false);
 
   for (const [key, node] of Object.entries(screens)) {
     node.hidden = key !== name;
@@ -1466,6 +1506,10 @@ async function enterPlay(pageId) {
     }
 
     if (result.state) state = result.state;
+    clearDeicticReference(false);
+    stickerTheme = (
+      assetManifest && assetManifest.pages && assetManifest.pages[pageId]
+    ) ? pageId : "all";
     showScreen("play");
     render();
   } catch (error) {
@@ -1530,6 +1574,172 @@ function overLibraryPanel(event) {
          event.clientX <= box.right &&
          event.clientY >= box.top &&
          event.clientY <= box.bottom;
+}
+
+function deicticPayload(reference) {
+  if (!reference) return null;
+  if (reference.kind === "point") {
+    return { kind: "point", point: copy(reference.point) };
+  }
+  if (reference.kind === "box") {
+    return { kind: "box", box: copy(reference.box) };
+  }
+  return null;
+}
+
+function drawDeicticReference(reference, drafting = false) {
+  if (!layers.reference) return;
+  layers.reference.replaceChildren();
+  layers.reference.classList.remove("reference-fade");
+  if (!reference) return;
+
+  const metrics = activePageMetrics();
+  const group = el("g", {
+    class: drafting
+      ? "deictic-reference deictic-reference-drafting"
+      : "deictic-reference",
+  });
+
+  if (reference.kind === "point") {
+    const radius = Math.max(
+      14,
+      Math.min(metrics.width, metrics.height) * .022
+    );
+    group.appendChild(el("circle", {
+      cx: reference.point.x * metrics.width,
+      cy: reference.point.y * metrics.height,
+      r: radius,
+      class: "deictic-point",
+    }));
+    group.appendChild(el("circle", {
+      cx: reference.point.x * metrics.width,
+      cy: reference.point.y * metrics.height,
+      r: Math.max(3, radius * .16),
+      class: "deictic-point-core",
+    }));
+  } else if (reference.kind === "box") {
+    const x = reference.box.x1 * metrics.width;
+    const y = reference.box.y1 * metrics.height;
+    const width = (reference.box.x2 - reference.box.x1) * metrics.width;
+    const height = (reference.box.y2 - reference.box.y1) * metrics.height;
+    group.appendChild(el("rect", {
+      x, y, width, height,
+      rx: Math.max(8, Math.min(width, height) * .08),
+      class: "deictic-box",
+    }));
+  }
+
+  layers.reference.appendChild(group);
+}
+
+function setDeicticReference(reference) {
+  pendingDeicticReference = reference;
+  deicticReferenceSerial += 1;
+  drawDeicticReference(reference, false);
+  speak(
+    reference.kind === "point"
+      ? "Point marked for your next message"
+      : "Area marked for your next message"
+  );
+}
+
+function clearDeicticReference(fade = true) {
+  pendingDeicticReference = null;
+  deicticGesture = null;
+
+  if (!layers.reference) return;
+
+  if (!fade || !layers.reference.firstElementChild) {
+    layers.reference.classList.remove("reference-fade");
+    layers.reference.replaceChildren();
+    return;
+  }
+
+  const serial = ++deicticReferenceSerial;
+  layers.reference.classList.add("reference-fade");
+  setTimeout(() => {
+    if (serial !== deicticReferenceSerial) return;
+    layers.reference.classList.remove("reference-fade");
+    layers.reference.replaceChildren();
+  }, 420);
+}
+
+function startDeicticGesture(event) {
+  if (pendingDefinition || !stickerOverlay.hidden) return;
+  if (screens.play.hidden || !overPage(event)) return;
+  if (event.button !== undefined && event.button !== 0) return;
+
+  const start = pageFraction(event);
+  deicticGesture = {
+    pointerId: event.pointerId,
+    start,
+    current: start,
+    startClientX: event.clientX,
+    startClientY: event.clientY,
+    boxed: false,
+  };
+
+  event.preventDefault();
+  try { svg.setPointerCapture(event.pointerId); } catch (_) {}
+  drawDeicticReference({ kind: "point", point: start }, true);
+}
+
+function updateDeicticGesture(event) {
+  if (!deicticGesture || deicticGesture.pointerId !== event.pointerId) return;
+
+  const point = pageFraction(event);
+  deicticGesture.current = point;
+  if (
+    Math.hypot(
+      event.clientX - deicticGesture.startClientX,
+      event.clientY - deicticGesture.startClientY
+    ) > 12
+  ) {
+    deicticGesture.boxed = true;
+  }
+
+  if (!deicticGesture.boxed) {
+    drawDeicticReference(
+      { kind: "point", point: deicticGesture.start },
+      true
+    );
+    return;
+  }
+
+  const x1 = Math.min(deicticGesture.start.x, point.x);
+  const y1 = Math.min(deicticGesture.start.y, point.y);
+  const x2 = Math.max(deicticGesture.start.x, point.x);
+  const y2 = Math.max(deicticGesture.start.y, point.y);
+  drawDeicticReference(
+    { kind: "box", box: { x1, y1, x2, y2 } },
+    true
+  );
+}
+
+function finishDeicticGesture(event) {
+  if (!deicticGesture || deicticGesture.pointerId !== event.pointerId) return;
+
+  updateDeicticGesture(event);
+  const gesture = deicticGesture;
+  deicticGesture = null;
+  try { svg.releasePointerCapture(event.pointerId); } catch (_) {}
+
+  if (!gesture.boxed) {
+    setDeicticReference({
+      kind: "point",
+      point: gesture.start,
+    });
+    return;
+  }
+
+  const x1 = Math.min(gesture.start.x, gesture.current.x);
+  const y1 = Math.min(gesture.start.y, gesture.current.y);
+  const x2 = Math.max(gesture.start.x, gesture.current.x);
+  const y2 = Math.max(gesture.start.y, gesture.current.y);
+  setDeicticReference({
+    kind: "box",
+    box: { x1, y1, x2, y2 },
+  });
 }
 
 async function tapSticker(sticker) {
@@ -1620,10 +1830,12 @@ function grabPlaced(event, sticker) {
       "transform",
       (() => {
         const metrics = activePageMetrics();
+        const scale = Number.isFinite(sticker.scale) ? sticker.scale : 1;
+        const scaleX = sticker.facing === "left" ? -scale : scale;
         return "translate(" +
           (point.x * metrics.width) + " " +
           (point.y * metrics.height) + ") scale(" +
-          (Number.isFinite(sticker.scale) ? sticker.scale : 1) + ")";
+          scaleX + " " + scale + ")";
       })()
     );
     hotbar.classList.toggle("drop-ready", overRemovalZone(moveEvent));
@@ -1895,6 +2107,15 @@ svg.addEventListener("pointercancel", () => {
   placementPreview = null;
 }, true);
 
+svg.addEventListener("pointerdown", startDeicticGesture);
+svg.addEventListener("pointermove", updateDeicticGesture);
+svg.addEventListener("pointerup", finishDeicticGesture);
+svg.addEventListener("pointercancel", (event) => {
+  if (!deicticGesture || deicticGesture.pointerId !== event.pointerId) return;
+  deicticGesture = null;
+  drawDeicticReference(pendingDeicticReference, false);
+});
+
 svg.addEventListener("contextmenu", (event) => event.preventDefault());
 
 // ------------------------------------------------------ sticker library
@@ -1910,6 +2131,7 @@ function stickerCatalogEntry(definition) {
     id: definition.id,
     name: asset.name || fallbackName,
     category: asset.category || "other",
+    themes: Array.isArray(asset.themes) ? asset.themes : [],
     tags: Array.isArray(asset.tags) ? asset.tags : [],
     aliases: Array.isArray(asset.aliases) ? asset.aliases : [],
   };
@@ -1917,6 +2139,45 @@ function stickerCatalogEntry(definition) {
 
 function stickerCatalogEntries() {
   return (state && state.definitions || []).map(stickerCatalogEntry);
+}
+
+function drawStickerThemes(entries) {
+  if (!stickerThemes) return;
+
+  const pageThemes = Object.keys(
+    assetManifest && assetManifest.pages || {}
+  ).filter((theme) =>
+    entries.some((entry) => entry.themes.includes(theme))
+  );
+
+  if (stickerTheme !== "all" && !pageThemes.includes(stickerTheme)) {
+    stickerTheme = "all";
+  }
+
+  stickerThemes.replaceChildren();
+
+  for (const theme of ["all", ...pageThemes]) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "sticker-category sticker-theme";
+    button.textContent = theme === "all"
+      ? "All worlds"
+      : (
+          assetManifest.pages[theme] &&
+          assetManifest.pages[theme].name ||
+          theme
+        ).replace(/^The /, "");
+    button.classList.toggle("active", theme === stickerTheme);
+    button.setAttribute(
+      "aria-pressed",
+      theme === stickerTheme ? "true" : "false"
+    );
+    button.addEventListener("click", () => {
+      stickerTheme = theme;
+      drawStickerLibrary();
+    });
+    stickerThemes.appendChild(button);
+  }
 }
 
 function drawStickerCategories(entries) {
@@ -1959,6 +2220,10 @@ function drawStickerCategories(entries) {
 }
 
 function stickerCatalogMatches(entry) {
+  if (stickerTheme !== "all" && !entry.themes.includes(stickerTheme)) {
+    return false;
+  }
+
   if (stickerCategory !== "all" && entry.category !== stickerCategory) {
     return false;
   }
@@ -1970,6 +2235,7 @@ function stickerCatalogMatches(entry) {
     entry.id,
     entry.name,
     entry.category,
+    ...entry.themes,
     ...entry.tags,
     ...entry.aliases,
   ].join(" ").toLowerCase();
@@ -1979,6 +2245,7 @@ function stickerCatalogMatches(entry) {
 
 function drawStickerLibrary() {
   const entries = stickerCatalogEntries();
+  drawStickerThemes(entries);
   drawStickerCategories(entries);
   stickerLibraryGrid.replaceChildren();
 
@@ -2498,8 +2765,13 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
   voiceBusy = true;
   if (aloud) setVoiceOrbState("speaking");
 
+  const referenceSerial = deicticReferenceSerial;
+  const reference = deicticPayload(pendingDeicticReference);
+
   try {
-    const payload = await world.converse({ text: clean });
+    const body = { text: clean };
+    if (reference) body.reference = reference;
+    const payload = await world.converse(body);
 
     if (payload && payload.state) {
       state = payload.state;
@@ -2552,6 +2824,10 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
     }
     if (aloud) setVoiceOrbState("error");
     return null;
+  } finally {
+    if (reference && referenceSerial === deicticReferenceSerial) {
+      clearDeicticReference(true);
+    }
   }
 }
 
