@@ -76,6 +76,7 @@ let lastTap = { id: null, at: 0 };
 let hotbarKinds = [];
 let bookCache = null;
 let pagePreviewUrl = null;
+let pageUploadDraft = null;
 let stickerPreviewUrl = null;
 let voiceEnabled = false;
 let voiceRecognition = null;
@@ -355,6 +356,7 @@ const DEMO_SEED = {
   capabilities: {
     creator_agent: false,
     conversational_agent: false,
+    page_image_creator: false,
     voice: false,
   },
   picture: {
@@ -489,6 +491,10 @@ function createMechanicalWorld() {
       return { ok: false, error: "creator-agent-unavailable" };
     },
 
+    async pageImageDraft() {
+      return { ok: false, error: "page-image-creator-unavailable" };
+    },
+
     async converse() {
       return { ok: false, error: "conversational-agent-unavailable" };
     },
@@ -599,6 +605,18 @@ const kernelWorld = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
+    });
+    return res.json();
+  },
+
+  async pageImageDraft(file) {
+    const res = await fetch("/api/creator/page-image", {
+      method: "POST",
+      headers: {
+        "Content-Type": file.type,
+        "X-StickerBook-Filename": encodeURIComponent(file.name || "page.png"),
+      },
+      body: file,
     });
     return res.json();
   },
@@ -1921,6 +1939,39 @@ async function refreshReceipts() {
 
 // ------------------------------------------------------------- uploads
 
+const PAGE_UPLOAD_TYPES = new Set([
+  "image/svg+xml",
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+]);
+
+const PAGE_UPLOAD_EXTENSIONS = new Set([
+  ".svg",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".webp",
+]);
+
+function pageUploadExtension(filename) {
+  const match = String(filename || "").toLowerCase().match(/\.[^.]+$/);
+  return match ? match[0] : "";
+}
+
+function supportedPageUpload(file) {
+  return Boolean(
+    file &&
+    PAGE_UPLOAD_TYPES.has(file.type) &&
+    PAGE_UPLOAD_EXTENSIONS.has(pageUploadExtension(file.name))
+  );
+}
+
+function setPageUploadStatus(message) {
+  const node = document.getElementById("page-upload-status");
+  if (node) node.textContent = message || "";
+}
+
 function previewUpload(input, preview, kind) {
   const file = input.files && input.files[0];
   if (!file || !file.type.startsWith("image/")) return;
@@ -1945,8 +1996,95 @@ function previewUpload(input, preview, kind) {
   if (strong) strong.textContent = file.name;
   if (small) {
     small.textContent = kind === "page"
-      ? "preview only for now"
+      ? "selected page artwork"
       : "ready for future Sticker Maker";
+  }
+}
+
+function pageUploadDraftVariant() {
+  const variants = pageUploadDraft && pageUploadDraft.variants || {};
+  return portraitViewport()
+    ? (variants.portrait || variants.landscape || null)
+    : (variants.landscape || variants.portrait || null);
+}
+
+function renderPageUploadDraft() {
+  if (!pageUploadDraft) return;
+
+  const preview = document.getElementById("page-upload-preview");
+  const variant = pageUploadDraftVariant();
+  if (!preview || !variant || !variant.src) return;
+
+  preview.style.backgroundImage =
+    "linear-gradient(rgba(0,0,0,.05), rgba(0,0,0,.05)), url('" +
+    variant.src + "')";
+  preview.classList.add("has-image");
+
+  const strong = preview.querySelector("strong");
+  const small = preview.querySelector("small");
+  const plus = preview.querySelector(".upload-plus");
+
+  if (plus) plus.textContent = "✓";
+  if (strong) strong.textContent =
+    pageUploadDraft.source_name || variant.filename || "Page";
+  if (small) {
+    small.textContent = portraitViewport()
+      ? "portrait version · 941 × 1574"
+      : "horizontal version · 1916 × 717";
+  }
+}
+
+async function handlePageUpload(input) {
+  const file = input.files && input.files[0];
+  const preview = document.getElementById("page-upload-preview");
+
+  pageUploadDraft = null;
+  setPageUploadStatus("");
+
+  if (!file) return;
+  if (!supportedPageUpload(file)) {
+    input.value = "";
+    setPageUploadStatus("Use SVG, PNG, JPEG, or WebP artwork.");
+    return;
+  }
+
+  previewUpload(input, preview, "page");
+
+  if (world.name === "public mechanical") {
+    setPageUploadStatus(
+      "Preview only here. The public demo never sends your picture to a model."
+    );
+    return;
+  }
+
+  const capabilities = creatorCapabilities();
+  if (!capabilities.page_image_creator) {
+    setPageUploadStatus(
+      "Local preview only. The page-image gateway is not connected."
+    );
+    return;
+  }
+
+  setPageUploadStatus(
+    "Making horizontal and portrait versions with the configured image model…"
+  );
+
+  try {
+    const payload = await world.pageImageDraft(file);
+
+    if (!payload || !payload.ok || !payload.draft) {
+      setPageUploadStatus(
+        payload && payload.error || "Page image generation did not finish."
+      );
+      return;
+    }
+
+    pageUploadDraft = payload.draft;
+    renderPageUploadDraft();
+    setPageUploadStatus("Ready: 1916 × 717 + 941 × 1574.");
+  } catch (error) {
+    console.error(error);
+    setPageUploadStatus("The page-image gateway is unavailable.");
   }
 }
 
@@ -2240,11 +2378,7 @@ document.getElementById("sticker-maker-back")
   .addEventListener("click", backToStickerLibrary);
 
 document.getElementById("page-upload").addEventListener("change", (event) => {
-  previewUpload(
-    event.currentTarget,
-    document.getElementById("page-upload-preview"),
-    "page"
-  );
+  handlePageUpload(event.currentTarget);
 });
 
 document.getElementById("sticker-upload").addEventListener("change", (event) => {
@@ -2361,6 +2495,7 @@ let viewportChangeTimer = null;
 function handleViewportChange() {
   syncViewportCssVars();
   drawCover();
+  renderPageUploadDraft();
 
   if (state) {
     render();
