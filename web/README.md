@@ -131,6 +131,22 @@ the pointer. Once the move is accepted, the sticker is set down with
 `animation = none`. It remains still until the child explicitly
 double-taps/clicks it to bring it to life again.
 
+## Adult / developer controls
+
+The title-page gear opens a deliberately separate **Responsible adult /
+developer** panel. It links directly to the project repository at
+`https://github.com/PaulTiffany/stickerbook` and exposes conversational
+runtime options without mixing those controls into the child's normal play
+surface.
+
+When a conversational Omega runtime is connected, an adult may enable
+push-to-talk voice and/or an **accessibility text chat**. The text option adds
+a translucent, dismissible chat panel near the top of the play surface. It
+uses the same `/api/agent/converse` path as voice, can display voice
+transcripts while enabled, and does not gain any additional world-mutation
+authority. In the public mechanical demo these controls remain visible but
+disabled so the deployment boundary is explicit.
+
 ## Conversational / creator seams
 
 The browser has three non-authoritative creation/language seams:
