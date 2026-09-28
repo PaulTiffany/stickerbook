@@ -19,7 +19,8 @@ from stickerbook_core import (  # noqa: E402
     ADD_OWN_STICKER, AGENT, ANIMATE_OWN_STICKER, StickerDefinition, Command,
     CREATE_AGENT, HUMAN, Kernel, LOCAL_MULTI_AGENT, LOCAL_SINGLE_AGENT, NOOP,
     MOVE_STICKER, OBSERVE, OPERATOR, PAGES_DEMO, Principal,
-    REMOVE_AGENT_STICKER, REMOVE_OWN_STICKER, StickerInstance,
+    REMOVE_AGENT_STICKER, REMOVE_OWN_STICKER, RESIZE_OWN_STICKER,
+    StickerInstance,
 )
 
 ASSETS = {
@@ -29,9 +30,9 @@ ASSETS = {
 
 AGENT_TOOLS = frozenset({
     OBSERVE, NOOP, ADD_OWN_STICKER, MOVE_STICKER, ANIMATE_OWN_STICKER,
-    REMOVE_OWN_STICKER,
+    RESIZE_OWN_STICKER,
 })
-HUMAN_TOOLS = AGENT_TOOLS | {REMOVE_AGENT_STICKER}
+HUMAN_TOOLS = AGENT_TOOLS | {REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER}
 
 
 def build(profile=LOCAL_SINGLE_AGENT, agent_tools=AGENT_TOOLS):
@@ -75,12 +76,13 @@ class T01_AgentCannotModifyHumanSticker(unittest.TestCase):
 
 class T02_AgentCannotRemoveHumanSticker(unittest.TestCase):
 
-    def test_02_remove_own_rejects_human_object(self):
+    def test_02_agent_has_no_sticker_removal_capability(self):
         k = build()
-        r = k.propose(Command(REMOVE_OWN_STICKER, "agent:jev", "c1", "lantern-h"))
+        r = k.propose(Command(
+            REMOVE_OWN_STICKER, "agent:jev", "c1", "moth-a"))
         self.assertFalse(r.accepted)
-        self.assertEqual(r.reason, "not-owner")
-        self.assertIsNotNone(k.sticker("lantern-h"))
+        self.assertEqual(r.reason, "action-not-in-effective-authority")
+        self.assertIsNotNone(k.sticker("moth-a"))
 
     def test_02b_agent_cannot_use_the_human_removal_tool(self):
         k = build()
@@ -220,6 +222,52 @@ class T05_MalformedFieldsReject(unittest.TestCase):
                               (("animation", "explode"),)))
         self.assertFalse(r.accepted)
         self.assertEqual(r.reason, "animation-not-declared-by-asset")
+
+
+class StickerScaleBounds(unittest.TestCase):
+
+    def test_agent_can_resize_own_sticker_inside_definition_bounds(self):
+        k = build()
+        r = k.propose(Command(
+            RESIZE_OWN_STICKER, "agent:jev", "scale-ok", "moth-a",
+            (("scale", 1.08),),
+        ))
+        self.assertTrue(r.accepted, r.reason)
+        self.assertAlmostEqual(k.sticker("moth-a").scale, 1.08)
+
+    def test_resize_refuses_values_beyond_plus_minus_ten_percent(self):
+        k = build()
+        for i, scale in enumerate((0.89, 1.11)):
+            r = k.propose(Command(
+                RESIZE_OWN_STICKER, "agent:jev", "scale-bad-%d" % i,
+                "moth-a", (("scale", scale),),
+            ))
+            self.assertFalse(r.accepted)
+            self.assertEqual(r.reason, "scale-out-of-bounds")
+        self.assertEqual(k.sticker("moth-a").scale, 1.0)
+
+    def test_agent_action_table_offers_only_bounded_scale_steps(self):
+        k = build()
+        keys = set(k.available_actions("agent:jev"))
+        self.assertIn("SCALE:moth-a:UP", keys)
+        self.assertIn("SCALE:moth-a:DOWN", keys)
+        self.assertNotIn("REMOVE:moth-a", keys)
+
+    def test_definition_loader_accepts_clip_names_but_not_authority(self):
+        definition = Kernel.load_definition({
+            "name": "butterfly",
+            "default_clip": "rest",
+            "clips": {"rest": {}, "flutter": {}},
+            "scale_bounds": {"min": 0.92, "max": 1.07},
+            "tools": ["delete-everything"],
+            "owner": "agent:spoof",
+        })
+        self.assertEqual(definition.animations, ("none", "rest", "flutter"))
+        self.assertEqual(definition.rest_animation, "rest")
+        self.assertEqual(definition.scale_min, 0.92)
+        self.assertEqual(definition.scale_max, 1.07)
+        self.assertFalse(hasattr(definition, "tools"))
+        self.assertFalse(hasattr(definition, "owner"))
 
 
 class T06_AgentCannotExpandCapabilities(unittest.TestCase):
@@ -577,8 +625,8 @@ class DeploymentProfiles(unittest.TestCase):
     def test_pages_demo_rejects_every_agent_action(self):
         k = build(profile=PAGES_DEMO)
         for action in (NOOP, OBSERVE, ADD_OWN_STICKER, MOVE_STICKER,
-                       ANIMATE_OWN_STICKER, REMOVE_OWN_STICKER,
-                       REMOVE_AGENT_STICKER, CREATE_AGENT):
+                       ANIMATE_OWN_STICKER, RESIZE_OWN_STICKER,
+                       REMOVE_OWN_STICKER, REMOVE_AGENT_STICKER, CREATE_AGENT):
             r = k.propose(Command(action, "agent:jev", "c" + action, "moth-a",
                                   (("x", 0.7), ("y", 0.3), ("asset", "moth"),
                                    ("animation", "flutter"))))
@@ -611,7 +659,8 @@ class ActionTableIntegrity(unittest.TestCase):
     def test_table_shrinks_and_grows_with_world_state(self):
         k = build()
         before = set(k.available_actions("agent:jev"))
-        k.propose(Command(REMOVE_OWN_STICKER, "agent:jev", "c1", "moth-a"))
+        k.propose(Command(
+            REMOVE_AGENT_STICKER, "human:kid", "c1", "moth-a"))
         after = set(k.available_actions("agent:jev"))
         self.assertTrue(any("moth-a" in key for key in before))
         self.assertFalse(any("moth-a" in key for key in after))
