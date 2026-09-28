@@ -7,6 +7,7 @@ import unittest
 
 import image_gateway
 import page_assets
+import page_image_runtime
 
 
 class PageAssetSpecificationTests(unittest.TestCase):
@@ -57,6 +58,21 @@ class PageAssetSpecificationTests(unittest.TestCase):
             page_assets.supported_upload("page.html", "text/html"))
         self.assertFalse(
             page_assets.supported_upload("page.exe", "image/png"))
+
+
+class PageImageRuntimeBoundaryTests(unittest.TestCase):
+
+    def test_gateway_client_is_loopback_only(self):
+        with self.assertRaises(ValueError):
+            page_image_runtime.GatewayPageImageRuntime(
+                "https://example.com")
+        with self.assertRaises(ValueError):
+            page_image_runtime.GatewayPageImageRuntime(
+                "http://user:pass@127.0.0.1:8757")
+
+        runtime = page_image_runtime.GatewayPageImageRuntime(
+            "http://127.0.0.1:8757")
+        self.assertTrue(runtime.available())
 
 
 class OpenRouterImageRequestTests(unittest.TestCase):
