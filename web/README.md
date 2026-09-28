@@ -91,7 +91,10 @@ The hotbar has three regions:
 - **+** opens the larger sticker library.
 
 The library also contains a **+ Make a sticker** path. Both page and sticker
-creators expose **Upload** and **Make with StickerBook**.
+creators expose **Upload** and **Make with StickerBook**. The installed sticker
+catalog is no longer assumed to fit comfortably in one tiled view: the library
+has deterministic text search over names, aliases, categories and tags, plus
+category chips. Search is local catalog filtering, not a model call.
 
 Page uploads accept SVG, PNG, JPEG/JPG, and WebP. On public GitHub Pages the
 selected file remains a local browser preview and is never sent to a model. In
@@ -100,10 +103,17 @@ The original upload is then used as the reference for two image-edit jobs:
 **1916 × 717** horizontal and **941 × 1574** portrait. Their filenames follow
 `<name>.<ext>` and `<name>-vertical.<ext>`.
 
-Sticker draft requests target asset schema v2: a validated visual package with
-an idle clip and optional behavior clips containing one or many related frames.
-All creator/image seams return drafts only and do not mutate the authority
-kernel or install generated media into a governed page.
+Sticker creator requests still target draft schema v2. Installed built-in
+assets now use visual manifest v4: each definition has catalog metadata, a
+sprite dictionary, a default/rest clip, behavior clips that compose those
+sprites, and bounded scale metadata. The two version numbers describe different
+layers: creator draft interchange versus installed visual assets.
+
+The current built-ins contain nine definitions with four initial pose sprites
+each. Those sprites are a first coherent pose set, not a claim that every
+future sticker must have exactly four. All creator/image seams return drafts
+only and do not mutate the authority kernel or install generated media into a
+governed page.
 
 ## Page gestures
 
@@ -128,13 +138,14 @@ edge; the browser redraws the last authoritative in-page position instead.
 This is especially relevant to short/wide phone-landscape viewports where
 small side margins may remain.
 
-Direct human manipulation suspends animation while the sticker is held. Grabbing
-an animated sticker immediately restores its default/rest artwork and removes
-animation offsets. The drag preserves the exact point where the child grabbed
-the sticker: beginning a drag never teleports the sticker's center underneath
-the pointer. Once the move is accepted, the sticker is set down with
-`animation = none`. It remains still until the child explicitly
-double-taps/clicks it to bring it to life again.
+Direct human manipulation interrupts the active behavior clip while the sticker
+is held. Grabbing a sticker immediately shows the first frame of its declared
+rest clip, so the physical sticker itself does not shift under the pointer. The
+drag preserves the exact point where the child grabbed it: beginning a drag
+never teleports the sticker's center underneath the pointer. Once the move is
+accepted, the authoritative clip is the definition's rest clip. A rest clip
+may itself contain subtle non-locomotive frame animation; double-tap/click
+toggles between that rest clip and the definition's first active behavior.
 
 ## Adult / developer controls
 
@@ -189,6 +200,7 @@ pointer gesture
          /api/propose-move
          /api/remove
          /api/animate
+         /api/resize
     -> bridge validates request shape and fixes the actor
     -> authority kernel validates values, ownership, revision, budget
     -> kernel accepts or refuses and issues a Receipt
@@ -255,8 +267,11 @@ farm page
 └── StickerInstances   governed, owned, receipt-producing
 ```
 
-Positions are page-relative fractions. Pixels remain presentation and input
-detail, never authority.
+Positions are page-relative fractions. Sticker scale is a separate authoritative
+world transform and is currently bounded to 0.90–1.10. Pixels remain
+presentation and input detail, never authority. Position bounds still govern
+the sticker center; footprint-safe agent locomotion is a separate host-action
+generation problem to solve before live Jev movement.
 
 ## Tests
 
