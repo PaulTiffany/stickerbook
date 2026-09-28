@@ -583,7 +583,7 @@ def make_handler(bridge: Bridge, quiet: bool = False):
                 return self._send(404, {"error": "not found"})
             ext = os.path.splitext(path)[1].lower()
             if ext not in CONTENT_TYPES or ext not in (
-                    ".svg", ".png", ".jpg", ".jpeg", ".webp"):
+                    ".png", ".jpg", ".jpeg", ".webp"):
                 return self._send(404, {"error": "not found"})
             with open(path, "rb") as handle:
                 self._send(200, handle.read(), CONTENT_TYPES[ext])
