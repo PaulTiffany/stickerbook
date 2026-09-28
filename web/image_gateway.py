@@ -49,7 +49,6 @@ _OUTPUT_EXTENSIONS = {
     "image/jpeg": "jpg",
     "image/jpg": "jpg",
     "image/webp": "webp",
-    "image/svg+xml": "svg",
 }
 
 
