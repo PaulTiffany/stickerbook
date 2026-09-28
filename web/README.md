@@ -112,6 +112,10 @@ kernel or install generated media into a governed page.
 - while the library is open, drag a hotbar sticker back into the library: remove it from the working sheet;
 - double-tap: toggle the definition's declared mechanical animation.
 
+Hovering a placed sticker never changes its transform or visual position. The
+white die-cut border plus the grab cursor are the hover affordances; exact
+placement should not move until the child actually drags.
+
 Removal is intentionally a forgiving **bottom-edge gesture**, not a precision
 drop target. Once a moved sticker crosses the hotbar's top edge, a release
 farther down still means remove, even if pointer capture reports the release
@@ -144,8 +148,16 @@ push-to-talk voice and/or an **accessibility text chat**. The text option adds
 a translucent, dismissible chat panel near the top of the play surface. It
 uses the same `/api/agent/converse` path as voice, can display voice
 transcripts while enabled, and does not gain any additional world-mutation
-authority. In the public mechanical demo these controls remain visible but
-disabled so the deployment boundary is explicit.
+authority.
+
+The public mechanical demo keeps voice disabled but allows the text chat UI to
+be opened and exercised. Its replies are fixed mechanical stub text and no
+model is called. This lets the accessibility surface be reviewed on GitHub
+Pages without pretending that Omega is connected.
+
+The developer receipts panel opened with `?dev=1` has its own **×** control.
+Closing it removes the `dev` query flag from the current URL and returns to
+the normal child title surface without requiring a manual reload.
 
 ## Conversational / creator seams
 
