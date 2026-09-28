@@ -602,7 +602,9 @@ button:focus-visible, a:focus-visible, label:focus-within {
 .sticker.held { cursor: grabbing; }
 
 .sticker.held .art {
-  transform: translateY(-7px) scale(1.08) rotate(-1deg);
+  animation: none !important;
+  transition: none;
+  transform: none;
   filter: drop-shadow(0 13px 8px rgba(52,47,39,.30));
 }
 
