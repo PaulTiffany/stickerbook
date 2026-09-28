@@ -160,7 +160,8 @@ function stickerClip(kind, requestedClip) {
 function clipImage(clip) {
   if (!clip || !Array.isArray(clip.frames) || !clip.frames.length) return null;
 
-  const image = svgImage(clip.frames[0], -72, -72, 144, 144);
+  const image = spriteFrameNode(clip.frames[0], -72, -72, 144, 144);
+  if (!image) return null;
 
   if (clip.frames.length > 1) {
     image.dataset.stickerFramePlayer = "1";
@@ -186,7 +187,7 @@ function startStickerFrameTicker() {
   const tick = (now) => {
     if (!reduced) {
       for (const image of document.querySelectorAll(
-        'image[data-sticker-frame-player="1"]'
+        '[data-sticker-frame-player="1"]'
       )) {
         const frames = image._stickerFrames || [];
         if (frames.length < 2) continue;
@@ -202,7 +203,7 @@ function startStickerFrameTicker() {
         }
 
         if (String(index) !== image.dataset.stickerFrameIndex) {
-          image.setAttribute("href", frames[index]);
+          applySpriteFrame(image, frames[index]);
           image.dataset.stickerFrameIndex = String(index);
         }
       }
@@ -337,6 +338,80 @@ function svgImage(src, x, y, width, height) {
     x, y, width, height,
     preserveAspectRatio: "xMidYMid meet",
   });
+}
+
+function spriteFrameNode(frame, x, y, width, height) {
+  if (typeof frame === "string") {
+    return svgImage(frame, x, y, width, height);
+  }
+
+  if (
+    !frame || typeof frame !== "object" ||
+    typeof frame.src !== "string" ||
+    !Array.isArray(frame.view) || frame.view.length !== 4
+  ) {
+    return null;
+  }
+
+  const [vx, vy, vw, vh] = frame.view.map(Number);
+  const sheet = Array.isArray(frame.sheet_size)
+    ? frame.sheet_size.map(Number)
+    : [vw, vh];
+
+  if (
+    ![vx, vy, vw, vh, sheet[0], sheet[1]].every(Number.isFinite) ||
+    vw <= 0 || vh <= 0 || sheet[0] <= 0 || sheet[1] <= 0
+  ) {
+    return null;
+  }
+
+  const viewport = el("svg", {
+    x, y, width, height,
+    viewBox: [vx, vy, vw, vh].join(" "),
+    preserveAspectRatio: "xMidYMid meet",
+    overflow: "hidden",
+  });
+  viewport.appendChild(el("image", {
+    href: frame.src,
+    x: 0,
+    y: 0,
+    width: sheet[0],
+    height: sheet[1],
+    preserveAspectRatio: "none",
+  }));
+  viewport._stickerSpriteFrame = frame;
+  return viewport;
+}
+
+function applySpriteFrame(node, frame) {
+  if (!node) return;
+
+  if (node.tagName && node.tagName.toLowerCase() === "image") {
+    if (typeof frame === "string") node.setAttribute("href", frame);
+    return;
+  }
+
+  if (
+    !frame || typeof frame !== "object" ||
+    typeof frame.src !== "string" ||
+    !Array.isArray(frame.view) || frame.view.length !== 4
+  ) {
+    return;
+  }
+
+  const view = frame.view.map(Number);
+  const sheet = Array.isArray(frame.sheet_size)
+    ? frame.sheet_size.map(Number)
+    : [view[2], view[3]];
+  node.setAttribute("viewBox", view.join(" "));
+
+  const image = node.querySelector("image");
+  if (image) {
+    image.setAttribute("href", frame.src);
+    image.setAttribute("width", sheet[0]);
+    image.setAttribute("height", sheet[1]);
+  }
+  node._stickerSpriteFrame = frame;
 }
 
 // --------------------------------------------------------------- adapters
@@ -1153,10 +1228,12 @@ function stickerNode(kind, cls, grabbable, filterId, clipName) {
   }
 
   const art = el("g", { class: "art" });
-  const paper = el("g", {
-    class: "paper",
-    filter: "url(#" + (filterId || "sticker-paper") + ")",
-  });
+  const asset = stickerAsset(kind);
+  const paperAttrs = { class: "paper" };
+  if (!asset || !asset.precut) {
+    paperAttrs.filter = "url(#" + (filterId || "sticker-paper") + ")";
+  }
+  const paper = el("g", paperAttrs);
 
   const clip = stickerClip(kind, clipName);
   const image = clipImage(clip);
@@ -1184,7 +1261,7 @@ function resetStickerVisualToRest(node, kind) {
   const clip = stickerClip(kind, null);
   const firstFrame = clip && Array.isArray(clip.frames) && clip.frames[0];
   const image = firstFrame
-    ? svgImage(firstFrame, -72, -72, 144, 144)
+    ? spriteFrameNode(firstFrame, -72, -72, 144, 144)
     : null;
 
   if (image) {
