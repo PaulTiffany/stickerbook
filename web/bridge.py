@@ -47,7 +47,7 @@ from page_image_runtime import (  # noqa: E402
 )
 from stickerbook_core import (  # noqa: E402
     ADD_OWN_STICKER, ANIMATE_OWN_STICKER, Command, MOVE_STICKER,
-    REMOVE_OWN_STICKER, RESIZE_OWN_STICKER,
+    REMOVE_OWN_STICKER, RESIZE_OWN_STICKER, SET_STICKER_FACING,
 )
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
@@ -95,6 +95,7 @@ class Bridge:
                 "x": s["x"],
                 "y": s["y"],
                 "scale": s["scale"],
+                "facing": s["facing"],
                 "owner": s["owner"],
                 "mine": s["mine"],
                 "animation": s["animation"],
@@ -158,6 +159,10 @@ class Bridge:
         if len(text) > 2000:
             return self._bad_request("conversation text too long")
 
+        reference = self._deictic_reference(body.get("reference"))
+        if isinstance(reference, str):
+            return self._bad_request(reference)
+
         if not self._agent_capabilities()["conversational_agent"]:
             return {"ok": False,
                     "error": "conversational-agent-unavailable",
@@ -167,7 +172,8 @@ class Bridge:
             result = self.agent_runtime.converse(
                 text=text,
                 principal=BROWSER_PRINCIPAL,
-                scene=self.state())
+                scene=self.state(),
+                reference=reference)
         except Exception:
             return {"ok": False, "error": "agent-runtime-error",
                     "state": self.state()}
@@ -189,6 +195,65 @@ class Bridge:
                     "state": self.state()}
 
         return {"ok": True, "reply": reply.strip(), "state": self.state()}
+
+    @staticmethod
+    def _deictic_reference(raw):
+        """Validate one transient page-space reference for this language turn.
+
+        This is conversational context, not kernel/world state. The bridge
+        accepts only a normalized point or normalized rectangular box and
+        attaches the currently governed page id itself.
+        """
+        if raw is None:
+            return None
+        if not isinstance(raw, dict):
+            return "invalid deictic reference"
+
+        kind = raw.get("kind")
+        values = None
+        if kind == "point":
+            point = raw.get("point")
+            if not isinstance(point, dict):
+                return "invalid deictic point"
+            values = ("x", "y"), point
+        elif kind == "box":
+            box = raw.get("box")
+            if not isinstance(box, dict):
+                return "invalid deictic box"
+            values = ("x1", "y1", "x2", "y2"), box
+        else:
+            return "invalid deictic kind"
+
+        names, source = values
+        clean = {}
+        for name in names:
+            raw_value = source.get(name)
+            if isinstance(raw_value, bool):
+                return "invalid deictic coordinate"
+            try:
+                value = float(raw_value)
+            except (TypeError, ValueError):
+                return "invalid deictic coordinate"
+            if value != value or value in (float("inf"), float("-inf")):
+                return "invalid deictic coordinate"
+            if not (0.0 <= value <= 1.0):
+                return "deictic coordinate outside page"
+            clean[name] = value
+
+        if kind == "box":
+            if clean["x1"] > clean["x2"] or clean["y1"] > clean["y2"]:
+                return "invalid deictic box ordering"
+            return {
+                "kind": "box",
+                "page": book.DEFAULT_PAGE,
+                "box": clean,
+            }
+
+        return {
+            "kind": "point",
+            "page": book.DEFAULT_PAGE,
+            "point": clean,
+        }
 
     def creator_draft(self, body: dict) -> dict:
         """Return a non-authoritative page/sticker draft description."""
@@ -464,6 +529,31 @@ class Bridge:
         ))
         return {"ok": True, "receipt": receipt.to_dict(), "state": self.state()}
 
+    def facing(self, body: dict) -> dict:
+        """Set a sticker's horizontal facing without altering its sprite pack."""
+        if not isinstance(body, dict):
+            return self._bad_request("body is not a JSON object")
+        sticker_id = body.get("sticker")
+        command_id = body.get("command_id")
+        based_on = body.get("based_on_revision")
+        facing = body.get("facing")
+        if not isinstance(sticker_id, str) or not sticker_id:
+            return self._bad_request("missing sticker id")
+        if not isinstance(command_id, str) or not command_id:
+            return self._bad_request("missing command id")
+        if based_on is not None and not isinstance(based_on, int):
+            return self._bad_request("based_on_revision must be an integer")
+
+        receipt = self.kernel.propose(Command(
+            action=SET_STICKER_FACING,
+            actor=BROWSER_PRINCIPAL,
+            command_id=command_id,
+            object_id=sticker_id,
+            params=(("facing", facing),),
+            based_on_revision=based_on,
+        ))
+        return {"ok": True, "receipt": receipt.to_dict(), "state": self.state()}
+
     def _common(self, body, extra=()):
         """Shape validation shared by the pointer-driven write paths.
 
@@ -542,6 +632,7 @@ def make_handler(bridge: Bridge, quiet: bool = False):
                   "/api/remove": "remove",
                   "/api/animate": "animate",
                   "/api/resize": "resize",
+                  "/api/facing": "facing",
                   "/api/agent/converse": "converse",
                   "/api/creator/draft": "creator_draft"}
 
