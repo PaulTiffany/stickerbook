@@ -808,9 +808,11 @@ action table, receipt stream, repository credential, or save/install
 capability.
 
 The two generated variants are **draft media**: 1916×717 horizontal and
-941×1574 portrait. Provider success cannot authorize world mutation, publish a
-page, or install generated media. A future save/install feature requires its
-own explicit authority path.
+941×1574 portrait. Their intrinsic dimensions are mechanically checked before
+they are accepted; a provider returning some other size fails closed rather
+than being silently stretched or cropped. Provider success cannot authorize
+world mutation, publish a page, or install generated media. A future
+save/install feature requires its own explicit authority path.
 
 **Child privacy boundary.** An uploaded page can contain a photograph or other
 personal content. On public GitHub Pages, uploads remain local browser previews
