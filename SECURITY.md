@@ -783,6 +783,52 @@ no StickerBook authority. This is an operator-host exposure, not agent
 authority. A stronger secret-delivery design (a secrets store or a mounted
 tmpfs credential) is still required before broader distribution.
 
+### Page-image gateway
+
+Page creation introduces a second, separate provider boundary. It follows the
+same constitutional rule: **the component holding the provider credential must
+not also hold StickerBook authority.**
+
+The browser never receives `OPENROUTER_API_KEY`. The authority-kernel bridge
+also does not receive it and does not make requests to OpenRouter. An operator
+must explicitly start `web/image_gateway.py` and opt the bridge into its
+loopback URL with `STICKERBOOK_IMAGE_GATEWAY_URL`.
+
+```
+child browser            bridge                 page-image gateway
+  uploaded image  ->  validate type/size  ->  provider credential
+  no secret            no provider secret      no kernel/principal
+  no authority         authority kernel        media transform only
+```
+
+The bridge accepts only SVG, PNG, JPEG/JPG, or WebP for this seam and applies a
+20 MiB request ceiling. The gateway receives only image bytes, a filename, and
+fixed page-reframe instructions. It receives no kernel object, principal,
+action table, receipt stream, repository credential, or save/install
+capability. The bridge also enforces that the configured gateway URL resolves
+to loopback. Automated model output is restricted to raster PNG/JPEG/WebP;
+model-generated SVG is rejected until a sanitizer exists.
+
+The two generated variants are **draft media**: 1916×717 horizontal and
+941×1574 portrait. Their intrinsic dimensions are mechanically checked before
+they are accepted; a provider returning some other size fails closed rather
+than being silently stretched or cropped. Provider success cannot authorize
+world mutation, publish a page, or install generated media. A future
+save/install feature requires its own explicit authority path.
+
+**Child privacy boundary.** An uploaded page can contain a photograph or other
+personal content. On public GitHub Pages, uploads remain local browser previews
+and are never sent to a model. In powered local mode, the upload leaves the
+browser only when the responsible operator has separately enabled the
+page-image gateway; the UI states that model processing is occurring. The
+gateway must not log image bytes or embed provider credentials in returned
+metadata.
+
+**Status:** the bridge-side type/size validation, default-disabled capability,
+kernel non-mutation, and public-profile separation are mechanically tested.
+Live provider behavior depends on the operator-selected OpenRouter image model
+and credential and is therefore not claimed as CI-verified.
+
 ---
 
 ## 22. Advertised capability should match reachable capability

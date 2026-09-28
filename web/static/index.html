@@ -83,13 +83,15 @@
 
     <div id="page-upload-mode">
       <label class="upload-card" for="page-upload">
-        <input id="page-upload" type="file" accept="image/*" hidden>
+        <input id="page-upload" type="file"
+               accept="image/svg+xml,image/png,image/jpeg,image/webp" hidden>
         <div id="page-upload-preview" class="upload-preview">
           <span class="upload-plus">+</span>
           <strong>Choose a picture</strong>
-          <small>photo or artwork</small>
+          <small>SVG, PNG, JPEG, or WebP</small>
         </div>
       </label>
+      <div id="page-upload-status" class="agent-status" role="status"></div>
     </div>
 
     <div id="page-assist-mode" class="agent-creator" hidden>
@@ -101,7 +103,7 @@
       <div id="page-agent-status" class="agent-status" role="status"></div>
     </div>
 
-    <div class="creator-note">Uploads and agent drafts stay local to the active creator flow until saving is added.</div>
+    <div class="creator-note">The public demo only previews uploads locally and never sends them to a model. In powered local mode, an operator-enabled page-image gateway sends selected artwork to the configured OpenRouter image model to make horizontal and portrait page variants. Saving remains separate.</div>
   </div>
 </section>
 

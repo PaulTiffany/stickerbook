@@ -35,8 +35,13 @@
       "variants": {
         "landscape": {
           "src": "static/assets/pages/farm.svg",
-          "width": 1000,
-          "height": 640
+          "width": 1916,
+          "height": 717
+        },
+        "portrait": {
+          "src": "static/assets/pages/farm-vertical.svg",
+          "width": 941,
+          "height": 1574
         }
       }
     },
@@ -48,21 +53,31 @@
       "variants": {
         "landscape": {
           "src": "static/assets/pages/beach.svg",
-          "width": 1000,
-          "height": 640
+          "width": 1916,
+          "height": 717
+        },
+        "portrait": {
+          "src": "static/assets/pages/beach-vertical.svg",
+          "width": 941,
+          "height": 1574
         }
       }
     },
-    "park": {
-      "name": "The Park",
-      "summary": "A green park for outdoor play.",
-      "alt": "Park StickerBook page",
-      "thumbnail": "static/assets/pages/park.svg",
+    "playground": {
+      "name": "The Playground",
+      "summary": "A bright playground for outdoor play.",
+      "alt": "Playground StickerBook page",
+      "thumbnail": "static/assets/pages/playground.svg",
       "variants": {
         "landscape": {
-          "src": "static/assets/pages/park.svg",
-          "width": 1000,
-          "height": 640
+          "src": "static/assets/pages/playground.svg",
+          "width": 1916,
+          "height": 717
+        },
+        "portrait": {
+          "src": "static/assets/pages/playground-vertical.svg",
+          "width": 941,
+          "height": 1574
         }
       }
     },
@@ -74,8 +89,13 @@
       "variants": {
         "landscape": {
           "src": "static/assets/pages/space.svg",
-          "width": 1000,
-          "height": 640
+          "width": 1916,
+          "height": 717
+        },
+        "portrait": {
+          "src": "static/assets/pages/space-vertical.svg",
+          "width": 941,
+          "height": 1574
         }
       }
     }
