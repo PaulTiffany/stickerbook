@@ -93,6 +93,16 @@ ASSETS = {
     "moon": _definition("moon", "wink", "glow"),
     "ufo": _definition("ufo", "hover", "beam"),
     "satellite": _definition("satellite", "orbit", "signal"),
+
+    # Round-two packs.
+    "puppy": _definition("puppy", "wag", "trot", "bark"),
+    "cat": _definition("cat", "stretch", "walk", "pounce"),
+    "seagull": _definition("seagull", "flap", "glide"),
+    "sandcastle": _definition("sandcastle", "flag", "sparkle", "splash"),
+    "pinwheel": _definition("pinwheel", "turn", "spin", "wind"),
+    "jump-rope": _definition("jump-rope", "swing", "spin"),
+    "alien": _definition("alien", "wave", "float", "hop"),
+    "robot": _definition("robot", "wave", "roll", "beep"),
 }
 
 HUMAN_TOOLS = frozenset({

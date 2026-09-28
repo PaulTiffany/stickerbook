@@ -454,6 +454,10 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             ("/static/assets/stickers/frog.svg", "image/svg+xml"),
             ("/static/assets/stickers/bird/flight-up.svg", "image/svg+xml"),
             ("/static/assets/stickers/butterfly/wings-down.svg", "image/svg+xml"),
+            ("/static/assets/stickers/puppy/bark.svg", "image/svg+xml"),
+            ("/static/assets/stickers/sandcastle/splash.svg", "image/svg+xml"),
+            ("/static/assets/stickers/alien/float.svg", "image/svg+xml"),
+            ("/static/assets/stickers/robot/beep.svg", "image/svg+xml"),
         )
         for path, content_type in cases:
             with urllib.request.urlopen(self.url(path), timeout=5) as r:
@@ -529,7 +533,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
 
         self.assertTrue(manifest["stickers"])
 
-        self.assertEqual(len(manifest["stickers"]), 33)
+        self.assertEqual(len(manifest["stickers"]), 41)
 
         themes_seen = set()
         for kind, package in manifest["stickers"].items():
@@ -563,6 +567,11 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             themes_seen,
             {"farm", "beach", "playground", "space"},
         )
+        for added in (
+                "puppy", "cat", "seagull", "sandcastle", "pinwheel",
+                "jump-rope", "alien", "robot"):
+            self.assertIn(added, manifest["stickers"])
+            self.assertEqual(len(manifest["stickers"][added]["sprites"]), 4)
 
     def test_each_sticker_carries_its_authoritative_transform(self):
         _, state = self.get("/api/state")
