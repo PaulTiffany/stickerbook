@@ -23,7 +23,9 @@ What the browser is NOT trusted with, enforced here:
     state, and the renderer draws that rather than its own proposal.
 
 There is one kernel. This process holds it; nothing is reimplemented here.
-No credential, no model, no outbound network: the server binds loopback only.
+The bridge holds no provider credential and never talks to OpenRouter directly.
+An optional page-image runtime may call a separately started loopback gateway.
+The server itself binds loopback only.
 """
 
 from __future__ import annotations
@@ -31,6 +33,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -38,12 +41,18 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import book  # noqa: E402
 import farm  # noqa: E402
 from agent_runtime import DisabledAgentRuntime  # noqa: E402
+from page_assets import supported_upload  # noqa: E402
+from page_image_runtime import (  # noqa: E402
+    DisabledPageImageRuntime, page_image_runtime_from_env,
+)
 from stickerbook_core import (  # noqa: E402
     ADD_OWN_STICKER, ANIMATE_OWN_STICKER, Command, MOVE_STICKER,
     REMOVE_OWN_STICKER,
 )
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+GENERATED_PAGE_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "generated_pages")
 
 # The only principal this bridge will ever act as. Not client-selectable.
 BROWSER_PRINCIPAL = farm.HUMAN_ID
@@ -59,14 +68,18 @@ CONTENT_TYPES = {".html": "text/html; charset=utf-8",
                  ".webp": "image/webp"}
 
 MAX_BODY_BYTES = 8192
+MAX_PAGE_UPLOAD_BYTES = 20 * 1024 * 1024
 
 
 class Bridge:
     """Kernel-facing logic, kept free of HTTP so it can be tested directly."""
 
-    def __init__(self, kernel=None, agent_runtime=None):
+    def __init__(
+            self, kernel=None, agent_runtime=None, page_image_runtime=None):
         self.kernel = kernel or farm.build_world()
         self.agent_runtime = agent_runtime or DisabledAgentRuntime()
+        self.page_image_runtime = (
+            page_image_runtime or DisabledPageImageRuntime())
 
     # -- reads -------------------------------------------------------------
 
@@ -113,10 +126,15 @@ class Bridge:
             raw = {}
         if not isinstance(raw, dict):
             raw = {}
+        try:
+            page_image_creator = bool(self.page_image_runtime.available())
+        except Exception:
+            page_image_creator = False
         return {
             "creator_agent": bool(raw.get("creator_agent", False)),
             "conversational_agent": bool(
                 raw.get("conversational_agent", False)),
+            "page_image_creator": page_image_creator,
         }
 
     def converse(self, body: dict) -> dict:
@@ -224,6 +242,62 @@ class Bridge:
             return {"ok": False,
                     "error": error if isinstance(error, str)
                     else "invalid-agent-response",
+                    "state": self.state()}
+
+        return {"ok": True, "draft": result["draft"], "state": self.state()}
+
+    def page_image_draft(
+            self, image_bytes: bytes, content_type: str, filename: str) -> dict:
+        """Create non-authoritative horizontal + portrait page-image drafts."""
+        if not isinstance(image_bytes, (bytes, bytearray)) or not image_bytes:
+            return {"ok": False, "error": "empty-page-image",
+                    "state": self.state()}
+        if len(image_bytes) > MAX_PAGE_UPLOAD_BYTES:
+            return {"ok": False, "error": "page-image-too-large",
+                    "state": self.state()}
+        if not isinstance(filename, str) or not filename:
+            return {"ok": False, "error": "missing-page-image-name",
+                    "state": self.state()}
+        if not supported_upload(filename, content_type):
+            return {"ok": False, "error": "unsupported-page-image-type",
+                    "state": self.state()}
+
+        try:
+            available = self.page_image_runtime.available()
+        except Exception:
+            available = False
+        if not available:
+            return {"ok": False, "error": "page-image-creator-unavailable",
+                    "state": self.state()}
+
+        try:
+            result = self.page_image_runtime.reframe_page(
+                image_bytes=bytes(image_bytes),
+                content_type=content_type,
+                filename=filename,
+            )
+        except Exception:
+            return {"ok": False, "error": "page-image-runtime-error",
+                    "state": self.state()}
+
+        if not isinstance(result, dict):
+            return {"ok": False, "error": "invalid-page-image-response",
+                    "state": self.state()}
+
+        if not result.get("ok") or not isinstance(result.get("draft"), dict):
+            error = result.get("error")
+            return {"ok": False,
+                    "error": error if isinstance(error, str)
+                    else "invalid-page-image-response",
+                    "state": self.state()}
+
+        try:
+            encoded = json.dumps(result["draft"])
+        except (TypeError, ValueError):
+            return {"ok": False, "error": "invalid-page-image-response",
+                    "state": self.state()}
+        if len(encoded.encode("utf-8")) > 131072:
+            return {"ok": False, "error": "page-image-response-too-large",
                     "state": self.state()}
 
         return {"ok": True, "draft": result["draft"], "state": self.state()}
@@ -415,6 +489,8 @@ def make_handler(bridge: Bridge, quiet: bool = False):
                 return self._send(200, {"receipts": bridge.receipts()})
             if path.startswith("/static/"):
                 return self._static(path[len("/static/"):])
+            if path.startswith("/generated-pages/"):
+                return self._generated(path[len("/generated-pages/"):])
             return self._send(404, {"error": "not found"})
 
         ROUTES = {"/api/propose-move": "propose_move",
@@ -425,7 +501,32 @@ def make_handler(bridge: Bridge, quiet: bool = False):
                   "/api/creator/draft": "creator_draft"}
 
         def do_POST(self):
-            route = self.ROUTES.get(self.path.split("?")[0])
+            path = self.path.split("?")[0]
+
+            if path == "/api/creator/page-image":
+                try:
+                    length = int(self.headers.get("Content-Length") or 0)
+                except ValueError:
+                    return self._send(
+                        400, {"ok": False, "error": "bad length"})
+                if length <= 0:
+                    return self._send(
+                        400, {"ok": False, "error": "empty-page-image"})
+                if length > MAX_PAGE_UPLOAD_BYTES:
+                    return self._send(
+                        413, {"ok": False, "error": "page-image-too-large"})
+                content_type = (
+                    self.headers.get("Content-Type") or "").split(";")[0]
+                raw_name = (
+                    self.headers.get("X-StickerBook-Filename") or "page.png")
+                filename = urllib.parse.unquote(raw_name)
+                raw = self.rfile.read(length)
+                result = bridge.page_image_draft(
+                    raw, content_type, filename)
+                return self._send(
+                    200 if result.get("ok") else 400, result)
+
+            route = self.ROUTES.get(path)
             if route is None:
                 return self._send(404, {"error": "not found"})
             try:
@@ -471,6 +572,22 @@ def make_handler(bridge: Bridge, quiet: bool = False):
             with open(path, "rb") as handle:
                 self._send(200, handle.read(), CONTENT_TYPES[ext])
 
+        def _generated(self, name):
+            root = os.path.realpath(GENERATED_PAGE_DIR)
+            path = os.path.realpath(os.path.join(root, name))
+            try:
+                contained = os.path.commonpath((root, path)) == root
+            except ValueError:
+                contained = False
+            if not name or not contained or not os.path.isfile(path):
+                return self._send(404, {"error": "not found"})
+            ext = os.path.splitext(path)[1].lower()
+            if ext not in CONTENT_TYPES or ext not in (
+                    ".svg", ".png", ".jpg", ".jpeg", ".webp"):
+                return self._send(404, {"error": "not found"})
+            with open(path, "rb") as handle:
+                self._send(200, handle.read(), CONTENT_TYPES[ext])
+
         def address_string(self):
             # Skip the reverse DNS lookup BaseHTTPRequestHandler does
             # by default; on loopback it is pure latency.
@@ -484,8 +601,12 @@ def make_handler(bridge: Bridge, quiet: bool = False):
 
 
 def serve(host="127.0.0.1", port=8756, kernel=None, quiet=False,
-          agent_runtime=None):
-    bridge = Bridge(kernel, agent_runtime=agent_runtime)
+          agent_runtime=None, page_image_runtime=None):
+    bridge = Bridge(
+        kernel,
+        agent_runtime=agent_runtime,
+        page_image_runtime=page_image_runtime,
+    )
     httpd = ThreadingHTTPServer((host, port), make_handler(bridge, quiet))
     return httpd, bridge
 
@@ -494,7 +615,11 @@ if __name__ == "__main__":
     # Loopback only. This is a local development surface, not a service.
     PORT = int(os.environ.get("STICKERBOOK_PORT", "8756"))
     try:
-        httpd, _ = serve("127.0.0.1", PORT)
+        httpd, _ = serve(
+            "127.0.0.1",
+            PORT,
+            page_image_runtime=page_image_runtime_from_env(),
+        )
     except OSError as exc:
         # Fail LOUDLY. A silent bind failure leaves an OLDER process
         # serving: it hands out the current static files but the Python
