@@ -294,6 +294,24 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             "env(safe-area-inset-bottom)) 0;",
             page_wrap_rule)
 
+    def test_bottom_edge_remove_zone_and_page_bounds_are_explicit(self):
+        with urllib.request.urlopen(
+                self.url("/static/app.js"), timeout=5) as r:
+            app = r.read().decode("utf-8")
+
+        remove_start = app.index("function overRemovalZone")
+        remove_end = app.index("}", remove_start)
+        remove_rule = app[remove_start:remove_end]
+        self.assertIn("event.clientY >= box.top", remove_rule)
+        self.assertNotIn("box.bottom", remove_rule)
+
+        placed_start = app.index("function grabPlaced")
+        placed_end = app.index("function ghostFor", placed_start)
+        placed_rule = app[placed_start:placed_end]
+        self.assertIn("overRemovalZone(upEvent)", placed_rule)
+        self.assertIn("if (!overPage(upEvent))", placed_rule)
+        self.assertIn('speak("Keep stickers on the page")', placed_rule)
+
     def test_manifest_driven_visual_assets_are_served(self):
         cases = (
             ("/static/assets/manifest.json", "application/json"),
