@@ -82,7 +82,7 @@ class OpenRouterImageRequestTests(unittest.TestCase):
             (941, 1574),
         )
 
-    def test_reference_image_and_exact_size_are_sent_to_openrouter(self):
+    def test_reference_image_and_exact_target_prompt_are_sent_to_openrouter(self):
         raw = b"sample-image-bytes"
         payload = image_gateway.build_openrouter_payload(
             model="example/image-model",
@@ -95,7 +95,8 @@ class OpenRouterImageRequestTests(unittest.TestCase):
 
         self.assertEqual(payload["model"], "example/image-model")
         self.assertEqual(payload["prompt"], page_assets.LANDSCAPE_PROMPT)
-        self.assertEqual(payload["size"], "1916x717")
+        self.assertNotIn("size", payload)
+        self.assertIn("exactly 1916 × 717", payload["prompt"])
         self.assertEqual(payload["n"], 1)
 
         reference = payload["input_references"][0]
