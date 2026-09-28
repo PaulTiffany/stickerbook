@@ -454,6 +454,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             ("/static/assets/stickers/frog.svg", "image/svg+xml"),
             ("/static/assets/stickers/bird/flight-up.svg", "image/svg+xml"),
             ("/static/assets/stickers/butterfly/wings-down.svg", "image/svg+xml"),
+            ("/static/assets/stickers/puppy/sheet.webp", "image/webp"),
         )
         for path, content_type in cases:
             with urllib.request.urlopen(self.url(path), timeout=5) as r:
@@ -529,7 +530,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
 
         self.assertTrue(manifest["stickers"])
 
-        self.assertEqual(len(manifest["stickers"]), 33)
+        self.assertEqual(len(manifest["stickers"]), 41)
 
         themes_seen = set()
         for kind, package in manifest["stickers"].items():
@@ -544,12 +545,23 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             self.assertIn(package["default_clip"], package["clips"], kind)
             self.assertEqual(package["scale_bounds"], {"min": 0.9, "max": 1.1})
 
-            for sprite_name, path in package["sprites"].items():
+            for sprite_name, sprite in package["sprites"].items():
                 self.assertTrue(sprite_name, kind)
-                self.assertTrue(
-                    path.startswith("static/assets/stickers/%s/" % kind),
-                    (kind, sprite_name, path),
-                )
+                if isinstance(sprite, str):
+                    self.assertTrue(
+                        sprite.startswith("static/assets/stickers/%s/" % kind),
+                        (kind, sprite_name, sprite),
+                    )
+                else:
+                    self.assertIsInstance(sprite, dict, (kind, sprite_name))
+                    self.assertTrue(
+                        sprite["src"].startswith(
+                            "static/assets/stickers/%s/" % kind
+                        ),
+                        (kind, sprite_name, sprite),
+                    )
+                    self.assertEqual(len(sprite["view"]), 4)
+                    self.assertEqual(sprite["sheet_size"], [512, 512])
 
             for clip_name, clip in package["clips"].items():
                 self.assertIsInstance(clip.get("frames"), list,
@@ -563,6 +575,14 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             themes_seen,
             {"farm", "beach", "playground", "space"},
         )
+
+        for kind in (
+                "puppy", "cat", "seagull", "sandcastle",
+                "pinwheel", "jump-rope", "alien", "robot"):
+            self.assertTrue(manifest["stickers"][kind]["precut"], kind)
+            for sprite in manifest["stickers"][kind]["sprites"].values():
+                self.assertIsInstance(sprite, dict, kind)
+                self.assertTrue(sprite["src"].endswith("/sheet.webp"), kind)
 
     def test_each_sticker_carries_its_authoritative_transform(self):
         _, state = self.get("/api/state")
@@ -600,6 +620,10 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             app,
         )
         self.assertIn("_stickerFrameStartedAt = performance.now()", app)
+        self.assertIn("function spriteFrameNode", app)
+        self.assertIn("function applySpriteFrame", app)
+        self.assertIn("'[data-sticker-frame-player="1"]'", app)
+        self.assertIn("!asset.precut", app)
 
 
 class Q1b_AgentInterfacesStayOutsideKernelAuthority(ServerCase):
