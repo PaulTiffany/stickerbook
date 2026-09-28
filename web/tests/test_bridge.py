@@ -240,8 +240,6 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
                 b'id="accessibility-chat"',
                 b'id="accessibility-chat-log"',
                 b'id="accessibility-chat-input"',
-                b'id="adult-text-fallback"',
-                b'id="adult-chat-input"',
                 b'id="dev-close"'):
             self.assertIn(marker, page)
         self.assertIn(
@@ -253,6 +251,9 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             b'Accessibility option: adds a translucent text interface',
             page,
         )
+        self.assertNotIn(b'id="adult-text-fallback"', page)
+        self.assertNotIn(b'id="adult-chat-input"', page)
+        self.assertNotIn(b'Text fallback', page)
 
         with urllib.request.urlopen(
                 self.url("/static/app.js"), timeout=5) as r:
