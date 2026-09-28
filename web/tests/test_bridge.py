@@ -576,6 +576,12 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         self.assertIn("entry.aliases", app)
         self.assertIn("stickerSearch.addEventListener", app)
         self.assertIn("stickerCategory", app)
+        self.assertIn("if (clip && clip.motion)", app)
+        self.assertNotIn(
+            "clip && clip.motion || sticker.animation",
+            app,
+        )
+        self.assertIn("_stickerFrameStartedAt = performance.now()", app)
 
 
 class Q1b_AgentInterfacesStayOutsideKernelAuthority(ServerCase):
