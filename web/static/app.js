@@ -1339,10 +1339,12 @@ function drawStickers(stickers) {
     if (sticker.animation && sticker.animation !== "none") {
       node.classList.add("alive");
       const clip = stickerClip(sticker.definition, sticker.animation);
-      node.setAttribute(
-        "data-alive",
-        clip && clip.motion || sticker.animation
-      );
+      // CSS motion is legacy/explicit only. A v4 clip name such as "flight"
+      // or "flutter" must not silently become a transform animation merely
+      // because an old CSS keyframe happens to share that name.
+      if (clip && clip.motion) {
+        node.setAttribute("data-alive", clip.motion);
+      }
     }
 
     node.addEventListener("pointerdown", (event) => grabPlaced(event, sticker));
