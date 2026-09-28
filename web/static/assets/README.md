@@ -132,7 +132,12 @@ optional page-image gateway to make the two canonical page variants. The
 source may be SVG, PNG, JPEG/JPG, or WebP.
 
 The gateway performs **two image edits against the original upload**. It does
-not create the portrait image by stretching the landscape result.
+not create the portrait image by stretching the landscape result. Because
+OpenRouter image controls vary by model, StickerBook does not assume that a
+provider-specific size parameter exists: the exact canvas is stated in each
+fixed prompt and the returned image dimensions are checked mechanically. A
+wrong-sized provider result is rejected rather than silently stretched,
+cropped, or accepted.
 
 Horizontal job:
 
