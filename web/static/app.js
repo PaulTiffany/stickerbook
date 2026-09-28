@@ -1428,12 +1428,17 @@ async function enterPlay(pageId) {
 
 // --------------------------------------------------------------- input
 
-function pageFraction(event) {
+function pagePoint(event) {
   const ctm = svg.getScreenCTM();
-  if (!ctm) return { x: .5, y: .5 };
+  if (!ctm) return null;
 
-  const point = new DOMPoint(event.clientX, event.clientY)
+  return new DOMPoint(event.clientX, event.clientY)
     .matrixTransform(ctm.inverse());
+}
+
+function pageFraction(event) {
+  const point = pagePoint(event);
+  if (!point) return { x: .5, y: .5 };
 
   const metrics = activePageMetrics();
   const clamp = (value) => Math.min(Math.max(value, 0), 1);
@@ -1444,11 +1449,8 @@ function pageFraction(event) {
 }
 
 function overPage(event) {
-  const ctm = svg.getScreenCTM();
-  if (!ctm) return false;
-
-  const point = new DOMPoint(event.clientX, event.clientY)
-    .matrixTransform(ctm.inverse());
+  const point = pagePoint(event);
+  if (!point) return false;
 
   const metrics = activePageMetrics();
   return point.x >= 0 && point.x <= metrics.width &&
@@ -1509,6 +1511,16 @@ function grabPlaced(event, sticker) {
   const startedAt = performance.now();
   const startX = event.clientX;
   const startY = event.clientY;
+  const metricsAtGrab = activePageMetrics();
+  const pointAtGrab = pagePoint(event);
+  const stickerCenterAtGrab = {
+    x: sticker.x * metricsAtGrab.width,
+    y: sticker.y * metricsAtGrab.height,
+  };
+  const grabOffset = pointAtGrab ? {
+    x: pointAtGrab.x - stickerCenterAtGrab.x,
+    y: pointAtGrab.y - stickerCenterAtGrab.y,
+  } : { x: 0, y: 0 };
   let moved = false;
 
   if (sticker.animation && sticker.animation !== "none") {
@@ -1528,6 +1540,18 @@ function grabPlaced(event, sticker) {
     hotbar.classList.remove("drop-ready");
   };
 
+  const draggedFraction = (pointerEvent) => {
+    const metrics = activePageMetrics();
+    const point = pagePoint(pointerEvent);
+    if (!point) return { x: sticker.x, y: sticker.y };
+
+    const clamp = (value) => Math.min(Math.max(value, 0), 1);
+    return {
+      x: clamp((point.x - grabOffset.x) / metrics.width),
+      y: clamp((point.y - grabOffset.y) / metrics.height),
+    };
+  };
+
   const onMove = (moveEvent) => {
     const distance = Math.hypot(
       moveEvent.clientX - startX,
@@ -1535,13 +1559,12 @@ function grabPlaced(event, sticker) {
     );
     if (distance > 7 && !moved) {
       moved = true;
-      // From here on the sticker's outer translation is the pointer's page
-      // coordinate. The held art itself has no offset, so its rest-state
-      // center stays directly under the pointer.
+      // Preserve where the child actually grabbed the sticker. Starting a
+      // drag must not teleport the sticker center to the pointer.
     }
     if (!moved) return;
 
-    const point = pageFraction(moveEvent);
+    const point = draggedFraction(moveEvent);
     node.setAttribute(
       "transform",
       (() => {
@@ -1589,7 +1612,7 @@ function grabPlaced(event, sticker) {
     await send("/api/propose-move", {
       sticker: sticker.id,
       command_id: nextId("move"),
-      point: pageFraction(upEvent),
+      point: draggedFraction(upEvent),
     });
   };
 
