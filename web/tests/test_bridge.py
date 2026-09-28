@@ -466,6 +466,14 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             ("/static/assets/stickers/jellyfish/drift.svg", "image/svg+xml"),
             ("/static/assets/stickers/hula-hoop/spin.svg", "image/svg+xml"),
             ("/static/assets/stickers/space-station/beacon.svg", "image/svg+xml"),
+            ("/static/assets/stickers/ben-goertzel/gesture.svg", "image/svg+xml"),
+            ("/static/assets/stickers/aubrey-de-grey/think.svg", "image/svg+xml"),
+            ("/static/assets/stickers/ray-kurzweil/point.svg", "image/svg+xml"),
+            ("/static/assets/stickers/david-eagleman/explain.svg", "image/svg+xml"),
+            ("/static/assets/stickers/nick-bostrom/think.svg", "image/svg+xml"),
+            ("/static/assets/stickers/max-more/wave.svg", "image/svg+xml"),
+            ("/static/assets/stickers/natasha-vita-more/present.svg", "image/svg+xml"),
+            ("/static/assets/stickers/eliezer-yudkowsky/explain.svg", "image/svg+xml"),
         )
         for path, content_type in cases:
             with urllib.request.urlopen(self.url(path), timeout=5) as r:
@@ -541,7 +549,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
 
         self.assertTrue(manifest["stickers"])
 
-        self.assertEqual(len(manifest["stickers"]), 57)
+        self.assertEqual(len(manifest["stickers"]), 65)
 
         themes_seen = set()
         for kind, package in manifest["stickers"].items():
@@ -590,6 +598,21 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
                 "hula-hoop", "toy-airplane", "asteroid", "space-station"):
             self.assertIn(added, manifest["stickers"])
             self.assertEqual(len(manifest["stickers"][added]["sprites"]), 4)
+        for added in (
+                "ben-goertzel", "aubrey-de-grey", "ray-kurzweil",
+                "david-eagleman", "nick-bostrom", "max-more",
+                "natasha-vita-more", "eliezer-yudkowsky"):
+            self.assertIn(added, manifest["stickers"])
+            self.assertEqual(len(manifest["stickers"][added]["sprites"]), 4)
+            self.assertEqual(manifest["stickers"][added]["category"], "people")
+            self.assertEqual(
+                set(manifest["stickers"][added]["themes"]),
+                {"farm", "beach", "playground", "space"},
+            )
+        self.assertEqual(
+            sum(1 for key in manifest["stickers"] if "bostrom" in key),
+            1,
+        )
 
     def test_each_sticker_carries_its_authoritative_transform(self):
         _, state = self.get("/api/state")
