@@ -193,9 +193,11 @@ On Windows PowerShell, use `$env:NAME="value"` instead of `export`.
 
 The browser never receives the OpenRouter key. The bridge itself does not hold
 the key or make provider requests; it validates the upload and hands the image
-to the separately started loopback gateway. Generated page drafts are kept
-under ignored local runtime storage (`web/generated_pages/`) until a future
-explicit save/install operation exists.
+to the separately started loopback gateway. Generated page drafts are kept as raster PNG/JPEG/WebP media under ignored
+local runtime storage (`web/generated_pages/`) until a future explicit
+save/install operation exists. SVG is accepted as source artwork and remains
+supported for trusted static assets, but model-generated SVG is not served
+until a sanitizer exists.
 
 ## Page model
 
