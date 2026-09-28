@@ -31,9 +31,9 @@ gallery. A small bottom-right title-page target is reserved for responsible
 adult / developer controls.
 
 The gallery is thumbnail-first. In the public mechanical profile it is driven
-by the asset manifest and currently exposes **Farm, Beach, Park, and Space**,
-plus a **+ Make a page** tile. Each public demo page has independent in-memory
-StickerInstances for the current session.
+by the asset manifest and currently exposes **Farm, Beach, Playground, and
+Space**, plus a **+ Make a page** tile. Each public demo page has independent
+in-memory StickerInstances for the current session.
 
 The governed localhost profile is intentionally stricter: a visual page asset
 does not become a governed page until the authority kernel has page state for
@@ -42,14 +42,18 @@ it. Today that means Farm remains the connected governed page.
 ## Library → sheet → page
 
 The bottom hotbar is the child's working sticker sheet, not the complete
-inventory. It is flush to the screen edges. In landscape, StickerBook reserves
-a bottom control strip for it so the hotbar does not obscure the playable page
-image. In portrait, the image remains maximized while preserving the complete
-native composition.
+inventory. It is flush to the screen edges and owns a reserved bottom control
+strip in both orientations, so it never obscures the governed page surface.
+
+Built-in page artwork is authored directly for that remaining browser rectangle:
+**1916 × 717** landscape and **941 × 1574** portrait. The title/cover uses
+separate **1916 × 821** and **941 × 1672** artboards because it does not share
+space with the hotbar.
 
 The cover, page stage, and gallery thumbnails avoid decorative paper margins.
-Full pages stay uncropped; gallery thumbnails may crop slightly because they
-are previews rather than the playable scene.
+Playable pages use `meet` fitting so the whole coordinate surface remains
+present; gallery thumbnails may crop slightly because they are previews rather
+than the governed play surface.
 
 ```text
 STICKER LIBRARY
@@ -86,13 +90,19 @@ The hotbar has three regions:
 - **+** opens the larger sticker library.
 
 The library also contains a **+ Make a sticker** path. Both page and sticker
-creators expose **Upload** and **Make with StickerBook**. The assisted path is
-an explicit seam for a future local creator agent; the public Pages demo does
-not fake an agent connection.
+creators expose **Upload** and **Make with StickerBook**.
+
+Page uploads accept SVG, PNG, JPEG/JPG, and WebP. On public GitHub Pages the
+selected file remains a local browser preview and is never sent to a model. In
+powered local mode an operator may separately enable the page-image gateway.
+The original upload is then used as the reference for two image-edit jobs:
+**1916 × 717** horizontal and **941 × 1574** portrait. Their filenames follow
+`<name>.<ext>` and `<name>-vertical.<ext>`.
 
 Sticker draft requests target asset schema v2: a validated visual package with
 an idle clip and optional behavior clips containing one or many related frames.
-The creator seam returns drafts only and does not mutate the authority kernel.
+All creator/image seams return drafts only and do not mutate the authority
+kernel or install generated media into a governed page.
 
 ## Page gestures
 
@@ -104,19 +114,25 @@ The creator seam returns drafts only and does not mutate the authority kernel.
 
 Direct human manipulation suspends animation while the sticker is held.
 
-## Conversational / creator agent seams
+## Conversational / creator seams
 
-The browser has two non-authoritative agent endpoints:
+The browser has three non-authoritative creation/language seams:
 
 - `/api/agent/converse` returns language;
-- `/api/creator/draft` returns proposed asset/page draft metadata.
+- `/api/creator/draft` returns proposed asset/page draft metadata;
+- `/api/creator/page-image` accepts a validated raw image upload and, only
+  when an operator-enabled local image gateway is present, returns horizontal
+  and portrait page-image draft metadata.
 
-Neither endpoint is a kernel command path. The runtime receives the fixed
-browser principal and a JSON scene view, not the kernel object. Machine actions
-still belong on the legal-choice / Jev / kernel path.
+None is a kernel command path. The conversational/creator runtime receives the
+fixed browser principal and a JSON scene view, not the kernel object. The
+page-image gateway receives image bytes and edit instructions, but no
+StickerBook principal, kernel object, or world-mutation capability. Machine
+actions still belong on the legal-choice / Jev / kernel path.
 
-The shipped `agent_runtime.py` is disabled and inert. It advertises no agent
-capabilities until a local runtime adapter is explicitly connected.
+The shipped `agent_runtime.py` and page-image runtime are disabled/inert by
+default. Public GitHub Pages ships neither Python runtime nor provider
+credential.
 
 ## Governed localhost path
 
@@ -149,6 +165,35 @@ python bridge.py
 ```
 
 Add `?mechanical=1` to exercise the same public mechanical adapter locally.
+
+### Optional local page-image gateway
+
+Page generation is deliberately a separate process from the bridge. Choose an
+OpenRouter image model that supports reference-image editing and the requested
+output sizes, then start the gateway:
+
+```bash
+cd web
+export OPENROUTER_API_KEY="..."
+export STICKERBOOK_OPENROUTER_IMAGE_MODEL="<editing-capable-model>"
+python image_gateway.py
+```
+
+In another shell, opt the bridge into that loopback service:
+
+```bash
+cd web
+export STICKERBOOK_IMAGE_GATEWAY_URL="http://127.0.0.1:8757"
+python bridge.py
+```
+
+On Windows PowerShell, use `$env:NAME="value"` instead of `export`.
+
+The browser never receives the OpenRouter key. The bridge itself does not hold
+the key or make provider requests; it validates the upload and hands the image
+to the separately started loopback gateway. Generated page drafts are kept
+under ignored local runtime storage (`web/generated_pages/`) until a future
+explicit save/install operation exists.
 
 ## Page model
 
