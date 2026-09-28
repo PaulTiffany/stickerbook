@@ -108,9 +108,20 @@ kernel or install generated media into a governed page.
 
 - drag from hotbar to page: place a StickerInstance;
 - drag a placed sticker: move it;
-- drag a placed sticker back to the hotbar: remove it from the page;
+- drag a placed sticker downward across the hotbar's top edge and release: remove it from the page;
 - while the library is open, drag a hotbar sticker back into the library: remove it from the working sheet;
 - double-tap: toggle the definition's declared mechanical animation.
+
+Removal is intentionally a forgiving **bottom-edge gesture**, not a precision
+drop target. Once a moved sticker crosses the hotbar's top edge, a release
+farther down still means remove, even if pointer capture reports the release
+below the hotbar's visible box.
+
+Letterbox/ambient space around the page is not part of the governed page.
+Dropping a moved sticker into that space does not clamp it onto the nearest
+edge; the browser redraws the last authoritative in-page position instead.
+This is especially relevant to short/wide phone-landscape viewports where
+small side margins may remain.
 
 Direct human manipulation suspends animation while the sticker is held.
 
