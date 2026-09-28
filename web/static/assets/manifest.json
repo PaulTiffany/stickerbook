@@ -2198,51 +2198,51 @@
           "view": [
             0,
             0,
-            256,
-            256
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "flap-up": {
           "src": "static/assets/stickers/seagull/sheet.webp",
           "view": [
-            256,
+            192,
             0,
-            256,
-            256
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "flap-down": {
           "src": "static/assets/stickers/seagull/sheet.webp",
           "view": [
             0,
-            256,
-            256,
-            256
+            192,
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "glide": {
           "src": "static/assets/stickers/seagull/sheet.webp",
           "view": [
-            256,
-            256,
-            256,
-            256
+            192,
+            192,
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         }
       },
@@ -2299,51 +2299,51 @@
           "view": [
             0,
             0,
-            256,
-            256
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "flag": {
           "src": "static/assets/stickers/sandcastle/sheet.webp",
           "view": [
-            256,
+            192,
             0,
-            256,
-            256
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "sparkle": {
           "src": "static/assets/stickers/sandcastle/sheet.webp",
           "view": [
             0,
-            256,
-            256,
-            256
+            192,
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "splash": {
           "src": "static/assets/stickers/sandcastle/sheet.webp",
           "view": [
-            256,
-            256,
-            256,
-            256
+            192,
+            192,
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         }
       },
@@ -2412,51 +2412,51 @@
           "view": [
             0,
             0,
-            256,
-            256
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "turn": {
           "src": "static/assets/stickers/pinwheel/sheet.webp",
           "view": [
-            256,
+            192,
             0,
-            256,
-            256
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "spin": {
           "src": "static/assets/stickers/pinwheel/sheet.webp",
           "view": [
             0,
-            256,
-            256,
-            256
+            192,
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "swoosh": {
           "src": "static/assets/stickers/pinwheel/sheet.webp",
           "view": [
-            256,
-            256,
-            256,
-            256
+            192,
+            192,
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         }
       },
@@ -2524,51 +2524,51 @@
           "view": [
             0,
             0,
-            256,
-            256
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "swing-left": {
           "src": "static/assets/stickers/jump-rope/sheet.webp",
           "view": [
-            256,
+            192,
             0,
-            256,
-            256
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "swing-right": {
           "src": "static/assets/stickers/jump-rope/sheet.webp",
           "view": [
             0,
-            256,
-            256,
-            256
+            192,
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "spin": {
           "src": "static/assets/stickers/jump-rope/sheet.webp",
           "view": [
-            256,
-            256,
-            256,
-            256
+            192,
+            192,
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         }
       },
@@ -2628,51 +2628,51 @@
           "view": [
             0,
             0,
-            256,
-            256
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "wave": {
           "src": "static/assets/stickers/alien/sheet.webp",
           "view": [
-            256,
+            192,
             0,
-            256,
-            256
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "float": {
           "src": "static/assets/stickers/alien/sheet.webp",
           "view": [
             0,
-            256,
-            256,
-            256
+            192,
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "hop": {
           "src": "static/assets/stickers/alien/sheet.webp",
           "view": [
-            256,
-            256,
-            256,
-            256
+            192,
+            192,
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         }
       },
@@ -2740,51 +2740,51 @@
           "view": [
             0,
             0,
-            256,
-            256
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "wave": {
           "src": "static/assets/stickers/robot/sheet.webp",
           "view": [
-            256,
+            192,
             0,
-            256,
-            256
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "step": {
           "src": "static/assets/stickers/robot/sheet.webp",
           "view": [
             0,
-            256,
-            256,
-            256
+            192,
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         },
         "beep": {
           "src": "static/assets/stickers/robot/sheet.webp",
           "view": [
-            256,
-            256,
-            256,
-            256
+            192,
+            192,
+            192,
+            192
           ],
           "sheet_size": [
-            512,
-            512
+            384,
+            384
           ]
         }
       },
