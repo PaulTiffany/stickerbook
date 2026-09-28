@@ -594,11 +594,6 @@ button:focus-visible, a:focus-visible, label:focus-within {
   transition: transform .13s ease, filter .13s ease, opacity .13s ease;
 }
 
-.sticker:hover .art {
-  transform: translateY(-2px) scale(1.025);
-  filter: drop-shadow(0 6px 4px rgba(52,47,39,.25));
-}
-
 .sticker.held { cursor: grabbing; }
 
 .sticker.held .art {
@@ -1164,8 +1159,18 @@ button:focus-visible, a:focus-visible, label:focus-within {
 }
 
 .adult-toggle input {
-  width: 18px;
-  height: 18px;
+  position: relative;
+  z-index: 1;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.adult-toggle span {
+  pointer-events: none;
 }
 
 .adult-note {
@@ -1228,13 +1233,35 @@ button:focus-visible, a:focus-visible, label:focus-within {
   width: 300px;
   max-height: min(78vh, 680px);
   overflow: auto;
-  padding: 12px;
+  padding: 42px 12px 12px;
   border: 1px solid #cdc7bb;
   border-radius: 10px;
   background: rgba(255,255,255,.95);
   box-shadow: 0 6px 22px rgba(30,30,30,.17);
   font-size: 13px;
   user-select: text;
+}
+
+.dev-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  border: 1px solid #cdc7bb;
+  border-radius: 50%;
+  background: rgba(255,255,255,.96);
+  color: #5d655f;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.dev-close:hover,
+.dev-close:focus-visible {
+  background: #fff;
+  color: #26352c;
 }
 
 #dev .row {

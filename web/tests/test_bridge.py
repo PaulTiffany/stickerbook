@@ -241,7 +241,8 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
                 b'id="accessibility-chat-log"',
                 b'id="accessibility-chat-input"',
                 b'id="adult-text-fallback"',
-                b'id="adult-chat-input"'):
+                b'id="adult-chat-input"',
+                b'id="dev-close"'):
             self.assertIn(marker, page)
         self.assertIn(
             b'href="https://github.com/PaulTiffany/stickerbook"',
@@ -257,7 +258,19 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
                 self.url("/static/app.js"), timeout=5) as r:
             app = r.read().decode("utf-8")
         self.assertIn(
-            "textChatEnabled &&\n      onPlaySurface",
+            'const stub = world.name === "public mechanical";',
+            app,
+        )
+        self.assertIn(
+            "const textAvailable = connected || stub;",
+            app,
+        )
+        self.assertIn(
+            "textAvailable &&\n      textChatEnabled",
+            app,
+        )
+        self.assertIn(
+            "Public demo chat only — no model is connected.",
             app,
         )
         self.assertIn(
@@ -266,6 +279,14 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         )
         self.assertIn(
             'converseWithStickerBook(transcript, true, textChatEnabled)',
+            app,
+        )
+        self.assertIn(
+            'document.getElementById("dev-close").addEventListener',
+            app,
+        )
+        self.assertIn(
+            'url.searchParams.delete("dev")',
             app,
         )
 
@@ -278,6 +299,17 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         self.assertIn("position: fixed;", chat_rule)
         self.assertIn("background: rgba(255,253,247,.72);", chat_rule)
         self.assertIn("backdrop-filter: blur(12px)", chat_rule)
+
+        checkbox_start = css.index(".adult-toggle input {")
+        checkbox_end = css.index("}", checkbox_start)
+        checkbox_rule = css[checkbox_start:checkbox_end]
+        self.assertIn("width: 22px;", checkbox_rule)
+        self.assertIn("height: 22px;", checkbox_rule)
+        self.assertIn("pointer-events: auto;", checkbox_rule)
+        self.assertIn("cursor: pointer;", checkbox_rule)
+
+        self.assertIn(".adult-toggle span {\n  pointer-events: none;", css)
+        self.assertNotIn(".sticker:hover .art", css)
 
     def test_phone_layout_is_edge_to_edge_without_cropping_native_art(self):
         with urllib.request.urlopen(self.url("/"), timeout=5) as r:
