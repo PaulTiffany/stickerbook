@@ -161,6 +161,7 @@ function clipImage(clip) {
     image._stickerFrames = clip.frames.slice();
     image._stickerFrameMs = Math.max(40, Number(clip.frame_ms) || 120);
     image._stickerLoop = clip.loop !== false;
+    image._stickerFrameStartedAt = performance.now();
     image.dataset.stickerFrameIndex = "0";
   }
 
@@ -185,7 +186,8 @@ function startStickerFrameTicker() {
         if (frames.length < 2) continue;
 
         const ms = image._stickerFrameMs || 120;
-        let index = Math.floor(now / ms);
+        const startedAt = Number(image._stickerFrameStartedAt) || now;
+        let index = Math.floor(Math.max(0, now - startedAt) / ms);
 
         if (image._stickerLoop) {
           index %= frames.length;
