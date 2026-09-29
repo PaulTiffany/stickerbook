@@ -280,6 +280,8 @@ action question (tested).
 
 ## 4. Network boundary
 
+### Verified gateway profile (`jevTransport=gateway`)
+
 **Allowed destination: exactly one, and the agent has no other route.**
 
 ```
@@ -310,12 +312,14 @@ code has been deleted from the image.
 
 ## 5. Secret handling
 
-**The API key is never in the agent's container at all.**
+### Verified gateway credential profile
+
+**The API key is never in the agent's container at all in gateway mode.**
 
 Since the gateway was separated, `OPENROUTER_API_KEY` is not passed to the
 agent container in any form — verified against both the image config and a
 running container. What follows describes the additional upstream protections
-that remain in force.
+that remain in force for `jevTransport=gateway`.
 
 1. The key is supplied to the **gateway** container only, as
    `OPENROUTER_API_KEY`. It is never passed to the agent container.
@@ -350,6 +354,42 @@ Docker with `-e OPENROUTER_API_KEY` (name only, value from the environment).
 ```powershell
 [Environment]::SetEnvironmentVariable("OPENROUTER_API_KEY", $null, "User")
 ```
+
+### OpenShell provider profile (`jevTransport=openshell`)
+
+**IMPLEMENTED, NOT YET RUNTIME-VERIFIED.** The OpenShell deployment mode is a
+separate containment profile; it does not inherit the gateway profile's
+mechanical verification above.
+
+In this mode the sandbox base policy contains no network rules. An attached
+StickerBook-specific OpenShell provider contributes the sole OpenRouter
+endpoint. The real provider secret remains at the OpenShell boundary. The
+OmegaJev process receives only OpenShell's provider placeholder in
+`OPENROUTER_API_KEY` and presents that placeholder as a bearer token to
+`https://openrouter.ai/api/alpha/decisions`; OpenShell substitutes the real
+credential only on the policy-approved route.
+
+This means two gateway-profile sentences must **not** be generalized to the
+OpenShell profile:
+
+* the OpenShell sandbox may reach the policy-approved OpenRouter endpoint;
+* the OmegaJev process can observe the provider placeholder value, though not
+  the real OpenRouter secret.
+
+The derived `Dockerfile.openshell` runs as uid/gid 65534 and bypasses Omega's
+root entrypoint and legacy nginx startup. The separate OpenShell base policy
+limits writable filesystem state to the declared memory/temporary paths.
+
+OpenShell binds network authorization to the kernel-resolved executable path
+(`/proc/<pid>/exe`). The checked-in provider profile therefore remains
+provisional until a live sandbox proves the canonical SWI-Prolog executable
+path, effective provider policy, denied non-OpenRouter destinations, and
+credential substitution. See `../openshell/README.md`.
+
+The Jev semantics above this transport do not change: Jev still selects only a
+host-offered typed key, `sb-apply` remains the zero-argument compilation
+target in StickerBook mode, and the authority kernel still independently
+accepts or refuses every mutation.
 
 ---
 
