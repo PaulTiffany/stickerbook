@@ -433,6 +433,17 @@ edge navigation as visually complete.
 
 ## Tests
 
+Each `/api/agent/converse` turn records a bounded host-owned interaction
+episode. The browser supplies the transcript or typed text, optional point or
+box, and descriptive `input_mode` (`voice` or `text`). The host stamps the
+episode ID, sequence and scene revision, then associates the newest four
+sticker drags observed since the previous linguistic turn in observation
+order. The browser cannot select historical drag IDs. OmegaLLM receives these
+facts without raw trajectory samples or geometry labels. A failed inference
+still records the input and advances the drag cursor; the current episode is
+the only interaction record supplied to that OmegaLLM call. Recording does
+not mutate the world. Audio is never retained by this record.
+
 ```bash
 cd web
 python -m unittest discover -s tests

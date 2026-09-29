@@ -316,6 +316,20 @@ class StickerDragLog:
     def for_subject(self, subject_id) -> Tuple[StickerDragTrace, ...]:
         return tuple(t for t in self._traces if t.subject_id == subject_id)
 
+    def after(self, marker) -> Tuple[StickerDragTrace, ...]:
+        """Traces recorded after `marker`, oldest first.
+
+        `marker` is a trace id previously returned by this log. If it is None,
+        or has already been evicted from the bounded window, everything still
+        retained is newer than it, which is the honest answer.
+        """
+        if marker is None:
+            return tuple(self._traces)
+        for index, trace in enumerate(self._traces):
+            if trace.trace_id == marker:
+                return tuple(self._traces[index + 1:])
+        return tuple(self._traces)
+
     def traces(self) -> Tuple[StickerDragTrace, ...]:
         return tuple(self._traces)
 

@@ -3131,7 +3131,10 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
   const reference = deicticPayload(pendingDeicticReference);
 
   try {
-    const body = { text: clean };
+    // Whether the child spoke or typed. The browser owns the microphone and
+    // the keyboard, so it is the only thing that honestly knows. Descriptive
+    // only: it carries no authority and nothing branches on it.
+    const body = { text: clean, input_mode: aloud ? "voice" : "text" };
     if (reference) body.reference = reference;
     const payload = await world.converse(body);
 
