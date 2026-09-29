@@ -306,6 +306,28 @@ object merely by being pointed at, and is not automatically projected into a
 Jev view. This preserves the views-as-capabilities rule: conversational
 reference does not silently widen the decision actor's observation surface.
 
+### Documentation projection is also a view capability
+
+The in-app documentation source, `web/static/help.json`, has separate
+`child` and `adult` branches.
+
+The browser may render both branches. OmegaLLM receives only the child branch,
+copied into its bounded conversation scene as `child_help`. The responsible-
+adult branch is deliberately excluded from the model's observation surface.
+
+The child branch is mechanically checked to exclude operator/setup vocabulary
+such as API keys, OpenRouter, OpenShell, Docker/WSL, repository administration,
+provider credentials, launcher commands, and policy approval.
+
+This is an audience/observation boundary, not a secrecy claim. The parent guide
+is static UI data and may be visible to a person inspecting the public site.
+What matters is that model observation remains role-appropriate.
+
+**Status: VERIFIED (web host/static seam)** by
+`web/tests/test_help_content.py`: child/adult schema separation, child-only
+OmegaLLM projection, forbidden operator vocabulary in the child branch, and
+presence of both in-app surfaces.
+
 ## 6. Typed action surfaces
 
 **REQUIRED.** All agent-caused mutation passes through a small typed command
@@ -1183,8 +1205,9 @@ next conversation turn, then is cleared.
 
 ### OmegaLLM
 
-The live host adapter accepts only a loopback URL. The sandbox provider may
-return:
+The live host adapter accepts only a loopback URL. Its bounded scene includes
+the child-facing `child_help` projection but not the responsible-adult guide.
+The sandbox provider may return:
 
 - `reply`: bounded child-facing text;
 - optional `goal`: `subject`, `intent`, optional behavior/target/facing/
