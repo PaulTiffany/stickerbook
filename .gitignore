@@ -14,6 +14,7 @@ venv/
 chroma_db/
 memory/
 web/generated_pages/
+.stickerbook-runtime/
 
 # Secrets. Nothing here should ever exist in this repository; the pattern
 # list is a backstop, not the mechanism. The mechanism is that the API key
