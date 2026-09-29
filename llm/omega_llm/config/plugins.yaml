@@ -1,0 +1,15 @@
+# Minimal plugin set for StickerBook's conversational Omega loop.
+# There is no Telegram/Slack/IRC/WebSocket channel, workflow plugin, OpenClaw,
+# Jev provider, or authority kernel in this image.
+
+- name: stickerbookrpc-skill
+  loader: metta
+  location: "{REPO}/plugins/stickerbookrpc"
+
+- name: stickerbookrpc
+  loader: python
+  location: "{REPO}/channels"
+
+- name: stickerbook-llm
+  loader: python
+  location: "{REPO}/providers"
