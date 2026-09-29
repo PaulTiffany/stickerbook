@@ -365,5 +365,13 @@ modifications are recorded under `jev/`.
 
 ## License
 
-MIT, © 2026 Paul Carver Tiffany III. See [`LICENSE`](LICENSE).
-Third-party attributions are in [`NOTICE`](NOTICE).
+StickerBook-authored code and documentation are MIT, © 2026 Paul Carver
+Tiffany III, unless a file states otherwise. See [`LICENSE`](LICENSE).
+
+The MIT grant does **not** relicense the third-party software, runtime
+substrates, container/base images, hosted inference services/models, browser
+speech/platform APIs, or external deployment services that StickerBook uses.
+Those components retain their own licenses and/or service terms. See
+[`NOTICE`](NOTICE) for the runtime/tool attribution ledger, including Omega,
+NVIDIA OpenShell, PeTTa/MeTTa, Jev/OpenRouter, SWI-Prolog, browser Web Speech
+APIs, Docker/WSL2, and related infrastructure.

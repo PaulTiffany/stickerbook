@@ -2,6 +2,12 @@ StickerBook
 Copyright (c) 2026 Paul Carver Tiffany III
 Licensed under the MIT License. See LICENSE.
 
+The MIT License applies to StickerBook-authored code and documentation unless
+a file states otherwise. It does not relicense third-party software, runtime
+substrates, base images, hosted services or models, browser/platform APIs, or
+external deployment services used by StickerBook. Those components remain
+subject to their own licenses and/or service terms.
+
 ================================================================================
 Third-party projects
 ================================================================================
@@ -108,44 +114,88 @@ https://github.com/trueagi-io
   built on the Hyperon AGI stack. MeTTa is the language PeTTa implements.
 
 ================================================================================
-Services and base images
+Runtime services, models, platform APIs, base images, and host substrate
 ================================================================================
 
 OpenRouter - https://openrouter.ai
   Required for OmegaJev's Decisions API transport and available as an optional
   OmegaLLM inference lane. The separate page-image gateway may also use
-  OpenRouter. Used as a service under OpenRouter's own terms.
+  OpenRouter. This is a hosted service, not MIT-licensed StickerBook code;
+  use is subject to OpenRouter's own terms and the terms applicable to models
+  served through it.
 
 ASI Cloud
   Optional sponsored OmegaLLM inference lane. StickerBook's current sponsored
-  preset uses minimax/minimax-m3. Used as a service under the provider's own
-  terms.
+  preset uses minimax/minimax-m3. This is a hosted inference service and remains
+  subject to the provider's own terms.
 
 Anthropic - https://www.anthropic.com
-  Optional direct OmegaLLM inference lane for configured Claude models. Used
-  as a service under Anthropic's own terms.
+  Optional direct OmegaLLM inference lane for configured Claude models.
+  Anthropic's API/service and hosted models remain subject to Anthropic's own
+  terms.
 
 OpenAI - https://openai.com
-  Optional direct OmegaLLM inference lane. Used as a service under OpenAI's
-  own terms.
+  Optional direct OmegaLLM inference lane. OpenAI's API/service and hosted
+  models remain subject to OpenAI's own terms.
 
 ASI:One - https://asi1.ai
-  Optional direct OmegaLLM inference lane. Used as a service under the
-  provider's own terms.
+  Optional direct OmegaLLM inference lane. The service and hosted models remain
+  subject to the provider's own terms.
 
 TypeSafe Jev - model typesafe/jev-1.13, served via OpenRouter.
-  The typed discriminative decision model this experiment is built around.
+  The typed discriminative decision model used by OmegaJev. The model/service
+  is not relicensed by StickerBook's MIT License.
 
 SWI-Prolog - https://www.swi-prolog.org
   Simplified BSD license. Used via the official `swipl:10.0.2` Docker image,
   which is the base of the Omega experiment image.
 
+Python - https://www.python.org
+  The StickerBook authority kernel and local browser bridge run on Python 3 and
+  primarily use the Python standard library. Python retains its own upstream
+  licensing; StickerBook's MIT License covers StickerBook-authored Python code,
+  not the Python runtime itself.
+
 nginx - https://nginx.org
   2-clause BSD license. Used via the official `nginx:1.27-alpine` Docker
-  image as the isolated credential gateway (jev/gateway/).
+  image as the isolated credential gateway in the older verified
+  `jev/gateway/` deployment profile.
 
-Landlock - the Linux kernel sandbox used by Omega's filesystem policy, via
-  the py-landlock package listed in Omega's requirements.
+Linux Landlock / py-landlock
+  Landlock is the Linux kernel security mechanism used by Omega's older
+  filesystem-policy path; py-landlock is an upstream dependency in Omega's
+  requirements. These are containment mechanisms, not StickerBook authority,
+  and retain their own upstream licensing.
+
+Browser Web Speech APIs
+  StickerBook's optional child voice path uses browser-provided
+  `SpeechRecognition` / `webkitSpeechRecognition` for speech-to-text and
+  `SpeechSynthesisUtterance` / `window.speechSynthesis` for spoken replies.
+  StickerBook does not bundle a speech-recognition or speech-synthesis engine.
+  The browser, operating system, or browser-selected speech service may process
+  audio/text under its own software license, privacy policy, and service terms.
+
+Browser platform: HTML, CSS, JavaScript, SVG, DOM and Web APIs
+  The child UI and public mechanical demo use browser-native web-platform
+  features rather than a front-end framework. These platform APIs/standards are
+  not StickerBook-authored libraries and are not relicensed by the project.
+
+Docker / Docker Desktop
+  Docker is the operator-controlled container substrate used to build and run
+  the local Omega/OpenShell environment. Docker Desktop is part of the recorded
+  Windows development-host setup. Neither Omega role receives the Docker socket.
+  Docker software and services retain their own upstream licenses and/or terms.
+
+Windows Subsystem for Linux 2 (WSL2) / Windows
+  The normal development-host launcher enters WSL2 Ubuntu from Windows to run
+  the trusted local lifecycle scripts. Windows, WSL2, and the Linux
+  distribution are host-platform dependencies under their respective vendor
+  and distribution terms; they are not covered by StickerBook's MIT grant.
+
+GitHub Actions / GitHub Pages - https://github.com
+  GitHub Actions is used for CI and static contract checks. GitHub Pages hosts
+  the public mechanical demo. These are external hosting/build services, not
+  components licensed under StickerBook's MIT License.
 
 ================================================================================
 
