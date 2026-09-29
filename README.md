@@ -19,9 +19,9 @@ it.
 
 | | |
 |---|---|
-| **`core/`** | Headless authority kernel: principals, sticker ownership, revisions, receipts, deployment ceilings, action budgets, and legal-action tables. Standard library only. 67 tests. |
+| **`core/`** | Headless authority kernel: principals, sticker ownership, revisions, receipts, deployment ceilings, action budgets, and legal-action tables. Standard library only; mechanically tested. |
 | **`web/`** | Child-facing StickerBook surface with a title page, image-forward page gallery, active page, working sticker hotbar, overlay sticker library, mechanical animations, and responsible-adult/developer access. The same renderer supports a governed localhost world and a mechanical public world. |
-| **`jev/`** | OmegaJev: typed Jev decision selection inside a bounded Omega path. The model selects from host-provided legal choices; the host validates the choice and the kernel decides. 40 unit tests plus container/host verification suites. |
+| **`jev/`** | OmegaJev: typed Jev decision selection inside a bounded Omega path. The model selects from host-provided legal choices; the host validates the choice and the kernel decides. Unit tests plus container/host verification suites. |
 | **`openshell/` + `runtime/`** | Pinned OpenShell v0.1.2 containment plus governed local orchestration: separate non-root OmegaLLM/OmegaJev sandboxes, role-specific provider profiles, loopback-only runtime adapters, voice-first conversation wiring, and one-command Windows/WSL start/stop. Mechanically checked; live WSL2/OpenShell proof remains a deployment milestone. |
 
 ## Child-facing navigation
