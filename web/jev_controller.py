@@ -42,8 +42,9 @@ from stickerbook_core import (  # noqa: E402
 )
 
 from governed_history import (  # noqa: E402
-    ORIGIN_GESTURE_JEV, ORIGIN_OMEGALLM_JEV, ORIGIN_PATTERN_PERFORM,
-    ORIGIN_PATTERN_REPLAY,
+    ORIGIN_GESTURE_JEV, ORIGIN_HUMAN_GESTURE, ORIGIN_OMEGALLM_JEV,
+    ORIGIN_PATTERN_PERFORM, ORIGIN_PATTERN_REPLAY,
+    ORIGIN_TRAJECTORY_MECHANICAL,
 )
 from pattern_memory import (  # noqa: E402
     COMPLETED, MODE_AGENT, MODE_MECHANICAL, PARTIAL, PatternReplayRecord,
@@ -51,8 +52,15 @@ from pattern_memory import (  # noqa: E402
     split_key, steps_from_trace, valid_label,
 )
 
+import trajectory_execution  # noqa: E402
+
 OMEGA_LLM_ID = "agent:omega-llm"
 OMEGA_JEV_ID = "agent:jev-visual-1"
+# The deterministic reference selector. Named in receipts so a trajectory
+# move is never mistaken for a hand drag, exactly as a Jev-selected move is
+# not: `selected_by` records that a controller chose this, under the child's
+# authority, and the kernel reads it to preserve the chosen clip.
+MECHANICAL_SELECTOR_ID = "host:trajectory-argmin"
 MOVE_STEP = 0.06
 MAX_GOAL_TURNS = 6
 
@@ -80,7 +88,8 @@ class JevController:
     """Finite choice adapter around a Jev decision runtime."""
 
     def __init__(self, kernel, runtime, selector_id: str = OMEGA_JEV_ID,
-                 patterns=None, history=None, replays=None, world_lock=None):
+                 patterns=None, history=None, replays=None, world_lock=None,
+                 executions=None):
         self.kernel = kernel
         self.runtime = runtime
         self.selector_id = selector_id
@@ -99,6 +108,9 @@ class JevController:
         # events; neither possesses authority.
         self.history = history
         self.replays = replays
+        # Bounded audit of trajectory-following attempts. Observation only:
+        # absent, following still works and is simply not logged.
+        self.executions = executions
 
     def _world(self):
         """Hold the host world lock, when one was supplied, or nothing."""
@@ -887,6 +899,279 @@ class JevController:
             planned=planned, stopped_at=stopped_at,
             stopped_reason=stopped_reason)
         return self._replay_payload(record, pattern, subject_id)
+
+    # -- following a demonstrated trajectory ---------------------------
+    #
+    # A resolved trajectory reference is frozen observation of what the child
+    # drew. Following it is an ordinary bounded control loop: the host derives
+    # one CURRENT local objective, builds the CURRENT move_only legal surface,
+    # a selector picks one offered key, and the kernel decides. Nothing is
+    # precompiled, so possessing a trajectory grants no more than the right to
+    # propose one ordinary move at a time.
+    #
+    # `select` is the seam. The deterministic argmin below is the reference
+    # implementation; a powered follower swaps in a chooser with the same
+    # signature and reuses the objective, progress, table, revision, audit,
+    # completion and boundary behaviour unchanged.
+
+    def _history_watermark(self) -> int:
+        """The newest governed sequence number the host has recorded."""
+        if self.history is None:
+            return 0
+        entries = self.history.entries()
+        return entries[-1].sequence if entries else 0
+
+    def _human_moved_since(self, subject_id: str, watermark: int) -> bool:
+        """Did the CHILD themselves move this sticker since the snapshot?
+
+        Deliberately narrow. A global revision change is not evidence: the
+        kernel's staleness check is per-sticker, and other paths can mutate
+        this same subject. Only an accepted direct-gesture record for THIS
+        subject, newer than the snapshot, establishes supersession.
+        """
+        if self.history is None:
+            return False
+        for entry in self.history.entries():
+            if entry.sequence > watermark and entry.accepted \
+                    and entry.subject_id == subject_id \
+                    and entry.origin == ORIGIN_HUMAN_GESTURE:
+                return True
+        return False
+
+    @staticmethod
+    def _mechanical_choice(snapshot: dict) -> dict:
+        """Deterministic reference selector: nearest offered destination.
+
+        Only real MOVE choices compete; NOOP is not a geometric candidate.
+        Ties are broken by action key, so a page edge that offers two keys
+        with the same clamped destination always yields the same recorded
+        key -- a bookkeeping choice, not a different physical path.
+        """
+        objective = snapshot["objective"]
+        target = (objective["x"], objective["y"])
+        ranked = sorted(
+            snapshot["destinations"].items(),
+            key=lambda item: (
+                trajectory_execution.distance(item[1], target), item[0]))
+        if not ranked:
+            return {"ok": False, "error": "no-move-candidates"}
+        return {"ok": True, "choice": ranked[0][0]}
+
+    def follow_trajectory(self, reference, *, actor, command_prefix,
+                          requested_by, select=None, mode=MODE_MECHANICAL,
+                          origin=ORIGIN_TRAJECTORY_MECHANICAL,
+                          selected_by=MECHANICAL_SELECTOR_ID,
+                          translated_by=None):
+        """Follow one resolved subject-frame trajectory, step by step."""
+        if reference.frame != trajectory_execution.FRAME_SUBJECT:
+            return {"ok": False, "error": trajectory_execution.NOT_EXECUTABLE}
+        points = reference.resolved_samples
+        if not points:
+            return {"ok": False, "error": trajectory_execution.NO_GEOMETRY}
+
+        subject_id = reference.subject
+        goal = {"subject": subject_id}
+        select = select or self._mechanical_choice
+        reach = MOVE_STEP
+
+        execution_id = self._next_execution_id()
+        planned = trajectory_execution.planned_steps(points, reach)
+        steps = []
+        progress = 0
+        complete = False
+        stopped_at = None
+        stopped_reason = None
+        with self._world():
+            starting_revision = self.kernel.revision
+
+        while True:
+            # 1. One coherent read: subject, progress, objective, the current
+            # move_only surface, and the revision they all describe.
+            with self._world():
+                subject = self.kernel.sticker(subject_id)
+                if subject is None:
+                    table = moves = None
+                    revision = self.kernel.revision
+                    position = None
+                else:
+                    position = (subject.x, subject.y)
+                    progress = trajectory_execution.advance(
+                        points, progress, position, reach)
+                    table, moves = self._table(
+                        actor, goal, move_only=True)
+                    revision = self.kernel.revision
+                watermark = self._history_watermark()
+
+            if subject is None:
+                stopped_at = len(steps) + 1
+                stopped_reason = \
+                    trajectory_execution.STOPPED_UNKNOWN_SUBJECT
+                break
+
+            # 2. Completion is host bookkeeping, checked BEFORE selection so
+            # it can never be confused with a selector declining.
+            if trajectory_execution.is_complete(
+                    points, progress, position, reach):
+                complete = True
+                break
+
+            if len(steps) >= planned:
+                stopped_at = len(steps) + 1
+                stopped_reason = trajectory_execution.STOPPED_BUDGET
+                break
+
+            objective = trajectory_execution.objective_of(points, progress)
+            # Only real moves are geometric candidates. NOOP stays in the
+            # table the selector sees, because that is the honest legal
+            # surface, but it does not compete on distance.
+            move_keys = {
+                key: command for key, command in table.items()
+                if command.action == MOVE_STICKER}
+            if not move_keys:
+                stopped_at = len(steps) + 1
+                stopped_reason = \
+                    trajectory_execution.STOPPED_NO_LEGAL_MOVES
+                break
+
+            destinations = {
+                key: (command.param("x"), command.param("y"))
+                for key, command in move_keys.items()}
+            # 3. Unreachability is host-determined, also before selection. If
+            # nothing offered gets strictly closer, say so truthfully rather
+            # than deforming the reference or improvising a detour.
+            here = trajectory_execution.distance(position, objective)
+            if not any(trajectory_execution.distance(d, objective) < here
+                       for d in destinations.values()):
+                stopped_at = len(steps) + 1
+                stopped_reason = trajectory_execution.STOPPED_UNREACHABLE
+                break
+
+            snapshot = {
+                "pathRef": reference.path_ref,
+                "frame": reference.frame,
+                "subject": {"id": subject_id, "x": subject.x, "y": subject.y},
+                "progressIndex": progress,
+                "waypointCount": len(points),
+                "remaining": len(points) - 1 - progress,
+                "objective": {"x": objective[0], "y": objective[1]},
+                "error": {"dx": objective[0] - position[0],
+                          "dy": objective[1] - position[1],
+                          "distance": here},
+                "next": [{"x": p.x, "y": p.y}
+                         for p in points[progress + 1:progress + 3]],
+                "revision": revision,
+                # The honest current legal surface, NOOP included, as a
+                # powered chooser must see it.
+                "actions": self._describe_actions(table),
+                # Only real moves carry a destination, so only they can
+                # compete on distance.
+                "destinations": dict(destinations),
+            }
+
+            # 4. The selector seam, with NO world lock held. Deterministic
+            # here, but structurally identical to a powered chooser: a child
+            # must be able to interact while a selection is being made.
+            try:
+                decision = select(snapshot)
+            except Exception:
+                stopped_at = len(steps) + 1
+                stopped_reason = \
+                    trajectory_execution.STOPPED_SELECTOR_ERROR
+                break
+            if not isinstance(decision, dict) or not decision.get("ok"):
+                stopped_at = len(steps) + 1
+                stopped_reason = \
+                    trajectory_execution.STOPPED_SELECTOR_ERROR
+                break
+            choice = decision.get("choice")
+            if choice == "NOOP":
+                stopped_at = len(steps) + 1
+                stopped_reason = \
+                    trajectory_execution.STOPPED_SELECTOR_DECLINED
+                break
+            if not isinstance(choice, str) or choice not in move_keys:
+                stopped_at = len(steps) + 1
+                stopped_reason = \
+                    trajectory_execution.STOPPED_INVALID_CHOICE
+                break
+
+            # 5. Submit against the revision THIS table was built from. The
+            # table's move destinations are absolute, so refreshing the
+            # revision here would apply an old coordinate as current.
+            with self._world():
+                receipt = self.kernel.propose_key(
+                    actor,
+                    choice,
+                    "%s-%d" % (command_prefix, len(steps) + 1),
+                    based_on_revision=revision,
+                    requested_by=requested_by,
+                    translated_by=translated_by,
+                    selected_by=selected_by,
+                    move_candidates=moves,
+                )
+                self._record(receipt, origin=origin, key=choice,
+                             subject_id=subject_id)
+
+            superseded = (
+                not receipt.accepted
+                and receipt.reason == "stale-revision"
+                and self._human_moved_since(subject_id, watermark))
+            steps.append(trajectory_execution.TrajectoryStepRecord(
+                index=len(steps) + 1, objective_index=progress,
+                objective=objective, submitted=True, choice=choice,
+                receipt=receipt.to_dict(), superseded=superseded))
+
+            if not receipt.accepted:
+                stopped_at = len(steps)
+                if receipt.reason != "stale-revision":
+                    stopped_reason = trajectory_execution.STOPPED_REFUSED
+                elif superseded:
+                    # The child is the higher-authority actor. Their move
+                    # stands, the attempt stops, and nothing re-aims.
+                    stopped_reason = \
+                        trajectory_execution.STOPPED_SUPERSEDED
+                else:
+                    # Truthfully neutral: this same subject changed by some
+                    # other path. Claiming the child did it would be a
+                    # fabricated provenance.
+                    stopped_reason = \
+                        trajectory_execution.STOPPED_WORLD_CHANGED
+                break
+
+        record = trajectory_execution.TrajectoryExecutionRecord(
+            execution_id=execution_id, path_ref=reference.path_ref,
+            frame=reference.frame, source_episode=reference.source_episode,
+            subject_id=subject_id, requested_by=requested_by, mode=mode,
+            starting_revision=starting_revision, waypoint_count=len(points),
+            planned_steps=planned, steps=tuple(steps),
+            progress_reached=progress,
+            result=trajectory_execution.result_of(steps, complete),
+            stopped_at=stopped_at, stopped_reason=stopped_reason)
+        if self.executions is not None:
+            self.executions.add(record)
+        payload = {
+            "ok": record.result == COMPLETED,
+            "result": record.result,
+            "subject": subject_id,
+            "pathRef": reference.path_ref,
+            "frame": reference.frame,
+            "plannedSteps": record.planned_steps,
+            "submittedSteps": record.submitted_steps,
+            "acceptedSteps": record.accepted_steps,
+            "progressReached": record.progress_reached,
+            "execution": record.to_dict(),
+        }
+        if record.stopped_reason:
+            payload["error"] = record.stopped_reason
+        return payload
+
+    def _next_execution_id(self) -> str:
+        if self.executions is not None:
+            return self.executions.next_execution_id()
+        self._local_execution_counter = getattr(
+            self, "_local_execution_counter", 0) + 1
+        return "trajectory-local-%d" % self._local_execution_counter
+
 
     # -- semantic goal dispatch ---------------------------------------
 

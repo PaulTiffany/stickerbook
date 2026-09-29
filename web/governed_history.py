@@ -34,6 +34,11 @@ ORIGIN_OMEGALLM_JEV = "omegallm-jev"
 ORIGIN_GESTURE_JEV = "gesture-jev"
 ORIGIN_PATTERN_REPLAY = "pattern-replay"
 ORIGIN_PATTERN_PERFORM = "pattern-perform"
+# Following a resolved trajectory reference. Separate from the human gesture
+# that DEMONSTRATED the path, so "the child moved this sticker themselves"
+# stays distinguishable from "a controller moved it along what they drew".
+ORIGIN_TRAJECTORY_MECHANICAL = "trajectory-mechanical"
+ORIGIN_TRAJECTORY_AGENT = "trajectory-agent"
 
 ORIGINS = frozenset({
     ORIGIN_HUMAN_GESTURE,
@@ -41,6 +46,8 @@ ORIGINS = frozenset({
     ORIGIN_GESTURE_JEV,
     ORIGIN_PATTERN_REPLAY,
     ORIGIN_PATTERN_PERFORM,
+    ORIGIN_TRAJECTORY_MECHANICAL,
+    ORIGIN_TRAJECTORY_AGENT,
 })
 
 MAX_HISTORY = 128
