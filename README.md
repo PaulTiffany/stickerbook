@@ -209,6 +209,17 @@ control, but voice is disabled by default and must be enabled for the current
 session from the responsible-adult panel. A text fallback exists there for
 accessibility and debugging rather than occupying the child's play surface.
 
+The same responsible-adult panel also owns the OmegaLLM inference selection for
+the current browser session. It can choose **Sponsored ASI Cloud** (MiniMax M3,
+fixed when configured), **Anthropic**, **OpenAI**, **OpenRouter**, **ASI:One**,
+or **Off**. Non-sponsored configured lanes expose a bounded model-id field;
+OpenRouter therefore remains the broad model-routing escape hatch.
+
+This selection is host state, not child language and not Omega state. A child
+message cannot name the provider used for its own turn, and OmegaLLM cannot
+change its provider, endpoint, credential, or billing source. The browser never
+receives provider credentials.
+
 Conversation remains non-authoritative:
 
 **Omega talks. Jev chooses. The kernel decides.**
@@ -265,10 +276,16 @@ uses WSL2 + Docker Desktop, verifies/builds the pinned runtime, starts the
 separate OmegaLLM and OmegaJev OpenShell sandboxes, health-checks them, starts
 the authority bridge, and opens `http://127.0.0.1:8756/`.
 
-The first powered start may ask once for the OpenRouter API key if the
-role-specific OpenShell providers have not yet been created. The key is not
-written into repository/runtime state. Later starts reuse the OpenShell
-providers.
+The first powered start may ask once for the **OpenRouter API key** because
+OmegaJev requires its OpenRouter Decisions lane. It may then optionally ask for
+the **sponsored ASI Cloud key** for OmegaLLM; pressing Enter skips that lane.
+Neither key is written into repository/runtime state. Existing OpenShell
+provider instances are reused on later starts.
+
+Anthropic, OpenAI, and ASI:One are optional OmegaLLM lanes. If their normal
+credential environment variables are present when the runtime is first built
+(or matching OpenShell providers already exist), they become selectable in the
+Responsible Adult panel without changing the child-facing application.
 
 Double-click **`Stop StickerBook.cmd`** to stop the bridge and delete both
 StickerBook sandboxes without requiring agent cooperation.
