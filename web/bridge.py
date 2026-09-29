@@ -42,10 +42,10 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import book  # noqa: E402
-import farm  # noqa: E402
+import governed_world as farm  # noqa: E402
 import help_content  # noqa: E402
 from agent_runtime import (  # noqa: E402
-    DisabledAgentRuntime, agent_runtime_from_env,
+    AgentRuntimeError, DisabledAgentRuntime, agent_runtime_from_env,
 )
 from jev_controller import JevController, OMEGA_LLM_ID  # noqa: E402
 from jev_runtime import DisabledJevRuntime, jev_runtime_from_env  # noqa: E402
@@ -111,9 +111,13 @@ class Bridge:
             page_image_runtime=None, pattern_library=None,
             governed_history=None, replay_log=None, drag_log=None,
             trajectory_execution_log=None,
-            interaction_log=None, page_path_log=None, observed_input_log=None):
-        self.kernel = kernel or farm.build_world()
-        self._world_lock = RLock()
+            interaction_log=None, page_path_log=None, observed_input_log=None,
+            page_id=book.DEFAULT_PAGE, world_lock=None):
+        self.page_id = page_id
+        self.kernel = kernel or book.build_world(page_id)
+        self._world_lock = world_lock or RLock()
+        self._active = True
+        self._activation_serial = 0
         # One inspectable host-only snapshot, replaced on successful resolution.
         # No historical lookup endpoint or execution consumer.
         self.last_trajectory_reference = None
@@ -124,7 +128,7 @@ class Bridge:
         # Host-owned movement memory. In-memory for this tranche: a pattern
         # is remembered for the life of the process and is not shared between
         # children. It is passed to the controller, never to a runtime.
-        self.patterns = pattern_library or PatternLibrary()
+        self.patterns = pattern_library if pattern_library is not None else PatternLibrary()
         # What actually happened, so a child can say "remember that" and the
         # host -- not OmegaLLM -- knows what "that" was. Plus the host-side
         # audit of attempts to perform remembered behaviour.
@@ -153,7 +157,8 @@ class Bridge:
             self.kernel, self.jev_runtime, patterns=self.patterns,
             history=self.history, replays=self.replays,
             world_lock=self._world_lock,
-            executions=self.trajectory_executions)
+            executions=self.trajectory_executions,
+            activity=lambda: self._activation_serial if self._active else None)
         self._jev_counter = 0
         self.page_image_runtime = (
             page_image_runtime or DisabledPageImageRuntime())
@@ -172,7 +177,7 @@ class Bridge:
         with self._world_lock:
             view = self.kernel.view(BROWSER_PRINCIPAL)
         capabilities = self._agent_capabilities()
-        chrome = farm.page_chrome()
+        chrome = book.page_chrome(self.page_id)
         stickers = []
         for s in view["stickers"]:
             stickers.append({
@@ -190,8 +195,8 @@ class Bridge:
         return {
             "revision": view["revision"],
             "principal": BROWSER_PRINCIPAL,
-            "page": {"id": book.DEFAULT_PAGE,
-                     "name": book.PAGES[book.DEFAULT_PAGE]["name"]},
+            "page": {"id": self.page_id,
+                     "name": book.PAGES[self.page_id]["name"]},
             "picture": chrome["picture"],
             # StickerDefinitions: reusable designs the tray offers. One
             # design, many instances.
@@ -380,6 +385,7 @@ class Bridge:
         if pending is not None:
             scene["pendingReference"] = pending.describe()
 
+        activation = self._activation_serial
         try:
             result = self.agent_runtime.converse(
                 text=text,
@@ -387,9 +393,18 @@ class Bridge:
                 scene=scene,
                 reference=reference,
                 inference=dict(self._inference_selection))
+        except AgentRuntimeError as exc:
+            return {"ok": False, "error": exc.code,
+                    "diagnostic": {"stage": "omegallm-runtime", "reason": exc.code},
+                    "state": self.state()}
         except Exception:
             return {"ok": False, "error": "agent-runtime-error",
+                    "diagnostic": {"stage": "omegallm-runtime",
+                                   "reason": "unexpected-runtime-error"},
                     "state": self.state()}
+
+        if not self._active or activation != self._activation_serial:
+            return {"ok": False, "error": "page-changed", "state": self.state()}
 
         if not isinstance(result, dict):
             return {"ok": False, "error": "invalid-agent-response",
@@ -469,14 +484,14 @@ class Bridge:
                 continue
             trace = self.page_paths.get(signal.ref)
             if trace is not None and trace.principal == episode.principal \
-                    and trace.page == book.DEFAULT_PAGE:
+                    and trace.page == self.page_id:
                 return PendingSemanticReference(
                     subject, event_id, signal.ref, episode.episode_id,
                     episode.principal, trace.page), None
         if pending is not None and pending.subject == subject \
                 and pending.demonstration == event_id \
                 and pending.principal == episode.principal == BROWSER_PRINCIPAL \
-                and pending.page == book.DEFAULT_PAGE:
+                and pending.page == self.page_id:
             # Explicit successful rebinding renews the single slot, retaining
             # its original provenance. No historical episode/trace search.
             return pending, None
@@ -603,7 +618,7 @@ class Bridge:
         trace = self.page_paths.add(page_path.PagePathTrace(
             trace_id=self.page_paths.next_trace_id(),
             principal=BROWSER_PRINCIPAL,
-            page=book.DEFAULT_PAGE,
+            page=self.page_id,
             scene_revision_at_recording=self.kernel.revision,
             duration_ms=duration,
             samples=samples,
@@ -665,7 +680,7 @@ class Bridge:
                 return "invalid deictic box ordering"
             reference = {
                 "kind": "box",
-                "page": book.DEFAULT_PAGE,
+                "page": self.page_id,
                 "box": clean,
             }
             source_event = raw.get("source_event")
@@ -675,7 +690,7 @@ class Bridge:
 
         return {
             "kind": "point",
-            "page": book.DEFAULT_PAGE,
+            "page": self.page_id,
             "point": clean,
         }
 
@@ -692,7 +707,7 @@ class Bridge:
             return False
         trace = self.page_paths.get(paths[-1].signal.ref)
         if trace is None or trace.principal != BROWSER_PRINCIPAL \
-                or trace.page != book.DEFAULT_PAGE:
+                or trace.page != self.page_id:
             return False
         return trace.deictic_box is not None and all(
             abs(box[key] - trace.deictic_box[key]) <= 0.00015
@@ -975,10 +990,11 @@ class Bridge:
         return {"ok": True, "receipt": receipt.to_dict(), "state": self.state()}
 
     def animate(self, body: dict) -> dict:
-        """Handle the child's double-click/tap animation intent.
+        """Handle the child's double-click/tap invitation to come alive.
 
-        When OmegaJev is connected, the gesture becomes a one-turn Jev goal
-        with an animation-only choice surface. Jev chooses the declared clip;
+        When OmegaJev is connected, the gesture becomes a three-turn Jev goal
+        with subject-only movement, facing and animation choices. Jev composes
+        currently legal primitives, with learned patterns as advisory context;
         it does not receive command arguments or bypass the kernel. When no
         Jev runtime is connected, the historical mechanical toggle remains so
         local/public interaction does not depend on model availability.
@@ -1133,6 +1149,75 @@ class Bridge:
         return {"ok": False, "error": reason, "state": self.state()}
 
 
+
+class BookBridge:
+    """Host-owned page sessions. Bound requests retain their own world identity."""
+
+    def __init__(self, kernel=None, **runtime_options):
+        self._lock = RLock()
+        self._options = runtime_options
+        self._patterns = PatternLibrary()
+        self._pages = {}
+        self._page_id = book.DEFAULT_PAGE
+        self._pages[self._page_id] = Bridge(
+            kernel, page_id=self._page_id, world_lock=self._lock,
+            pattern_library=self._patterns, **runtime_options)
+
+    def select_page(self, body):
+        if not isinstance(body, dict) or set(body) != {"page"} or not isinstance(body["page"], str):
+            return {"ok": False, "error": "invalid-page-selection", "state": self.state()}
+        page_id = body["page"]
+        if book.page(page_id) is None:
+            return {"ok": False, "error": "unknown-page", "state": self.state()}
+        with self._lock:
+            if page_id != self._page_id:
+                previous = self._pages[self._page_id]
+                previous._active = False
+                previous._activation_serial += 1
+                # Transient linguistic carry never survives a page boundary.
+                previous.pending_reference = None
+                previous.last_trajectory_reference = None
+                previous._input_marker = previous.observed_inputs.latest_sequence()
+                if page_id not in self._pages:
+                    self._pages[page_id] = Bridge(
+                        page_id=page_id, world_lock=self._lock,
+                        pattern_library=self._patterns, **self._options)
+                self._pages[page_id]._inference_selection = dict(previous._inference_selection)
+                self._page_id = page_id
+                self._pages[page_id]._active = True
+                self._pages[page_id]._activation_serial += 1
+        return {"ok": True, "state": self.state()}
+
+    def __getattr__(self, name):
+        with self._lock:
+            session = self._pages[self._page_id]
+            value = getattr(session, name)
+            activation = session._activation_serial
+        if not callable(value):
+            return value
+
+        def bound(*args, **kwargs):
+            if args and isinstance(args[0], dict):
+                body = dict(args[0])
+                requested_page = body.pop("_page", session.page_id)
+                if requested_page != session.page_id or not session._active or activation != session._activation_serial:
+                    return {"ok": False, "error": "page-changed", "state": self.state()}
+                args = (body, *args[1:])
+            # Direct gestures and observations are atomic with page selection.
+            # Model think-time (converse/animate) remains outside this lock.
+            if name in {"place", "remove", "resize", "facing", "propose_move", "observe_page_path"}:
+                with self._lock:
+                    if not session._active or activation != session._activation_serial:
+                        return {"ok": False, "error": "page-changed", "state": self.state()}
+                    result = value(*args, **kwargs)
+            else:
+                result = value(*args, **kwargs)
+            if isinstance(result, dict) and (not session._active or activation != session._activation_serial):
+                return {"ok": False, "error": "page-changed", "state": self.state()}
+            return result
+        return bound
+
+
 def make_handler(bridge: Bridge, quiet: bool = False):
 
     class Handler(BaseHTTPRequestHandler):
@@ -1177,7 +1262,8 @@ def make_handler(bridge: Bridge, quiet: bool = False):
                 return self._generated(path[len("/generated-pages/"):])
             return self._send(404, {"error": "not found"})
 
-        ROUTES = {"/api/propose-move": "propose_move",
+        ROUTES = {"/api/select-page": "select_page",
+                  "/api/propose-move": "propose_move",
                   "/api/place": "place",
                   "/api/remove": "remove",
                   "/api/animate": "animate",
@@ -1290,7 +1376,7 @@ def make_handler(bridge: Bridge, quiet: bool = False):
 
 def serve(host="127.0.0.1", port=8756, kernel=None, quiet=False,
           agent_runtime=None, jev_runtime=None, page_image_runtime=None):
-    bridge = Bridge(
+    bridge = BookBridge(
         kernel,
         agent_runtime=agent_runtime,
         jev_runtime=jev_runtime,

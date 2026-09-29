@@ -88,13 +88,18 @@ for path in ("jev/openshell-entrypoint.sh", "runtime/omega/openshell-entrypoint.
     assert " su " not in (" " + code.replace("\n", " ") + " ")
 
 rpc = read("runtime/omega/stickerbookrpc.py")
-assert 'ThreadingHTTPServer(("127.0.0.1", port)' in rpc
+# Docker opts into the container interface; hardened runtime defaults to loopback.
+assert 'config_get_by_key("stickerbookRpcBind", "127.0.0.1")' in rpc
+assert 'if bind not in ("127.0.0.1", "0.0.0.0"):' in rpc
+assert 'raise RuntimeError("invalid StickerBook RPC bind address")' in rpc
+assert 'ThreadingHTTPServer((bind, port)' in rpc
 assert '"omegallm"' in rpc and '"omegajev"' in rpc
 assert 'set(payload) - allowed' in rpc
 assert 'set(payload) != allowed' in rpc
 assert "complete_staged" in rpc
 assert '"inference"' in rpc
-assert "_provider_metadata" in rpc
+assert "from stickerbookrpc_state import state" in rpc
+assert "state.provider_metadata" in rpc
 
 agent_runtime = read("web/agent_runtime.py")
 jev_runtime = read("web/jev_runtime.py")

@@ -206,9 +206,22 @@ class GovernedHistory:
         needs model judgement, and none of them is decided by OmegaLLM.
         """
         episode = []
-        for entry in reversed(self._entries):
+        entries = list(reversed(self._entries))
+        for index, entry in enumerate(entries):
             if entry.subject_id != subject_id:
                 break
+            # A terminal gesture NOOP ends improvisation, not its teaching.
+            # Skip it only when the immediately preceding accepted step belongs
+            # to that SAME generated episode. A first-turn NOOP cannot reach
+            # backwards into an older demonstration.
+            if not episode and entry.accepted and entry.key == "NOOP" \
+                    and entry.origin == ORIGIN_GESTURE_JEV and index + 1 < len(entries):
+                prefix, _, turn = (entry.command_id or "").rpartition("-")
+                previous = entries[index + 1]
+                if turn.isdigit() and int(turn) > 1 and previous.accepted \
+                        and previous.subject_id == subject_id \
+                        and previous.command_id == prefix + "-" + str(int(turn) - 1):
+                    continue
             if not entry.accepted or not entry.key:
                 break
             if is_learnable is not None and not is_learnable(entry):

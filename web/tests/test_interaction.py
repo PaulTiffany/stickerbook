@@ -482,7 +482,7 @@ class DirectPathUnchanged(InteractionCase):
         self.assertEqual(len(self.bridge.interactions), 0)
         self.assertTrue(self.jev.calls)
         for key in self.jev.calls[-1]["actions"]:
-            self.assertTrue(key == "NOOP" or key.startswith("ANIMATE:"))
+            self.assertTrue(key == "NOOP" or key.startswith(("ANIMATE:", "MOVE:", "FACE:")))
 
     def test_a_drag_alone_starts_no_conversation(self):
         self.drag()

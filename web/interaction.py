@@ -113,6 +113,10 @@ class ObservedInputLog:
             del self._inputs[:len(self._inputs) - self.max_inputs]
         return observed
 
+    def latest_sequence(self) -> int:
+        """Watermark for discarding transient input across a page boundary."""
+        return self._next_sequence - 1
+
     def after(self, marker: int) -> Tuple[ObservedInput, ...]:
         return tuple(item for item in self._inputs if item.sequence > marker)
 

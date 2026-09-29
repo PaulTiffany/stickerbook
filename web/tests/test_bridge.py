@@ -151,7 +151,9 @@ class FakeJevRuntime:
             if wanted in actions:
                 return {"ok": True, "choice": wanted}
 
-        if goal.get("intent") == "animate":
+        if goal.get("intent") == "animate" or goal.get("behavior") == "improvise":
+            if goal.get("behavior") == "improvise" and turn > 1:
+                return {"ok": True, "choice": "NOOP"}
             for key in sorted(actions):
                 if key.startswith("ANIMATE:") \
                         and not key.endswith(":none") \
@@ -1580,7 +1582,8 @@ class TheBookIsACollection(ServerCase):
     def test_book_lists_its_pages(self):
         _, b = self.get("/api/book")
         self.assertEqual(b["title"], "StickerBook")
-        self.assertEqual([p["id"] for p in b["pages"]], ["farm"])
+        self.assertEqual({p["id"] for p in b["pages"]},
+                         {"farm", "beach", "playground", "space", "school", "theater"})
 
     def test_the_book_exposes_no_ordering(self):
         """No index, no previous, no next -- pages are visited, not advanced."""
@@ -1607,13 +1610,13 @@ class DualOmegaJevControl(ServerCase):
         _, state = self.get("/api/state")
         self.assertTrue(state["capabilities"]["jev_controller"])
 
-    def test_child_double_click_uses_animation_only_jev_surface(self):
+    def test_child_double_click_uses_subject_body_jev_surface(self):
         _, out = self.post("/api/animate", {
             "sticker": "cow-1",
             "command_id": "child-double",
         })
         self.assertTrue(out["ok"], out)
-        self.assertEqual(len(out["jev"]["trace"]), 1)
+        self.assertLessEqual(len(out["jev"]["trace"]), 3)
         choice = out["jev"]["trace"][0]["choice"]
         self.assertTrue(choice.startswith("ANIMATE:cow-1:"), choice)
         self.assertNotEqual(
@@ -1621,7 +1624,7 @@ class DualOmegaJevControl(ServerCase):
 
         call = self.bridge.jev_runtime.calls[-1]
         self.assertTrue(all(
-            key == "NOOP" or key.startswith("ANIMATE:cow-1:")
+            key == "NOOP" or key.startswith(("ANIMATE:cow-1:", "MOVE:cow-1:", "FACE:cow-1:"))
             for key in call["actions"]))
         receipt = out["receipt"]
         self.assertEqual(receipt["actor"], farm.HUMAN_ID)
