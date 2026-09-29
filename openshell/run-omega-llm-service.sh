@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT/runtime/lib.sh"
 
-NAME="${STICKERBOOK_OPENSHELL_LLM_NAME:-stickerbook-omega-llm}"
+NAME="${STICKERBOOK_OPENSHELL_LLM_NAME:-stickerbook-llm}"
 IMAGE="${STICKERBOOK_OPENSHELL_LLM_IMAGE:-stickerbook-omega-llm:openshell}"
 PORT="${STICKERBOOK_OMEGA_LLM_PORT:-8761}"
 
