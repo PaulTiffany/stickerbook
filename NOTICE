@@ -8,8 +8,8 @@ Third-party projects
 
 StickerBook is built on, and tested against, the projects below. Their source
 is NOT vendored in this repository: the upstream trees are cloned locally and
-excluded via .gitignore, and the exact commits tested are recorded in
-jev/VERSIONS.txt. The attributions here are given because the work depends on
+excluded via .gitignore, and the exact commits tested or pinned are recorded in
+jev/VERSIONS.txt and openshell/PIN.env. The attributions here are given because the work depends on
 them, and so that anyone building the experiment images knows what they are
 assembling and under which terms.
 
@@ -49,6 +49,21 @@ Licensed under the Apache License, Version 2.0.
   Additions (this project's own code, MIT licensed, layered into the image):
   providers/jev.py, providers/jev_core.py, providers/sb_bridge.py,
   channels/jevconsole.py, plugins/jevskills/, and core/stickerbook_core/.
+
+--------------------------------------------------------------------------------
+NVIDIA OpenShell
+https://github.com/NVIDIA/OpenShell
+Copyright (c) 2025-2026 NVIDIA CORPORATION & AFFILIATES
+Licensed under the Apache License, Version 2.0.
+
+  StickerBook pins OpenShell v0.1.2 at commit
+  6648bd0c290efbc41ba131ee9831ee45cd431f94.
+
+  OpenShell source is not vendored here. The repository contains only
+  StickerBook-authored policy/provider/deployment files under openshell/ and a
+  derived non-root OmegaJev image recipe. The OpenShell installer is fetched
+  by immutable upstream commit and instructed to install the exact v0.1.2
+  release.
 
 --------------------------------------------------------------------------------
 PeTTa
