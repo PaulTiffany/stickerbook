@@ -251,6 +251,99 @@ action key must not reveal an undeclared object merely by naming it. Painted
 background pixels remain passive scenery unless OmegaLLM turns a validated
 child reference into explicit bounded goal data.
 
+## Movement-pattern memory
+
+A child is not programming an agent. The child is teaching a sticker a way it
+likes to move, and StickerBook remembers it:
+
+> "Remember that as your happy dance."
+
+The research invariant is that **learning changes memory, not authority**. A
+remembered pattern means only
+
+> when asked for this behavior, these previously accepted action forms
+> occurred in this order
+
+and never
+
+> these actions are now permitted.
+
+### Representation
+
+Legal keys have the form `<VERB>:<sticker-id>:<suffix>`, and a suffix alone is
+ambiguous: `STEP-E` belongs to `MOVE` while `spin` belongs to `ANIMATE`. A
+remembered step therefore keeps its action family and discards only the
+transient StickerInstance id:
+
+```text
+PatternStep(verb="MOVE",    suffix="STEP-E")
+PatternStep(verb="MOVE",    suffix="STEP-N")
+PatternStep(verb="ANIMATE", suffix="hop")
+```
+
+A `MovementPattern` is an ordered sequence of those fragments plus a stable
+id, a child-facing label, the StickerDefinition it applies to, and provenance.
+It is frozen data: no coordinates, no command, no capability, nothing
+callable. Complete legal keys are never stored, because they name a particular
+StickerInstance that may not exist or may not be legal later.
+
+`web/pattern_memory.py` deliberately sits beside the bridge rather than inside
+`stickerbook_core`, so the authority kernel cannot acquire pattern awareness by
+accident. Pattern memory adds **no kernel mutation primitive**.
+
+### Capture
+
+Only a trace of actions that produced **accepted** kernel receipts can become a
+pattern. Rejected, unavailable, malformed or merely proposed actions do not
+become learned movement, and a `NOOP` is a decision to stop rather than a way
+of moving. Each captured step is cross-checked against its receipt, so a `MOVE`
+step cannot be recorded from an `ANIMATE` receipt.
+
+`JevController.remember_trace()` is the seam where OmegaLLM will eventually
+land: the child says "remember that as your happy dance", and OmegaLLM turns
+that sentence into one bounded host request carrying a label and the trace that
+just happened. OmegaLLM never writes arbitrary actions into a pattern.
+
+### Replay
+
+`JevController.replay_pattern()` is **mechanical replay**: the host performs
+the remembered forms step by step so pattern safety can be proven without a
+live Jev. It is not a macro with authority. For every step:
+
+1. the world is re-read;
+2. the current host-owned legal table is rebuilt;
+3. the key is re-derived from the stored `(verb, suffix)` plus the **current**
+   subject;
+4. that exact key must exist in the table as it is right now;
+5. it is submitted through the ordinary `Kernel.propose_key()` path;
+6. an accepted receipt is required before advancing;
+7. an unavailable or refused step stops the replay where it stands.
+
+So stale learned behavior gets no bypass. Two steps east near the eastern edge
+execute once and then stop, because the second step is no longer offered. A
+clip the current StickerDefinition does not declare never executes. A pattern
+learned for one definition is refused on an incompatible one. Ownership and
+per-turn budgets remain kernel restrictions.
+
+### Two modes, and why Jev still matters
+
+1. **Mechanical replay** (implemented): deterministic host execution, used to
+   prove pattern semantics without a live Jev.
+2. **Agent-guided** (later): known-pattern context is exposed read-only in the
+   Jev scene as `known_patterns`. Jev still selects from the current finite
+   legal choices; memory may inform the choice but cannot manufacture one.
+
+`known_patterns` carries bounded declarative entries only — id, label, step
+count and typed fragments. It contains no StickerInstance id and no complete
+action key, so nothing in it can be submitted to the kernel, and it never adds
+a key to the legal table. Pattern memory is not a second decision engine.
+
+### Not yet
+
+No persistence across restart, no sharing between children, no Jev-authored
+patterns, no model-generated executable animation. Visual animation packages
+remain data and assets, never generated code.
+
 ## Runtime attachment
 
 `web/agent_runtime.py` and `web/jev_runtime.py` still default to inert

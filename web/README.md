@@ -251,6 +251,23 @@ The child may also reach OmegaJev without OmegaLLM by double-clicking/tapping a
 sticker. That creates a one-turn animation-only goal; Jev may choose only one
 declared clip key or NOOP.
 
+### Movement-pattern memory
+
+A child can teach a sticker a way it likes to move. `web/pattern_memory.py`
+holds a bounded, in-memory library of `MovementPattern`s: ordered
+`PatternStep(verb, suffix)` fragments that keep the action family and discard
+the transient StickerInstance id.
+
+**Learning changes memory, not authority.** Only traces whose kernel receipts
+were *accepted* can be remembered. Replay re-reads the world, rebuilds the
+legal table, re-derives each key against the current subject, and requires an
+accepted receipt before advancing, so a remembered step that is no longer
+legal simply stops. Pattern memory adds no kernel mutation primitive and never
+widens the choice surface; `known_patterns` in the Jev scene is read-only,
+declarative, and contains no complete action key.
+
+See `docs/AGENT-INTERFACE.md` for the full seam.
+
 Creation remains separate:
 
 - `/api/creator/draft` returns proposed asset/page draft metadata;
