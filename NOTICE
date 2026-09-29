@@ -2,6 +2,11 @@ StickerBook
 Copyright (c) 2026 Paul Carver Tiffany III
 Licensed under the MIT License. See LICENSE.
 
+The MIT License applies to StickerBook-authored code and documentation unless
+a file states otherwise. It does not relicense third-party software, base
+images, hosted services, models, APIs, or development tools. Those components
+remain subject to their own licenses and/or service terms.
+
 ================================================================================
 Third-party projects
 ================================================================================
@@ -146,6 +151,31 @@ nginx - https://nginx.org
 
 Landlock - the Linux kernel sandbox used by Omega's filesystem policy, via
   the py-landlock package listed in Omega's requirements.
+
+================================================================================
+
+================================================================================
+Development and research assistance
+================================================================================
+
+The following tools/services have been used in the development and research
+workflow around StickerBook. They are not bundled runtime dependencies merely
+because they assisted development, and StickerBook's MIT License does not
+license or relicense them, their models, or their outputs beyond whatever
+rights their providers separately grant.
+
+OpenAI ChatGPT / Codex - https://openai.com
+  Used for research discussion, repository inspection/editing assistance,
+  documentation, review, and development workflow support. Subject to OpenAI's
+  own terms.
+
+Anthropic Claude - https://www.anthropic.com
+  Used for implementation assistance, review, and development workflow support.
+  Subject to Anthropic's own terms.
+
+GitHub - https://github.com
+  Used for source hosting, pull requests, Actions/CI, Pages deployment, and
+  repository history. Subject to GitHub's own terms.
 
 ================================================================================
 
