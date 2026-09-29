@@ -158,8 +158,12 @@ hypothesis from upstream issue #3842 was tested on the live host on
 2026-09-29 and did not hold: moving to WSL 3.0.1.0 /
 `6.18.40.1-microsoft-standard-WSL2` and changing nothing else reproduced the
 same `seccomp notification probe / notification launcher disappeared`
-failure, even though that kernel does support seccomp user notification. The
-separate gateway-connectivity issue #3880 was never reached. See
+failure. `SECCOMP_GET_NOTIF_SIZES` succeeds there, but that is only the
+notification ABI size query; the active listener-installation path OpenShell
+uses still fails before a listener reaches its broker. Kernel version alone
+is therefore not sufficient to explain the difference from the working 6.18
+report, and the kernel is not yet ruled out. The separate
+gateway-connectivity issue #3880 was never reached. See
 [OpenShell runtime status](../openshell/README.md) and
 [runtime architecture](TOOLS-AND-MODIFICATIONS.md). Do not bypass containment.
 

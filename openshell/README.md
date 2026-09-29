@@ -223,14 +223,29 @@ Blocked on that host, and therefore still unproven:
   valid attempt. Kernel version alone is therefore not the differentiator
   here.
 
-  Measured alongside it, and worth carrying upstream: this kernel **does**
-  support seccomp user notification. `seccomp(SECCOMP_GET_NOTIF_SIZES)`
-  returns 0 with sizes 80/24/64 both in the WSL distro and inside an
-  ordinary default-profile Docker container, and the engine reports
-  `seccomp` with the builtin profile. So the failure is narrower than a
-  missing kernel capability: OpenShell's own notification launcher process
-  disappears during the probe. We have not confirmed why, and did not
-  investigate further inside OpenShell, which stays pinned and unpatched.
+  Measured alongside it, and worth carrying upstream:
+  `seccomp(SECCOMP_GET_NOTIF_SIZES)` returns 0 with sizes 80/24/64 both in
+  the WSL distro and inside an ordinary default-profile Docker container,
+  and the engine reports `seccomp` with the builtin profile. That is the
+  notification **ABI size query** succeeding, and nothing more. It is not
+  proof of full seccomp user-notification support, and it does not show the
+  kernel is uninvolved.
+
+  The pinned v0.1.2 source shows what the probe actually does on its
+  launcher thread: `verify_notification_sizes()`, then
+  `PR_SET_NO_NEW_PRIVS`, then `SECCOMP_SET_MODE_FILTER` with
+  `NEW_LISTENER | WAIT_KILLABLE_RECV` (falling back to `NEW_LISTENER` alone
+  only on `EINVAL`), then it sends the listener FD to the broker.
+  `notification launcher disappeared` is emitted because the broker-side
+  channel receive failed **before** any listener reached it.
+
+  So the supported reading is narrow: WSL 6.18 did not remove the blocker on
+  this host, the size query succeeds, and the active listener-installation
+  path OpenShell actually uses still fails before a listener reaches the
+  broker. Which step fails, and whether the kernel is implicated, is not yet
+  established. What the two kernels together do show is that kernel
+  **version alone** is not sufficient to explain the difference between this
+  machine and the working 6.18 report. OpenShell stays pinned and unpatched.
 
   Because the seccomp boundary never opened, the separate Docker-driver
   gateway-connectivity problem in upstream issue #3880 was **not** reached
