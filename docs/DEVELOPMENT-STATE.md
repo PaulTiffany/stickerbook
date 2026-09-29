@@ -27,7 +27,8 @@ mechanical static demo; the powered authority-kernel runtime runs on localhost.
 - PR #40: StickerDragTrace capture.
 - PR #41: bounded multimodal InteractionEpisode records for linguistic turns.
 - PR #42: non-sticker bare-page path observation and generic input ordering.
-- This tranche: host-issued physical input-event provenance for box/path co-origin.
+- PR #43: host-issued physical input-event provenance for box/path co-origin.
+- This tranche: bounded semantic demonstration binding to a current page-path event.
 
 An episode records utterance, optional validated point/box, descriptive
 voice/text mode, scene revision, and up to four recent host-observed input
@@ -60,6 +61,19 @@ captures leave the box usable but unlinked. This is checked correlation of
 client observations, not independent attestation of physical hardware events.
 It does not solve cross-request timing or assign semantic meaning.
 
+OmegaLLM may now return exactly `{subject, intent: "bind-demonstration",
+demonstration: "input-event-N"}`. Its provider checks the identifier against
+the current `scene.interaction` page-path signals; the host checks the exact
+current episode again, the retained path's fixed principal/page, and the
+subject's current page. The model selects which eligible event it means; the
+host does not choose by recency, box matching, or geometry. A valid result is
+an inspectable, non-mutating `{result: "bound", subject, demonstration,
+pathRef}`. It creates no memory, Jev call, kernel receipt, or world revision.
+The response remains under the legacy `jev` key, also used for host-side
+pattern memory; renaming that public envelope is deferred for compatibility.
+The semantic goal carries no path samples or movement instructions. Motor
+interpretation and execution remain unimplemented.
+
 ## OpenShell status
 
 **BLOCKED_UPSTREAM / LIVE GRAPH UNVERIFIED.** See
@@ -71,10 +85,11 @@ It does not solve cross-request timing or assign semantic meaning.
 From the repository root unless a `cd` is shown:
 
 ```bash
-python -m py_compile web/page_path.py web/interaction.py web/sticker_drag.py web/bridge.py web/tests/test_input_event.py web/tests/test_page_path.py web/tests/test_interaction.py jev/omega_jev/providers/jev.py llm/omega_llm/providers/stickerbook_llm.py runtime/omega/stickerbookrpc.py
+python -m py_compile web/page_path.py web/interaction.py web/sticker_drag.py web/bridge.py web/tests/test_demonstration_binding.py web/tests/test_input_event.py web/tests/test_page_path.py web/tests/test_interaction.py jev/omega_jev/providers/jev.py llm/omega_llm/providers/stickerbook_llm.py runtime/omega/stickerbookrpc.py
 cd core && python -m unittest discover -s tests
 cd ../jev && python -m unittest discover -s tests
 cd ../web && python -m unittest discover -s tests -p test_interaction.py
+python -m unittest discover -s tests -p test_demonstration_binding.py
 python -m unittest discover -s tests -p test_page_path.py
 python -m unittest discover -s tests -p test_input_event.py
 python -m unittest discover -s tests
@@ -91,12 +106,19 @@ alone, and has not appeared in Linux CI.
 
 ## Next research and build questions
 
-1. Decide how OmegaLLM should bind “like this,” “around there,” and “do that” to distinct point/box/path evidence without treating geometry alone as meaning.
-2. Turn embodied trajectories into movement memory without false symbolic quantisation.
-3. Let OmegaJev act relative to that memory while selecting only from a finite CURRENT legal surface.
-4. Determine trajectory scale, shape, and timing invariance.
-5. Design persistence and child/session boundaries.
-6. Prove the live OpenShell graph when upstream permits it.
+The next motor-design decision is what a bound page-path event should mean for
+movement, and which bounded evidence a future Jev selector may use without
+turning the retained trajectory into an executable command. This tranche
+proves reference selection only; other phrases and evidence kinds still need
+deliberate binding design.
+
+1. Decide whether a bound page path is a demonstration, route, region, or other meaning in context before defining motor behavior.
+2. Extend binding to “around there” and “do that” across other evidence kinds without geometry-only heuristics.
+3. Turn embodied trajectories into movement memory without false symbolic quantisation.
+4. Let OmegaJev act relative to that memory while selecting only from a finite CURRENT legal surface.
+5. Determine trajectory scale, shape, and timing invariance.
+6. Design persistence and child/session boundaries.
+7. Prove the live OpenShell graph when upstream permits it.
 
 ## Repository workflow
 

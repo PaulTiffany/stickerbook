@@ -636,6 +636,20 @@ the reported correlation; the browser remains the physical input sensor, so
 the host cannot independently attest pointer hardware provenance. The token
 does not change host arrival chronology or imply what the gesture meant.
 
+#### Bounded demonstration binding
+
+OmegaLLM may select one current page-path event with a semantic goal containing
+exactly `subject`, `intent: "bind-demonstration"`, and the opaque host-issued
+`demonstration: "input-event-N"`. The provider checks the current episode's
+page-path signals; the host independently checks the same current episode,
+retained path principal/page, and subject. Old, fabricated, malformed, or
+unsupported references fail closed. The host does not select the latest path
+or infer meaning from the box. A valid binding reports the selected event and
+path reference without calling OmegaJev, changing memory or world state, or
+creating a kernel receipt. Retained trajectory samples stay host-side; no
+geometry or motor program enters the semantic goal. The legacy HTTP `jev`
+result key also holds this host-side semantic result for compatibility.
+
 The architecture is unchanged by any of that:
 
 ```text

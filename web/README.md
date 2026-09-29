@@ -458,6 +458,15 @@ only if it identifies the latest eligible retained path and matches the box
 stored with that path. Two gestures before speech therefore produce two
 different tokens, while a failed path observation leaves its box unlinked.
 
+OmegaLLM can return a bounded `bind-demonstration` goal naming one current
+page-path `sourceEvent` and a sticker subject. Provider and host validation
+reject unknown, malformed, historical, or unsupported references. The model
+chooses the event; the host only checks admissibility. A valid binding returns
+`bound` with the selected path reference under the existing `jev` response
+field. It does not call OmegaJev, store a movement, or mutate the world.
+Retained trajectory samples stay in the host log, outside the OmegaLLM scene
+and goal.
+
 ```bash
 cd web
 python -m unittest discover -s tests
