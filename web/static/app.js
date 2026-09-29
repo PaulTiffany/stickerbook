@@ -2834,6 +2834,111 @@ async function requestCreatorDraft(kind) {
 
 // ------------------------------------------------------ conversational Omega
 
+function inferenceOption(providerId) {
+  const options = adultInference && adultInference.options || [];
+  return options.find((item) => item.id === providerId) || null;
+}
+
+function updateInferenceDraft() {
+  if (!inferenceProviderSelect || !inferenceModelInput ||
+      !inferenceApply || !inferenceStatus) return;
+
+  const option = inferenceOption(inferenceProviderSelect.value);
+  if (!option) {
+    inferenceModelInput.disabled = true;
+    inferenceApply.disabled = true;
+    inferenceStatus.textContent = "Inference settings are unavailable.";
+    return;
+  }
+
+  const off = option.id === "off";
+  inferenceModelInput.disabled = off || Boolean(option.model_locked);
+  inferenceApply.disabled = option.available !== true;
+
+  if (off) {
+    inferenceModelInput.value = "";
+  } else if (!inferenceModelInput.value.trim()) {
+    inferenceModelInput.value = option.default_model || "";
+  }
+
+  const availability = option.available
+    ? (option.sponsored ? "Sponsored inference is configured." : "Provider is configured.")
+    : "Not configured on this local runtime.";
+  inferenceStatus.textContent = option.description + " " + availability;
+}
+
+function renderInferenceControls() {
+  if (!inferenceProviderSelect || !adultInference) return;
+
+  const selected = adultInference.selected || { provider: "off", model: "" };
+  inferenceProviderSelect.replaceChildren();
+
+  for (const item of adultInference.options || []) {
+    const option = document.createElement("option");
+    option.value = item.id;
+    option.textContent =
+      item.label +
+      (item.sponsored ? " · sponsored" : "") +
+      (item.available ? "" : " · not configured");
+    option.disabled = item.available !== true;
+    inferenceProviderSelect.appendChild(option);
+  }
+
+  const selectedOption = inferenceOption(selected.provider);
+  inferenceProviderSelect.value = selectedOption ? selected.provider : "off";
+  inferenceModelInput.value = selectedOption && selected.provider !== "off"
+    ? (selected.model || selectedOption.default_model || "")
+    : "";
+  updateInferenceDraft();
+}
+
+async function refreshInferenceControls() {
+  try {
+    adultInference = await world.inferenceSettings();
+  } catch (error) {
+    console.error(error);
+    adultInference = copy(DEMO_INFERENCE);
+  }
+  renderInferenceControls();
+}
+
+async function applyInferenceSelection() {
+  if (!adultInference) await refreshInferenceControls();
+
+  const option = inferenceOption(inferenceProviderSelect.value);
+  if (!option || option.available !== true) {
+    updateInferenceDraft();
+    return;
+  }
+
+  const provider = option.id;
+  const model = provider === "off"
+    ? ""
+    : inferenceModelInput.value.trim();
+
+  inferenceApply.disabled = true;
+  inferenceStatus.textContent = "Switching inference for this session…";
+
+  try {
+    const result = await world.setInference({ provider, model });
+    if (result && result.inference) adultInference = result.inference;
+    if (result && result.state) {
+      state = result.state;
+      render();
+    }
+    if (!result || !result.ok) {
+      inferenceStatus.textContent =
+        result && result.error || "Inference selection was refused.";
+    }
+  } catch (error) {
+    console.error(error);
+    inferenceStatus.textContent = "Inference selection is unavailable.";
+  }
+
+  renderInferenceControls();
+  updateConversationControls();
+}
+
 function conversationCapabilities() {
   return state && state.capabilities || {};
 }
@@ -3077,6 +3182,7 @@ document.getElementById("cover-enter").addEventListener("click", () => {
 
 document.getElementById("adult-hotspot").addEventListener("click", () => {
   adultPanel.hidden = false;
+  refreshInferenceControls();
 });
 
 childHelpButton.addEventListener("click", openChildHelp);
@@ -3156,6 +3262,16 @@ document.getElementById("page-agent-go").addEventListener("click", () => {
 document.getElementById("sticker-agent-go").addEventListener("click", () => {
   requestCreatorDraft("sticker");
 });
+
+inferenceProviderSelect.addEventListener("change", () => {
+  const option = inferenceOption(inferenceProviderSelect.value);
+  inferenceModelInput.value =
+    option && option.id !== "off" ? option.default_model || "" : "";
+  updateInferenceDraft();
+});
+
+inferenceModelInput.addEventListener("input", updateInferenceDraft);
+inferenceApply.addEventListener("click", applyInferenceSelection);
 
 voiceEnable.addEventListener("change", () => {
   voiceEnabled = voiceEnable.checked;
