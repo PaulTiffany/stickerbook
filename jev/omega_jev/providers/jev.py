@@ -38,6 +38,8 @@ logger = get_logger(__name__)
 
 DEFAULT_MODEL = "typesafe/jev-1.13"
 DEFAULT_DECISIONS_PATH = "/jev/decisions"
+DEFAULT_OPENROUTER_URL = "https://openrouter.ai"
+DEFAULT_OPENROUTER_DECISIONS_PATH = "/api/alpha/decisions"
 DEFAULT_TIMEOUT = 30
 DEFAULT_MAX_TURNS = 6
 
@@ -117,6 +119,46 @@ class ProxyTransport:
         return json.loads(raw)
 
 
+class OpenShellProviderTransport:
+    """POST Decisions through OpenShell's provider credential boundary.
+
+    OPENROUTER_API_KEY is an OpenShell-injected placeholder, not the real
+    provider secret. The placeholder is presented as a bearer token and
+    OpenShell substitutes the real credential only for a policy-approved
+    request to the configured provider endpoint.
+    """
+
+    def __init__(self, url: str, timeout: int,
+                 token_env: str = "OPENROUTER_API_KEY"):
+        self.url = url
+        self.timeout = timeout
+        self.token_env = token_env
+
+    def __call__(self, payload: dict) -> dict:
+        token = os.environ.get(self.token_env, "").strip()
+        if not token:
+            raise RuntimeError(
+                "OpenShell provider placeholder is unavailable")
+        request = urllib.request.Request(
+            self.url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token,
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout) as response:
+                raw = response.read().decode("utf-8")
+        except urllib.error.HTTPError as exc:
+            detail = exc.read().decode("utf-8", errors="replace")[:300]
+            raise RuntimeError("HTTP " + str(exc.code) + ": " + detail) from exc
+        except urllib.error.URLError as exc:
+            raise RuntimeError("network failure: " + str(exc.reason)) from exc
+        return json.loads(raw)
+
+
 # ---------------------------------------------------------------------------
 # The provider
 # ---------------------------------------------------------------------------
@@ -134,6 +176,27 @@ class JevProvider(providers.LLMProvider):
         self.scene_path = ""
         self.intent = ""
         self.kernel_mode = False
+
+    def _make_transport(self, timeout: int):
+        mode = str(config_get_by_key("jevTransport", "gateway")).strip().lower()
+        if mode == "openshell":
+            base = str(config_get_by_key(
+                "jevOpenShellUrl", DEFAULT_OPENROUTER_URL)).strip()
+            path = str(config_get_by_key(
+                "jevOpenShellDecisionsPath",
+                DEFAULT_OPENROUTER_DECISIONS_PATH))
+            if not base:
+                raise RuntimeError("jevOpenShellUrl is empty")
+            return OpenShellProviderTransport(
+                base.rstrip("/") + path, timeout)
+        if mode == "gateway":
+            gateway = str(config_get_by_key("jevGatewayUrl", "")).strip() \
+                or str(config_get_by_key(
+                    "GATEWAY_URL", "http://localhost:8080"))
+            path = str(config_get_by_key(
+                "jevDecisionsPath", DEFAULT_DECISIONS_PATH))
+            return ProxyTransport(gateway.rstrip("/") + path, timeout)
+        raise RuntimeError("unsupported jevTransport: " + mode)
 
     def _kernel_actions(self):
         """Every legal key this turn -> the one fixed compilation target.
@@ -180,10 +243,7 @@ class JevProvider(providers.LLMProvider):
             self.max_turns = int(config_get_by_key("jevMaxTurns",
                                                    DEFAULT_MAX_TURNS))
             timeout = int(config_get_by_key("jevTimeout", DEFAULT_TIMEOUT))
-            gateway = str(config_get_by_key("jevGatewayUrl", "")).strip()                 or str(config_get_by_key("GATEWAY_URL", "http://localhost:8080"))
-            path = str(config_get_by_key("jevDecisionsPath",
-                                         DEFAULT_DECISIONS_PATH))
-            self.transport = ProxyTransport(gateway.rstrip("/") + path, timeout)
+            self.transport = self._make_transport(timeout)
             self.turn = 0
             self.scene_path = ""
             logger.info("[jev] provider started (StickerBook kernel mode)")
@@ -220,16 +280,11 @@ class JevProvider(providers.LLMProvider):
         self.max_turns = int(config_get_by_key("jevMaxTurns", DEFAULT_MAX_TURNS))
         timeout = int(config_get_by_key("jevTimeout", DEFAULT_TIMEOUT))
 
-        # The separate credential gateway. Preferred over Omega's in-container
-        # GATEWAY_URL, which no longer exists in this image: there is no nginx
-        # here and no secret. If jevGatewayUrl is unset we fall back, but the
-        # fallback will simply fail closed (nothing listens on localhost).
-        gateway = str(config_get_by_key("jevGatewayUrl", "")).strip() \
-            or str(config_get_by_key("GATEWAY_URL", "http://localhost:8080"))
-        path = str(config_get_by_key("jevDecisionsPath", DEFAULT_DECISIONS_PATH))
-        url = gateway.rstrip("/") + path
-
-        self.transport = ProxyTransport(url, timeout)
+        # Transport is an explicit deployment choice. "gateway" preserves the
+        # existing split-container experiment; "openshell" uses an OpenShell
+        # provider placeholder and policy-mediated direct OpenRouter request.
+        self.transport = self._make_transport(timeout)
+        url = self.transport.url
         self.turn = 0
 
         logger.info("[jev] provider started")
