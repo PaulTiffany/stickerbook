@@ -16,12 +16,14 @@ add_provider() {
   local file="$4"
 
   sb_profile_apply "$profile_id" "$file"
+  local code=0
   if sb_provider_ensure "$provider_name" "$profile_id" "$credential_var"; then
     PROVIDERS+=("$provider_name")
     return 0
+  else
+    code=$?
   fi
 
-  local code=$?
   if [[ "$code" -eq 2 ]]; then
     echo "OmegaLLM option unavailable until $credential_var is configured: $provider_name" >&2
     return 0
