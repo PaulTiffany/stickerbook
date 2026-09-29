@@ -38,16 +38,14 @@ OmegaJev experiment (`jev/`). The browser and bridge are mechanically tested
 against the kernel. The OmegaJev experiment has also been coupled to the kernel
 in its headless Stage 4 harness.
 
-The new dual-Omega browser substrate adds a bounded OmegaLLM -> OmegaJev goal
-and choice seam, but the **actual OmegaLLM and OmegaJev Omega processes are not
-yet wired into the browser runtime**. Tests use deterministic stand-ins for that
-integration. A pinned OpenShell containment layer now exists under
-`openshell/` (v0.1.2, commit
-`6648bd0c290efbc41ba131ee9831ee45cd431f94`) with separate sandbox policies,
-provider profiles, and a non-root OmegaJev image. That is an implemented
-deployment artifact, not yet end-to-end proof of the live dual-Omega path. Read
-every status marker before treating an interface-level test as proof of a
-deployed model/runtime boundary.
+The dual-Omega browser substrate now has concrete live-runtime adapters,
+separate OmegaLLM/OmegaJev role images, a bounded Omega communication channel,
+and operator-owned OpenShell boot/shutdown orchestration. Tests still use
+deterministic/local stand-ins for provider-independent host behavior; CI does
+not run the user's WSL2/Docker Desktop/OpenShell deployment. The checked-in
+runtime is therefore **IMPLEMENTED + mechanically checked, NOT YET LIVE-HOST
+VERIFIED**. Read every status marker before treating interface/static evidence
+as proof of a deployed provider/runtime boundary.
 
 ### Status vocabulary
 
@@ -65,8 +63,8 @@ must not be conflated when reporting:
 A requirement marked **N/A YET** becomes a **GAP** the moment the relevant
 surface is built. It does not become satisfied by default.
 
-Evidence is further tagged by *where* it was proved, because the two
-implementations are not yet connected:
+Evidence is further tagged by *where* it was proved, because component proof
+does not automatically become deployment proof:
 
 * **VERIFIED (core)** — proved in `core/tests/test_authority.py` against the
   authority kernel. The same kernel is now used by the localhost bridge and by
