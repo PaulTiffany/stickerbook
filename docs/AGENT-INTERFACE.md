@@ -20,8 +20,9 @@ The browser sends human language to OmegaLLM through:
 
 The bridge validates the input and fixes the browser principal. OmegaLLM
 receives only the validated text, the fixed browser principal id, a bounded
-JSON scene view, the child-facing help projection, and the optional transient
-deictic reference for that turn. It never receives the authority-kernel object
+JSON scene view, the child-facing help projection, the host-selected
+provider/model record, and the optional transient deictic reference for that
+turn. It never receives the authority-kernel object
 or the responsible-adult guide.
 
 OmegaLLM returns language and may optionally attach one bounded `goal` object,
@@ -77,6 +78,37 @@ surface**.
 
 Documentation is descriptive data. It cannot grant a capability or authorize a
 mutation.
+
+## Responsible-adult inference selection is host state
+
+The powered host exposes a separate adult-only route:
+
+`GET /api/adult/inference` / `POST /api/adult/inference`
+
+This route selects which **already configured** inference lane OmegaLLM uses for
+the current bridge session. It is not part of the normal browser state and is
+not copied into `scene.child_help`.
+
+Current lanes are:
+
+- Sponsored ASI Cloud — fixed to `minimax/minimax-m3`;
+- Anthropic — default `claude-opus-4-8`;
+- OpenAI — default `gpt-5.5`;
+- OpenRouter — default `z-ai/glm-5.2`, with a bounded model-id field;
+- ASI:One — default `asi1-ultra`;
+- Off.
+
+The bridge chooses the session lane and passes only the selected
+`{provider, model}` record to the OmegaLLM loopback adapter. A child request
+cannot override it by adding an inference field, and OmegaLLM cannot choose a
+different endpoint, credential, or billing source.
+
+The selector is currently an **audience control rather than authenticated
+parental security**. A person with direct access to the local loopback browser
+and developer tools can call the adult route. That does not grant world
+authority—the kernel remains unchanged—but a deployed product that needs to
+protect paid inference from a child would need an authenticated adult boundary.
+
 
 ## Creator drafts are also non-authoritative
 
