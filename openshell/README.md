@@ -193,7 +193,8 @@ Implemented in the branch:
 - static CI contract checks in `openshell/verify.py`.
 
 Verified on the 2026-09-29 live host (Windows 11 + WSL2 + Docker Desktop,
-kernel `6.6.87.2-microsoft-standard-WSL2`):
+kernels `6.6.87.2-microsoft-standard-WSL2` and, after a later `wsl --update`,
+`6.18.40.1-microsoft-standard-WSL2`):
 
 - the launcher installed the pinned v0.1.2 release itself and the gateway came
   up authenticated over mTLS;
@@ -210,9 +211,36 @@ Blocked on that host, and therefore still unproven:
   launcher disappeared`. This reproduces from a bare local image with no
   StickerBook policy and no provider attached, so it is not caused by the
   configuration in this directory. Upstream NVIDIA/OpenShell issue #3842
-  reports the same failure text on the same WSL2 kernel family; our
-  reproduction matches that report, and we have not independently confirmed
-  the mechanism it suspects.
+  reports the same failure text on the same WSL2 kernel family.
+
+  **The newer-kernel hypothesis was tested on this host and did not hold.**
+  A datapoint on #3842 reports OpenShell 0.1.2 working on WSL2 kernel
+  6.18.x, so on 2026-09-29 this machine was moved from WSL 2.5.9.0 /
+  `6.6.87.2-microsoft-standard-WSL2` to WSL 3.0.1.0 /
+  `6.18.40.1-microsoft-standard-WSL2` with `wsl --update`, changing nothing
+  else: same pinned OpenShell 0.1.2, same Docker Desktop 4.92.0, same
+  gateway, no policy, no provider. The identical failure reproduced on every
+  valid attempt. Kernel version alone is therefore not the differentiator
+  here.
+
+  Measured alongside it, and worth carrying upstream: this kernel **does**
+  support seccomp user notification. `seccomp(SECCOMP_GET_NOTIF_SIZES)`
+  returns 0 with sizes 80/24/64 both in the WSL distro and inside an
+  ordinary default-profile Docker container, and the engine reports
+  `seccomp` with the builtin profile. So the failure is narrower than a
+  missing kernel capability: OpenShell's own notification launcher process
+  disappears during the probe. We have not confirmed why, and did not
+  investigate further inside OpenShell, which stays pinned and unpatched.
+
+  Because the seccomp boundary never opened, the separate Docker-driver
+  gateway-connectivity problem in upstream issue #3880 was **not** reached
+  and its suggested `grpc_endpoint` setting was **not** applied. Note also
+  that this install has no `~/.config/openshell/gateway.toml`: the endpoint
+  lives in `~/.config/openshell/gateways/<name>/metadata.json`
+  (`gateway_endpoint`, currently `https://127.0.0.1:17670`) beside an
+  `mtls/` directory. Any future attempt at the #3880 remedy must first
+  establish what this build actually reads, rather than creating a file the
+  reported configuration assumes.
 - successful OpenRouter/Jev call and calls through the configured OmegaLLM
   provider profiles;
 - observed canonical SWI identity in the running sandbox;
@@ -227,6 +255,16 @@ be worked around with privileged containers, added capabilities, weakened
 seccomp, an alternate unrestricted sandbox, a repository mount, or a Docker
 socket. Powered execution is **BLOCKED_UPSTREAM / LIVE GRAPH UNVERIFIED**
 until upstream moves or the runtime is exercised on a non-WSL2 Linux host.
+
+Live qualification milestones, each marked only once actually proven:
+
+```text
+OpenShell base sandbox:   BLOCKED (#3842 seccomp probe, both kernels)
+containment controls:     NOT REACHED
+OmegaJev sandbox:         NOT REACHED
+OmegaLLM sandbox:         NOT REACHED
+integrated powered graph: NOT REACHED
+```
 
 Static artifacts do not inherit the **VERIFIED** status of the older
 split-container OmegaJev gateway experiment.
