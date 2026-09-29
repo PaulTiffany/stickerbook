@@ -45,6 +45,7 @@ class RpcIdentityCase(unittest.TestCase):
                             with self.assertRaisesRegex(RuntimeError, "role does not match"):
                                 provider.set_provider_ready("omegallm" if role == "omegajev" else "omegajev")
                             provider.set_provider_ready(role)
+                            self.assertEqual(serving.state.server.server_address[0], "127.0.0.1")
                             port = serving.state.server.server_address[1]
                             with urllib.request.urlopen(f"http://127.0.0.1:{port}/health") as response:
                                 health = json.load(response)
