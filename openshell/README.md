@@ -242,10 +242,61 @@ Blocked on that host, and therefore still unproven:
   So the supported reading is narrow: WSL 6.18 did not remove the blocker on
   this host, the size query succeeds, and the active listener-installation
   path OpenShell actually uses still fails before a listener reaches the
-  broker. Which step fails, and whether the kernel is implicated, is not yet
-  established. What the two kernels together do show is that kernel
-  **version alone** is not sufficient to explain the difference between this
-  machine and the working 6.18 report. OpenShell stays pinned and unpatched.
+  broker. Kernel **version alone** is not sufficient to explain the
+  difference between this machine and the working 6.18 report. OpenShell
+  stays pinned and unpatched.
+
+### Which step fails, and why
+
+A disposable probe reproduced OpenShell's launcher sequence directly:
+`PR_SET_NO_NEW_PRIVS`, `SECCOMP_GET_NOTIF_SIZES`, then
+`SECCOMP_SET_MODE_FILTER` with `NEW_LISTENER | WAIT_KILLABLE_RECV` for one
+harmless syscall. Run unprivileged on the WSL host and in an ordinary
+default-profile Docker Desktop container, with no `--privileged`, no
+`seccomp=unconfined` and no added capabilities:
+
+```text
+                                       WSL host      Docker container
+PR_SET_NO_NEW_PRIVS                    OK            OK
+SECCOMP_GET_NOTIF_SIZES                OK 80/24/64   OK 80/24/64
+SET_MODE_FILTER NEW_LISTENER|WAIT_K.   EBUSY (16)    EBUSY (16)
+SET_MODE_FILTER NEW_LISTENER alone     EBUSY (16)    EBUSY (16)
+SET_MODE_FILTER flags=0 (plain)        OK            OK
+notification round trip                not reached   not reached
+```
+
+The install fails, so no listener is ever created and none is sent to the
+broker. That is precisely the point at which OpenShell reports
+`notification launcher disappeared`.
+
+`EBUSY` is the informative part. Seccomp filtering itself works: a plain
+filter installs cleanly in the same process. In the kernel's
+`seccomp_set_mode_filter`, `-EBUSY` comes from `has_duplicate_listener()`,
+which walks the calling task's filter chain and refuses when a filter there
+already carries a notifier; a mode-assignment problem would be `-EINVAL`
+instead. So a notifier already exists in the inherited chain.
+
+It does. Every process in this WSL distro is already in
+`SECCOMP_MODE_FILTER` — 40 of 40 observed, including PID 1 — and the
+processes holding it at the root are WSL's own init layer (`PID 2
+init-systemd(...)`, `PID 3 init-watcher`), so the filter predates systemd
+and is inherited by everything. Containers inherit it too, showing three
+stacked filters, because Docker Desktop's engine itself runs in a WSL
+distro. Seccomp filters cannot be removed once installed.
+
+That is a complete mechanical account of the failure, and it explains why
+the kernel upgrade changed nothing, why the same error appears inside
+containers, and why OpenShell's fallback cannot help: the fallback is
+guarded on `EINVAL`, and this is `EBUSY`. One inference remains untested —
+that the notifier is carried by the inherited WSL filter specifically,
+rather than by something else in the chain. `EBUSY` admits no other source,
+but the filter was not dumped to confirm it directly.
+
+The practical consequence is that no process under WSL2 on this host can
+install a seccomp user-notification listener, so OpenShell's Docker driver
+cannot start a sandbox here at any kernel version. This is an environment
+property, not a StickerBook or OpenShell configuration fault, and it is not
+something to work around.
 
   Because the seccomp boundary never opened, the separate Docker-driver
   gateway-connectivity problem in upstream issue #3880 was **not** reached
@@ -274,7 +325,9 @@ until upstream moves or the runtime is exercised on a non-WSL2 Linux host.
 Live qualification milestones, each marked only once actually proven:
 
 ```text
-OpenShell base sandbox:   BLOCKED (#3842 seccomp probe, both kernels)
+OpenShell base sandbox:   BLOCKED (listener install returns EBUSY under
+                          WSL2: a notifier is already present in every
+                          process's inherited filter chain)
 containment controls:     NOT REACHED
 OmegaJev sandbox:         NOT REACHED
 OmegaLLM sandbox:         NOT REACHED
