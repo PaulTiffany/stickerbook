@@ -57,6 +57,7 @@ sb_sandbox_create_service() {
 
   local provider_args=()
   local provider
+  local -a _providers=()
   IFS=',' read -r -a _providers <<< "$providers_csv"
   for provider in "${_providers[@]}"; do
     [[ -n "$provider" ]] && provider_args+=(--provider "$provider")
