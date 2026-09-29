@@ -30,3 +30,6 @@ jobs:
       - name: Test web bridge
         working-directory: web
         run: python -m unittest discover -s tests
+
+      - name: Verify pinned OpenShell integration contract
+        run: python openshell/verify.py
