@@ -38,10 +38,19 @@ for path in (
     assert "host: openrouter.ai" in profile
     assert "enforcement: enforce" in profile
     assert "OPENROUTER_API_KEY" in profile
-    assert "/usr/local/bin/swipl" in profile
-    assert "/usr/bin/swipl" in profile
-    for forbidden in ("curl", "bash", "sh\n", "python3"):
-        assert forbidden not in profile
+    binary_lines = []
+    in_binaries = False
+    for line in profile.splitlines():
+        if line.strip() == "binaries:":
+            in_binaries = True
+            continue
+        if in_binaries:
+            if line.startswith("  - "):
+                binary_lines.append(line[4:].strip())
+                continue
+            if line and not line.startswith(" "):
+                break
+    assert binary_lines == ["/usr/local/bin/swipl", "/usr/bin/swipl"]
 
 dockerfile = read("jev/Dockerfile.openshell")
 assert "USER 65534:65534" in dockerfile
