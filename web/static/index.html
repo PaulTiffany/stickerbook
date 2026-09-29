@@ -46,7 +46,7 @@
   </button>
 
   <button id="adult-hotspot" class="adult-hotspot" type="button"
-          aria-label="Responsible adult and developer controls">
+          aria-label="Responsible adult controls and information">
     <span aria-hidden="true">⚙</span>
   </button>
 </section>
@@ -157,6 +157,11 @@
     </button>
   </div>
 
+  <button id="child-help-btn" class="help-orb" type="button"
+          aria-label="How StickerBook works">
+    <span aria-hidden="true">?</span>
+  </button>
+
   <button id="voice-orb" class="voice-orb" type="button" hidden
           aria-label="Talk to StickerBook">
     <span class="voice-orb-icon" aria-hidden="true">🎙️</span>
@@ -179,6 +184,20 @@
     </div>
   </section>
 </main>
+
+<section id="child-help-panel" class="child-help-panel" hidden
+         aria-label="How StickerBook works">
+  <button id="child-help-backdrop" class="help-backdrop" type="button"
+          aria-label="Close help"></button>
+  <div class="help-card">
+    <button id="child-help-close" class="round-control small" type="button"
+            aria-label="Close help">×</button>
+    <div class="eyebrow">StickerBook help</div>
+    <h2 id="child-help-title">How StickerBook works</h2>
+    <p id="child-help-intro"></p>
+    <div id="child-help-topics" class="help-topics"></div>
+  </div>
+</section>
 
 <section id="sticker-overlay" class="sticker-overlay" hidden aria-label="Sticker library">
   <button id="library-backdrop" class="library-backdrop" type="button" aria-label="Close sticker library"></button>
@@ -253,7 +272,7 @@
   <button id="adult-backdrop" class="adult-backdrop" type="button" aria-label="Close adult controls"></button>
   <div class="adult-card">
     <button id="adult-close" class="round-control small" type="button" aria-label="Close">×</button>
-    <div class="eyebrow">Responsible adult / developer</div>
+    <div class="eyebrow">Responsible adult</div>
     <h2>StickerBook</h2>
     <p id="adult-world-note"></p>
 
@@ -276,11 +295,23 @@
 
     </div>
 
-    <div class="adult-links">
-      <a id="repo-link" href="https://github.com/PaulTiffany/stickerbook"
-         target="_blank" rel="noopener noreferrer">GitHub repository</a>
-      <a id="dev-link" href="?dev=1">Developer receipts</a>
-    </div>
+    <section class="adult-guide" aria-labelledby="adult-guide-title">
+      <div class="eyebrow">Parent guide</div>
+      <h3 id="adult-guide-title">How StickerBook works</h3>
+      <p id="adult-guide-summary"></p>
+      <div id="adult-guide-sections"></div>
+    </section>
+
+    <section class="adult-developer-links" aria-label="Research and developer links">
+      <div class="eyebrow">Research / developer</div>
+      <div class="adult-links">
+        <a id="repo-link" href="https://github.com/PaulTiffany/stickerbook"
+           target="_blank" rel="noopener noreferrer">GitHub repository</a>
+        <a href="https://github.com/PaulTiffany/stickerbook/blob/main/docs/TOOLS-AND-MODIFICATIONS.md"
+           target="_blank" rel="noopener noreferrer">Tools & modifications</a>
+        <a id="dev-link" href="?dev=1">Developer receipts</a>
+      </div>
+    </section>
   </div>
 </section>
 

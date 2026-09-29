@@ -19,9 +19,10 @@ it.
 
 | | |
 |---|---|
-| **`core/`** | Headless authority kernel: principals, sticker ownership, revisions, receipts, deployment ceilings, action budgets, and legal-action tables. Standard library only. 67 tests. |
+| **`core/`** | Headless authority kernel: principals, sticker ownership, revisions, receipts, deployment ceilings, action budgets, and legal-action tables. Standard library only; mechanically tested. |
 | **`web/`** | Child-facing StickerBook surface with a title page, image-forward page gallery, active page, working sticker hotbar, overlay sticker library, mechanical animations, and responsible-adult/developer access. The same renderer supports a governed localhost world and a mechanical public world. |
-| **`jev/`** | OmegaJev: typed Jev decision selection inside a bounded Omega path. The model selects from host-provided legal choices; the host validates the choice and the kernel decides. 40 unit tests plus container/host verification suites. |
+| **`jev/`** | OmegaJev: typed Jev decision selection inside a bounded Omega path. The model selects from host-provided legal choices; the host validates the choice and the kernel decides. Unit tests plus container/host verification suites. |
+| **`openshell/` + `runtime/`** | Pinned OpenShell v0.1.2 containment plus governed local orchestration: separate non-root OmegaLLM/OmegaJev sandboxes, role-specific provider profiles, loopback-only runtime adapters, voice-first conversation wiring, and one-command Windows/WSL start/stop. Mechanically checked; live WSL2/OpenShell proof remains a deployment milestone. |
 
 ## Child-facing navigation
 
@@ -44,8 +45,8 @@ ACTIVE PAGE
 The page gallery is thumbnail-first, like an image browser. The title page is
 itself the primary navigation target: touch the cover to open the page gallery.
 
-The current public mechanical book includes four visual pages from the asset
-manifest: **Farm, Beach, Playground, and Space**. Each page keeps its own
+The current public mechanical book includes six visual pages from the asset
+manifest: **Farm, Beach, Playground, Space, School, and Theater**. Each page keeps its own
 in-memory StickerInstances during the demo session. The governed localhost world still
 only exposes pages that the authority kernel actually implements; additional
 art does not silently create governed state.
@@ -134,7 +135,11 @@ human gesture / agent choice
 ```
 
 Omega/Jev integration remains local and bounded. Models do not directly mutate
-the page.
+the page. The powered deployment has a pinned OpenShell containment layer under
+`openshell/` plus operator-owned boot/shutdown under `runtime/`. OpenShell
+constrains the live process/filesystem/network boundary while the StickerBook
+kernel remains the authority boundary. The bridge talks to each Omega role only
+through explicit loopback adapters; neither sandbox receives the kernel object.
 
 ## Visual asset system
 
@@ -215,6 +220,25 @@ installed assets or scene mutations.
 See [`docs/AGENT-INTERFACE.md`](docs/AGENT-INTERFACE.md) for the interface
 contract and voice/privacy boundary.
 
+## In-app documentation
+
+StickerBook now carries two intentionally different in-app documentation
+surfaces from `web/static/help.json`:
+
+- a child-facing **?** guide on the play surface, written in simple language
+  about dragging, removing, animation, talking/pointing, and what StickerBook
+  can and cannot do;
+- a **Responsible adult guide** inside the title-page gear panel, covering
+  voice/privacy, the OmegaLLM/OmegaJev split, public-versus-powered mode,
+  child authority limits, start/stop behavior, and current limitations.
+
+Only the `child` branch is projected into OmegaLLM context. The responsible-
+adult branch remains outside the model's observation surface. This is an
+audience/view boundary, not a secrecy claim: both branches are static UI data.
+
+For the full research/developer dependency and modification ledger, see
+[`docs/TOOLS-AND-MODIFICATIONS.md`](docs/TOOLS-AND-MODIFICATIONS.md).
+
 ## Security boundary
 
 The root [`SECURITY.md`](SECURITY.md) is the binding security model.
@@ -226,7 +250,33 @@ adjudicates.
 
 The public Pages build is intentionally outside that powered path.
 
+For the powered localhost path, OpenShell is pinned to **v0.1.2**
+(commit `6648bd0c290efbc41ba131ee9831ee45cd431f94`). Separate policies are kept
+for OmegaLLM and OmegaJev; neither base policy grants network access. Provider
+access is contributed explicitly at the OpenShell boundary. See
+[`openshell/README.md`](openshell/README.md).
+
 ## Running locally
+
+### Powered governed runtime — normal path
+
+On the Windows host, double-click **`Start StickerBook.cmd`**. The launcher
+uses WSL2 + Docker Desktop, verifies/builds the pinned runtime, starts the
+separate OmegaLLM and OmegaJev OpenShell sandboxes, health-checks them, starts
+the authority bridge, and opens `http://127.0.0.1:8756/`.
+
+The first powered start may ask once for the OpenRouter API key if the
+role-specific OpenShell providers have not yet been created. The key is not
+written into repository/runtime state. Later starts reuse the OpenShell
+providers.
+
+Double-click **`Stop StickerBook.cmd`** to stop the bridge and delete both
+StickerBook sandboxes without requiring agent cooperation.
+
+This path is **implemented and CI/mechanically checked, but not yet claimed as
+live-host verified**. See [`runtime/README.md`](runtime/README.md).
+
+### Bridge-only development path
 
 ```bash
 cd web
@@ -234,8 +284,9 @@ python bridge.py
 # open http://127.0.0.1:8756/
 ```
 
-Add `?dev=1` to show revision, acting principal, verdicts, and receipts.
-Add `?mechanical=1` to preview the public adapter locally.
+Without explicit runtime URLs, both Omega adapters remain inert. Add `?dev=1`
+to show revision, acting principal, verdicts, and receipts. Add
+`?mechanical=1` to preview the public adapter locally.
 
 ## Tests
 
@@ -253,21 +304,27 @@ Browser JavaScript is syntax-checked in GitHub Actions.
 |---|---|
 | [`SECURITY.md`](SECURITY.md) | Constitutional security model and implementation status. |
 | [`docs/MEDIUM.md`](docs/MEDIUM.md) | Why the sticker-book medium is itself the experiment. |
-| [`docs/AGENT-INTERFACE.md`](docs/AGENT-INTERFACE.md) | Conversational Omega, voice, creator drafts, and authority separation. |
+| [`docs/AGENT-INTERFACE.md`](docs/AGENT-INTERFACE.md) | Conversational Omega, voice, creator drafts, documentation projection, and authority separation. |
+| [`docs/TOOLS-AND-MODIFICATIONS.md`](docs/TOOLS-AND-MODIFICATIONS.md) | Research/developer ledger of upstream tools, exact pins, local modifications, rationale, trust boundaries, and verification status. |
 | [`core/README.md`](core/README.md) | Authority kernel. |
 | [`web/README.md`](web/README.md) | Browser, page, and bridge behavior. |
 | [`jev/SECURITY.md`](jev/SECURITY.md) | OmegaJev boundaries and verification. |
 | [`jev/EXPERIMENT.md`](jev/EXPERIMENT.md) | Experimental record, including failures and retractions. |
+| [`openshell/README.md`](openshell/README.md) | Pinned containment layer, policies, provider profiles, and current proof boundary. |
+| [`runtime/README.md`](runtime/README.md) | One-command boot/shutdown, dual-Omega loopback seams, and voice-first deployment graph. |
 | [`NOTICE`](NOTICE) | Third-party attribution and upstream modifications. |
 
 ## Current direction
 
-The immediate product problem is the shared visual medium, not more autonomous
-capability. The UI should remain recognizable to a child before we expand
-agent behavior.
+The foundational local substrate is now represented in code: child voice/text
+enters OmegaLLM, bounded goals enter OmegaJev, typed host-owned keys return to
+the authority kernel, and operator-owned orchestration starts/stops the two
+OpenShell sandboxes plus the bridge. The remaining infrastructure milestone is
+live-host verification of that exact graph on WSL2/Docker Desktop.
 
-The next agent integration should expose bounded, legal sticker behavior on the
-same page without creating a second authority system.
+After that proof, work can move back toward StickerBook behavior itself —
+movement-pattern learning, richer child-directed animation, and creator
+features — without granting either Omega loop a second authority system.
 
 Persistence, accounts, social discovery, powered Sticker Maker behavior, and
 broader multi-agent delegation remain separate future work.
@@ -275,8 +332,8 @@ broader multi-agent delegation remain separate future work.
 ## Built on
 
 StickerBook draws from and experiments with several projects and prior design
-lines, including AlphaClaw, Chalked, SingularityNET Omega, PeTTa, OpenRouter,
-and TypeSafe Jev. See [`NOTICE`](NOTICE) and the relevant component documents
+lines, including AlphaClaw, Chalked, SingularityNET Omega, PeTTa, NVIDIA
+OpenShell, OpenRouter, and TypeSafe Jev. See [`NOTICE`](NOTICE) and the relevant component documents
 for exact third-party licensing and version information.
 
 Omega's source is not vendored here. The tested upstream versions and local

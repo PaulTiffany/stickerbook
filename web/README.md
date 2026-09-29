@@ -31,8 +31,8 @@ gallery. A small bottom-right title-page target is reserved for responsible
 adult / developer controls.
 
 The gallery is thumbnail-first. In the public mechanical profile it is driven
-by the asset manifest and currently exposes **Farm, Beach, Playground, and
-Space**, plus a **+ Make a page** tile. Each public demo page has independent
+by the asset manifest and currently exposes **Farm, Beach, Playground, Space,
+School, and Theater**, plus a **+ Make a page** tile. Each public demo page has independent
 in-memory StickerInstances for the current session.
 
 The governed localhost profile is intentionally stricter: a visual page asset
@@ -96,8 +96,9 @@ creators expose **Upload** and **Make with StickerBook**. The installed sticker
 catalog is no longer assumed to fit comfortably in one tiled view: the library
 has deterministic text search over names, aliases, themes, categories and tags,
 plus world/theme and category chips. Search is local catalog filtering, not a
-model call. The current built-in catalog contains 33 sticker definitions / 132
-initial pose sprites across Farm, Beach, Playground, Space, School, and Theater.
+model call. The current built-in catalog contains 76 sticker definitions, each
+with four initial pose sprites, across Farm, Beach, Playground, Space, School,
+and Theater.
 
 Page uploads accept SVG, PNG, JPEG/JPG, and WebP. On public GitHub Pages the
 selected file remains a local browser preview and is never sent to a model. In
@@ -163,8 +164,9 @@ animation-only choice surface instead.
 
 ## Adult / developer controls
 
-The title-page gear opens a deliberately separate **Responsible adult /
-developer** panel. It links directly to the project repository at
+The title-page gear opens a deliberately separate **Responsible adult** panel.
+Research/developer links are grouped in their own footer inside that panel rather
+than being presented as part of the parent guide. It links directly to the project repository at
 `https://github.com/PaulTiffany/stickerbook` and exposes conversational
 runtime options without mixing those controls into the child's normal play
 surface.
@@ -185,12 +187,42 @@ The developer receipts panel opened with `?dev=1` has its own **×** control.
 Closing it removes the `dev` query flag from the current URL and returns to
 the normal child title surface without requiring a manual reload.
 
+## In-app help and audience separation
+
+`web/static/help.json` is the checked-in source for two different in-app
+documentation audiences:
+
+- `child` — rendered from the play-surface **?** button;
+- `adult` — rendered inside the Responsible adult / developer panel.
+
+The child guide explains play mechanics and bounded AI behavior in simple
+language. It intentionally contains no API-key, Docker, OpenShell, repository,
+provider, or policy-approval instructions.
+
+The parent guide explains voice/privacy, the OmegaLLM/OmegaJev split, the
+authority kernel, public-versus-powered deployment, child authority limits,
+start/stop behavior, and current implementation limits.
+
+The bridge treats documentation as a view capability. For conversational turns
+it builds a private conversation scene from the ordinary browser state plus:
+
+```json
+{"child_help": { ... }}
+```
+
+Only the `child` branch is copied there. The `adult` branch is never sent to
+OmegaLLM. This is mechanically tested in
+`web/tests/test_help_content.py`.
+
+The public Pages build ships the same static help data so the explanatory UI
+can be reviewed without a live agent.
+
 ## Dual Omega / creator seams
 
 The child-facing agent architecture has two separate Omega loops:
 
-- **OmegaLLM** receives voice/text/deictic context and may return language plus
-  one bounded semantic goal.
+- **OmegaLLM** receives voice/text/deictic context, the child-facing help
+  projection, and may return language plus one bounded semantic goal.
 - **OmegaJev** receives that goal with fresh governed scene state and chooses
   one key at a time from a finite host-generated action surface.
 
@@ -211,8 +243,11 @@ Creation remains separate:
   and portrait page-image draft metadata.
 
 Creator/media seams receive no kernel object and cannot install themselves.
-The shipped OmegaLLM and OmegaJev runtime adapters are inert by default. Public
-GitHub Pages ships neither Python runtime nor provider credential.
+The shipped OmegaLLM and OmegaJev runtime adapters remain inert by default, but
+may be explicitly attached to the governed loopback services with
+`STICKERBOOK_OMEGA_LLM_URL` and `STICKERBOOK_OMEGA_JEV_URL`. Those adapters
+refuse non-loopback URLs and carry no provider credential or kernel object.
+Public GitHub Pages ships neither Python runtime nor provider credential.
 
 ## Governed localhost path
 
@@ -251,12 +286,17 @@ Add `?dev=1` for revision, acting principal, last verdict, and receipt stream.
 **If Python changes, restart the bridge.** Static HTML/CSS/JS are read per
 request, but the kernel is imported once at startup.
 
+For the complete powered path, use the repository-root
+`Start StickerBook.cmd`; it starts the two OpenShell-contained Omega loops
+before attaching the bridge. For bridge-only development:
+
 ```bash
 cd web
 python bridge.py
 # http://127.0.0.1:8756/
 ```
 
+With no runtime URL environment variables, the bridge remains model-inert.
 Add `?mechanical=1` to exercise the same public mechanical adapter locally.
 
 ### Optional local page-image gateway

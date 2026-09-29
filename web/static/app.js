@@ -53,6 +53,15 @@ const stickerCategories = document.getElementById("sticker-categories");
 const stickerLibraryView = document.getElementById("sticker-library-view");
 const stickerMakerView = document.getElementById("sticker-maker-view");
 const adultPanel = document.getElementById("adult-panel");
+const childHelpPanel = document.getElementById("child-help-panel");
+const childHelpButton = document.getElementById("child-help-btn");
+const childHelpClose = document.getElementById("child-help-close");
+const childHelpBackdrop = document.getElementById("child-help-backdrop");
+const childHelpTitle = document.getElementById("child-help-title");
+const childHelpIntro = document.getElementById("child-help-intro");
+const childHelpTopics = document.getElementById("child-help-topics");
+const adultGuideSummary = document.getElementById("adult-guide-summary");
+const adultGuideSections = document.getElementById("adult-guide-sections");
 const voiceOrb = document.getElementById("voice-orb");
 const voiceOrbState = document.getElementById("voice-orb-state");
 const voiceEnable = document.getElementById("voice-enable");
@@ -77,6 +86,7 @@ const dev = {
 
 let state = null;
 let assetManifest = null;
+let helpContent = null;
 let seq = 0;
 let pendingDefinition = null;
 let placementPreview = null;
@@ -107,6 +117,85 @@ const el = (name, attrs = {}) => {
   }
   return node;
 };
+
+async function loadHelpContent() {
+  try {
+    const res = await fetch("static/help.json", { cache: "no-store" });
+    if (!res.ok) throw new Error("help content: HTTP " + res.status);
+    const help = await res.json();
+    if (!help || help.version !== 1 ||
+        !help.child || !Array.isArray(help.child.topics) ||
+        !help.adult || !Array.isArray(help.adult.sections)) {
+      throw new Error("unsupported help schema");
+    }
+    helpContent = help;
+  } catch (error) {
+    console.warn("StickerBook help content unavailable.", error);
+    helpContent = null;
+  }
+}
+
+function appendHelpParagraph(parent, text) {
+  const p = document.createElement("p");
+  p.textContent = String(text || "");
+  parent.appendChild(p);
+}
+
+function renderHelpContent() {
+  if (!helpContent) {
+    childHelpIntro.textContent =
+      "Help is unavailable right now. You can still drag stickers, use + to find more, and drag a sticker to the bottom bar to remove it.";
+    childHelpTopics.replaceChildren();
+    adultGuideSummary.textContent =
+      "The parent guide could not be loaded. The GitHub repository contains the technical documentation.";
+    adultGuideSections.replaceChildren();
+    return;
+  }
+
+  childHelpTitle.textContent = helpContent.child.title;
+  childHelpIntro.textContent = helpContent.child.intro;
+  childHelpTopics.replaceChildren();
+
+  for (const topic of helpContent.child.topics) {
+    const article = document.createElement("article");
+    article.className = "help-topic";
+
+    const heading = document.createElement("h3");
+    heading.textContent = topic.title;
+
+    const text = document.createElement("p");
+    text.textContent = topic.text;
+
+    article.append(heading, text);
+    childHelpTopics.appendChild(article);
+  }
+
+  adultGuideSummary.textContent = helpContent.adult.summary;
+  adultGuideSections.replaceChildren();
+
+  helpContent.adult.sections.forEach((section, index) => {
+    const details = document.createElement("details");
+    details.className = "adult-guide-section";
+    if (index === 0) details.open = true;
+
+    const summary = document.createElement("summary");
+    summary.textContent = section.title;
+    details.appendChild(summary);
+
+    for (const paragraph of section.paragraphs || []) {
+      appendHelpParagraph(details, paragraph);
+    }
+    adultGuideSections.appendChild(details);
+  });
+}
+
+function openChildHelp() {
+  childHelpPanel.hidden = false;
+}
+
+function closeChildHelp() {
+  childHelpPanel.hidden = true;
+}
 
 async function loadAssetManifest() {
   try {
@@ -2898,6 +2987,10 @@ document.getElementById("adult-hotspot").addEventListener("click", () => {
   adultPanel.hidden = false;
 });
 
+childHelpButton.addEventListener("click", openChildHelp);
+childHelpClose.addEventListener("click", closeChildHelp);
+childHelpBackdrop.addEventListener("click", closeChildHelp);
+
 document.getElementById("adult-close").addEventListener("click", () => {
   adultPanel.hidden = true;
 });
@@ -3048,6 +3141,11 @@ document.addEventListener("keydown", (event) => {
     return;
   }
 
+  if (!childHelpPanel.hidden) {
+    closeChildHelp();
+    return;
+  }
+
   if (!adultPanel.hidden) {
     adultPanel.hidden = true;
     return;
@@ -3073,7 +3171,8 @@ document.addEventListener("keydown", (event) => {
 if (DEV) dev.panel.hidden = false;
 
 async function boot() {
-  await loadAssetManifest();
+  await Promise.all([loadAssetManifest(), loadHelpContent()]);
+  renderHelpContent();
   startStickerFrameTicker();
   drawCover();
   showScreen("cover");

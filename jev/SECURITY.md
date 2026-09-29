@@ -280,6 +280,8 @@ action question (tested).
 
 ## 4. Network boundary
 
+### Verified gateway profile (`jevTransport=gateway`)
+
 **Allowed destination: exactly one, and the agent has no other route.**
 
 ```
@@ -310,12 +312,14 @@ code has been deleted from the image.
 
 ## 5. Secret handling
 
-**The API key is never in the agent's container at all.**
+### Verified gateway credential profile
+
+**The API key is never in the agent's container at all in gateway mode.**
 
 Since the gateway was separated, `OPENROUTER_API_KEY` is not passed to the
 agent container in any form — verified against both the image config and a
 running container. What follows describes the additional upstream protections
-that remain in force.
+that remain in force for `jevTransport=gateway`.
 
 1. The key is supplied to the **gateway** container only, as
    `OPENROUTER_API_KEY`. It is never passed to the agent container.
@@ -350,6 +354,80 @@ Docker with `-e OPENROUTER_API_KEY` (name only, value from the environment).
 ```powershell
 [Environment]::SetEnvironmentVariable("OPENROUTER_API_KEY", $null, "User")
 ```
+
+### OpenShell provider profile (`jevTransport=openshell`)
+
+**IMPLEMENTED + mechanically checked, NOT YET LIVE-HOST VERIFIED.** The
+OpenShell deployment mode is a separate containment profile; it does not inherit
+the gateway profile's mechanical verification above.
+
+The base sandbox policy contains no network rules. The attached
+StickerBook-specific provider contributes the sole OpenRouter endpoint. The real
+provider secret remains at the OpenShell boundary. OmegaJev sees only the
+provider placeholder in `OPENROUTER_API_KEY` and presents that placeholder to
+`https://openrouter.ai/api/alpha/decisions`; OpenShell substitutes the real
+credential only on the approved route.
+
+The derived `Dockerfile.openshell` runs uid/gid 65534 and bypasses the legacy
+nginx startup. No StickerBook repository or Docker socket is mounted into the
+sandbox.
+
+OpenShell authorizes egress against the kernel-resolved executable identity.
+The pinned SWI image is built with `CMAKE_INSTALL_PREFIX=/usr`, and the
+provider profile now authorizes only:
+
+```text
+/usr/lib/swipl/bin/x86_64-linux/swipl
+```
+
+The operator launcher independently checks `readlink -f $(command -v swipl)`
+inside both derived role images and refuses to start if it differs. A live
+sandbox must still observe that identity before this status advances to
+VERIFIED.
+
+#### Browser service mode: `jevActionSet=stickerbook-rpc`
+
+The live browser path deliberately does **not** use the legacy in-container
+StickerBook kernel coupling. The authoritative kernel stays in
+`web/bridge.py`.
+
+The host sends OmegaJev only:
+
+- one validated semantic goal;
+- a bounded fresh scene;
+- the finite host-owned action-description map;
+- the current turn and host-bounded maximum (at most six).
+
+Every offered key is mapped inside the provider to exactly the same executable
+literal, `sb-return`. Jev's typed decision identifies one offered key; that key
+is staged as data, Omega executes the fixed zero-argument return skill, and the
+host validates the returned key against its current table before calling the
+kernel.
+
+Thus the live service executable vocabulary is **`{sb-return}`**, not
+`{sb-apply}`. `sb-apply` remains the legacy in-container kernel experiment.
+The browser-service model cannot put a sticker id, coordinate, animation name,
+or action key into executable text.
+
+The communication channel itself is a real Omega `CommChannel`
+(`runtime/omega/stickerbookrpc.py`), bound to sandbox loopback. OpenShell
+forwards host `127.0.0.1:8762` to it. Only one request may be active at a time,
+matching Omega's sequential loop.
+
+OpenShell service creation uses `--approval-mode manual`. The agent cannot
+approve policy expansion, modify the provider, edit orchestration, mount the
+repository, or acquire Docker authority.
+
+The two gateway-profile statements that must not be generalized remain:
+
+- the OpenShell sandbox may reach its policy-approved OpenRouter endpoint;
+- OmegaJev can observe the OpenShell placeholder value, though not the real
+  OpenRouter secret.
+
+Required live proof is documented in `../runtime/README.md`: successful
+Decisions API use, denied unrelated egress, placeholder-only secret visibility,
+canonical executable identity, offered-key-only selection, host/kernel receipt,
+and external teardown.
 
 ---
 
@@ -438,9 +516,12 @@ persisted or exported.
 * **`supervise.py` is the brake** — a separate host process enforcing a turn
   count, a stall timeout and a wall-clock deadline, sharing no process, pipe
   or failure mode with the agent. See §11 and root `SECURITY.md` §19.
-* `jevMaxTurns: 6` — an in-process **backstop**, not the brake. After 6
-  decisions the provider logs `TURN LIMIT REACHED (6). STOPPING.` and calls
-  `os._exit(0)`. It only advances while the agent is healthy.
+* In legacy standalone modes, `jevMaxTurns: 6` remains an in-process
+  **backstop**, not the brake. After 6 decisions the provider exits.
+* In `stickerbook-rpc` browser-service mode the Omega process is resident and
+  does not use a cumulative provider turn counter. Each host goal supplies
+  `turn` / `max_turns`, the RPC channel rejects values above six, and the
+  host rebuilds a fresh finite table on every turn.
 * `wakeupInterval: 86400000` and `maxWakeLoops: 0` — autonomous waking and
   "keep thinking while idle" are effectively disabled.
 * The channel (`jevconsole`) delivers a single operator-supplied intent once,

@@ -8,9 +8,10 @@ Security design (see SECURITY.md):
 
   * Jev never produces an executable string. It selects an ACTION_ID, which the
     host compiles via the frozen table in jev_core.ACTIONS.
-  * The API key is NEVER in this process's environment. Requests go to the
-    in-container nginx proxy (GATEWAY_URL), which injects the Authorization
-    header. The agent process cannot read the credential.
+  * Credential handling is deployment-specific. In gateway mode the real key
+    and any key-shaped environment value are absent from this process. In
+    OpenShell mode the process receives only OpenShell's provider placeholder;
+    the real provider credential remains at the OpenShell boundary.
   * On load and again on start, Omega's global LLM_COMMANDS allowlist is
     narrowed to exactly the command heads our table can emit, so that even a
     bug here cannot let `shell`, `metta`, `write-file` or `delete-file` run.
@@ -38,6 +39,8 @@ logger = get_logger(__name__)
 
 DEFAULT_MODEL = "typesafe/jev-1.13"
 DEFAULT_DECISIONS_PATH = "/jev/decisions"
+DEFAULT_OPENROUTER_URL = "https://openrouter.ai"
+DEFAULT_OPENROUTER_DECISIONS_PATH = "/api/alpha/decisions"
 DEFAULT_TIMEOUT = 30
 DEFAULT_MAX_TURNS = 6
 
@@ -88,7 +91,7 @@ def harden_llm_commands(actions=None):
 
 
 # ---------------------------------------------------------------------------
-# Transport: talks only to the local nginx proxy, never directly to OpenRouter.
+# Transport: explicit gateway or OpenShell provider boundary.
 # ---------------------------------------------------------------------------
 
 class ProxyTransport:
@@ -104,6 +107,46 @@ class ProxyTransport:
             data=json.dumps(payload).encode("utf-8"),
             # No Authorization header: nginx injects it. This process has no key.
             headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout) as response:
+                raw = response.read().decode("utf-8")
+        except urllib.error.HTTPError as exc:
+            detail = exc.read().decode("utf-8", errors="replace")[:300]
+            raise RuntimeError("HTTP " + str(exc.code) + ": " + detail) from exc
+        except urllib.error.URLError as exc:
+            raise RuntimeError("network failure: " + str(exc.reason)) from exc
+        return json.loads(raw)
+
+
+class OpenShellProviderTransport:
+    """POST Decisions through OpenShell's provider credential boundary.
+
+    OPENROUTER_API_KEY is an OpenShell-injected placeholder, not the real
+    provider secret. The placeholder is presented as a bearer token and
+    OpenShell substitutes the real credential only for a policy-approved
+    request to the configured provider endpoint.
+    """
+
+    def __init__(self, url: str, timeout: int,
+                 token_env: str = "OPENROUTER_API_KEY"):
+        self.url = url
+        self.timeout = timeout
+        self.token_env = token_env
+
+    def __call__(self, payload: dict) -> dict:
+        token = os.environ.get(self.token_env, "").strip()
+        if not token:
+            raise RuntimeError(
+                "OpenShell provider placeholder is unavailable")
+        request = urllib.request.Request(
+            self.url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token,
+            },
             method="POST",
         )
         try:
@@ -134,6 +177,28 @@ class JevProvider(providers.LLMProvider):
         self.scene_path = ""
         self.intent = ""
         self.kernel_mode = False
+        self.rpc_mode = False
+
+    def _make_transport(self, timeout: int):
+        mode = str(config_get_by_key("jevTransport", "gateway")).strip().lower()
+        if mode == "openshell":
+            base = str(config_get_by_key(
+                "jevOpenShellUrl", DEFAULT_OPENROUTER_URL)).strip()
+            path = str(config_get_by_key(
+                "jevOpenShellDecisionsPath",
+                DEFAULT_OPENROUTER_DECISIONS_PATH))
+            if not base:
+                raise RuntimeError("jevOpenShellUrl is empty")
+            return OpenShellProviderTransport(
+                base.rstrip("/") + path, timeout)
+        if mode == "gateway":
+            gateway = str(config_get_by_key("jevGatewayUrl", "")).strip() \
+                or str(config_get_by_key(
+                    "GATEWAY_URL", "http://localhost:8080"))
+            path = str(config_get_by_key(
+                "jevDecisionsPath", DEFAULT_DECISIONS_PATH))
+            return ProxyTransport(gateway.rstrip("/") + path, timeout)
+        raise RuntimeError("unsupported jevTransport: " + mode)
 
     def _kernel_actions(self):
         """Every legal key this turn -> the one fixed compilation target.
@@ -165,6 +230,26 @@ class JevProvider(providers.LLMProvider):
         # Which host-owned action set is active this run.
         set_name = str(config_get_by_key("jevActionSet", "generic"))
         self.kernel_mode = (set_name == "stickerbook")
+        self.rpc_mode = (set_name == "stickerbook-rpc")
+
+        if self.rpc_mode:
+            # Live browser service mode: the authoritative world stays in the
+            # host bridge. This Omega loop receives only the host-composed
+            # goal/scene/finite action descriptions through stickerbookrpc.
+            import importlib  # noqa: PLC0415
+            rpc = importlib.import_module("stickerbookrpc")
+            harden_llm_commands({"_": "sb-return"})
+            self.model = str(config_get_by_key("jevModel", DEFAULT_MODEL))
+            timeout = int(config_get_by_key("jevTimeout", DEFAULT_TIMEOUT))
+            self.transport = self._make_transport(timeout)
+            self.turn = 0
+            self.scene_path = ""
+            self.intent = ""
+            rpc.set_provider_ready("omegajev")
+            logger.info("[jev] provider started (StickerBook RPC mode)")
+            logger.info("[jev]   executable    : ['sb-return']")
+            logger.info("[jev]   decisions via : %s", self.transport.url)
+            return
 
         if self.kernel_mode:
             # The table is regenerated by the authority kernel every turn, so
@@ -180,10 +265,7 @@ class JevProvider(providers.LLMProvider):
             self.max_turns = int(config_get_by_key("jevMaxTurns",
                                                    DEFAULT_MAX_TURNS))
             timeout = int(config_get_by_key("jevTimeout", DEFAULT_TIMEOUT))
-            gateway = str(config_get_by_key("jevGatewayUrl", "")).strip()                 or str(config_get_by_key("GATEWAY_URL", "http://localhost:8080"))
-            path = str(config_get_by_key("jevDecisionsPath",
-                                         DEFAULT_DECISIONS_PATH))
-            self.transport = ProxyTransport(gateway.rstrip("/") + path, timeout)
+            self.transport = self._make_transport(timeout)
             self.turn = 0
             self.scene_path = ""
             logger.info("[jev] provider started (StickerBook kernel mode)")
@@ -220,21 +302,16 @@ class JevProvider(providers.LLMProvider):
         self.max_turns = int(config_get_by_key("jevMaxTurns", DEFAULT_MAX_TURNS))
         timeout = int(config_get_by_key("jevTimeout", DEFAULT_TIMEOUT))
 
-        # The separate credential gateway. Preferred over Omega's in-container
-        # GATEWAY_URL, which no longer exists in this image: there is no nginx
-        # here and no secret. If jevGatewayUrl is unset we fall back, but the
-        # fallback will simply fail closed (nothing listens on localhost).
-        gateway = str(config_get_by_key("jevGatewayUrl", "")).strip() \
-            or str(config_get_by_key("GATEWAY_URL", "http://localhost:8080"))
-        path = str(config_get_by_key("jevDecisionsPath", DEFAULT_DECISIONS_PATH))
-        url = gateway.rstrip("/") + path
-
-        self.transport = ProxyTransport(url, timeout)
+        # Transport is an explicit deployment choice. "gateway" preserves the
+        # existing split-container experiment; "openshell" uses an OpenShell
+        # provider placeholder and policy-mediated direct OpenRouter request.
+        self.transport = self._make_transport(timeout)
+        url = self.transport.url
         self.turn = 0
 
         logger.info("[jev] provider started")
         logger.info("[jev]   model         : %s", self.model)
-        logger.info("[jev]   decisions via : %s (credential injected by proxy)", url)
+        logger.info("[jev]   decisions via : %s", url)
         logger.info("[jev]   max turns     : %s", self.max_turns)
         logger.info("[jev]   action set    : %s", set_name)
         logger.info("[jev]   action table  : %s", sorted(self.actions))
@@ -251,6 +328,54 @@ class JevProvider(providers.LLMProvider):
         Returns a fixed literal command string from the host action table, or
         the empty string (execute nothing).
         """
+        if self.rpc_mode:
+            import importlib  # noqa: PLC0415
+            rpc = importlib.import_module("stickerbookrpc")
+            request = rpc.current_request("omegajev")
+            if not isinstance(request, dict):
+                return jev_core.FAIL_CLOSED_OUTPUT
+
+            offered = request.get("actions", {})
+            if not isinstance(offered, dict) or not offered:
+                result = {"ok": False, "error": "no-legal-jev-actions"}
+                return "sb-return" if rpc.stage_result(result) else ""
+
+            actions = {key: "sb-return" for key in offered}
+            harden_llm_commands({"_": "sb-return"})
+            view = {
+                "goal": request.get("goal", {}),
+                "scene": request.get("scene", {}),
+                "turn": request.get("turn"),
+                "max_turns": request.get("max_turns"),
+            }
+            _command, trace = jev_core.decide(
+                state=view,
+                model=self.model,
+                transport=self.transport,
+                actions=actions,
+                criteria=offered,
+                log=lambda message: logger.warning("[jev-rpc] %s", message),
+            )
+            choice = trace.get("action_id")
+            if isinstance(choice, str) and choice in actions:
+                result = {"ok": True, "choice": choice}
+            else:
+                result = {
+                    "ok": False,
+                    "error": "jev-failed-closed",
+                }
+                if trace.get("failed_closed"):
+                    logger.warning(
+                        "[jev-rpc] FAILED CLOSED: %s",
+                        trace["failed_closed"])
+            if not rpc.stage_result(result):
+                logger.warning("[jev-rpc] failed to stage bounded response")
+                return jev_core.FAIL_CLOSED_OUTPUT
+            # Always execute the same zero-argument return skill. On failure
+            # this returns a bounded error promptly instead of making the host
+            # wait for the RPC timeout.
+            return "sb-return"
+
         self.turn += 1
 
         if self.turn > self.max_turns:

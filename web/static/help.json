@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "child": {
+    "title": "How StickerBook works",
+    "intro": "StickerBook is a place to make little worlds with stickers. You choose the page and the stickers. You can move them, make them wiggle or hop, and talk to StickerBook when a grown-up turns talking on.",
+    "topics": [
+      {
+        "id": "pick-place",
+        "title": "Pick and place",
+        "text": "Tap the + button to open the sticker library. Put stickers on your little sticker sheet, then drag them onto the page."
+      },
+      {
+        "id": "move-remove",
+        "title": "Move or remove a sticker",
+        "text": "Drag a sticker anywhere on the page. To take it off the page, drag it down to the bottom sticker bar and let go."
+      },
+      {
+        "id": "animate",
+        "title": "Make a sticker move",
+        "text": "Double-tap a sticker to ask it to do one of the moves that belongs to that sticker. Some stickers have more moves than others."
+      },
+      {
+        "id": "talk",
+        "title": "Talk to StickerBook",
+        "text": "If a grown-up turns on voice, tap the microphone and talk. The optional text box talks to the same StickerBook. You can ask what a sticker can do or ask for a simple move."
+      },
+      {
+        "id": "point",
+        "title": "Point while you talk",
+        "text": "Tap or draw a small box on an empty part of the page, then ask about that spot. The mark is only for your next question and then it goes away."
+      },
+      {
+        "id": "rules",
+        "title": "Who decides what happens?",
+        "text": "You choose what you want to try. StickerBook can only choose from moves the book offers right now. It cannot change the rules or give itself new powers."
+      },
+      {
+        "id": "honesty",
+        "title": "If something cannot happen",
+        "text": "Sometimes a page, sticker, move, or talking feature is not available. StickerBook should say that instead of pretending it worked."
+      }
+    ]
+  },
+  "adult": {
+    "title": "Responsible adult guide",
+    "summary": "StickerBook is a child-facing sticker world with an intentionally small authority system underneath it. Children can play, talk, point, drag, and ask for sticker behavior; those actions do not give the AI control over the computer, the repository, the network, or its own permissions.",
+    "sections": [
+      {
+        "id": "child-can-do",
+        "title": "What a child can do",
+        "paragraphs": [
+          "A child can choose pages and stickers, drag stickers onto and around the page, remove them with the bottom-edge gesture, double-tap for a declared animation, and—when enabled—talk or type to StickerBook.",
+          "A temporary point or box on the background can accompany one conversation turn. It is a reference for the conversation, not a new governed object or permission."
+        ]
+      },
+      {
+        "id": "ai-roles",
+        "title": "What the AI does",
+        "paragraphs": [
+          "The powered local version separates language from action. OmegaLLM handles the conversation and may translate a request into one small semantic goal. OmegaJev sees a fresh, finite list of actions that are legal to offer for that goal and selects one. The StickerBook authority kernel independently accepts or refuses the resulting proposal.",
+          "A double-tap can go directly to OmegaJev, but only with a one-turn animation-only choice list. The language model is not required for that path."
+        ]
+      },
+      {
+        "id": "voice-privacy",
+        "title": "Voice and privacy",
+        "paragraphs": [
+          "Voice is off until a responsible adult enables it for the current browser session. StickerBook uses the browser/device speech-recognition feature to turn speech into text, so audio handling may depend on the browser or operating system. StickerBook sends the resulting text—not raw microphone audio—to the local conversational runtime.",
+          "Replies may be spoken with the browser/device speech-synthesis feature. The public GitHub Pages demo does not connect to Omega, Jev, OpenRouter, or the Python authority bridge."
+        ]
+      },
+      {
+        "id": "authority",
+        "title": "What a child cannot authorize",
+        "paragraphs": [
+          "Child-facing actions cannot approve OpenShell policy changes, add tools, expose new network destinations, access the Docker socket, edit the repository, install plugins, reveal provider credentials, or give an agent more authority.",
+          "The central rule is: capability is not authority. A smarter or more capable model does not receive more permission merely because it can ask for it."
+        ]
+      },
+      {
+        "id": "local-public",
+        "title": "Public demo versus powered local mode",
+        "paragraphs": [
+          "The public Pages site is a mechanical demonstration: sticker dragging and animation happen in browser memory and no live agent or provider credential is present.",
+          "The powered version runs locally through the Python authority bridge plus separate OmegaLLM and OmegaJev OpenShell sandboxes. Provider access is limited at the containment boundary and world changes still go through the StickerBook kernel."
+        ]
+      },
+      {
+        "id": "start-stop",
+        "title": "Starting and stopping",
+        "paragraphs": [
+          "On the Windows development host, Start StickerBook.cmd is the normal powered launcher and Stop StickerBook.cmd is the normal shutdown path. The first provider setup may ask the responsible operator for an OpenRouter key with hidden input; the launcher does not save that key in repository runtime state.",
+          "Shutdown is outside the agents: the host bridge is stopped and both StickerBook sandboxes are deleted without requiring model cooperation."
+        ]
+      },
+      {
+        "id": "limits",
+        "title": "Current limits",
+        "paragraphs": [
+          "Some visual pages may exist before a governed world has been connected for them. Generated page or sticker media is treated as a draft until a separate save/install path exists.",
+          "The dual-Omega OpenShell runtime is implemented and mechanically checked in the repository, but its full WSL2/Docker Desktop/provider path is not labeled live-host verified until it is exercised on the actual host."
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+# StickerBook OmegaJev sandbox policy.
+# Network is intentionally empty here. OpenRouter access is contributed only
+# by the attached OpenShell provider profile.
+version: 1
+
+filesystem_policy:
+  include_workdir: false
+  read_only:
+    - /bin
+    - /usr
+    - /lib
+    - /proc
+    - /dev/urandom
+    - /etc
+    - /var/log
+    - /PeTTa
+    - /opt/huggingface
+    - /opt/sentence_transformers
+  read_write:
+    - /PeTTa/repos/Omega/memory
+    - /memory-transfer
+    - /tmp
+    - /dev/null
+
+landlock:
+  compatibility: best_effort
+
+network_policies: {}

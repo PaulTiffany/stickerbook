@@ -12,12 +12,19 @@ optionally attach one bounded semantic goal under a `goal` field. A goal is
 not a command and carries no authority: the host validates it, OmegaJev chooses
 from a finite host-owned action surface, and the kernel decides every mutation.
 
-A future Omega-backed runtime can implement the same small interface. OmegaLLM
-and OmegaJev remain separate agent loops even when they cooperate on one child
-request.
+Live Omega is attached through a loopback-only HTTP adapter. The adapter carries
+no provider credential and cannot be pointed at a non-loopback host.
 """
 
 from __future__ import annotations
+
+import json
+import os
+import urllib.error
+import urllib.request
+from urllib.parse import urlsplit
+
+_MAX_RESPONSE_BYTES = 256 * 1024
 
 
 class DisabledAgentRuntime:
@@ -49,3 +56,97 @@ class DisabledAgentRuntime:
             "ok": False,
             "error": "creator-agent-unavailable",
         }
+
+
+def _loopback_base(raw: str) -> str:
+    """Return a canonical loopback HTTP base URL or raise ValueError."""
+    parsed = urlsplit(str(raw).strip())
+    if parsed.scheme != "http":
+        raise ValueError("OmegaLLM runtime must use loopback HTTP")
+    if parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:
+        raise ValueError("OmegaLLM runtime must be loopback-only")
+    if parsed.username or parsed.password or parsed.query or parsed.fragment:
+        raise ValueError("invalid OmegaLLM runtime URL")
+    if parsed.path not in ("", "/"):
+        raise ValueError("OmegaLLM runtime URL must not contain a path")
+    if parsed.port is None:
+        raise ValueError("OmegaLLM runtime URL must include an explicit port")
+    host = "[::1]" if parsed.hostname == "::1" else parsed.hostname
+    return "http://%s:%d" % (host, parsed.port)
+
+
+class LoopbackAgentRuntime:
+    """Narrow host adapter for a live OmegaLLM StickerBook channel."""
+
+    def __init__(self, base_url: str, timeout: float = 40.0):
+        self.base_url = _loopback_base(base_url)
+        self.timeout = float(timeout)
+
+    def _json(self, path: str, payload: dict | None = None) -> dict:
+        data = None if payload is None else json.dumps(
+            payload, separators=(",", ":")).encode("utf-8")
+        request = urllib.request.Request(
+            self.base_url + path,
+            data=data,
+            headers={"Content-Type": "application/json"},
+            method="GET" if payload is None else "POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout) as response:
+                raw = response.read(_MAX_RESPONSE_BYTES + 1)
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            raise RuntimeError("OmegaLLM loopback unavailable") from exc
+        if len(raw) > _MAX_RESPONSE_BYTES:
+            raise RuntimeError("OmegaLLM response too large")
+        try:
+            decoded = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, ValueError) as exc:
+            raise RuntimeError("OmegaLLM returned invalid JSON") from exc
+        if not isinstance(decoded, dict):
+            raise RuntimeError("OmegaLLM returned a non-object")
+        return decoded
+
+    def capabilities(self) -> dict:
+        try:
+            health = self._json("/health")
+        except Exception:
+            return {"creator_agent": False, "conversational_agent": False}
+        ready = bool(health.get("ok")) and health.get("role") == "omegallm"
+        return {
+            "creator_agent": False,
+            "conversational_agent": ready,
+        }
+
+    def converse(
+            self, *, text: str, principal: str, scene: dict,
+            reference: dict | None = None) -> dict:
+        payload = {
+            "text": text,
+            "principal": principal,
+            "scene": scene,
+        }
+        if reference is not None:
+            payload["reference"] = reference
+        return self._json("/converse", payload)
+
+    def creator_draft(
+            self, *,
+            kind: str,
+            prompt: str,
+            animation_intent: str | None,
+            asset_schema_version: int | None,
+            principal: str,
+            scene: dict) -> dict:
+        return {"ok": False, "error": "creator-agent-unavailable"}
+
+
+def agent_runtime_from_env():
+    """Opt into live OmegaLLM only when an explicit loopback URL is supplied."""
+    raw = os.environ.get("STICKERBOOK_OMEGA_LLM_URL", "").strip()
+    if not raw:
+        return DisabledAgentRuntime()
+    try:
+        timeout = float(os.environ.get("STICKERBOOK_OMEGA_TIMEOUT", "40"))
+        return LoopbackAgentRuntime(raw, timeout=timeout)
+    except (TypeError, ValueError):
+        return DisabledAgentRuntime()

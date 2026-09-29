@@ -20,8 +20,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Check browser JavaScript syntax
-        run: node --check web/static/app.js
+      - name: Check browser JavaScript and help data
+        run: |
+          node --check web/static/app.js
+          python -m json.tool web/static/help.json >/dev/null
 
       - name: Test authority kernel
         working-directory: core
@@ -30,3 +32,22 @@ jobs:
       - name: Test web bridge
         working-directory: web
         run: python -m unittest discover -s tests
+
+      - name: Check governed Omega/OpenShell runtime syntax
+        run: |
+          python -m py_compile jev/omega_jev/providers/jev.py
+          python -m py_compile llm/omega_llm/providers/stickerbook_llm.py
+          python -m py_compile runtime/omega/stickerbookrpc.py
+          bash -n openshell/install-pinned.sh
+          bash -n openshell/run-omega-jev.sh
+          bash -n openshell/run-omega-jev-service.sh
+          bash -n openshell/run-omega-llm-service.sh
+          bash -n jev/openshell-entrypoint.sh
+          bash -n runtime/omega/openshell-entrypoint.sh
+          bash -n runtime/lib.sh
+          bash -n runtime/start.sh
+          bash -n runtime/stop.sh
+          bash -n runtime/status.sh
+
+      - name: Verify governed OpenShell integration contract
+        run: python openshell/verify.py

@@ -1,0 +1,30 @@
+id: stickerbook-openrouter-omega-jev
+display_name: StickerBook OpenRouter for OmegaJev
+description: OpenRouter Decisions API access for the bounded OmegaJev loop
+category: inference
+inference_capable: true
+
+credentials:
+  - name: api_key
+    description: OpenRouter API key
+    env_vars: [OPENROUTER_API_KEY]
+    required: true
+    auth_style: bearer
+    header_name: authorization
+
+discovery:
+  credentials: [api_key]
+
+endpoints:
+  - host: openrouter.ai
+    port: 443
+    protocol: rest
+    access: read-write
+    enforcement: enforce
+
+# The pinned swipl:10.0.2 image builds SWI with CMAKE_INSTALL_PREFIX=/usr.
+# OpenShell matches the kernel-resolved executable (/proc/<pid>/exe), not the
+# /usr/bin/swipl symlink, so provider authority is granted only to that
+# canonical executable. runtime/start.sh independently checks readlink -f.
+binaries:
+  - /usr/lib/swipl/bin/x86_64-linux/swipl

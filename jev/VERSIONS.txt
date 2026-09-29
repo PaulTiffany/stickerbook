@@ -9,6 +9,12 @@ petta_lib_chromadb   218484875d5d1bfb217a9a03d3983dc1ed9d406c
                        date=2026-08-04T22:41:02+02:00  describe=2184848
                        url=https://github.com/patham9/petta_lib_chromadb.git
 
+OpenShell            v0.1.2
+                       commit=6648bd0c290efbc41ba131ee9831ee45cd431f94
+                       published=2026-09-28
+                       url=https://github.com/NVIDIA/OpenShell
+                       pin=openshell/PIN.env
+
 === TOOLCHAIN ===
 distro   : Ubuntu 24.04.3 LTS
 kernel   : 6.6.87.2-microsoft-standard-WSL2

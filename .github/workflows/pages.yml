@@ -24,8 +24,10 @@ jobs:
       - name: Validate browser JavaScript
         run: node --check web/static/app.js
 
-      - name: Validate asset manifest
-        run: python -m json.tool web/static/assets/manifest.json >/dev/null
+      - name: Validate public JSON data
+        run: |
+          python -m json.tool web/static/assets/manifest.json >/dev/null
+          python -m json.tool web/static/help.json >/dev/null
 
       - name: Build public-only artifact
         shell: bash
@@ -36,6 +38,7 @@ jobs:
           cp web/static/index.html _site/index.html
           cp web/static/app.js _site/static/app.js
           cp web/static/style.css _site/static/style.css
+          cp web/static/help.json _site/static/help.json
           cp -R web/static/assets _site/static/assets
           rm -f _site/static/assets/README.md
           touch _site/.nojekyll
@@ -57,7 +60,8 @@ jobs:
 
           # Root deployment remains allow-listed. Everything else must live
           # below static/assets and satisfy the data-only extension gate above.
-          unexpected="$(find _site -type f | sort | grep -Ev             '^_site/(\.nojekyll|index\.html|static/(app\.js|style\.css|assets/.+))$' || true)"
+          unexpected="$(find _site -type f | sort | grep -Ev \
+            '^_site/(\.nojekyll|index\.html|static/(app\.js|style\.css|help\.json|assets/.+))$' || true)"
           test -z "$unexpected"
 
       - name: Configure Pages

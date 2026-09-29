@@ -1,0 +1,17 @@
+# OpenShell runtime layer for the already-built omega-jev:experiment image.
+#
+# Build from the repository root:
+#   docker build -t stickerbook-omega-jev:openshell \
+#     -f jev/Dockerfile.openshell .
+#
+# This image deliberately does not use Omega's root entrypoint. OpenShell
+# requires a non-root workload identity; the Jev experiment already owns its
+# writable memory as uid 65534.
+FROM omega-jev:experiment
+
+COPY jev/openshell-entrypoint.sh /usr/local/bin/stickerbook-openshell-entrypoint
+RUN chmod 0755 /usr/local/bin/stickerbook-openshell-entrypoint
+
+USER 65534:65534
+ENTRYPOINT ["/usr/local/bin/stickerbook-openshell-entrypoint"]
+CMD []

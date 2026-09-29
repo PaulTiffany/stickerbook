@@ -1,0 +1,29 @@
+# StickerBook OmegaLLM sandbox policy.
+# Separate live policy for the language loop. The powered launcher attaches
+# this policy only to OmegaLLM so the two Omega roles never inherit one ambient
+# sandbox or one shared authority surface.
+version: 1
+
+filesystem_policy:
+  include_workdir: false
+  read_only:
+    - /bin
+    - /usr
+    - /lib
+    - /proc
+    - /dev/urandom
+    - /etc
+    - /var/log
+    - /PeTTa
+    - /opt/huggingface
+    - /opt/sentence_transformers
+  read_write:
+    - /PeTTa/repos/Omega/memory
+    - /memory-transfer
+    - /tmp
+    - /dev/null
+
+landlock:
+  compatibility: best_effort
+
+network_policies: {}

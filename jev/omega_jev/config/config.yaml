@@ -181,20 +181,32 @@ jevModel: "typesafe/jev-1.13"
 jevMaxTurns: 6
 # Seconds before a decision request fails closed.
 jevTimeout: 30
-# Path on the local credential proxy. The API key is injected by nginx and is
-# never present in the agent process's environment.
+# Transport is explicit. "gateway" preserves the original separated nginx
+# experiment. "openshell" uses an OpenShell provider placeholder plus enforced
+# provider egress; the real OpenRouter secret still never enters the agent.
+jevTransport: "gateway"
+# Path on the local credential proxy for gateway mode.
 jevDecisionsPath: "/jev/decisions"
-# Base URL of the SEPARATE credential gateway container. The agent holds no
-# credential and has no Internet route; this is the only host it can reach.
+# Base URL of the SEPARATE credential gateway container in gateway mode.
 jevGatewayUrl: "http://jev-gateway:8080"
+# Direct provider endpoint used only in OpenShell mode.
+jevOpenShellUrl: "https://openrouter.ai"
+jevOpenShellDecisionsPath: "/api/alpha/decisions"
 # The single human intent delivered by the offline console channel.
 jevIntent: "Please confirm which version of Omega you are running."
 # Which host-owned action set is active: "generic" (VERSION/NOOP) or
 # "butterfly" (the Stage 3 StickerBook demonstration). Override at run time,
 # e.g.  docker run ... omega-jev:experiment jevActionSet=butterfly
-# "generic" (VERSION/NOOP), "butterfly" (standalone toy state), or
-# "stickerbook" (coupled to the authority kernel in ../core).
+# "generic" (VERSION/NOOP), "butterfly" (standalone toy state),
+# "stickerbook" (legacy in-container kernel demonstration), or
+# "stickerbook-rpc" (live browser service: host owns the kernel and table).
 jevActionSet: generic
+
+# Live service channel settings. These are inert unless commchannel is
+# explicitly overridden to stickerbookrpc by the operator launcher.
+stickerbookRpcRole: "omegajev"
+stickerbookRpcPort: 8762
+stickerbookRpcTimeout: 45
 # Deployment authority profile used in stickerbook mode.
 jevProfile: local-single-agent
 # Toy scene state for the butterfly set. Lives in the agent's one writable

@@ -40,9 +40,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import book  # noqa: E402
 import farm  # noqa: E402
-from agent_runtime import DisabledAgentRuntime  # noqa: E402
+import help_content  # noqa: E402
+from agent_runtime import (  # noqa: E402
+    DisabledAgentRuntime, agent_runtime_from_env,
+)
 from jev_controller import JevController, OMEGA_LLM_ID  # noqa: E402
-from jev_runtime import DisabledJevRuntime  # noqa: E402
+from jev_runtime import DisabledJevRuntime, jev_runtime_from_env  # noqa: E402
 from page_assets import supported_upload  # noqa: E402
 from page_image_runtime import (  # noqa: E402
     DisabledPageImageRuntime, page_image_runtime_from_env,
@@ -133,6 +136,17 @@ class Bridge:
             "stickers": stickers,
         }
 
+    def _conversation_scene(self) -> dict:
+        """Bounded OmegaLLM scene plus child-facing help.
+
+        Responsible-adult/operator documentation is intentionally excluded.
+        OmegaLLM can answer child questions about StickerBook from the same
+        source the child can read in-app, without seeing operator instructions.
+        """
+        scene = self.state()
+        scene["child_help"] = help_content.child_help_for_omega()
+        return scene
+
     def receipts(self, limit: int = 12) -> list:
         return [r.to_dict() for r in self.kernel.receipts[-limit:]]
 
@@ -186,7 +200,7 @@ class Bridge:
             result = self.agent_runtime.converse(
                 text=text,
                 principal=BROWSER_PRINCIPAL,
-                scene=self.state(),
+                scene=self._conversation_scene(),
                 reference=reference)
         except Exception:
             return {"ok": False, "error": "agent-runtime-error",
@@ -729,7 +743,7 @@ def make_handler(bridge: Bridge, quiet: bool = False):
         def _static(self, name):
             # Root browser code remains exact-name only. Visual assets may live
             # below static/assets/, but path resolution is contained there.
-            if name in ("index.html", "app.js", "style.css"):
+            if name in ("index.html", "app.js", "style.css", "help.json"):
                 path = os.path.join(STATIC_DIR, name)
             elif name.startswith("assets/"):
                 asset_root = os.path.realpath(os.path.join(STATIC_DIR, "assets"))
@@ -801,6 +815,8 @@ if __name__ == "__main__":
         httpd, _ = serve(
             "127.0.0.1",
             PORT,
+            agent_runtime=agent_runtime_from_env(),
+            jev_runtime=jev_runtime_from_env(),
             page_image_runtime=page_image_runtime_from_env(),
         )
     except OSError as exc:

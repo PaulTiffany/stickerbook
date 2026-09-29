@@ -1212,6 +1212,111 @@ button:focus-visible, a:focus-visible, label:focus-within {
   cursor: pointer;
 }
 
+
+.help-orb {
+  position: fixed;
+  z-index: 76;
+  left: max(18px, calc(env(safe-area-inset-left) + 12px));
+  top: max(18px, calc(env(safe-area-inset-top) + 12px));
+  width: clamp(48px, 6.5vmin, 60px);
+  height: clamp(48px, 6.5vmin, 60px);
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 50%;
+  background: rgba(255,253,247,.88);
+  box-shadow: 0 8px 24px rgba(42,53,45,.18);
+  color: #4f6c58;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: clamp(24px, 3.4vmin, 31px);
+  font-weight: 900;
+  backdrop-filter: blur(6px);
+  transition: transform .14s ease, background .14s ease;
+}
+
+.help-orb:hover,
+.help-orb:focus-visible {
+  transform: translateY(-2px);
+  background: rgba(255,255,250,.96);
+}
+
+.child-help-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.help-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(34,42,37,.28);
+  backdrop-filter: blur(3px);
+}
+
+.help-card {
+  position: relative;
+  z-index: 1;
+  width: min(760px, 94vw);
+  max-height: min(84vh, 760px);
+  overflow: auto;
+  padding: clamp(24px, 4vmin, 38px);
+  border: 1px solid #d5c9b8;
+  border-radius: 26px 20px 28px 22px;
+  background: #fffdf7;
+  box-shadow: 0 24px 70px rgba(32,29,24,.30);
+  color: var(--ink);
+  user-select: text;
+}
+
+.help-card .round-control {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+}
+
+.help-card h2 {
+  margin: 0 58px 8px 0;
+  font-size: clamp(28px, 5vw, 42px);
+  letter-spacing: -.03em;
+}
+
+.help-card > p {
+  max-width: 62ch;
+  color: var(--muted);
+  font-size: clamp(16px, 2.4vmin, 19px);
+  line-height: 1.45;
+}
+
+.help-topics {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+  gap: 12px;
+}
+
+.help-topic {
+  padding: 15px 16px;
+  border: 1px solid #ded3c3;
+  border-radius: 16px;
+  background: #faf6ed;
+}
+
+.help-topic h3 {
+  margin: 0 0 6px;
+  color: #456c52;
+  font-size: 17px;
+}
+
+.help-topic p {
+  margin: 0;
+  color: #5f625e;
+  line-height: 1.42;
+}
+
 /* --------------------------------------------------------------- adult */
 
 .adult-panel {
@@ -1226,7 +1331,9 @@ button:focus-visible, a:focus-visible, label:focus-within {
 .adult-card {
   position: relative;
   z-index: 1;
-  width: min(520px, 94vw);
+  width: min(680px, 94vw);
+  max-height: min(88vh, 820px);
+  overflow: auto;
   padding: 28px;
   border-radius: 18px;
   background: #fffdf7;
@@ -1252,11 +1359,55 @@ button:focus-visible, a:focus-visible, label:focus-within {
   font-weight: 750;
 }
 
+.adult-guide {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #ddd2c3;
+}
+
+.adult-guide h3 {
+  margin: 0 48px 8px 0;
+  font-size: 20px;
+}
+
+.adult-guide > p {
+  max-width: 60ch;
+  margin: 0 0 12px;
+  line-height: 1.45;
+}
+
+.adult-guide-section {
+  margin: 8px 0;
+  border: 1px solid #ddd2c3;
+  border-radius: 12px;
+  background: #fbf7ef;
+}
+
+.adult-guide-section summary {
+  padding: 11px 13px;
+  cursor: pointer;
+  font-weight: 800;
+  color: #496953;
+}
+
+.adult-guide-section p {
+  max-width: none;
+  margin: 0;
+  padding: 0 13px 11px;
+  line-height: 1.45;
+}
+
+.adult-developer-links {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #ddd2c3;
+}
+
 .adult-links {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 16px;
-  margin-top: 8px;
+  margin-top: 14px;
 }
 
 .agent-adult-controls {
@@ -1407,6 +1558,24 @@ button:focus-visible, a:focus-visible, label:focus-within {
 }
 
 @media (max-width: 560px) {
+  .help-orb {
+    width: 48px;
+    height: 48px;
+    left: max(10px, calc(env(safe-area-inset-left) + 8px));
+    top: max(10px, calc(env(safe-area-inset-top) + 8px));
+  }
+
+  .help-card,
+  .adult-card {
+    width: 96vw;
+    max-height: 90vh;
+    border-radius: 18px;
+  }
+
+  .help-topics {
+    grid-template-columns: 1fr;
+  }
+
   .accessibility-chat {
     top: max(72px, calc(env(safe-area-inset-top) + 66px));
     width: min(94vw, 620px);

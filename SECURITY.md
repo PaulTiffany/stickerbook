@@ -38,12 +38,14 @@ OmegaJev experiment (`jev/`). The browser and bridge are mechanically tested
 against the kernel. The OmegaJev experiment has also been coupled to the kernel
 in its headless Stage 4 harness.
 
-The new dual-Omega browser substrate adds a bounded OmegaLLM -> OmegaJev goal
-and choice seam, but the **actual OmegaLLM and OmegaJev Omega processes are not
-yet wired into the browser runtime**. Tests use deterministic stand-ins for that
-integration. OpenShell containment is an intended next deployment layer, not a
-current dependency. Read every status marker before treating an interface-level
-test as proof of a deployed model/runtime boundary.
+The dual-Omega browser substrate now has concrete live-runtime adapters,
+separate OmegaLLM/OmegaJev role images, a bounded Omega communication channel,
+and operator-owned OpenShell boot/shutdown orchestration. Tests still use
+deterministic/local stand-ins for provider-independent host behavior; CI does
+not run the user's WSL2/Docker Desktop/OpenShell deployment. The checked-in
+runtime is therefore **IMPLEMENTED + mechanically checked, NOT YET LIVE-HOST
+VERIFIED**. Read every status marker before treating interface/static evidence
+as proof of a deployed provider/runtime boundary.
 
 ### Status vocabulary
 
@@ -61,8 +63,8 @@ must not be conflated when reporting:
 A requirement marked **N/A YET** becomes a **GAP** the moment the relevant
 surface is built. It does not become satisfied by default.
 
-Evidence is further tagged by *where* it was proved, because the two
-implementations are not yet connected:
+Evidence is further tagged by *where* it was proved, because component proof
+does not automatically become deployment proof:
 
 * **VERIFIED (core)** — proved in `core/tests/test_authority.py` against the
   authority kernel. The same kernel is now used by the localhost bridge and by
@@ -303,6 +305,28 @@ never stored in the authority kernel, never becomes a governed background
 object merely by being pointed at, and is not automatically projected into a
 Jev view. This preserves the views-as-capabilities rule: conversational
 reference does not silently widen the decision actor's observation surface.
+
+### Documentation projection is also a view capability
+
+The in-app documentation source, `web/static/help.json`, has separate
+`child` and `adult` branches.
+
+The browser may render both branches. OmegaLLM receives only the child branch,
+copied into its bounded conversation scene as `child_help`. The responsible-
+adult branch is deliberately excluded from the model's observation surface.
+
+The child branch is mechanically checked to exclude operator/setup vocabulary
+such as API keys, OpenRouter, OpenShell, Docker/WSL, repository administration,
+provider credentials, launcher commands, and policy approval.
+
+This is an audience/observation boundary, not a secrecy claim. The parent guide
+is static UI data and may be visible to a person inspecting the public site.
+What matters is that model observation remains role-appropriate.
+
+**Status: VERIFIED (web host/static seam)** by
+`web/tests/test_help_content.py`: child/adult schema separation, child-only
+OmegaLLM projection, forbidden operator vocabulary in the child branch, and
+presence of both in-app surfaces.
 
 ## 6. Typed action surfaces
 
@@ -549,15 +573,13 @@ ACTIONS: NOOP · MOTH_REST · MOTH_MOVE_NEAR_LANTERN · MOTH_ORBIT_LANTERN
 **Illegal operations should ideally not be representable at all.** This is
 simultaneously a scaling strategy and a security strategy.
 
-**OmegaJev status: partially IMPLEMENTED.** Two host-owned sets exist
-(`generic`, `butterfly`), selected by the operator at start, and set isolation
-is verified: the butterfly skills are real MeTTa functions in the image yet
-are unreachable while the generic set is active, and vice versa. The sets are
-not yet generated *per turn* from world state.
-
-**This is the right next competence question for OmegaJev** — whether typed
-selection can navigate sequences of small, changing action sets — rather than
-classification among a large flat list.
+**OmegaJev status: IMPLEMENTED + mechanically tested.** The legacy
+`generic`/`butterfly` sets remain as isolated experiments, while the
+StickerBook host path now generates a fresh finite table from authoritative
+world state on every Jev turn. Movement candidates are ephemeral local steps;
+human-owned or otherwise unauthorized operations are absent from an agent
+principal's representable surface. The returned choice is rechecked against the
+current table before the kernel decides.
 
 ---
 
@@ -575,12 +597,16 @@ Agent manipulation uses the same world kernel with a different principal and
 possibly a different action surface. **The renderer must never become a bypass
 around the controller.**
 
-**Core status: PARTIAL — kernel side VERIFIED (core).** Views are deep
-copies, so nothing holding one can mutate the world, and a hostile raw
-proposal is validated identically to a generated one. No renderer exists to
-test against.
+**Core/browser status: IMPLEMENTED + mechanically tested.** Views are deep
+copies, so nothing holding one can mutate the world, and hostile raw proposals
+are validated identically to browser-generated ones. The localhost browser
+renders only bridge-returned authoritative state; drag/tap endpoints propose
+typed actions and redraw from the resulting kernel state/receipt.
 
-**OmegaJev status: N/A YET.** No renderer exists.
+**OmegaJev status: IMPLEMENTED at the host seam.** Jev receives a bounded scene
+and finite descriptions, returns one offered key, and never receives the
+renderer object. Live OpenShell deployment of that seam remains subject to the
+separate verification boundary in §21/§29.
 
 ---
 
@@ -804,6 +830,98 @@ no StickerBook authority. This is an operator-host exposure, not agent
 authority. A stronger secret-delivery design (a secrets store or a mounted
 tmpfs credential) is still required before broader distribution.
 
+### OpenShell containment profile
+
+**IMPLEMENTED + mechanically checked, NOT YET LIVE-HOST VERIFIED.** StickerBook
+carries a separate OpenShell deployment profile under `openshell/`, pinned to
+stable OpenShell v0.1.2 at commit
+`6648bd0c290efbc41ba131ee9831ee45cd431f94`.
+
+This path does **not** move authorization into OpenShell. OpenShell constrains
+the process/filesystem/network/provider boundary; the StickerBook kernel still
+answers the only question that can mutate the world: whether a particular
+principal may perform a particular typed action now.
+
+Two separate live-role images and policies now exist:
+
+```text
+browser/device STT or text
+       |
+       v
+host bridge/kernel ------------------------------+
+       |                                         |
+       | loopback :8761                          | direct child double-click
+       v                                         |
+OpenShell OmegaLLM                               |
+       | reply + optional bounded goal           |
+       +--------------------+                    |
+                            v                    v
+                     host JevController -> finite action table
+                            |
+                            | loopback :8762
+                            v
+                     OpenShell OmegaJev
+                            |
+                            | one offered key
+                            v
+                     host authority kernel
+                            |
+                         Receipt
+```
+
+The browser never talks directly to either sandbox. `web/agent_runtime.py` and
+`web/jev_runtime.py` accept only explicit loopback HTTP URLs and carry no
+provider credential or kernel object.
+
+Both roles remain actual Omega loops. The `stickerbookrpc` Omega communication
+channel turns one bounded host request into one Omega input. Each role provider
+stages one bounded JSON result and the only service-mode executable command is
+the fixed zero-argument `sb-return` skill. Free-form Omega channel output is
+not interpreted as an action.
+
+**OmegaLLM separation.** Its image contains neither the StickerBook authority
+kernel nor the Jev provider. Its provider ignores Omega's general prompt and
+reads only the host-composed conversation request. Model output is mechanically
+parsed to child-facing `reply` text plus an optional goal restricted to the
+same schema that the host validates again.
+
+**OmegaJev separation.** In live `stickerbook-rpc` mode the in-container
+kernel demonstration is not used. The host remains authoritative and sends only
+a fresh scene plus finite action descriptions. Jev may select one supplied key;
+all keys compile inside Omega to the same `sb-return` literal. The selected
+key returns as data, is checked against the current host table, and only then is
+presented to `Kernel.propose_key()`.
+
+The checked-in base policies grant no network rules. OpenRouter access is
+contributed only by separate role-specific provider profiles. The real provider
+secret stays at the OpenShell boundary; the sandbox sees only the provider
+placeholder.
+
+OpenShell binds network authorization to the kernel-resolved executable
+identity. The pinned `swipl:10.0.2` image installs SWI through
+`CMAKE_INSTALL_PREFIX=/usr`; the profiles authorize only
+`/usr/lib/swipl/bin/x86_64-linux/swipl`. `runtime/start.sh` independently
+runs `readlink -f` in the built images and refuses to start if that canonical
+identity differs.
+
+Both role images run as uid/gid 65534. Neither receives a repository mount or
+Docker socket. OpenShell service creation explicitly uses
+`--approval-mode manual`; neither Omega loop can mutate policy, provider,
+orchestration, Docker configuration, or repository state.
+
+The normal operator lifecycle is `Start StickerBook.cmd` /
+`Stop StickerBook.cmd`. Boot verifies/builds the pinned runtime, starts and
+health-checks both sandboxes, then starts the host bridge with the explicit
+loopback URLs. Shutdown stops the bridge and deletes the two named sandboxes
+without agent cooperation.
+
+The existing split-container nginx path remains the **VERIFIED (omegajev)**
+network experiment. The dual-Omega OpenShell path does not inherit that status
+until a real WSL2/Docker Desktop run proves: provider success, canonical
+executable identity, denial of unrelated destinations, provider-placeholder
+secret isolation, end-to-end OmegaLLM -> OmegaJev -> kernel receipts, and
+external shutdown.
+
 ### Page-image gateway
 
 Page creation introduces a second, separate provider boundary. It follows the
@@ -911,14 +1029,16 @@ Pause, undo/reset and removal of agent-created content must be obvious and
 always available — but these are **supplements to** the hard boundary, never
 the boundary itself.
 
-**Core status: N/A YET.** The kernel removes the need for a child to make
-security judgments *in the cases it covers* — authority is decided before
-mutation, with no prompt-level consent step anywhere. But no child-facing
-surface exists, so this invariant is untested end to end and remains the one
-most dependent on work not yet done.
+**Browser/core status: IMPLEMENTED + mechanically tested.** The child-facing
+surface exists and ordinary drag/tap/double-click proposals reach the authority
+kernel without a permission-prompt path. Voice is adult-enabled for the current
+session, but enabling voice does not alter kernel authority.
 
-**OmegaJev status: N/A YET.** No child-facing surface exists. Current runs are
-operator-triggered from a terminal.
+**Dual-Omega status: IMPLEMENTED at the interface/runtime layer, NOT YET
+LIVE-HOST VERIFIED.** Voice/text and double-click enter bounded host seams; no
+child-facing interaction can approve OpenShell policy, provider access,
+repository writes, or capability expansion. A live WSL2/OpenShell deployment
+still needs the child-facing end-to-end verification described in §21 and §29.
 
 ---
 
@@ -958,7 +1078,7 @@ unless a test actually proves it.** Current status:
 | 10 | Restart/reconnect does not expand authority | **VERIFIED (core)** | `T10` — re-registering with a wider tool set changes nothing |
 | 11 | Memory cannot change authorization | **VERIFIED (core)**, narrow sense | `T11` — a previously accepted action, still in the receipt log, does not re-authorize the same action after the capability is withdrawn. There is no memory subsystem yet; what is proved is that authorization reads current state only |
 | 12 | Malicious Book/Sticker manifest cannot declare authority | **VERIFIED (core)** | `T12` — hostile `owner`/`capabilities`/`policy`/`script` fields discarded; a declared animation grants no invocation right |
-| 13 | Renderer cannot bypass world kernel | PARTIAL — **VERIFIED (core)** kernel-side | `T13` — views are copies; hostile raw proposals validated identically. No renderer exists to test against |
+| 13 | Renderer cannot bypass world kernel | **VERIFIED (core + web host seam)** | `T13` proves views are copies/hostile proposals validate identically; web bridge tests exercise browser proposal endpoints returning authoritative kernel state/receipts |
 | 14 | Agent observations do not expose configured secrets | **VERIFIED (core + omegajev)** | `T14`; container env scrub; `TestBoundedView` proves the view leaks no prompt machinery |
 | 15 | Human can remove agent-created content without agent cooperation | **VERIFIED (core)** | `T15` — succeeds while the agent is disabled; the same tool refuses human-owned targets |
 | 16 | Stop path works without agent cooperation | **VERIFIED (core + omegajev)** | `T09`/`T16`; `verify_stop_path.py` stops both a healthy and a deliberately wedged run from outside the agent |
@@ -974,20 +1094,17 @@ integrity (every offered key is accepted; the table tracks world state; budgets
 enforced; read-only actions are free), bounded sticker scale (including
 out-of-range refusal), and receipt schema.
 
-**53 kernel tests, plus 27 adapter tests and 4 container/host suites for
-OmegaJev.** The kernel suite is mutation-checked: disabling the ownership
-check fails 7 tests, disabling the profile ceiling fails 6.
+The kernel suite, browser/bridge suite, OmegaJev unit/container suites, and
+static OpenShell runtime contract are all exercised in CI or dedicated local
+verification scripts. The exact test count changes as the surface grows, so
+this document treats named invariants and evidence as authoritative rather than
+freezing a stale total here.
 
-**All twenty-two now have an implementation and a test in the headless
-kernel** (13 partially, having no renderer to test against). That is a real
-milestone and also a narrow one, and the distinction matters:
-
-The kernel proves the *model* is coherent and enforceable. It does **not**
-prove the deployed system is safe, because **nothing is wired to it yet** —
-no renderer, no browser, no bridge, and OmegaJev still runs standalone
-against its own frozen action table rather than through this kernel. Every
-integration is an opportunity to introduce a bypass, and each one must be
-re-verified against these same tests, not assumed.
+The kernel proves the authorization model; browser/bridge tests prove the
+current host seam; the OpenShell static contract proves the intended deployment
+shape. None of those by themselves prove the actual WSL2/Docker/OpenShell
+deployment. Live-host verification remains separately named rather than being
+inherited from component tests.
 
 ---
 
@@ -1014,152 +1131,151 @@ Every future capability must answer:
 
 ## 28. Summary of current conformance
 
-Two things exist: the **authority kernel** (`core/`) and the **OmegaJev
-decision experiment** (`jev/`). They are not connected to each other, and
-neither is connected to a renderer, a browser or a child.
+StickerBook now has four materially distinct layers:
 
-**The kernel implements this model and is mechanically tested.** All 22
-invariants in §26 have an implementation and a test there (13 partially,
-having no renderer to test against): principals, ownership, revisions,
-receipts, delegation ceilings, agent-creation budgets, expiry, idempotency,
-deployment profiles and context-dependent action tables. 53 tests, and the
-suite is mutation-checked — disabling the ownership check fails 7 of them,
-disabling the profile ceiling fails 6 — so the tests are load-bearing rather
-than decorative.
+1. **authority kernel** — deterministic authorization, ownership, budgets,
+   revisions and receipts;
+2. **browser/bridge** — child gestures, voice/text conversation, deictic
+   references, visual state and host-owned agent seams;
+3. **dual Omega roles** — OmegaLLM for bounded linguistic translation and
+   OmegaJev for typed selection from finite host-owned choices;
+4. **operator containment/orchestration** — Docker + pinned OpenShell policies,
+   role-specific provider identities, loopback forwards and external
+   start/stop.
 
-**OmegaJev independently satisfies a smaller set** concerning an agent not
-reaching past its own action table: authority external to the agent, no
-capability-set expansion, no generative bytes becoming executable, no
-communication capability, credential isolation, finite turns, and the
-reduction of Omega's 16-command surface to 2. See `jev/SECURITY.md`.
+The first two are mechanically exercised in the normal test suites. OmegaJev's
+older standalone/container security work has additional dedicated verification.
+The new dual-Omega OpenShell deployment is implemented and statically checked,
+but remains **NOT YET LIVE-HOST VERIFIED**.
 
-### The coupling
+The authority chain is intentionally asymmetric:
 
-**OmegaJev now runs through the kernel** (`jevActionSet=stickerbook`). Jev
-selects a key from `Kernel.available_actions()` — a table regenerated from
-world state every turn — and the kernel decides.
-
-The mechanism that keeps this from adding authority:
-
-```
-kernel generates table   ->  {"ANIMATE:butterfly-1:flutter": Command, ...}
-Jev selects a KEY        ->  "ANIMATE:butterfly-1:flutter"
-host stages the key      ->  single-use slot; staging is not authorization
-Omega executes           ->  (sb-apply)     <- ONE zero-argument command
-kernel decides           ->  Receipt(accepted, actor, object, revision)
+```text
+child intent
+   -> OmegaLLM may translate
+   -> host validates goal
+   -> host constructs finite legal surface
+   -> OmegaJev may select
+   -> host validates selected key
+   -> kernel authorizes/refuses
+   -> receipt
 ```
 
-Omega's entire executable vocabulary in this mode is **`{sb-apply}`**: one
-command with no argument position at all. Jev never names an object, an
-anchor or an animation — those live only in host-generated keys.
+At no point does success at one layer grant permission to enlarge the next
+layer. **Capability is not authority.**
 
-**VERIFIED (omegajev + core)**, `jev/tests/verify_kernel_coupling.py`, 38
-checks: the allowlist is exactly `{sb-apply}`; `shell`, `metta`,
-`write-file`, `delete-file` and even the older `butterfly-flutter` and
-`version` are all blocked; no offered key targets a human-owned sticker;
-`remove`/`add` are outside the agent's profile intersection; forged keys are
-refused *with receipts*; staging is single-use; the table is regenerated
-rather than cached; and under `pages-demo` the agent's table is empty and
-even `NOOP` is refused.
+Open gaps that remain architectural rather than cosmetic:
 
-### What this does not yet establish
+| Gap | Status |
+|---|---|
+| Real WSL2/Docker/OpenShell dual-agent deployment proof | OPEN |
+| Runtime denial tests for GitHub/PyPI and real-secret non-observability | OPEN |
+| End-to-end live voice/text -> OmegaLLM -> OmegaJev -> receipt proof | OPEN |
+| Receipt persistence/export | OPEN |
+| Broader persistence/accounts/social features | OUT OF CURRENT SUBSTRATE |
 
-* **The renderer, browser and human interface are still unbuilt**, and each
-  is another chance to introduce a bypass. Each must be re-verified against
-  the §26 tests, not assumed to inherit them.
-* **The child-facing invariant (§24) is the least tested of all**, because no
-  child-facing surface exists.
-* **Kernel-verified is still not deployment-verified.** The coupled path is
-  exercised by one agent, one page and two stickers.
-
-### Open gaps in code that exists
-
-| Gap | Where | §  |
-|---|---|---|
-| Receipts are in-memory only; not persisted or exported | OmegaJev | §17 |
-| No receipts in the `generic`/`butterfly` sets (no kernel there) | OmegaJev | §17 |
-| `SKILLS:` text still appears in container logs (inspectability only) | OmegaJev | §22 |
-| Provider secret visible via `docker inspect` on the gateway | operator host | §21 |
-| Pages build-target separation and its CI enforcement | not built | §0 |
-| Renderer, bridge, human interface, world persistence | not built | §15 |
-
-Closed since the previous revision: bounded views (§5), an external stop
-supervisor (§19), egress isolation with a separated credential gateway (§21),
-and the **kernel coupling** with receipts for accepted and rejected agent
-actions (§17, §28).
-
-The ordering implication: the three OmegaJev trust-boundary gaps (§5, §19,
-§21) are now closed, so coupling OmegaJev to the authority kernel is the next
-defensible step. The kernel should acquire a renderer only after that coupling
-is itself verified — the coupling is where a bypass would most easily hide,
-because it is the first place two separately-verified components have to agree
-about who may do what.
+The public GitHub Pages profile remains intentionally mechanical and contains no
+Omega process, model provider credential, authority kernel backend, or powered
+runtime.
 
 ---
 
-## 29. Dual-Omega child-control substrate
+## 29. Dual-Omega voice-first and boot substrate
 
-**IMPLEMENTED and mechanically tested at the host/interface layer. Actual
-Omega process deployment remains a GAP.**
+**IMPLEMENTED + mechanically tested at the host/runtime-contract layer; NOT YET
+LIVE-HOST VERIFIED.**
 
-The child-control architecture now distinguishes two Omega roles:
+### Voice-first ingress
+
+The child-facing browser already implements adult-enabled push-to-talk STT and
+browser/device TTS. Accessibility text and recognized speech both call the same
+`converseWithStickerBook()` function and therefore the same
+`/api/agent/converse` endpoint.
+
+Voice is I/O, not authority:
 
 ```text
-child voice/text/deictic reference
-        -> OmegaLLM (linguistic translation)
-        -> bounded semantic goal
-        -> OmegaJev (typed discriminative selection)
-        -> host-owned action key
-        -> Kernel.propose_key()
-        -> Receipt + fresh world state
+speech -> STT -> text -> OmegaLLM -> bounded goal -> OmegaJev -> kernel
+OmegaLLM reply -> TTS -> speech
 ```
 
-OmegaLLM may attach one schema-bounded goal to a conversational reply. It does
-not emit a command or a movement sequence. The host validates that goal and
-constructs a finite action surface for the named sticker. OmegaJev returns only
-one key already present in that surface.
+The voice regression test asserts that recognition does not call a dedicated
+kernel/Jev mutation endpoint. A transient page point/region may accompany the
+next conversation turn, then is cleared.
 
-For movement, the host produces eight ephemeral local candidates
-(N/NE/E/SE/S/SW/W/NW) around the sticker's current normalized coordinate.
-Those candidates are validated inside `Kernel.available_actions()` and passed
-again to `Kernel.propose_key()`; a model cannot invent a coordinate or make a
-permanent snap-slot vocabulary appear. State is re-observed after every action,
-so multi-step motion can emerge from repeated choices.
+### OmegaLLM
 
-A child's double-click/tap is a second entry to OmegaJev. It bypasses OmegaLLM
-and supplies a one-turn, animation-only choice surface for the clicked sticker.
-If no Jev runtime is connected, the previous deterministic clip toggle remains
-as a non-model fallback.
+The live host adapter accepts only a loopback URL. Its bounded scene includes
+the child-facing `child_help` projection but not the responsible-adult guide.
+The sandbox provider may return:
 
-Assisted actions currently execute under the child's kernel authority because
-the child originated the request. Causal provenance is kept separate from
-authorization:
+- `reply`: bounded child-facing text;
+- optional `goal`: `subject`, `intent`, optional behavior/target/facing/
+  bounded scale.
 
-- `requestedBy` — child/origin;
-- `translatedBy` — OmegaLLM when language mediation occurred;
-- `selectedBy` — OmegaJev;
-- `actor` — the principal whose authority the kernel evaluates.
+The provider has no kernel import. Its executable Omega allowlist is exactly
+`{sb-return}`. Goal output is validated in the provider and then validated
+again by the host against current world state.
 
-These provenance fields are never consulted by `effective_tools()`,
-`may_act_on()`, or another authorization check. A direct human pointer drag
-still settles a moving sticker to its rest clip; a Jev-selected move under
-child authority preserves the clip selected by the controller, allowing motion
-and animation to compose.
+### OmegaJev
 
-Current evidence:
+The child-control path supplies fresh scene state and a finite action table on
+every turn. Movement remains eight ephemeral local candidates around the
+subject's current normalized coordinate; state is re-observed after each
+accepted action.
 
-- core tests verify bounded ephemeral movement keys, rejection of malformed or
-  off-page candidates, continued non-representability of human-owned stickers
-  to an agent principal, and multi-stage receipt provenance;
-- web bridge tests verify OmegaLLM goal handoff, a multi-turn local movement
-  sequence with fresh state each turn, child double-click entering an
-  animation-only Jev surface, fail-closed rejection of an invented Jev key,
-  and no mutation when the Jev runtime is absent.
+Double-click/tap bypasses OmegaLLM but not OmegaJev or the kernel: it creates a
+one-turn animation-only finite choice surface.
 
-**Not yet established:** the real OmegaLLM process implementing the language
-adapter, the real OmegaJev Omega loop implementing the `choose` runtime seam,
-OpenShell-enforced separation of those two processes, provider policies for the
-two sandboxes, or end-to-end deployment tests using the live model/provider.
-The deterministic test runtime is evidence for the StickerBook architecture,
-not evidence that a live Jev deployment already behaves identically.
+In live RPC mode OmegaJev does not call the old in-container kernel bridge.
+Every host key maps to the same fixed `sb-return` command, so the selected key
+never becomes executable text. The host rejects invented/stale choices before
+the kernel sees them; the kernel independently authorizes the resulting current
+key.
 
+### Boot and shutdown
+
+The operator-owned launcher is outside both agent loops.
+
+`Start StickerBook.cmd` enters WSL and:
+
+1. verifies Docker and the pinned OpenShell release;
+2. accepts/builds only the pinned Omega baseline;
+3. rebuilds the two current role images;
+4. verifies the canonical SWI executable identity used by OpenShell;
+5. creates/reuses separate OpenRouter provider instances;
+6. creates OmegaLLM and OmegaJev sandboxes with manual policy approval;
+7. binds only loopback forwards `:8761` and `:8762`;
+8. waits for role health;
+9. starts `web/bridge.py` with explicit loopback runtime URLs;
+10. reports READY only when the bridge sees both roles.
+
+On first provider creation the operator may enter the OpenRouter key once with
+hidden terminal input. The launcher does not write it into repository/runtime
+state.
+
+`Stop StickerBook.cmd` stops the tracked host bridge and deletes both named
+OpenShell sandboxes. This is the independent stop path: no model cooperation is
+required.
+
+Local boot logs/upstream checkout live only in ignored
+`.stickerbook-runtime/`.
+
+### Proof boundary
+
+CI proves syntax, host-adapter behavior, voice seam invariants, and static
+deployment contracts. It does **not** possess the user's real provider
+credential or execute the WSL2/Docker Desktop/OpenShell host.
+
+The next deployment proof must therefore observe, rather than assume:
+
+- canonical SWI identity;
+- role-specific OpenRouter success;
+- denied unrelated egress;
+- placeholder-only credential visibility;
+- one bounded OmegaLLM response;
+- one offered-key-only OmegaJev selection;
+- kernel receipt for the resulting action/refusal;
+- successful external teardown.
+
+Until that run, this substrate is **IMPLEMENTED**, not **VERIFIED**.
