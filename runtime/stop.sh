@@ -2,6 +2,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STATE="$ROOT/.stickerbook-runtime"
+source "$ROOT/runtime/lib.sh"
 quiet=0
 [[ "${1:-}" == "--quiet" ]] && quiet=1
 
@@ -19,10 +20,8 @@ if [[ -f "$STATE/bridge.pid" ]]; then
 fi
 
 if command -v openshell >/dev/null 2>&1; then
-  openshell forward stop 8762 stickerbook-omega-jev >/dev/null 2>&1 || true
-  openshell forward stop 8761 stickerbook-omega-llm >/dev/null 2>&1 || true
-  openshell sandbox delete stickerbook-omega-jev >/dev/null 2>&1 || true
-  openshell sandbox delete stickerbook-omega-llm >/dev/null 2>&1 || true
+  sb_sandbox_delete stickerbook-omega-jev 8762 || true
+  sb_sandbox_delete stickerbook-omega-llm 8761 || true
 fi
 
 if [[ "$quiet" -eq 0 ]]; then
