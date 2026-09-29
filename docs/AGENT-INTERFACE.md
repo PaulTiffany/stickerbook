@@ -499,6 +499,130 @@ demonstrated it and at which revision. Ownership, budgets and every other
 principal restriction are still applied independently to each actual action by
 the kernel.
 
+### Sticker-drag traces
+
+> **Input history is not world history.**
+> **Failure to observe must not become failure to act.**
+
+**Scope first.** This is ONE input type, not StickerBook's gesture ontology.
+It is specifically *the observed trajectory of a child dragging a sticker that
+is already on the page*, which is why the record structurally requires a
+subject and an asset. It is named `StickerDragTrace`, with
+`kind = "sticker-drag"`, rather than anything suggesting freehand gesture in
+general.
+
+A child drags a sticker. The browser watches a whole trajectory and the
+renderer follows it, but on pointer-up only the release point is proposed, and
+the kernel authorizes exactly one ordinary `MOVE_STICKER`. Without this the
+host remembers only "the sticker ended over there".
+
+#### Three classes of evidence
+
+A retained trace is deliberately mixed, and the mixture is labelled:
+
+| Position | Class | Source |
+|---|---|---|
+| first sample | **authoritative start** | `TrajectorySample(t=0, dx=0, dy=0)`, bound by the host from the StickerInstance position read *before* the move was proposed |
+| interior samples | **observed input** | what the browser reported, validated and decimated. Never a world mutation, never a kernel receipt |
+| last sample | **authoritative terminal point** | bound by the host from the StickerInstance position *after* the kernel accepted |
+
+Both anchors are host-derived. The browser's own first and last samples are
+not trusted to coincide with them: observed samples at the extremes of
+progress (`t <= 0` or `t >= 1`) are dropped precisely because the host binds
+those positions itself. So a modified or stale browser cannot produce a trace
+whose path claims an origin or destination different from the move the kernel
+actually accepted.
+
+`dx`/`dy` are displacement from the authoritative start, not absolute
+coordinates, so the same demonstrated shape can later be read against another
+sticker starting somewhere else. `t` is monotonic progress; `duration_ms` is
+kept separately so speed survives normalising progress.
+
+#### Observation is auxiliary, never a veto
+
+Drag telemetry is auxiliary observation, not authority. If it is malformed,
+oversized, badly ordered or otherwise unusable, the observation is **discarded
+and never attached to history** -- but the child's move is still adjudicated
+by the kernel exactly as before. A sticker does not snap back because
+telemetry failed. The response says `dragIgnored` with the reason.
+
+A malformed *move* is still a bad request, and a move the kernel refuses is
+still refused. Only the auxiliary observation is tolerant.
+
+#### Bounding, sampling and transport
+
+| Limit | Value |
+|---|---|
+| retained samples per trace (incl. both anchors) | 32 |
+| raw samples accepted per request | 192 |
+| browser retention before reduction | 64 |
+| drag duration | 20000 ms |
+| retained traces | 32 |
+| transport ceiling (`MAX_BODY_BYTES`) | 8192 bytes |
+
+The sample cap is chosen to fit the transport: a worst-case legal payload at
+192 samples is about 6.6 KB, leaving roughly 1.5 KB of headroom, and the
+browser's own 64-sample retention is about 2.3 KB. Progress is rounded to 3
+decimal places and coordinates to 4 before transmission -- input compression,
+not semantic interpretation.
+
+Both the browser and the host reduce by the same principle: repeatedly drop
+the interior point whose removal changes the path least, measured as
+perpendicular distance from the line between its neighbours. That keeps the
+first point, the last point, the ordering and the major bends, and it observes
+the whole gesture. Dropping every other point by index would keep temporal
+coverage but could destroy a brief sharp bend or hook before the host's
+geometry-aware pass ever saw it -- and once the browser discards that, the
+host cannot recover it.
+
+Points are only ever removed, never invented or moved, except for the two
+host-bound authoritative anchors. No smoothing, no easing, no curve fitting,
+no classification, no inference. We are preserving evidence, not beautifying
+it.
+
+#### Honest linkage to governed history
+
+`GovernedHistory` gains `gestureTrace` and `gestureKind` on the one accepted
+move, associating a single governed mutation with the demonstration the host
+observed. It does not pretend the samples were governed mutations, and
+OmegaLLM's projection names the demonstration without receiving the samples.
+
+#### Toward a multimodal interaction record
+
+StickerBook is voice-interface-forward, and a sticker drag is only the first
+class of gestural input. Child direction will eventually include pointing,
+boxing or circling a region, drawing a path through empty page space, speech
+and gesture together, a gesture followed by "do that", and directing one
+sticker along a path demonstrated without touching it. The page already has
+point/box deictic interaction for OmegaLLM, whose semantics are unchanged
+here.
+
+The likely next host object is an **interaction episode** that associates,
+without interpreting, the signals that occurred together: an utterance or
+transcript, a deictic point or box, a sticker-drag trace, a future non-sticker
+path gesture, their ordering and timing, and the relevant scene and revision
+context. It records which signals co-occurred. It is not a third intelligent
+layer, and it does not classify a path as a circle, a zig-zag or "around".
+
+The architecture is unchanged by any of that:
+
+```text
+child voice/gesture -> OmegaLLM -> bounded semantic goal
+                    -> OmegaJev -> current finite legal choices
+                    -> kernel
+```
+
+OmegaLLM interprets multimodal child direction. OmegaJev remains the bounded
+chooser. The kernel remains the authority.
+
+#### Deliberately not yet
+
+A sticker drag is still **not** learnable by the discrete `PatternStep`
+mechanism, and "remember that" still resolves only over typed discrete
+actions. Collapsing a continuous demonstration into compass steps would
+quantise a semantic the child never supplied. How a demonstration becomes
+movement memory, and how OmegaJev consumes it, is the next decision.
+
 ### Not yet
 
 No persistence across restart, no sharing between children, no Jev-authored or
