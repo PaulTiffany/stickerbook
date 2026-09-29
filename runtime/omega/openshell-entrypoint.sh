@@ -1,9 +1,9 @@
 #!/bin/sh
 set -eu
 
-# Shared non-root OpenShell entrypoint for StickerBook Omega roles. The only
-# credential-like value retained is OpenShell's provider placeholder.
-: "${OPENROUTER_API_KEY:?OpenShell provider placeholder missing}"
+# Shared non-root OpenShell entrypoint for StickerBook OmegaLLM. Credential-like
+# values below are OpenShell placeholders, never the real provider secrets.
+: "${OPENROUTER_API_KEY:?OpenShell OpenRouter placeholder missing}"
 
 cd /PeTTa
 
@@ -26,4 +26,8 @@ exec env -i \
   OMEGA_DIR="${OMEGA_DIR:-/PeTTa/repos/Omega}" \
   MEMORY_DIR="${MEMORY_DIR:-/PeTTa/repos/Omega/memory}" \
   OPENROUTER_API_KEY="${OPENROUTER_API_KEY}" \
+  ASI_API_KEY="${ASI_API_KEY:-}" \
+  ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}" \
+  OPENAI_API_KEY="${OPENAI_API_KEY:-}" \
+  ASIONE_API_KEY="${ASIONE_API_KEY:-}" \
   sh run.sh run.metta GATEWAY_URL=http://localhost:8080 "$@"
