@@ -45,7 +45,7 @@ import book  # noqa: E402
 import governed_world as farm  # noqa: E402
 import help_content  # noqa: E402
 from agent_runtime import (  # noqa: E402
-    DisabledAgentRuntime, agent_runtime_from_env,
+    AgentRuntimeError, DisabledAgentRuntime, agent_runtime_from_env,
 )
 from jev_controller import JevController, OMEGA_LLM_ID  # noqa: E402
 from jev_runtime import DisabledJevRuntime, jev_runtime_from_env  # noqa: E402
@@ -393,8 +393,14 @@ class Bridge:
                 scene=scene,
                 reference=reference,
                 inference=dict(self._inference_selection))
+        except AgentRuntimeError as exc:
+            return {"ok": False, "error": exc.code,
+                    "diagnostic": {"stage": "omegallm-runtime", "reason": exc.code},
+                    "state": self.state()}
         except Exception:
             return {"ok": False, "error": "agent-runtime-error",
+                    "diagnostic": {"stage": "omegallm-runtime",
+                                   "reason": "unexpected-runtime-error"},
                     "state": self.state()}
 
         if not self._active or activation != self._activation_serial:

@@ -3213,9 +3213,19 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
     }
 
     if (!payload || !payload.ok || typeof payload.reply !== "string") {
-      const message = payload && payload.error
-        ? payload.error
-        : "Conversation runtime did not return a reply.";
+      const messages = {
+        "omegallm-busy": "I'm still thinking. Please try again in a moment.",
+        "omegallm-timeout": "That took too long. Please try again.",
+        "omegallm-not-ready": "I'm getting ready. Please try again in a moment.",
+        "page-changed": "The page changed. Please ask me again on this page.",
+      };
+      const message = messages[payload && payload.error] ||
+        "I couldn't answer just now. Please try again.";
+      if (DEV && payload && payload.diagnostic) {
+        dev.verdict.className = "verdict rejected";
+        dev.verdict.textContent = payload.diagnostic.stage + ": " +
+          payload.diagnostic.reason;
+      }
       if (mirrorToAccessibility) {
         appendAccessibilityChatLine("StickerBook", message);
       }

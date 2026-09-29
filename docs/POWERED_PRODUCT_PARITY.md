@@ -63,3 +63,28 @@ It produced a valid conversational reply and no semantic goal. There was
 therefore no goal admission or Jev selection to fail; world state stayed
 unchanged. The prior failure is not reproducible from that utterance alone,
 and is not evidence of an animation-library defect.
+
+
+## Failure diagnostics and final verification
+
+The exact reported conversational phrase succeeded on ASI in 12.209 seconds,
+with a valid conversational reply and no semantic goal. Therefore it did not
+enter host goal admission or Jev selection; the original transient failure
+cannot be attributed retrospectively to an animation clip or a specific provider.
+The host now distinguishes OmegaLLM busy (409), not-ready (503), timeout (504
+or transport timeout), disconnected transport, and malformed responses using
+fixed codes. It never reflects provider response bodies or exception text.
+The child sees friendly retry messages; `?dev=1` displays the bounded stage/reason.
+Existing goal admission and Jev results remain separately structured.
+
+A real OpenRouter Jev think-time intervention test completed in 1.240 seconds:
+a child move was accepted while Jev chose Frog's hop. The autonomous hop was
+refused as stale-revision and stopped as human-superseded, without retry.
+The child's position remained authoritative. Automated tests also prove that
+moving a different sticker does not falsely supersede the subject, and that
+bounded learned pattern descriptions remain advisory context during improvisation.
+
+Final checks: 448 web tests, 81 core authority tests, and 40 Jev tests passed
+(569 total); JavaScript syntax check passed. The web suite runs with Windows
+Python/Node; WSL lacks a `node` executable for its browser harness tests.
+No container was rebuilt or restarted for these product corrections.

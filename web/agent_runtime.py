@@ -27,6 +27,14 @@ from urllib.parse import urlsplit
 _MAX_RESPONSE_BYTES = 256 * 1024
 
 
+class AgentRuntimeError(RuntimeError):
+    """Safe host-owned diagnostic; never includes provider response text."""
+
+    def __init__(self, code):
+        self.code = code
+        super().__init__(code)
+
+
 class DisabledAgentRuntime:
     """Default runtime: explicit, inspectable, and completely inert."""
 
@@ -98,16 +106,23 @@ class LoopbackAgentRuntime:
         try:
             with urllib.request.urlopen(request, timeout=self.timeout) as response:
                 raw = response.read(_MAX_RESPONSE_BYTES + 1)
+        except urllib.error.HTTPError as exc:
+            code = {409: "omegallm-busy", 503: "omegallm-not-ready",
+                    504: "omegallm-timeout"}.get(exc.code, "omegallm-http-error")
+            raise AgentRuntimeError(code) from exc
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
-            raise RuntimeError("OmegaLLM loopback unavailable") from exc
+            reason = getattr(exc, "reason", exc)
+            code = ("omegallm-timeout" if isinstance(reason, TimeoutError)
+                    else "omegallm-unavailable")
+            raise AgentRuntimeError(code) from exc
         if len(raw) > _MAX_RESPONSE_BYTES:
-            raise RuntimeError("OmegaLLM response too large")
+            raise AgentRuntimeError("agent-response-too-large")
         try:
             decoded = json.loads(raw.decode("utf-8"))
         except (UnicodeDecodeError, ValueError) as exc:
-            raise RuntimeError("OmegaLLM returned invalid JSON") from exc
+            raise AgentRuntimeError("invalid-agent-response") from exc
         if not isinstance(decoded, dict):
-            raise RuntimeError("OmegaLLM returned a non-object")
+            raise AgentRuntimeError("invalid-agent-response")
         return decoded
 
     def capabilities(self) -> dict:
