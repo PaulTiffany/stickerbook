@@ -220,6 +220,25 @@ installed assets or scene mutations.
 See [`docs/AGENT-INTERFACE.md`](docs/AGENT-INTERFACE.md) for the interface
 contract and voice/privacy boundary.
 
+## In-app documentation
+
+StickerBook now carries two intentionally different in-app documentation
+surfaces from `web/static/help.json`:
+
+- a child-facing **?** guide on the play surface, written in simple language
+  about dragging, removing, animation, talking/pointing, and what StickerBook
+  can and cannot do;
+- a **Responsible adult guide** inside the title-page gear panel, covering
+  voice/privacy, the OmegaLLM/OmegaJev split, public-versus-powered mode,
+  child authority limits, start/stop behavior, and current limitations.
+
+Only the `child` branch is projected into OmegaLLM context. The responsible-
+adult branch remains outside the model's observation surface. This is an
+audience/view boundary, not a secrecy claim: both branches are static UI data.
+
+For the full research/developer dependency and modification ledger, see
+[`docs/TOOLS-AND-MODIFICATIONS.md`](docs/TOOLS-AND-MODIFICATIONS.md).
+
 ## Security boundary
 
 The root [`SECURITY.md`](SECURITY.md) is the binding security model.
@@ -285,7 +304,8 @@ Browser JavaScript is syntax-checked in GitHub Actions.
 |---|---|
 | [`SECURITY.md`](SECURITY.md) | Constitutional security model and implementation status. |
 | [`docs/MEDIUM.md`](docs/MEDIUM.md) | Why the sticker-book medium is itself the experiment. |
-| [`docs/AGENT-INTERFACE.md`](docs/AGENT-INTERFACE.md) | Conversational Omega, voice, creator drafts, and authority separation. |
+| [`docs/AGENT-INTERFACE.md`](docs/AGENT-INTERFACE.md) | Conversational Omega, voice, creator drafts, documentation projection, and authority separation. |
+| [`docs/TOOLS-AND-MODIFICATIONS.md`](docs/TOOLS-AND-MODIFICATIONS.md) | Research/developer ledger of upstream tools, exact pins, local modifications, rationale, trust boundaries, and verification status. |
 | [`core/README.md`](core/README.md) | Authority kernel. |
 | [`web/README.md`](web/README.md) | Browser, page, and bridge behavior. |
 | [`jev/SECURITY.md`](jev/SECURITY.md) | OmegaJev boundaries and verification. |
