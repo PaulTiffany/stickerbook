@@ -266,6 +266,26 @@ legal simply stops. Pattern memory adds no kernel mutation primitive and never
 widens the choice surface; `known_patterns` in the Jev scene is read-only,
 declarative, and contains no complete action key.
 
+"Remember that as your happy dance" and "Froggy, do your happy dance" run
+through the ordinary architecture. OmegaLLM emits a bounded `remember-pattern`
+or `perform-pattern` goal carrying only a subject and a label -- never
+movement, keys or steps. `web/governed_history.py` keeps the bounded
+host-owned record of what actually happened, so the host resolves "that" from
+real kernel receipts rather than from anything the model says. Recall goes to
+OmegaJev, which picks each step from the current finite legal table.
+
+The host resolves "that" deterministically: the latest contiguous learnable
+accepted run for the named subject, ending at a switch to another subject, a
+non-learnable action, the pattern-length limit, or the history window.
+OmegaLLM never picks the slice.
+
+Replay is non-atomic: if a later step is no longer legal the earlier accepted
+steps stay applied and the attempt stops. Every attempt produces a host-side
+`PatternReplayRecord` that groups ordinary kernel receipts without holding any
+authority itself, keeping `plannedSteps`, `submittedSteps` and `acceptedSteps`
+separate, plus `result` (`completed` / `partial` / `stopped`), `stoppedAt` and
+`stoppedReason`.
+
 See `docs/AGENT-INTERFACE.md` for the full seam.
 
 Creation remains separate:

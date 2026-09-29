@@ -51,7 +51,10 @@ from page_assets import supported_upload  # noqa: E402
 from page_image_runtime import (  # noqa: E402
     DisabledPageImageRuntime, page_image_runtime_from_env,
 )
-from pattern_memory import PatternLibrary  # noqa: E402
+from governed_history import (  # noqa: E402
+    ORIGIN_HUMAN_GESTURE, GovernedHistory,
+)
+from pattern_memory import PatternLibrary, ReplayLog  # noqa: E402
 from stickerbook_core import (  # noqa: E402
     ADD_OWN_STICKER, ANIMATE_OWN_STICKER, Command, MOVE_STICKER,
     REMOVE_OWN_STICKER, RESIZE_OWN_STICKER, SET_STICKER_FACING,
@@ -84,7 +87,8 @@ class Bridge:
 
     def __init__(
             self, kernel=None, agent_runtime=None, jev_runtime=None,
-            page_image_runtime=None, pattern_library=None):
+            page_image_runtime=None, pattern_library=None,
+            governed_history=None, replay_log=None):
         self.kernel = kernel or farm.build_world()
         # OmegaLLM is the conversational/linguistic loop. OmegaJev is a
         # separate discriminative control loop with its own narrow runtime.
@@ -94,8 +98,14 @@ class Bridge:
         # is remembered for the life of the process and is not shared between
         # children. It is passed to the controller, never to a runtime.
         self.patterns = pattern_library or PatternLibrary()
+        # What actually happened, so a child can say "remember that" and the
+        # host -- not OmegaLLM -- knows what "that" was. Plus the host-side
+        # audit of attempts to perform remembered behaviour.
+        self.history = governed_history or GovernedHistory()
+        self.replays = replay_log or ReplayLog()
         self.jev_controller = JevController(
-            self.kernel, self.jev_runtime, patterns=self.patterns)
+            self.kernel, self.jev_runtime, patterns=self.patterns,
+            history=self.history, replays=self.replays)
         self._jev_counter = 0
         self.page_image_runtime = (
             page_image_runtime or DisabledPageImageRuntime())
@@ -154,6 +164,10 @@ class Bridge:
         """
         scene = self.state()
         scene["child_help"] = help_content.child_help_for_omega()
+        # Bounded recent governed history, so OmegaLLM can resolve "that".
+        # Declarative only: no complete action keys, so OmegaLLM can refer to
+        # what happened without being able to reconstruct or author it.
+        scene["recent_actions"] = self.history.describe_for_scene()
         return scene
 
     def _runtime_inference_options(self) -> list:
@@ -255,6 +269,18 @@ class Bridge:
             "page_image_creator": page_image_creator,
         }
 
+    def _gesture(self, command):
+        """Apply one direct human gesture and note it in host history.
+
+        A freehand drag is a real governed mutation, so it is recorded for
+        audit. It carries no legal-action key, though, because an arbitrary
+        coordinate has no instance-independent typed form -- so it stays
+        visible to OmegaLLM without ever becoming a learned PatternStep.
+        """
+        receipt = self.kernel.propose(command)
+        self.history.record(receipt, origin=ORIGIN_HUMAN_GESTURE)
+        return receipt
+
     def converse(self, body: dict) -> dict:
         """Run the OmegaLLM language loop and optionally hand a goal to Jev.
 
@@ -313,7 +339,7 @@ class Bridge:
         goal = result.get("goal")
         if goal is not None:
             self._jev_counter += 1
-            payload["jev"] = self.jev_controller.run_goal(
+            payload["jev"] = self.jev_controller.run_semantic_goal(
                 goal,
                 actor=BROWSER_PRINCIPAL,
                 command_prefix="omega-jev-%d" % self._jev_counter,
@@ -533,7 +559,7 @@ class Bridge:
 
         # NOTE: actor is NOT taken from the request. Whatever the browser
         # claims about who it is has no effect.
-        receipt = self.kernel.propose(Command(
+        receipt = self._gesture(Command(
             action=MOVE_STICKER,
             actor=BROWSER_PRINCIPAL,
             command_id=command_id,
@@ -550,7 +576,7 @@ class Bridge:
         if isinstance(fields, dict):
             return fields
         command_id, point, based_on, (asset,) = fields
-        receipt = self.kernel.propose(Command(
+        receipt = self._gesture(Command(
             action=ADD_OWN_STICKER,
             actor=BROWSER_PRINCIPAL,
             command_id=command_id,
@@ -573,7 +599,7 @@ class Bridge:
             return self._bad_request("missing command id")
         if based_on is not None and not isinstance(based_on, int):
             return self._bad_request("based_on_revision must be an integer")
-        receipt = self.kernel.propose(Command(
+        receipt = self._gesture(Command(
             action=REMOVE_OWN_STICKER,
             actor=BROWSER_PRINCIPAL,
             command_id=command_id,
@@ -635,7 +661,7 @@ class Bridge:
         wanted = rest if sticker.animation != rest else (
             active[0] if active else rest)
 
-        receipt = self.kernel.propose(Command(
+        receipt = self._gesture(Command(
             action=ANIMATE_OWN_STICKER,
             actor=BROWSER_PRINCIPAL,
             command_id=command_id,
@@ -665,7 +691,7 @@ class Bridge:
         if based_on is not None and not isinstance(based_on, int):
             return self._bad_request("based_on_revision must be an integer")
 
-        receipt = self.kernel.propose(Command(
+        receipt = self._gesture(Command(
             action=RESIZE_OWN_STICKER,
             actor=BROWSER_PRINCIPAL,
             command_id=command_id,
@@ -690,7 +716,7 @@ class Bridge:
         if based_on is not None and not isinstance(based_on, int):
             return self._bad_request("based_on_revision must be an integer")
 
-        receipt = self.kernel.propose(Command(
+        receipt = self._gesture(Command(
             action=SET_STICKER_FACING,
             actor=BROWSER_PRINCIPAL,
             command_id=command_id,
