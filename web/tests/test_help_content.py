@@ -105,6 +105,16 @@ class HelpContentCase(unittest.TestCase):
             encoding="utf-8")
         self.assertIn(
             "cp web/static/help.json _site/static/help.json", workflow)
+        self.assertIn(
+            "help\\.json|assets/.+))
+
+if __name__ == "__main__":
+    unittest.main()
+ || true)", workflow)
+        self.assertEqual(
+            workflow.count("uses: actions/deploy-pages@v4"), 1)
+        self.assertEqual(
+            workflow.count("name: Deploy public mechanical demo"), 1)
 
 
 if __name__ == "__main__":
