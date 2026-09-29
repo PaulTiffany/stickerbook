@@ -497,8 +497,23 @@ across model think-time, so a child's own drag or tap is never queued behind
 OmegaLLM or OmegaJev inference. The existing `jev` response field carries
 only a bounded summary; OmegaJev is not invoked and sample arrays are not sent
 to OmegaLLM. Resolution consumes pending carry without renewal. Missing evicted
-geometry fails closed. No memory, receipt, or world revision is created. Motor
-interpretation and trajectory control remain future work.
+geometry fails closed. No memory, receipt, or world revision is created by
+resolving a reference.
+
+`perform-trajectory` asks for the movement to happen now, with exactly
+subject, intent, demonstration and `frame: "subject"`. The host follows the
+resolved course one ordinary move at a time: it derives the current local
+objective from a monotonic progress index, builds the current move-only legal
+surface, and either a deterministic host selector or OmegaJev picks one
+offered key, which the kernel then adjudicates. Nothing is precompiled, so a
+trajectory grants no more than the right to propose one move at a time.
+
+Movement is honestly partial. It stops and says why when the course leaves the
+page, when the motor or model budget runs out, or when the chooser declines,
+and it never reports completion for any of those. A child who moves the
+sticker themselves during an attempt wins: the attempt stops as superseded,
+with no retry and no re-aim. Observed timing stays evidence and schedules
+nothing. Page-frame references remain valid non-executing data.
 
 ```bash
 cd web

@@ -37,6 +37,13 @@ from pattern_memory import COMPLETED, PARTIAL, STOPPED
 # evidence rather than a schedule.
 MAX_TRAJECTORY_STEPS = 48
 
+# A separate, much smaller bound on how many times a MODEL may be consulted
+# during one attempt. The motor cap above is a geometry/control bound; this is
+# a model-resource bound, and the two are reported distinctly because they
+# mean different things went wrong. Provisional: a starting value to be
+# revisited once live OmegaJev latency is known.
+MAX_AGENT_TRAJECTORY_STEPS = 12
+
 # How much further than the step budget's bare geometric minimum an attempt
 # may wander. The eight-direction alphabet cannot travel exactly along an
 # arbitrary path, so a little slack is the difference between a truthful
@@ -59,6 +66,24 @@ STOPPED_WORLD_CHANGED = "world-changed"
 STOPPED_SELECTOR_DECLINED = "selector-declined"
 STOPPED_SELECTOR_ERROR = "selector-error"
 STOPPED_INVALID_CHOICE = "unknown-selector-choice"
+# The powered path's own vocabulary. `jev-noop` is Jev deliberately declining
+# while a progressing move was on offer: not completion, not unreachability,
+# not budget. The two failure reasons keep "the runtime is not there" apart
+# from "the runtime answered badly", and neither is a decision.
+STOPPED_AGENT_BUDGET = "agent-step-budget-exhausted"
+STOPPED_JEV_NOOP = "jev-noop"
+STOPPED_JEV_UNAVAILABLE = "jev-unavailable"
+STOPPED_JEV_FAILED = "jev-selection-failed"
+
+# Only the host may name an outcome. A selector reporting failure can pick
+# from this set; anything else is recorded as a generic selector error, so a
+# selector cannot invent audit vocabulary.
+SELECTOR_ERRORS = frozenset({
+    STOPPED_SELECTOR_ERROR, STOPPED_JEV_UNAVAILABLE, STOPPED_JEV_FAILED,
+})
+
+# Bounded diagnostic text kept beside a failure, never interpreted.
+MAX_SELECTOR_DETAIL = 120
 
 NOT_EXECUTABLE = "trajectory-frame-not-executable"
 NO_GEOMETRY = "trajectory-evidence-unavailable"
@@ -177,6 +202,10 @@ class TrajectoryExecutionRecord:
     result: str
     stopped_at: Optional[int] = None
     stopped_reason: Optional[str] = None
+    # How many times a selector was consulted, and one bounded diagnostic
+    # string if it failed. Neither carries authority or is interpreted.
+    decisions: int = 0
+    selector_detail: Optional[str] = None
 
     # Three counts, named for what each means. A step can be planned and never
     # submitted, or submitted and refused. `planned_steps` comes from the
@@ -210,6 +239,8 @@ class TrajectoryExecutionRecord:
             "result": self.result,
             "stoppedAt": self.stopped_at,
             "stoppedReason": self.stopped_reason,
+            "decisions": self.decisions,
+            "selectorDetail": self.selector_detail,
         }
 
 
@@ -257,7 +288,10 @@ class TrajectoryExecutionLog:
 
 
 __all__ = [
-    "MAX_TRAJECTORY_STEPS", "BUDGET_SLACK", "FRAME_SUBJECT",
+    "MAX_TRAJECTORY_STEPS", "MAX_AGENT_TRAJECTORY_STEPS", "BUDGET_SLACK",
+    "FRAME_SUBJECT", "SELECTOR_ERRORS", "MAX_SELECTOR_DETAIL",
+    "STOPPED_AGENT_BUDGET", "STOPPED_JEV_NOOP", "STOPPED_JEV_UNAVAILABLE",
+    "STOPPED_JEV_FAILED",
     "NOT_EXECUTABLE", "NO_GEOMETRY",
     "STOPPED_UNKNOWN_SUBJECT", "STOPPED_NO_LEGAL_MOVES",
     "STOPPED_UNREACHABLE", "STOPPED_BUDGET", "STOPPED_REFUSED",

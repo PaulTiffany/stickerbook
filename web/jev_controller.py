@@ -44,7 +44,7 @@ from stickerbook_core import (  # noqa: E402
 from governed_history import (  # noqa: E402
     ORIGIN_GESTURE_JEV, ORIGIN_HUMAN_GESTURE, ORIGIN_OMEGALLM_JEV,
     ORIGIN_PATTERN_PERFORM, ORIGIN_PATTERN_REPLAY,
-    ORIGIN_TRAJECTORY_MECHANICAL,
+    ORIGIN_TRAJECTORY_AGENT, ORIGIN_TRAJECTORY_MECHANICAL,
 )
 from pattern_memory import (  # noqa: E402
     COMPLETED, MODE_AGENT, MODE_MECHANICAL, PARTIAL, PatternReplayRecord,
@@ -61,6 +61,14 @@ OMEGA_JEV_ID = "agent:jev-visual-1"
 # not: `selected_by` records that a controller chose this, under the child's
 # authority, and the kernel reads it to preserve the chosen clip.
 MECHANICAL_SELECTOR_ID = "host:trajectory-argmin"
+# The decision context type handed to OmegaJev when it is choosing a
+# motor step along a trajectory. Deliberately NOT one of the ordinary
+# semantic goal intents: it never passes through normalize_goal, so the
+# ordinary goal vocabulary stays closed and `frame` never becomes an
+# acceptable field on an unrelated intent.
+TRAJECTORY_DECISION = "follow-trajectory"
+MAX_AGENT_TRAJECTORY_STEPS = (
+    trajectory_execution.MAX_AGENT_TRAJECTORY_STEPS)
 MOVE_STEP = 0.06
 MAX_GOAL_TURNS = 6
 
@@ -961,8 +969,15 @@ class JevController:
                           requested_by, select=None, mode=MODE_MECHANICAL,
                           origin=ORIGIN_TRAJECTORY_MECHANICAL,
                           selected_by=MECHANICAL_SELECTOR_ID,
-                          translated_by=None):
-        """Follow one resolved subject-frame trajectory, step by step."""
+                          translated_by=None,
+                          decline_reason=None, max_decisions=None):
+        """Follow one resolved subject-frame trajectory, step by step.
+
+        `select` is the only thing a powered follower changes. `mode`,
+        `origin`, `selected_by`, `decline_reason` and `max_decisions` are
+        audit and resource metadata for whichever chooser is in use; every
+        geometric and authority decision below is shared.
+        """
         if reference.frame != trajectory_execution.FRAME_SUBJECT:
             return {"ok": False, "error": trajectory_execution.NOT_EXECUTABLE}
         points = reference.resolved_samples
@@ -978,9 +993,13 @@ class JevController:
         planned = trajectory_execution.planned_steps(points, reach)
         steps = []
         progress = 0
+        decisions = 0
+        detail = None
         complete = False
         stopped_at = None
         stopped_reason = None
+        decline_reason = (
+            decline_reason or trajectory_execution.STOPPED_SELECTOR_DECLINED)
         with self._world():
             starting_revision = self.kernel.revision
 
@@ -1015,9 +1034,18 @@ class JevController:
                 complete = True
                 break
 
+            # The motor safety cap comes first: it bounds control, whoever
+            # is choosing.
             if len(steps) >= planned:
                 stopped_at = len(steps) + 1
                 stopped_reason = trajectory_execution.STOPPED_BUDGET
+                break
+            # Then the model-resource cap, reported separately because it
+            # means something different: the geometry was followable, we just
+            # declined to spend more inference on it.
+            if max_decisions is not None and decisions >= max_decisions:
+                stopped_at = len(steps) + 1
+                stopped_reason = trajectory_execution.STOPPED_AGENT_BUDGET
                 break
 
             objective = trajectory_execution.objective_of(points, progress)
@@ -1071,6 +1099,7 @@ class JevController:
             # 4. The selector seam, with NO world lock held. Deterministic
             # here, but structurally identical to a powered chooser: a child
             # must be able to interact while a selection is being made.
+            decisions += 1
             try:
                 decision = select(snapshot)
             except Exception:
@@ -1078,16 +1107,30 @@ class JevController:
                 stopped_reason = \
                     trajectory_execution.STOPPED_SELECTOR_ERROR
                 break
-            if not isinstance(decision, dict) or not decision.get("ok"):
+            if not isinstance(decision, dict):
                 stopped_at = len(steps) + 1
                 stopped_reason = \
                     trajectory_execution.STOPPED_SELECTOR_ERROR
                 break
+            if not decision.get("ok"):
+                # A selector may name its own failure, but only from the
+                # host's vocabulary, and any diagnostic text is bounded and
+                # never interpreted.
+                reported = decision.get("error")
+                stopped_at = len(steps) + 1
+                stopped_reason = (
+                    reported if reported in trajectory_execution.SELECTOR_ERRORS
+                    else trajectory_execution.STOPPED_SELECTOR_ERROR)
+                said = decision.get("detail")
+                if isinstance(said, str):
+                    detail = said[:trajectory_execution.MAX_SELECTOR_DETAIL]
+                break
             choice = decision.get("choice")
             if choice == "NOOP":
+                # Declining to move is a real answer, and not one of
+                # completion, unreachability or budget. Nothing asks again.
                 stopped_at = len(steps) + 1
-                stopped_reason = \
-                    trajectory_execution.STOPPED_SELECTOR_DECLINED
+                stopped_reason = decline_reason
                 break
             if not isinstance(choice, str) or choice not in move_keys:
                 stopped_at = len(steps) + 1
@@ -1146,7 +1189,8 @@ class JevController:
             planned_steps=planned, steps=tuple(steps),
             progress_reached=progress,
             result=trajectory_execution.result_of(steps, complete),
-            stopped_at=stopped_at, stopped_reason=stopped_reason)
+            stopped_at=stopped_at, stopped_reason=stopped_reason,
+            decisions=decisions, selector_detail=detail)
         if self.executions is not None:
             self.executions.add(record)
         payload = {
@@ -1159,6 +1203,7 @@ class JevController:
             "submittedSteps": record.submitted_steps,
             "acceptedSteps": record.accepted_steps,
             "progressReached": record.progress_reached,
+            "decisions": record.decisions,
             "execution": record.to_dict(),
         }
         if record.stopped_reason:
@@ -1172,6 +1217,109 @@ class JevController:
             self, "_local_execution_counter", 0) + 1
         return "trajectory-local-%d" % self._local_execution_counter
 
+
+    # -- the powered follower -------------------------------------------
+    #
+    # Identical to the mechanical path in every respect except WHO picks one
+    # of the current legal choices. Objective, progress, table construction,
+    # revision discipline, completion, boundary behaviour and audit are all
+    # the shared implementation above.
+    #
+    # A trajectory selection is deliberately NOT an ordinary Jev semantic
+    # goal. `normalize_goal` and its intent/field vocabulary are untouched:
+    # the follower already takes a resolved reference directly, so nothing
+    # needs to teach ordinary goals about coordinate frames. What Jev gets is
+    # its own narrow decision context, typed by `TRAJECTORY_DECISION`.
+
+    @staticmethod
+    def trajectory_scene(snapshot, principal):
+        """The bounded declarative scene OmegaJev answers a motor step with.
+
+        Derived entirely from the CURRENT world plus the frozen reference. It
+        carries where the subject is, which retained point it is heading for,
+        how far off it is, and at most the next two points. It carries NO
+        sample arrays, no transcript, no earlier episodes, no drag telemetry
+        and no previous action tables, so nothing here could reconstruct the
+        drawn path or name an action key the current table does not offer.
+        """
+        return {
+            "revision": snapshot["revision"],
+            "principal": principal,
+            "subject": snapshot["subject"],
+            "available_actions": sorted(snapshot["actions"]),
+            "trajectory": {
+                "pathRef": snapshot["pathRef"],
+                "frame": snapshot["frame"],
+                "progressIndex": snapshot["progressIndex"],
+                "waypointCount": snapshot["waypointCount"],
+                "remaining": snapshot["remaining"],
+                "position": {"x": snapshot["subject"]["x"],
+                             "y": snapshot["subject"]["y"]},
+                "objective": dict(snapshot["objective"]),
+                "error": dict(snapshot["error"]),
+                "next": [dict(point) for point in snapshot["next"]],
+            },
+        }
+
+    def _jev_trajectory_select(self, subject_id, *, principal, max_decisions):
+        """Build a selector that asks OmegaJev for one offered key.
+
+        Returns a closure so the decision counter belongs to one attempt.
+        Same `select(snapshot) -> {"ok", "choice"}` contract the deterministic
+        reference selector satisfies, so the follower cannot tell them apart.
+        """
+        state = {"turn": 0}
+
+        def select(snapshot):
+            state["turn"] += 1
+            scene = self.trajectory_scene(snapshot, principal)
+            try:
+                decision = self.runtime.choose(
+                    goal={"subject": subject_id,
+                          "intent": TRAJECTORY_DECISION},
+                    scene=scene,
+                    actions=snapshot["actions"],
+                    turn=state["turn"],
+                    max_turns=max_decisions,
+                )
+            except Exception:
+                # A runtime failure is a failure, never a decision to hold
+                # still: collapsing it into NOOP would credit Jev with a
+                # judgement it never made.
+                return {"ok": False,
+                        "error": trajectory_execution.STOPPED_JEV_FAILED,
+                        "detail": "jev-runtime-raised"}
+            if not isinstance(decision, dict):
+                return {"ok": False,
+                        "error": trajectory_execution.STOPPED_JEV_FAILED,
+                        "detail": "non-object-decision"}
+            if not decision.get("ok"):
+                detail = decision.get("error")
+                return {"ok": False,
+                        "error": trajectory_execution.STOPPED_JEV_FAILED,
+                        "detail": detail if isinstance(detail, str) else None}
+            return {"ok": True, "choice": decision.get("choice")}
+
+        return select
+
+    def follow_trajectory_with_jev(
+            self, reference, *, actor, command_prefix, requested_by,
+            translated_by=None, max_decisions=MAX_AGENT_TRAJECTORY_STEPS):
+        """Follow a resolved subject-frame trajectory, OmegaJev choosing."""
+        if not self.available():
+            return {"ok": False,
+                    "error": trajectory_execution.STOPPED_JEV_UNAVAILABLE}
+        return self.follow_trajectory(
+            reference, actor=actor, command_prefix=command_prefix,
+            requested_by=requested_by, translated_by=translated_by,
+            select=self._jev_trajectory_select(
+                reference.subject, principal=actor,
+                max_decisions=max_decisions),
+            mode=MODE_AGENT,
+            origin=ORIGIN_TRAJECTORY_AGENT,
+            selected_by=self.selector_id,
+            decline_reason=trajectory_execution.STOPPED_JEV_NOOP,
+            max_decisions=max_decisions)
 
     # -- semantic goal dispatch ---------------------------------------
 
