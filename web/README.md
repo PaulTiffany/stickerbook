@@ -185,12 +185,42 @@ The developer receipts panel opened with `?dev=1` has its own **×** control.
 Closing it removes the `dev` query flag from the current URL and returns to
 the normal child title surface without requiring a manual reload.
 
+## In-app help and audience separation
+
+`web/static/help.json` is the checked-in source for two different in-app
+documentation audiences:
+
+- `child` — rendered from the play-surface **?** button;
+- `adult` — rendered inside the Responsible adult / developer panel.
+
+The child guide explains play mechanics and bounded AI behavior in simple
+language. It intentionally contains no API-key, Docker, OpenShell, repository,
+provider, or policy-approval instructions.
+
+The parent guide explains voice/privacy, the OmegaLLM/OmegaJev split, the
+authority kernel, public-versus-powered deployment, child authority limits,
+start/stop behavior, and current implementation limits.
+
+The bridge treats documentation as a view capability. For conversational turns
+it builds a private conversation scene from the ordinary browser state plus:
+
+```json
+{"child_help": { ... }}
+```
+
+Only the `child` branch is copied there. The `adult` branch is never sent to
+OmegaLLM. This is mechanically tested in
+`web/tests/test_help_content.py`.
+
+The public Pages build ships the same static help data so the explanatory UI
+can be reviewed without a live agent.
+
 ## Dual Omega / creator seams
 
 The child-facing agent architecture has two separate Omega loops:
 
-- **OmegaLLM** receives voice/text/deictic context and may return language plus
-  one bounded semantic goal.
+- **OmegaLLM** receives voice/text/deictic context, the child-facing help
+  projection, and may return language plus one bounded semantic goal.
 - **OmegaJev** receives that goal with fresh governed scene state and chooses
   one key at a time from a finite host-generated action surface.
 
