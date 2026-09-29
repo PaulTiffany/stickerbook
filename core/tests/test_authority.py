@@ -136,6 +136,28 @@ class HumanMovementStopsAnimation(unittest.TestCase):
         self.assertTrue(moved.accepted)
         self.assertEqual(k.sticker("lantern-h").animation, "none")
 
+    def test_jev_selected_move_under_child_authority_preserves_animation(self):
+        k = build()
+        self.assertTrue(k.propose(Command(
+            ANIMATE_OWN_STICKER,
+            "human:kid",
+            "animate-assisted",
+            "lantern-h",
+            (("animation", "glow"),),
+        )).accepted)
+        moved = k.propose(Command(
+            MOVE_STICKER,
+            "human:kid",
+            "move-assisted",
+            "lantern-h",
+            (("x", 0.6), ("y", 0.4)),
+            requested_by="human:kid",
+            translated_by="agent:omega-llm",
+            selected_by="agent:jev",
+        ))
+        self.assertTrue(moved.accepted, moved.reason)
+        self.assertEqual(k.sticker("lantern-h").animation, "glow")
+
     def test_agent_move_does_not_implicitly_cancel_its_animation(self):
         k = build()
         animated = k.propose(Command(
