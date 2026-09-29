@@ -446,10 +446,17 @@ episode ID, sequence and scene revision, then associates the newest four
 accepted sticker-drag and page-path observations since the previous linguistic
 turn in host arrival order. The browser cannot select historical trace IDs.
 OmegaLLM receives these
-facts without raw trajectory samples or geometry labels. A failed inference
-still records the input and advances the drag cursor; the current episode is
+facts without retained trajectory samples or geometry labels. A failed inference
+still records the input and advances the input cursor; the current episode is
 the only interaction record supplied to that OmegaLLM call. Recording does
 not mutate the world. Audio is never retained by this record.
+
+A successful bare-page observation posts its existing box with its bounded
+path samples and receives a host-issued `sourceEvent` token. The browser adds
+that token only to the still-pending box. The host carries it into the episode
+only if it identifies the latest eligible retained path and matches the box
+stored with that path. Two gestures before speech therefore produce two
+different tokens, while a failed path observation leaves its box unlinked.
 
 ```bash
 cd web

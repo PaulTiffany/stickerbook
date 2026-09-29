@@ -404,9 +404,22 @@ class Bridge:
 
     def observe_page_path(self, body: dict) -> dict:
         """Keep an auxiliary bare-page observation; never propose a mutation."""
-        samples, duration, error = page_path.parse_path(body)
+        if not isinstance(body, dict) or set(body) - {
+                "samples", "duration_ms", "box"}:
+            return {"ok": False, "pathIgnored": "malformed page-path telemetry"}
+        samples, duration, error = page_path.parse_path({
+            key: body[key] for key in ("samples", "duration_ms") if key in body})
         if error:
             return {"ok": False, "pathIgnored": error}
+        deictic_box = None
+        if "box" in body:
+            reference = self._deictic_reference({
+                "kind": "box", "box": body["box"]})
+            if isinstance(reference, str) or not self._box_matches_path(
+                    reference["box"], samples):
+                return {"ok": False,
+                        "pathIgnored": "page-path box does not match endpoints"}
+            deictic_box = reference["box"]
         trace = self.page_paths.add(page_path.PagePathTrace(
             trace_id=self.page_paths.next_trace_id(),
             principal=BROWSER_PRINCIPAL,
@@ -415,14 +428,16 @@ class Bridge:
             duration_ms=duration,
             samples=samples,
             observed_sample_count=len(body["samples"]),
+            deictic_box=deictic_box,
         ))
-        self.observed_inputs.add(BROWSER_PRINCIPAL, interaction.InputSignal(
-            kind=interaction.SIGNAL_PAGE_PATH, ref=trace.trace_id,
-            duration_ms=trace.duration_ms))
-        return {"ok": True, "path": trace.summary()}
+        observed = self.observed_inputs.add(
+            BROWSER_PRINCIPAL, interaction.InputSignal(
+                kind=interaction.SIGNAL_PAGE_PATH, ref=trace.trace_id,
+                duration_ms=trace.duration_ms), issue_event=True)
+        return {"ok": True, "path": trace.summary(),
+                "sourceEvent": observed.signal.source_event}
 
-    @staticmethod
-    def _deictic_reference(raw):
+    def _deictic_reference(self, raw):
         """Validate one transient page-space reference for this language turn.
 
         This is conversational context, not kernel/world state. The bridge
@@ -468,17 +483,50 @@ class Bridge:
         if kind == "box":
             if clean["x1"] > clean["x2"] or clean["y1"] > clean["y2"]:
                 return "invalid deictic box ordering"
-            return {
+            reference = {
                 "kind": "box",
                 "page": book.DEFAULT_PAGE,
                 "box": clean,
             }
+            source_event = raw.get("source_event")
+            if self._valid_box_source(source_event, clean):
+                reference["sourceEvent"] = source_event
+            return reference
 
         return {
             "kind": "point",
             "page": book.DEFAULT_PAGE,
             "point": clean,
         }
+
+    def _valid_box_source(self, event_id, box):
+        """Check the host-issued event against its stored capture pair."""
+        if not isinstance(event_id, str):
+            return False
+        recent = self._associate_inputs()[
+            -interaction.MAX_SIGNALS_PER_EPISODE:]
+        paths = [item for item in recent
+                 if item.principal == BROWSER_PRINCIPAL
+                 and item.signal.kind == interaction.SIGNAL_PAGE_PATH]
+        if not paths or paths[-1].signal.source_event != event_id:
+            return False
+        trace = self.page_paths.get(paths[-1].signal.ref)
+        if trace is None or trace.principal != BROWSER_PRINCIPAL \
+                or trace.page != book.DEFAULT_PAGE:
+            return False
+        return trace.deictic_box is not None and all(
+            abs(box[key] - trace.deictic_box[key]) <= 0.00015
+            for key in ("x1", "y1", "x2", "y2"))
+
+    @staticmethod
+    def _box_matches_path(box, samples):
+        start, end = samples[0], samples[-1]
+        expected = {"x1": min(start.x, end.x),
+                    "y1": min(start.y, end.y),
+                    "x2": max(start.x, end.x),
+                    "y2": max(start.y, end.y)}
+        return all(abs(box[key] - value) <= 0.00015
+                   for key, value in expected.items())
 
     def creator_draft(self, body: dict) -> dict:
         """Return a non-authoritative page/sticker draft description."""

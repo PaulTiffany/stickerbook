@@ -611,15 +611,30 @@ retry does not automatically receive the earlier drag. This is input history,
 not world history: recording an episode creates no receipt or world revision.
 
 `InputSignal` carries `sticker-drag` or `page-path` summaries. The episode does
-not classify geometry or infer relevance. Raw samples remain in the host's
-`StickerDragLog` or `PagePathLog`. A bare-page drag also retains its existing
-box deictic mark: box and path are distinct evidence from one physical input.
+not classify geometry or infer relevance. Bounded, validated trajectory samples
+remain in the host's `StickerDragLog` or `PagePathLog`; the untouched browser
+event stream is not stored. A bare-page drag also retains its existing box
+deictic mark: box and path are distinct evidence from one physical input.
 Every page-path sample is an observed normalized pointer position, with no
 authoritative world anchor and no kernel mutation. Malformed auxiliary path
 telemetry is discarded without invalidating the box. The voice/text
 mode comes from the browser's physical input channel and is descriptive
 metadata only; nothing security-relevant branches on it. No microphone audio
 is stored.
+
+The auxiliary observation request carries both the existing box and bounded
+path samples from one browser pointer gesture. The host validates their end
+corners together and, on success, issues an `input-event-N` token from its
+observation sequence. The browser attaches that response only to the box still
+pending from the same local pointer gesture. At conversation time,
+the host exposes `sourceEvent` on the box only when the token names the latest
+eligible page path in the current bounded episode window and the box matches
+the pair stored at capture within coordinate rounding.
+The page-path signal carries the same host-issued token. A stale, fabricated,
+or mismatched claim leaves the validated box intact but unlinked. This checks
+the reported correlation; the browser remains the physical input sensor, so
+the host cannot independently attest pointer hardware provenance. The token
+does not change host arrival chronology or imply what the gesture meant.
 
 The architecture is unchanged by any of that:
 

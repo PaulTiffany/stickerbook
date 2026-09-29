@@ -1783,7 +1783,11 @@ function deicticPayload(reference) {
     return { kind: "point", point: copy(reference.point) };
   }
   if (reference.kind === "box") {
-    return { kind: "box", box: copy(reference.box) };
+    const payload = { kind: "box", box: copy(reference.box) };
+    if (typeof reference.sourceEvent === "string") {
+      payload.source_event = reference.sourceEvent;
+    }
+    return payload;
   }
   return null;
 }
@@ -1942,12 +1946,15 @@ function observePagePathPoint(gesture, point) {
 
 function recordPagePath(gesture) {
   if (world !== kernelWorld || gesture.samples.length < 2) return;
+  const reference = pendingDeicticReference;
+  const serial = deicticReferenceSerial;
   const first = gesture.samples[0].at;
   const last = gesture.samples[gesture.samples.length - 1].at;
   const span = Math.max(1, last - first);
   const round = (value, places) => Number(value.toFixed(places));
   const body = {
     duration_ms: Math.max(1, Math.round(span)),
+    box: copy(reference.box),
     samples: gesture.samples.map((sample) => ({
       t: round(Math.min(1, Math.max(0, (sample.at - first) / span)), 3),
       x: round(sample.x, 4),
@@ -1956,7 +1963,14 @@ function recordPagePath(gesture) {
   };
   // Serialize page observations; the box mark is already established locally.
   pendingPathObservation = pendingPathObservation.catch(() => {}).then(
-    () => world.observePagePath(body));
+    () => world.observePagePath(body)).then((result) => {
+      if (result && result.ok && typeof result.sourceEvent === "string" &&
+          pendingDeicticReference === reference &&
+          deicticReferenceSerial === serial) {
+        reference.sourceEvent = result.sourceEvent;
+      }
+      return result;
+    });
 }
 
 function finishDeicticGesture(event) {
@@ -3188,10 +3202,12 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
   if (aloud) setVoiceOrbState("speaking");
 
   const referenceSerial = deicticReferenceSerial;
-  const reference = deicticPayload(pendingDeicticReference);
+  const pendingReference = pendingDeicticReference;
+  let reference = null;
 
   try {
     await pendingPathObservation.catch(() => {});
+    reference = deicticPayload(pendingReference);
     // Whether the child spoke or typed. The browser owns the microphone and
     // the keyboard, so it is the only thing that honestly knows. Descriptive
     // only: it carries no authority and nothing branches on it.
