@@ -3,9 +3,10 @@ Copyright (c) 2026 Paul Carver Tiffany III
 Licensed under the MIT License. See LICENSE.
 
 The MIT License applies to StickerBook-authored code and documentation unless
-a file states otherwise. It does not relicense third-party software, base
-images, hosted services, models, APIs, or development tools. Those components
-remain subject to their own licenses and/or service terms.
+a file states otherwise. It does not relicense third-party software, runtime
+substrates, base images, hosted services or models, browser/platform APIs, or
+external deployment services used by StickerBook. Those components remain
+subject to their own licenses and/or service terms.
 
 ================================================================================
 Third-party projects
