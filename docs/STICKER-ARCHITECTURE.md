@@ -21,7 +21,7 @@ The catalog may grow large. Discovery is therefore metadata-driven rather than
 assuming every installed definition fits in one tile grid. The browser performs
 deterministic local search over name, aliases, theme, category and tags, with
 world/theme and category chips as filters. No model is involved in catalog
-search. The current built-in catalog has **73 definitions / 292 pose sprites**
+search. The current built-in catalog has **76 definitions / 304 pose sprites**
 spanning Farm, Beach, Playground and Space.
 
 ## StickerDefinition: reusable visual package
@@ -54,7 +54,7 @@ The installed visual manifest is version 4. A built-in definition may contain:
 Sprites are drawings. Clips are recipes over sprite names. A definition may
 have any useful set of poses; only a default/rest clip is a common convention.
 
-The built-in catalog currently has 73 definitions. The catalog now also includes H+ people packs of stylized public-figure likenesses. The first pack contains Ben Goertzel, Aubrey de Grey, Ray Kurzweil, David Eagleman, Nick Bostrom, Max More, Natasha Vita-More, and Eliezer Yudkowsky. The second classic-H+ pack adds FM-2030, Robert Ettinger, Hans Moravec, Vernor Vinge, K. Eric Drexler, Anders Sandberg, David Pearce, and Martine Rothblatt. Each person is represented by one four-pose definition; there is only one Bostrom set. Each starts with four pose
+The built-in catalog currently has 76 definitions. The catalog now also includes H+ people packs of stylized public-figure likenesses. The first pack contains Ben Goertzel, Aubrey de Grey, Ray Kurzweil, David Eagleman, Nick Bostrom, Max More, Natasha Vita-More, and Eliezer Yudkowsky. The second classic-H+ pack adds FM-2030, Robert Ettinger, Hans Moravec, Vernor Vinge, K. Eric Drexler, Anders Sandberg, David Pearce, and Martine Rothblatt. Each person is represented by one four-pose definition; there is only one Bostrom set. A small cosmic-engineers pack adds Giulio Prisco, David Orban, and Paul Tiffany, again as four-pose text-SVG definitions. Each starts with four pose
 sprites; four is a useful starter package, not a schema limit. New definitions
 are grouped by the four current page themes while shared stickers may appear in
 more than one theme.

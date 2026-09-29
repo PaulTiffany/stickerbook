@@ -143,6 +143,11 @@ ASSETS = {
     "anders-sandberg": _definition("anders-sandberg", "wave", "present", "think"),
     "david-pearce": _definition("david-pearce", "gesture", "think", "present"),
     "martine-rothblatt": _definition("martine-rothblatt", "wave", "present", "celebrate"),
+
+    # Cosmic engineers pack.
+    "giulio-prisco": _definition("giulio-prisco", "cosmic", "book", "think"),
+    "david-orban": _definition("david-orban", "explain", "point", "wave"),
+    "paul-tiffany": _definition("paul-tiffany", "explain", "chalkboard", "poster"),
 }
 
 HUMAN_TOOLS = frozenset({
