@@ -587,7 +587,7 @@ move, associating a single governed mutation with the demonstration the host
 observed. It does not pretend the samples were governed mutations, and
 OmegaLLM's projection names the demonstration without receiving the samples.
 
-#### Toward a multimodal interaction record
+#### Bounded multimodal interaction record
 
 StickerBook is voice-interface-forward, and a sticker drag is only the first
 class of gestural input. Child direction will eventually include pointing,
@@ -597,12 +597,24 @@ sticker along a path demonstrated without touching it. The page already has
 point/box deictic interaction for OmegaLLM, whose semantics are unchanged
 here.
 
-The likely next host object is an **interaction episode** that associates,
-without interpreting, the signals that occurred together: an utterance or
-transcript, a deictic point or box, a sticker-drag trace, a future non-sticker
-path gesture, their ordering and timing, and the relevant scene and revision
-context. It records which signals co-occurred. It is not a third intelligent
-layer, and it does not classify a path as a circle, a zig-zag or "around".
+The host now records one `InteractionEpisode` per OmegaLLM turn. It contains
+the utterance/transcript, optional validated point or box, scene revision,
+browser-observed voice/text mode, and at most four host-observed sticker-drag
+references. The client cannot select drag IDs. The host associates traces
+recorded since the preceding linguistic turn, keeps the newest four in
+observation order, and advances that cursor even when inference fails. If the
+old marker has left the 32-trace log, all retained traces are newer and the
+same newest-four rule applies. A failed turn remains in the 24-episode log;
+later OmegaLLM turns currently receive only their own episode, so an immediate
+retry does not automatically receive the earlier drag. This is input history,
+not world history: recording an episode creates no receipt or world revision.
+
+`InputSignal` is generic, so a future non-sticker path can use the same
+bounded record. The episode does not classify geometry or infer relevance.
+Raw trajectory samples remain in the host's `StickerDragLog`. The voice/text
+mode comes from the browser's physical input channel and is descriptive
+metadata only; nothing security-relevant branches on it. No microphone audio
+is stored.
 
 The architecture is unchanged by any of that:
 

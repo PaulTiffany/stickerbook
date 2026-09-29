@@ -54,6 +54,7 @@ from page_image_runtime import (  # noqa: E402
 from governed_history import (  # noqa: E402
     ORIGIN_HUMAN_GESTURE, GovernedHistory,
 )
+import interaction  # noqa: E402
 import sticker_drag  # noqa: E402
 from pattern_memory import PatternLibrary, ReplayLog  # noqa: E402
 from stickerbook_core import (  # noqa: E402
@@ -89,7 +90,8 @@ class Bridge:
     def __init__(
             self, kernel=None, agent_runtime=None, jev_runtime=None,
             page_image_runtime=None, pattern_library=None,
-            governed_history=None, replay_log=None, drag_log=None):
+            governed_history=None, replay_log=None, drag_log=None,
+            interaction_log=None):
         self.kernel = kernel or farm.build_world()
         # OmegaLLM is the conversational/linguistic loop. OmegaJev is a
         # separate discriminative control loop with its own narrow runtime.
@@ -108,6 +110,12 @@ class Bridge:
         # dragging a sticker. Input history, kept separate from world history
         # on purpose. This is one input type, not a gesture ontology.
         self.traces = drag_log or sticker_drag.StickerDragLog()
+        # Which bounded child inputs took part in each conversational turn.
+        # Facts about co-occurrence, never an interpretation of them.
+        self.interactions = interaction_log or interaction.InteractionLog()
+        # Deterministic association cursor: the newest drag trace already
+        # offered to a previous linguistic turn.
+        self._drag_marker = None
         self.jev_controller = JevController(
             self.kernel, self.jev_runtime, patterns=self.patterns,
             history=self.history, replays=self.replays)
@@ -160,7 +168,7 @@ class Bridge:
             "stickers": stickers,
         }
 
-    def _conversation_scene(self) -> dict:
+    def _conversation_scene(self, episode=None) -> dict:
         """Bounded OmegaLLM scene plus child-facing help.
 
         Responsible-adult/operator documentation is intentionally excluded.
@@ -168,6 +176,10 @@ class Bridge:
         source the child can read in-app, without seeing operator instructions.
         """
         scene = self.state()
+        if episode is not None:
+            # Which bounded inputs took part in this turn. Facts only: no
+            # shape labels, no raw trajectory samples, no interpretation.
+            scene["interaction"] = episode.describe()
         scene["child_help"] = help_content.child_help_for_omega()
         # Bounded recent governed history, so OmegaLLM can resolve "that".
         # Declarative only: no complete action keys, so OmegaLLM can refer to
@@ -312,11 +324,15 @@ class Bridge:
                     "error": "conversational-agent-unavailable",
                     "state": self.state()}
 
+        episode = self._begin_episode(
+            text=text, reference=reference,
+            input_mode=body.get("input_mode"))
+
         try:
             result = self.agent_runtime.converse(
                 text=text,
                 principal=BROWSER_PRINCIPAL,
-                scene=self._conversation_scene(),
+                scene=self._conversation_scene(episode),
                 reference=reference,
                 inference=dict(self._inference_selection))
         except Exception:
@@ -339,7 +355,8 @@ class Bridge:
             return {"ok": False, "error": "invalid-agent-response",
                     "state": self.state()}
 
-        payload = {"ok": True, "reply": reply.strip()}
+        payload = {"ok": True, "reply": reply.strip(),
+                   "interaction": episode.describe()}
 
         goal = result.get("goal")
         if goal is not None:
@@ -354,6 +371,43 @@ class Bridge:
 
         payload["state"] = self.state()
         return payload
+
+    def _associate_drags(self):
+        """Host-observed drags since the previous turn, newest four in order."""
+        return self.traces.after(self._drag_marker)[
+            -interaction.MAX_SIGNALS_PER_EPISODE:]
+
+    def _begin_episode(self, *, text, reference, input_mode):
+        """Record which bounded inputs took part in this conversational turn.
+
+        This creates no kernel receipt and changes no world revision: it is a
+        statement about input, not about the world.
+        """
+        recent = self.traces.after(self._drag_marker)
+        traces = self._associate_drags()
+        signals = tuple(
+            interaction.InputSignal(
+                kind=interaction.SIGNAL_STICKER_DRAG,
+                ref=trace.trace_id,
+                subject=trace.subject_id,
+                duration_ms=trace.duration_ms,
+            )
+            for trace in traces
+        )
+        episode = self.interactions.add(interaction.InteractionEpisode(
+            episode_id=self.interactions.next_episode_id(),
+            principal=BROWSER_PRINCIPAL,
+            sequence=self.interactions.next_sequence(),
+            scene_revision=self.kernel.revision,
+            utterance_text=text,
+            input_mode=interaction.valid_input_mode(input_mode),
+            deictic=reference,
+            signals=signals,
+        ))
+        # The child supplied this turn even if inference later fails.
+        if recent:
+            self._drag_marker = recent[-1].trace_id
+        return episode
 
     @staticmethod
     def _deictic_reference(raw):
