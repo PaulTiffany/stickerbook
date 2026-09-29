@@ -181,7 +181,7 @@ class JevProvider(providers.LLMProvider):
 
     def _make_transport(self, timeout: int):
         mode = str(config_get_by_key("jevTransport", "gateway")).strip().lower()
-        if mode == "openshell":
+        if mode in ("openshell", "direct"):
             base = str(config_get_by_key(
                 "jevOpenShellUrl", DEFAULT_OPENROUTER_URL)).strip()
             path = str(config_get_by_key(
@@ -354,6 +354,11 @@ class JevProvider(providers.LLMProvider):
                 transport=self.transport,
                 actions=actions,
                 criteria=offered,
+                instructions=(
+                    "Choose the single offered action that moves `scene` "
+                    "closer to the host-owned semantic `goal`. Select only "
+                    "one of the offered keys for this turn."
+                ),
                 log=lambda message: logger.warning("[jev-rpc] %s", message),
             )
             choice = trace.get("action_id")

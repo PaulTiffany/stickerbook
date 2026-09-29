@@ -17,8 +17,9 @@ COPY jev/omega_jev/providers/jev.py       /PeTTa/repos/Omega/providers/jev.py
 COPY jev/omega_jev/providers/sb_bridge.py /PeTTa/repos/Omega/providers/sb_bridge.py
 COPY jev/omega_jev/channels/jevconsole.py /PeTTa/repos/Omega/channels/jevconsole.py
 COPY runtime/omega/stickerbookrpc.py /PeTTa/repos/Omega/channels/stickerbookrpc.py
+COPY runtime/omega/stickerbookrpc_state.py /PeTTa/repos/Omega/channels/stickerbookrpc_state.py
 RUN mkdir -p /PeTTa/repos/Omega/plugins/stickerbookrpc
-COPY runtime/omega/stickerbookrpc.metta /PeTTa/repos/Omega/plugins/stickerbookrpc/stickerbookrpc.metta
+COPY runtime/omega/stickerbookrpc.metta /PeTTa/repos/Omega/plugins/stickerbookrpc/stickerbookrpc-skill.metta
 # Whole directory: the .metta file py-calls into butterfly.py beside it.
 COPY jev/omega_jev/plugins/jevskills/     /PeTTa/repos/Omega/plugins/jevskills/
 

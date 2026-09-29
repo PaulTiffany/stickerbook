@@ -10,6 +10,6 @@
   loader: python
   location: "{REPO}/channels"
 
-- name: stickerbook-llm
+- name: stickerbook_llm
   loader: python
   location: "{REPO}/providers"

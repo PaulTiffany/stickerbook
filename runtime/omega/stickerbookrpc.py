@@ -1,7 +1,7 @@
 """Loopback RPC communication channel for StickerBook's Omega roles.
 
-This module is loaded *inside* an OpenShell sandbox as an Omega CommChannel.
-OpenShell forwards the sandbox port to host loopback. The browser never talks
+This module runs inside an Omega container as an Omega CommChannel.
+The runtime publishes its port to host loopback. The browser never talks
 to this service directly; the host bridge does.
 
 One request at a time is intentional. Omega's loop is sequential, and allowing
@@ -21,20 +21,11 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import channels
 from config import config_get_by_key
 from src.logger import get_logger
+from stickerbookrpc_state import state
 
 logger = get_logger(__name__)
 
 _MAX_BODY = 256 * 1024
-_lock = threading.RLock()
-_gate = threading.Lock()
-_current = None
-_staged = None
-_serial = 0
-_provider_ready = False
-_provider_metadata = {}
-_role = ""
-_server = None
-_thread = None
 
 
 class _Pending:
@@ -55,55 +46,52 @@ def _clean_role(value) -> str:
 
 def current_request(expected_role: str | None = None):
     """Return a defensive copy of the active host request, if any."""
-    with _lock:
-        if expected_role is not None and _role != expected_role:
+    with state.lock:
+        if expected_role is not None and state.role != expected_role:
             return None
-        if _current is None or not _current.delivered:
+        if state.current is None or not state.current.delivered:
             return None
-        return copy.deepcopy(_current.payload)
+        return copy.deepcopy(state.current.payload)
 
 
 def set_provider_ready(role: str, metadata: dict | None = None) -> None:
-    global _provider_ready, _provider_metadata
     clean = _clean_role(role)
-    if clean != _role:
+    if clean != state.role:
         raise RuntimeError("provider role does not match channel role")
     if metadata is not None and not isinstance(metadata, dict):
         raise RuntimeError("provider metadata must be an object")
-    with _lock:
-        _provider_metadata = copy.deepcopy(metadata or {})
-        _provider_ready = True
+    with state.lock:
+        state.provider_metadata = copy.deepcopy(metadata or {})
+        state.provider_ready = True
 
 
 def stage_result(result: dict) -> bool:
     """Stage one JSON result for the fixed zero-argument sb-return skill."""
-    global _staged
     if not isinstance(result, dict):
         return False
     raw = json.dumps(result, separators=(",", ":"))
     if len(raw.encode("utf-8")) > _MAX_BODY:
         return False
-    with _lock:
-        if _current is None or not _current.delivered:
-            _staged = None
+    with state.lock:
+        if state.current is None or not state.current.delivered:
+            state.staged = None
             return False
-        _staged = (_current.request_id, copy.deepcopy(result))
+        state.staged = (state.current.request_id, copy.deepcopy(result))
         return True
 
 
 def complete_staged() -> str:
     """Body of sb-return. Completing transport is not world authorization."""
-    global _staged
-    with _lock:
-        if _current is None:
-            _staged = None
+    with state.lock:
+        if state.current is None:
+            state.staged = None
             return "SB-RPC-NO-REQUEST"
-        if _staged is None or _staged[0] != _current.request_id:
-            _staged = None
+        if state.staged is None or state.staged[0] != state.current.request_id:
+            state.staged = None
             return "SB-RPC-NOTHING-STAGED"
-        _current.response = _staged[1]
-        _staged = None
-        _current.event.set()
+        state.current.response = state.staged[1]
+        state.staged = None
+        state.current.event.set()
         return "SB-RPC-RETURNED"
 
 
@@ -154,7 +142,8 @@ def _validate_payload(role: str, payload: dict) -> str | None:
     if not isinstance(payload["max_turns"], int) or isinstance(
             payload["max_turns"], bool):
         return "invalid-turn"
-    if not 1 <= payload["turn"] <= payload["max_turns"] <= 6:
+    # Existing host pattern and trajectory agent budgets are bounded at 12.
+    if not 1 <= payload["turn"] <= payload["max_turns"] <= 12:
         return "invalid-turn"
     return None
 
@@ -177,16 +166,16 @@ class _Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path != "/health":
             return self._send(404, {"ok": False, "error": "not-found"})
-        with _lock:
-            ready = bool(_provider_ready)
-            metadata = copy.deepcopy(_provider_metadata)
-        payload = {"ok": ready, "role": _role}
-        if _role == "omegallm":
+        with state.lock:
+            ready = bool(state.provider_ready)
+            metadata = copy.deepcopy(state.provider_metadata)
+        payload = {"ok": ready, "role": state.role}
+        if state.role == "omegallm":
             payload.update(metadata)
         return self._send(200, payload)
 
     def do_POST(self):
-        expected = "/converse" if _role == "omegallm" else "/choose"
+        expected = "/converse" if state.role == "omegallm" else "/choose"
         if self.path != expected:
             return self._send(404, {"ok": False, "error": "not-found"})
 
@@ -201,83 +190,85 @@ class _Handler(BaseHTTPRequestHandler):
         except (UnicodeDecodeError, ValueError):
             return self._send(400, {"ok": False, "error": "bad-json"})
 
-        error = _validate_payload(_role, payload)
+        error = _validate_payload(state.role, payload)
         if error:
             return self._send(400, {"ok": False, "error": error})
 
-        if not _provider_ready:
+        if not state.provider_ready:
             return self._send(
                 503, {"ok": False, "error": "omega-provider-not-ready"})
 
-        if not _gate.acquire(blocking=False):
+        if not state.gate.acquire(blocking=False):
             return self._send(409, {"ok": False, "error": "omega-busy"})
 
-        global _current, _serial, _staged
         pending = None
         try:
-            with _lock:
-                _serial += 1
-                _staged = None
-                _current = _Pending(_serial, copy.deepcopy(payload))
-                pending = _current
+            with state.lock:
+                state.serial += 1
+                state.staged = None
+                state.current = _Pending(state.serial, copy.deepcopy(payload))
+                pending = state.current
 
             timeout = float(config_get_by_key("stickerbookRpcTimeout", 45))
             if not pending.event.wait(timeout=max(1.0, min(timeout, 120.0))):
                 return self._send(
                     504, {"ok": False, "error": "omega-response-timeout"})
 
-            with _lock:
+            with state.lock:
                 response = copy.deepcopy(pending.response)
             if not isinstance(response, dict):
                 return self._send(
                     502, {"ok": False, "error": "invalid-omega-response"})
             return self._send(200, response)
         finally:
-            with _lock:
-                if pending is not None and _current is not None and _current is pending:
-                    _current = None
-                    _staged = None
-            _gate.release()
+            with state.lock:
+                if pending is not None and state.current is not None and state.current is pending:
+                    state.current = None
+                    state.staged = None
+            state.gate.release()
 
 
 class StickerBookRPCChannel(channels.CommChannel):
 
     def start(self) -> None:
-        global _role, _server, _thread, _provider_ready, _provider_metadata
-        _role = _clean_role(config_get_by_key("stickerbookRpcRole", ""))
+        state.role = _clean_role(config_get_by_key("stickerbookRpcRole", ""))
         port = int(config_get_by_key(
-            "stickerbookRpcPort", 8761 if _role == "omegallm" else 8762))
-        _provider_ready = False
-        _provider_metadata = {}
-        _server = ThreadingHTTPServer(("127.0.0.1", port), _Handler)
-        _thread = threading.Thread(
-            target=_server.serve_forever,
+            "stickerbookRpcPort", 8761 if state.role == "omegallm" else 8762))
+        state.provider_ready = False
+        state.provider_metadata = {}
+        # Docker needs the container interface; publication remains host-loopback.
+        # The hardened runtime retains the default internal loopback binding.
+        bind = str(config_get_by_key("stickerbookRpcBind", "127.0.0.1"))
+        if bind not in ("127.0.0.1", "0.0.0.0"):
+            raise RuntimeError("invalid StickerBook RPC bind address")
+        state.server = ThreadingHTTPServer((bind, port), _Handler)
+        state.thread = threading.Thread(
+            target=state.server.serve_forever,
             name="stickerbook-omega-rpc",
             daemon=True,
         )
-        _thread.start()
+        state.thread.start()
         logger.info(
             "[stickerbookrpc] %s channel listening on sandbox port %s",
-            _role, port)
+            state.role, port)
 
     def stop(self) -> None:
-        global _server, _thread, _provider_ready, _provider_metadata
-        _provider_ready = False
-        _provider_metadata = {}
-        if _server is not None:
-            _server.shutdown()
-            _server.server_close()
-        if _thread is not None:
-            _thread.join(timeout=5)
-        _server = None
-        _thread = None
+        state.provider_ready = False
+        state.provider_metadata = {}
+        if state.server is not None:
+            state.server.shutdown()
+            state.server.server_close()
+        if state.thread is not None:
+            state.thread.join(timeout=5)
+        state.server = None
+        state.thread = None
 
     def receive(self) -> str:
-        with _lock:
-            if _current is None or _current.delivered:
+        with state.lock:
+            if state.current is None or state.current.delivered:
                 return ""
-            _current.delivered = True
-            return "STICKERBOOK-RPC %s %d" % (_role, _current.request_id)
+            state.current.delivered = True
+            return "STICKERBOOK-RPC %s %d" % (state.role, state.current.request_id)
 
     def send(self, message: str) -> None:
         # Omega sends its version at startup and may emit other channel text.
