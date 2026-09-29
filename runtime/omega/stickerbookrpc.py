@@ -31,6 +31,7 @@ _current = None
 _staged = None
 _serial = 0
 _provider_ready = False
+_provider_metadata = {}
 _role = ""
 _server = None
 _thread = None
@@ -62,12 +63,15 @@ def current_request(expected_role: str | None = None):
         return copy.deepcopy(_current.payload)
 
 
-def set_provider_ready(role: str) -> None:
-    global _provider_ready
+def set_provider_ready(role: str, metadata: dict | None = None) -> None:
+    global _provider_ready, _provider_metadata
     clean = _clean_role(role)
     if clean != _role:
         raise RuntimeError("provider role does not match channel role")
+    if metadata is not None and not isinstance(metadata, dict):
+        raise RuntimeError("provider metadata must be an object")
     with _lock:
+        _provider_metadata = copy.deepcopy(metadata or {})
         _provider_ready = True
 
 
@@ -108,7 +112,7 @@ def _validate_payload(role: str, payload: dict) -> str | None:
         return "body-must-be-object"
 
     if role == "omegallm":
-        allowed = {"text", "principal", "scene", "reference"}
+        allowed = {"text", "principal", "scene", "reference", "inference"}
         if set(payload) - allowed:
             return "unknown-field"
         if not isinstance(payload.get("text"), str):
@@ -121,6 +125,15 @@ def _validate_payload(role: str, payload: dict) -> str | None:
             return "invalid-scene"
         if "reference" in payload and not isinstance(payload["reference"], dict):
             return "invalid-reference"
+        inference = payload.get("inference")
+        if not isinstance(inference, dict) or set(inference) != {"provider", "model"}:
+            return "invalid-inference"
+        if not isinstance(inference["provider"], str) or not inference["provider"]:
+            return "invalid-inference"
+        if not isinstance(inference["model"], str) or not inference["model"]:
+            return "invalid-inference"
+        if len(inference["provider"]) > 40 or len(inference["model"]) > 120:
+            return "invalid-inference"
         return None
 
     allowed = {"goal", "scene", "actions", "turn", "max_turns"}
@@ -166,7 +179,11 @@ class _Handler(BaseHTTPRequestHandler):
             return self._send(404, {"ok": False, "error": "not-found"})
         with _lock:
             ready = bool(_provider_ready)
-        return self._send(200, {"ok": ready, "role": _role})
+            metadata = copy.deepcopy(_provider_metadata)
+        payload = {"ok": ready, "role": _role}
+        if _role == "omegallm":
+            payload.update(metadata)
+        return self._send(200, payload)
 
     def do_POST(self):
         expected = "/converse" if _role == "omegallm" else "/choose"
@@ -226,11 +243,12 @@ class _Handler(BaseHTTPRequestHandler):
 class StickerBookRPCChannel(channels.CommChannel):
 
     def start(self) -> None:
-        global _role, _server, _thread, _provider_ready
+        global _role, _server, _thread, _provider_ready, _provider_metadata
         _role = _clean_role(config_get_by_key("stickerbookRpcRole", ""))
         port = int(config_get_by_key(
             "stickerbookRpcPort", 8761 if _role == "omegallm" else 8762))
         _provider_ready = False
+        _provider_metadata = {}
         _server = ThreadingHTTPServer(("127.0.0.1", port), _Handler)
         _thread = threading.Thread(
             target=_server.serve_forever,
@@ -243,8 +261,9 @@ class StickerBookRPCChannel(channels.CommChannel):
             _role, port)
 
     def stop(self) -> None:
-        global _server, _thread, _provider_ready
+        global _server, _thread, _provider_ready, _provider_metadata
         _provider_ready = False
+        _provider_metadata = {}
         if _server is not None:
             _server.shutdown()
             _server.server_close()
