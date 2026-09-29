@@ -40,9 +40,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import book  # noqa: E402
 import farm  # noqa: E402
-from agent_runtime import DisabledAgentRuntime  # noqa: E402
+from agent_runtime import (  # noqa: E402
+    DisabledAgentRuntime, agent_runtime_from_env,
+)
 from jev_controller import JevController, OMEGA_LLM_ID  # noqa: E402
-from jev_runtime import DisabledJevRuntime  # noqa: E402
+from jev_runtime import DisabledJevRuntime, jev_runtime_from_env  # noqa: E402
 from page_assets import supported_upload  # noqa: E402
 from page_image_runtime import (  # noqa: E402
     DisabledPageImageRuntime, page_image_runtime_from_env,
@@ -801,6 +803,8 @@ if __name__ == "__main__":
         httpd, _ = serve(
             "127.0.0.1",
             PORT,
+            agent_runtime=agent_runtime_from_env(),
+            jev_runtime=jev_runtime_from_env(),
             page_image_runtime=page_image_runtime_from_env(),
         )
     except OSError as exc:
