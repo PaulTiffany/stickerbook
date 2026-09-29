@@ -1997,6 +1997,44 @@ function grabPlaced(event, sticker) {
     };
   };
 
+  // What the child physically demonstrates. These are observations of input,
+  // not world mutations: only the final release is proposed to the kernel.
+  // Recording halves itself when full, so a long drag keeps covering the
+  // whole gesture instead of filling up early and missing the end, and a fast
+  // pointer cannot grow the POST without bound. The host decimates and
+  // validates again regardless.
+  const GESTURE_SAMPLE_CAP = 128;
+  const gestureSamples = [];
+  let gestureStride = 1;
+  let gestureSeen = 0;
+
+  const observeGesture = (point) => {
+    gestureSeen += 1;
+    if (gestureSeen % gestureStride !== 0) return;
+    gestureSamples.push({ at: performance.now(), x: point.x, y: point.y });
+    if (gestureSamples.length >= GESTURE_SAMPLE_CAP) {
+      for (let i = gestureSamples.length - 1; i > 0; i -= 1) {
+        if (i % 2 === 1) gestureSamples.splice(i, 1);
+      }
+      gestureStride *= 2;
+    }
+  };
+
+  const gesturePayload = (finalPoint) => {
+    if (!gestureSamples.length) return null;
+    const first = gestureSamples[0].at;
+    const last = performance.now();
+    const duration = Math.max(1, Math.round(last - first));
+    const span = last - first || 1;
+    const samples = gestureSamples.map((sample) => ({
+      t: Math.min(1, Math.max(0, (sample.at - first) / span)),
+      x: sample.x,
+      y: sample.y,
+    }));
+    samples.push({ t: 1, x: finalPoint.x, y: finalPoint.y });
+    return { samples: samples, duration_ms: duration };
+  };
+
   const onMove = (moveEvent) => {
     const distance = Math.hypot(
       moveEvent.clientX - startX,
@@ -2006,10 +2044,12 @@ function grabPlaced(event, sticker) {
       moved = true;
       // Preserve where the child actually grabbed the sticker. Starting a
       // drag must not teleport the sticker center to the pointer.
+      observeGesture({ x: sticker.x, y: sticker.y });
     }
     if (!moved) return;
 
     const point = draggedFraction(moveEvent);
+    observeGesture(point);
     node.setAttribute(
       "transform",
       (() => {
@@ -2057,11 +2097,15 @@ function grabPlaced(event, sticker) {
       return;
     }
 
-    await send("/api/propose-move", {
+    const releasePoint = draggedFraction(upEvent);
+    const request = {
       sticker: sticker.id,
       command_id: nextId("move"),
-      point: draggedFraction(upEvent),
-    });
+      point: releasePoint,
+    };
+    const gesture = gesturePayload(releasePoint);
+    if (gesture) request.gesture = gesture;
+    await send("/api/propose-move", request);
   };
 
   node.addEventListener("pointermove", onMove);

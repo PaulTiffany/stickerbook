@@ -533,8 +533,14 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         self.assertIn("const draggedFraction = (pointerEvent)", drag_rule)
         self.assertIn("point.x - grabOffset.x", drag_rule)
         self.assertIn("point.y - grabOffset.y", drag_rule)
-        self.assertIn("point: draggedFraction(upEvent)", drag_rule)
+        # The release point is still the grab-offset-preserving fraction; it
+        # is now named so the gesture payload can reuse the same value.
+        self.assertIn("const releasePoint = draggedFraction(upEvent)",
+                      drag_rule)
+        self.assertIn("point: releasePoint", drag_rule)
         self.assertNotIn("point: pageFraction(upEvent)", drag_rule)
+        self.assertNotIn("draggedFraction(upEvent)", drag_rule.split(
+            "const releasePoint = draggedFraction(upEvent)")[1])
 
     def test_grab_uses_idle_art_and_keeps_held_art_centered(self):
         with urllib.request.urlopen(

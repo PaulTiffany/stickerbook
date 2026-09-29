@@ -499,6 +499,113 @@ demonstrated it and at which revision. Ownership, budgets and every other
 principal restriction are still applied independently to each actual action by
 the kernel.
 
+### Embodied gesture traces
+
+> **Input history is not world history.**
+
+A child freehand-drags a sticker. The browser watches a whole trajectory -- a
+circle, a zig-zag, a swoop -- and the renderer moves the sticker through it.
+But on pointer-up only the release point is proposed, and the kernel
+authorizes exactly one ordinary `MOVE_STICKER`. Without more, the host
+remembers only "the sticker ended over there", and the demonstration is lost.
+
+A `GestureTrace` (`web/gesture_trace.py`) preserves the demonstration as
+bounded declarative data. It is deliberately a **mixed evidence** object, and
+the mixture is the point:
+
+| Part | Status |
+|---|---|
+| `start` | **authoritative** -- the StickerInstance position read *before* the move was proposed |
+| `samples` | **observed input** -- what the pointer did. Never kernel receipts, never world mutations |
+| `end` | **authoritative** -- the StickerInstance position *after* the kernel accepted |
+
+```text
+GestureTrace
+  trace_id, subject_id, asset, demonstrated_by
+  starting_revision
+  start / end                 (authoritative Points)
+  duration_ms
+  samples: TrajectorySample(t, dx, dy) ...
+  terminal_command_id, terminal_move_accepted, kind
+```
+
+`dx`/`dy` are displacement from the **authoritative starting position**, not
+absolute page coordinates, so the same demonstrated shape can later be read
+against another compatible sticker starting somewhere else. `t` is monotonic
+progress from 0 to 1, and `duration_ms` is kept separately so speed is not
+destroyed by normalising progress.
+
+The kernel is unchanged. It knows nothing about gestures, and no intermediate
+pointer position ever becomes a receipt.
+
+#### Bounding and sampling
+
+| Limit | Value |
+|---|---|
+| retained samples per trace | 32 |
+| raw samples accepted per request | 256 |
+| gesture duration | 20000 ms |
+| retained traces | 32 |
+
+The browser decimates as it records -- halving its buffer when full, so a long
+drag keeps covering the whole gesture instead of filling up early and losing
+its ending -- and the host enforces its own limits regardless.
+
+Host decimation repeatedly drops the interior point whose removal changes the
+path least, measured as perpendicular distance from the line between its
+neighbours. That keeps the first point, the last point, the ordering and the
+major bends, and it observes the whole gesture. Points are only ever removed,
+never invented or moved: no smoothing, no easing, no curve fitting, no
+inference.
+
+#### The browser is input, not authority
+
+The browser is necessarily the source of pointer samples and remains untrusted
+for world state. The bridge refuses a malformed trajectory the same way it
+refuses any other malformed request shape, without reaching the kernel:
+non-finite or out-of-range coordinates, unordered progress, too many samples,
+an out-of-range duration, or **any field beyond `samples` and `duration_ms`**.
+That last rule is what stops a browser smuggling provenance, an acting
+principal, a different subject, or executable content into the record. The
+subject comes from the request path, the acting principal is fixed by the
+bridge, and the starting position is read from authoritative state.
+
+#### Eligibility
+
+A trace is retained only when its terminal governed move was **accepted**. A
+refused move, a cancelled drag, or a release outside the governed page
+demonstrates nothing that happened, and produces no trace at all.
+
+#### Honest linkage to governed history
+
+`GovernedHistory` gains `gestureTrace` and `gestureKind` on the one accepted
+move. That associates a single governed mutation with the demonstration the
+host observed. It does **not** pretend the samples were governed mutations:
+
+```text
+subject: frog-1
+action: move-sticker
+accepted: true
+origin: human-gesture
+gestureTrace: gesture-1
+gestureKind: freehand
+```
+
+OmegaLLM sees that projection and can therefore talk about the demonstration,
+but it does not receive the raw sample array. The host owns the full trace.
+
+#### Deliberately not yet
+
+A freehand drag is still **not** learnable by the discrete `PatternStep`
+mechanism, and "remember that as your circle dance" still resolves only over
+typed discrete actions. That is intentional. We have two different phenomena
+-- governed discrete behaviour (`MOVE/STEP-E`, `ANIMATE/hop`) and continuous
+embodied demonstration -- and collapsing the second into the first would mean
+quantising a trajectory into compass steps the child never supplied. How a
+demonstration becomes movement memory, and how OmegaJev consumes it, is the
+next decision, and it should be made against real recorded trajectories
+rather than imagined ones.
+
 ### Not yet
 
 No persistence across restart, no sharing between children, no Jev-authored or

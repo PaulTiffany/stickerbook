@@ -64,6 +64,12 @@ class GovernedAction:
     requested_by: Optional[str] = None
     translated_by: Optional[str] = None
     selected_by: Optional[str] = None
+    # Identity of the demonstration this accepted move came from, when the
+    # child drew one. This associates the single governed mutation with the
+    # gesture the host observed; the gesture's own samples are NOT governed
+    # mutations and never appear in this record.
+    gesture_trace: Optional[str] = None
+    gesture_kind: Optional[str] = None
 
     def to_dict(self) -> dict:
         return {
@@ -80,6 +86,8 @@ class GovernedAction:
             "requestedBy": self.requested_by,
             "translatedBy": self.translated_by,
             "selectedBy": self.selected_by,
+            "gestureTrace": self.gesture_trace,
+            "gestureKind": self.gesture_kind,
         }
 
     def describe(self) -> dict:
@@ -90,7 +98,7 @@ class GovernedAction:
         "the recent thing involving Froggy", not enough to construct a
         mutation.
         """
-        return {
+        described = {
             "sequence": self.sequence,
             "subject": self.subject_id,
             "action": self.action,
@@ -98,6 +106,12 @@ class GovernedAction:
             "origin": self.origin,
             "requestedBy": self.requested_by,
         }
+        if self.gesture_trace:
+            # Enough for OmegaLLM to know the child demonstrated something,
+            # and to name it. The samples themselves stay with the host.
+            described["gestureTrace"] = self.gesture_trace
+            described["gestureKind"] = self.gesture_kind
+        return described
 
 
 class GovernedHistory:
@@ -115,8 +129,16 @@ class GovernedHistory:
         return len(self._entries)
 
     def record(self, receipt, *, origin: str, key: Optional[str] = None,
-               subject_id: Optional[str] = None) -> Optional[GovernedAction]:
-        """Record one kernel receipt. Only the host calls this."""
+               subject_id: Optional[str] = None,
+               gesture_trace: Optional[str] = None,
+               gesture_kind: Optional[str] = None
+               ) -> Optional[GovernedAction]:
+        """Record one kernel receipt. Only the host calls this.
+
+        `gesture_trace` associates this one governed mutation with a
+        demonstration the host observed. It does not turn the gesture's
+        samples into governed mutations: they are input, not world history.
+        """
         if origin not in ORIGINS:
             raise ValueError("unknown governed-action origin: %r" % (origin,))
         if receipt is None:
@@ -137,6 +159,8 @@ class GovernedHistory:
             requested_by=receipt.requested_by,
             translated_by=receipt.translated_by,
             selected_by=receipt.selected_by,
+            gesture_trace=gesture_trace,
+            gesture_kind=gesture_kind,
         )
         self._next_sequence += 1
         self._entries.append(entry)
