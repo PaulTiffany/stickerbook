@@ -93,6 +93,8 @@ class FakeJevRuntime:
 
         behavior = goal.get("behavior")
         if behavior:
+            if scene["subject"]["clip"] == behavior:
+                return {"ok": True, "choice": "NOOP"}
             suffix = ":" + behavior
             for key in actions:
                 if key.startswith("ANIMATE:") and key.endswith(suffix):
@@ -778,6 +780,7 @@ class Q1b_AgentInterfacesStayOutsideKernelAuthority(ServerCase):
         self.assertEqual(state["capabilities"], {
             "creator_agent": True,
             "conversational_agent": True,
+            "jev_controller": False,
             "page_image_creator": False,
         })
 
