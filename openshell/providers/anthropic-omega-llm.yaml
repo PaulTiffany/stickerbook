@@ -1,0 +1,26 @@
+id: stickerbook-anthropic-omega-llm
+display_name: StickerBook Anthropic for OmegaLLM
+description: Anthropic Claude inference for the bounded OmegaLLM language loop
+category: inference
+inference_capable: true
+
+credentials:
+  - name: api_key
+    description: Anthropic API key
+    env_vars: [ANTHROPIC_API_KEY]
+    required: true
+    auth_style: header
+    header_name: x-api-key
+
+discovery:
+  credentials: [api_key]
+
+endpoints:
+  - host: api.anthropic.com
+    port: 443
+    protocol: rest
+    access: read-write
+    enforcement: enforce
+
+binaries:
+  - /usr/lib/swipl/bin/x86_64-linux/swipl
