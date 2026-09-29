@@ -551,15 +551,13 @@ ACTIONS: NOOP · MOTH_REST · MOTH_MOVE_NEAR_LANTERN · MOTH_ORBIT_LANTERN
 **Illegal operations should ideally not be representable at all.** This is
 simultaneously a scaling strategy and a security strategy.
 
-**OmegaJev status: partially IMPLEMENTED.** Two host-owned sets exist
-(`generic`, `butterfly`), selected by the operator at start, and set isolation
-is verified: the butterfly skills are real MeTTa functions in the image yet
-are unreachable while the generic set is active, and vice versa. The sets are
-not yet generated *per turn* from world state.
-
-**This is the right next competence question for OmegaJev** — whether typed
-selection can navigate sequences of small, changing action sets — rather than
-classification among a large flat list.
+**OmegaJev status: IMPLEMENTED + mechanically tested.** The legacy
+`generic`/`butterfly` sets remain as isolated experiments, while the
+StickerBook host path now generates a fresh finite table from authoritative
+world state on every Jev turn. Movement candidates are ephemeral local steps;
+human-owned or otherwise unauthorized operations are absent from an agent
+principal's representable surface. The returned choice is rechecked against the
+current table before the kernel decides.
 
 ---
 
@@ -577,12 +575,16 @@ Agent manipulation uses the same world kernel with a different principal and
 possibly a different action surface. **The renderer must never become a bypass
 around the controller.**
 
-**Core status: PARTIAL — kernel side VERIFIED (core).** Views are deep
-copies, so nothing holding one can mutate the world, and a hostile raw
-proposal is validated identically to a generated one. No renderer exists to
-test against.
+**Core/browser status: IMPLEMENTED + mechanically tested.** Views are deep
+copies, so nothing holding one can mutate the world, and hostile raw proposals
+are validated identically to browser-generated ones. The localhost browser
+renders only bridge-returned authoritative state; drag/tap endpoints propose
+typed actions and redraw from the resulting kernel state/receipt.
 
-**OmegaJev status: N/A YET.** No renderer exists.
+**OmegaJev status: IMPLEMENTED at the host seam.** Jev receives a bounded scene
+and finite descriptions, returns one offered key, and never receives the
+renderer object. Live OpenShell deployment of that seam remains subject to the
+separate verification boundary in §21/§29.
 
 ---
 
@@ -1054,7 +1056,7 @@ unless a test actually proves it.** Current status:
 | 10 | Restart/reconnect does not expand authority | **VERIFIED (core)** | `T10` — re-registering with a wider tool set changes nothing |
 | 11 | Memory cannot change authorization | **VERIFIED (core)**, narrow sense | `T11` — a previously accepted action, still in the receipt log, does not re-authorize the same action after the capability is withdrawn. There is no memory subsystem yet; what is proved is that authorization reads current state only |
 | 12 | Malicious Book/Sticker manifest cannot declare authority | **VERIFIED (core)** | `T12` — hostile `owner`/`capabilities`/`policy`/`script` fields discarded; a declared animation grants no invocation right |
-| 13 | Renderer cannot bypass world kernel | PARTIAL — **VERIFIED (core)** kernel-side | `T13` — views are copies; hostile raw proposals validated identically. No renderer exists to test against |
+| 13 | Renderer cannot bypass world kernel | **VERIFIED (core + web host seam)** | `T13` proves views are copies/hostile proposals validate identically; web bridge tests exercise browser proposal endpoints returning authoritative kernel state/receipts |
 | 14 | Agent observations do not expose configured secrets | **VERIFIED (core + omegajev)** | `T14`; container env scrub; `TestBoundedView` proves the view leaks no prompt machinery |
 | 15 | Human can remove agent-created content without agent cooperation | **VERIFIED (core)** | `T15` — succeeds while the agent is disabled; the same tool refuses human-owned targets |
 | 16 | Stop path works without agent cooperation | **VERIFIED (core + omegajev)** | `T09`/`T16`; `verify_stop_path.py` stops both a healthy and a deliberately wedged run from outside the agent |
