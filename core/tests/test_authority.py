@@ -748,6 +748,52 @@ class ActionTableIntegrity(unittest.TestCase):
             self.assertTrue(k.propose(Command(NOOP, "agent:jev", "n%d" % i)).accepted)
 
 
+class JevEphemeralActionSurface(unittest.TestCase):
+
+    def test_host_can_offer_bounded_local_moves_without_adding_world_slots(self):
+        k = build()
+        candidates = {
+            "STEP-E": (0.26, 0.2),
+            "STEP-S": (0.2, 0.26),
+            "BAD:KEY": (0.3, 0.3),
+            "OUTSIDE": (1.5, 0.2),
+        }
+        keys = set(k.available_actions(
+            "agent:jev", move_candidates=candidates))
+        self.assertIn("MOVE:moth-a:STEP-E", keys)
+        self.assertIn("MOVE:moth-a:STEP-S", keys)
+        self.assertNotIn("MOVE:moth-a:BAD:KEY", keys)
+        self.assertNotIn("MOVE:moth-a:OUTSIDE", keys)
+
+        r = k.propose_key(
+            "agent:jev", "MOVE:moth-a:STEP-E", "jev-step",
+            move_candidates=candidates)
+        self.assertTrue(r.accepted, r.reason)
+        self.assertAlmostEqual(k.sticker("moth-a").x, 0.26)
+        self.assertAlmostEqual(k.sticker("moth-a").y, 0.2)
+
+    def test_ephemeral_candidates_do_not_make_human_stickers_agent_actions(self):
+        k = build()
+        keys = set(k.available_actions(
+            "agent:jev", move_candidates={"STEP-E": (0.26, 0.2)}))
+        self.assertNotIn("MOVE:lantern-h:STEP-E", keys)
+
+    def test_human_choice_surface_matches_page_scoped_transform_authority(self):
+        k = build()
+        candidates = {"STEP-E": (0.26, 0.2)}
+        keys = set(k.available_actions(
+            "human:kid", move_candidates=candidates))
+        self.assertIn("MOVE:moth-a:STEP-E", keys)
+        self.assertIn("ANIMATE:moth-a:flutter", keys)
+        self.assertNotIn("REMOVE:moth-a", keys)
+        self.assertIn("REMOVE_AGENT:moth-a", keys)
+
+        r = k.propose_key(
+            "human:kid", "MOVE:moth-a:STEP-E", "child-assisted-step",
+            move_candidates=candidates)
+        self.assertTrue(r.accepted, r.reason)
+
+
 class ReceiptSchema(unittest.TestCase):
 
     def test_receipt_carries_full_causal_provenance(self):
@@ -756,11 +802,15 @@ class ReceiptSchema(unittest.TestCase):
         r = k.propose(Command(MOVE_STICKER, "agent:jev", "cmd-184",
                               "moth-a", (("x", 0.7), ("y", 0.3)),
                               based_on_revision=based,
-                              requested_by="agent:omega"))
+                              requested_by="human:kid",
+                              translated_by="agent:omega-llm",
+                              selected_by="agent:jev"))
         d = r.to_dict()
         self.assertEqual(d["commandId"], "cmd-184")
         self.assertEqual(d["actor"], "agent:jev")
-        self.assertEqual(d["requestedBy"], "agent:omega")
+        self.assertEqual(d["requestedBy"], "human:kid")
+        self.assertEqual(d["translatedBy"], "agent:omega-llm")
+        self.assertEqual(d["selectedBy"], "agent:jev")
         self.assertEqual(d["action"], "move-sticker")
         self.assertEqual(d["object"], "moth-a")
         self.assertEqual(d["basedOnRevision"], based)
