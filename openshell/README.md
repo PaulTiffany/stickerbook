@@ -51,20 +51,31 @@ Base policies:
 - `policies/omega-llm.yaml`
 - `policies/omega-jev.yaml`
 
-Both contain `network_policies: {}`. OpenRouter access is contributed only by
-the matching provider profile:
+Both contain `network_policies: {}`. Provider egress is contributed only by
+explicit provider profiles.
 
-- `providers/openrouter-omega-llm.yaml`
-- `providers/openrouter-omega-jev.yaml`
+OmegaJev attaches one required profile:
 
-The profiles allow only `openrouter.ai:443` and bind that egress to the
-kernel-resolved SWI executable
-`/usr/lib/swipl/bin/x86_64-linux/swipl`. The boot launcher independently
-checks `readlink -f` in both built images and refuses to start if the identity
-differs.
+- `providers/openrouter-omega-jev.yaml` — Jev Decisions API.
 
-The real OpenRouter credential remains at the OpenShell provider boundary. A
-sandbox receives only OpenShell's placeholder.
+OmegaLLM may attach several independently credentialed profiles:
+
+- `providers/asicloud-omega-llm.yaml` — Sponsored ASI Cloud;
+- `providers/anthropic-omega-llm.yaml` — Anthropic;
+- `providers/openai-omega-llm.yaml` — OpenAI;
+- `providers/openrouter-omega-llm.yaml` — OpenRouter;
+- `providers/asione-omega-llm.yaml` — ASI:One.
+
+A profile is attached only when its OpenShell provider instance exists or its
+credential is available for first creation. All profiles bind egress to the
+same kernel-resolved SWI executable
+`/usr/lib/swipl/bin/x86_64-linux/swipl`; each permits only its declared API
+host. The boot launcher independently checks `readlink -f` in both built
+images and refuses to start if the identity differs.
+
+Real provider credentials remain at their OpenShell provider boundaries. The
+OmegaLLM sandbox receives only OpenShell placeholders for the configured
+providers. The browser receives neither placeholders nor real secrets.
 
 ## The live service seam
 
@@ -156,6 +167,8 @@ Implemented in the branch:
 - canonical SWI executable binding in both provider profiles;
 - non-root OmegaLLM and OmegaJev OpenShell images;
 - explicit OpenShell provider-placeholder transports;
+- adult-selectable OmegaLLM provider routing across configured ASI Cloud,
+  Anthropic, OpenAI, OpenRouter and ASI:One profiles;
 - real Omega RPC channel + fixed `sb-return` skill;
 - loopback-only host runtime adapters;
 - OmegaJev browser-service mode over finite host-owned choices;
@@ -167,7 +180,8 @@ Implemented in the branch:
 Still requiring a real local deployment proof:
 
 - OpenShell v0.1.2 startup on the actual WSL2/Docker Desktop host;
-- successful OpenRouter call through each role-specific provider;
+- successful OpenRouter/Jev call and successful calls through whichever
+  OmegaLLM provider profiles are configured/selected;
 - observed canonical SWI identity in the running sandbox;
 - denial of unrelated destinations such as GitHub and PyPI;
 - confirmation that only the provider placeholder, not the real secret, is
