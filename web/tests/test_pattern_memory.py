@@ -304,7 +304,7 @@ class Replay(PatternCase):
             command_prefix="replay", requested_by=HUMAN_ID)
 
         self.assertTrue(result["ok"], result)
-        self.assertEqual(result["completed"], 2)
+        self.assertEqual(result["acceptedSteps"], 2)
         self.assertTrue(
             all(e["receipt"]["accepted"] for e in result["replay"]["steps"]))
         after = self.kernel.sticker("frog-2")
@@ -323,7 +323,7 @@ class Replay(PatternCase):
 
         self.assertFalse(result["ok"])
         self.assertEqual(result["error"], "pattern-step-unavailable")
-        self.assertEqual(result["completed"], 1)
+        self.assertEqual(result["acceptedSteps"], 1)
         self.assertTrue(result["replay"]["steps"][0]["receipt"]["accepted"])
         self.assertEqual(self.kernel.sticker("frog-edge").x, 1.0)
 
@@ -344,7 +344,7 @@ class Replay(PatternCase):
 
         self.assertFalse(result["ok"])
         self.assertEqual(result["error"], "pattern-step-unavailable")
-        self.assertEqual(result["completed"], 1)
+        self.assertEqual(result["acceptedSteps"], 1)
 
     def test_incompatible_definition_cannot_inherit_a_pattern(self):
         pattern_id = self.remember(["ANIMATE:frog-1:hop"])
@@ -354,7 +354,7 @@ class Replay(PatternCase):
             command_prefix="wrong", requested_by=HUMAN_ID)
         self.assertFalse(result["ok"])
         self.assertEqual(result["error"], "pattern-definition-mismatch")
-        self.assertEqual(result["completed"], 0)
+        self.assertEqual(result["acceptedSteps"], 0)
         self.assertEqual(self.kernel.sticker("cow-1").animation, "rest")
 
     def test_clip_absent_from_this_definition_never_executes(self):
@@ -382,7 +382,7 @@ class Replay(PatternCase):
             command_prefix="agent", requested_by=AGENT_ID)
         self.assertFalse(result["ok"])
         self.assertEqual(result["error"], "pattern-step-unavailable")
-        self.assertEqual(result["completed"], 0)
+        self.assertEqual(result["acceptedSteps"], 0)
         # The replay changed nothing at all.
         after = self.kernel.sticker("frog-1")
         self.assertEqual(after.animation, before.animation)
@@ -413,7 +413,7 @@ class Replay(PatternCase):
         self.assertEqual(result["error"], "pattern-step-refused")
         self.assertEqual(result["result"], "partial")
         # `completed` counts ACCEPTED steps; two were attempted.
-        self.assertEqual(result["completed"], 1)
+        self.assertEqual(result["acceptedSteps"], 1)
         self.assertEqual(len(result["replay"]["steps"]), 2)
         self.assertTrue(result["replay"]["steps"][0]["receipt"]["accepted"])
         self.assertFalse(result["replay"]["steps"][1]["receipt"]["accepted"])
@@ -570,7 +570,7 @@ class FroggyLearnsAHappyDance(PatternCase):
 
         self.assertTrue(result["ok"], result)
         self.assertEqual(result["label"], "happy dance")
-        self.assertEqual(result["completed"], 3)
+        self.assertEqual(result["acceptedSteps"], 3)
 
         # 5. The kernel decided each mutation, one receipt at a time.
         self.assertEqual(

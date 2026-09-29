@@ -447,18 +447,18 @@ class JevController:
         return "replay-local-%d" % self._local_replay_counter
 
     @staticmethod
-    def _replay_result(step_records, expected, stopped_reason):
+    def _replay_result(step_records, planned, stopped_reason):
         accepted = sum(
             1 for r in step_records
             if r.receipt is not None and r.receipt.get("accepted") is True)
-        if stopped_reason is None and expected > 0 and accepted == expected:
+        if stopped_reason is None and planned > 0 and accepted == planned:
             return COMPLETED
         if accepted > 0:
             return PARTIAL
         return STOPPED
 
     def _finish_replay(self, *, replay_id, pattern, subject_id, requested_by,
-                       starting_revision, mode, step_records, expected,
+                       starting_revision, mode, step_records, planned,
                        stopped_at, stopped_reason):
         """Build and file the host-side audit record for one replay attempt.
 
@@ -474,9 +474,10 @@ class JevController:
             requested_by=requested_by,
             starting_revision=starting_revision,
             mode=mode,
+            planned_steps=planned,
             steps=tuple(step_records),
             result=self._replay_result(
-                step_records, expected, stopped_reason),
+                step_records, planned, stopped_reason),
             stopped_at=stopped_at,
             stopped_reason=stopped_reason,
         )
@@ -492,8 +493,9 @@ class JevController:
             "pattern": pattern.pattern_id,
             "label": pattern.label,
             "subject": subject_id,
-            "completed": record.completed_steps,
-            "steps": len(pattern.steps),
+            "plannedSteps": record.planned_steps,
+            "submittedSteps": record.submitted_steps,
+            "acceptedSteps": record.accepted_steps,
             "replay": record.to_dict(),
         }
         if record.stopped_reason:
@@ -507,9 +509,14 @@ class JevController:
         """Give "that" a safe meaning, from what the host saw actually happen.
 
         OmegaLLM decides that the child meant "remember", which sticker they
-        meant and what to call it. It does NOT supply the movement. The host
-        resolves the referenced behaviour from its own governed history, and
-        only accepted, key-selected mutations can become steps.
+        meant and what to call it. It does NOT choose the historical slice.
+        The host resolves "that" to one deterministic, bounded episode from
+        its own governed history: the latest contiguous learnable accepted
+        run for the named subject, ending before this request.
+
+        An episode ends at a switch to another subject, at a non-learnable
+        action on this subject, at the pattern-length limit, or at the edge of
+        the bounded history window. See `GovernedHistory.latest_episode`.
         """
         if self.patterns is None:
             return {"ok": False, "error": "pattern-memory-unavailable"}
@@ -522,17 +529,14 @@ class JevController:
             return {"ok": False, "error": "unknown-pattern-subject"}
 
         limit = int(max_steps) if max_steps else self.patterns.max_steps
-        entries = self.history.recent_accepted_keyed(subject_id, limit)
+        entries = self.history.latest_episode(
+            subject_id, limit,
+            is_learnable=lambda e: split_key(e.key, subject_id) is not None)
 
         steps = []
         resolved_from = []
         for entry in entries:
-            step = split_key(entry.key, subject_id)
-            if step is None:
-                # An accepted action outside the remembered verb families,
-                # such as a removal. Visible in history, not learnable.
-                continue
-            steps.append(step)
+            steps.append(split_key(entry.key, subject_id))
             resolved_from.append(entry.sequence)
 
         if not steps:
@@ -629,9 +633,9 @@ class JevController:
 
         # The episode is bounded by the remembered length, not by open-ended
         # search, so it does not borrow the ordinary goal turn limit.
-        expected = min(len(pattern.steps), MAX_PATTERN_STEPS)
+        planned = min(len(pattern.steps), MAX_PATTERN_STEPS)
 
-        for index in range(expected):
+        for index in range(planned):
             subject = self.kernel.sticker(subject_id)
             if subject is None:
                 stopped_at = index + 1
@@ -657,7 +661,7 @@ class JevController:
                     scene=scene,
                     actions=descriptions,
                     turn=index + 1,
-                    max_turns=expected,
+                    max_turns=planned,
                 )
             except Exception:
                 stopped_at = index + 1
@@ -724,7 +728,7 @@ class JevController:
         record = self._finish_replay(
             replay_id=replay_id, pattern=pattern, subject_id=subject_id,
             requested_by=requested_by, starting_revision=starting_revision,
-            mode=MODE_AGENT, step_records=step_records, expected=expected,
+            mode=MODE_AGENT, step_records=step_records, planned=planned,
             stopped_at=stopped_at, stopped_reason=stopped_reason)
         return self._replay_payload(record, pattern, subject_id)
 
@@ -750,7 +754,7 @@ class JevController:
         step_records = []
         stopped_at = None
         stopped_reason = None
-        expected = len(pattern.steps)
+        planned = len(pattern.steps)
 
         for index, step in enumerate(pattern.steps):
             # 1. fresh current state, every step
@@ -810,7 +814,7 @@ class JevController:
             replay_id=replay_id, pattern=pattern, subject_id=subject_id,
             requested_by=requested_by, starting_revision=starting_revision,
             mode=MODE_MECHANICAL, step_records=step_records,
-            expected=expected, stopped_at=stopped_at,
+            planned=planned, stopped_at=stopped_at,
             stopped_reason=stopped_reason)
         return self._replay_payload(record, pattern, subject_id)
 

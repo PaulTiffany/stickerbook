@@ -151,20 +151,42 @@ class GovernedHistory:
         found = [e for e in self._entries if e.subject_id == subject_id]
         return tuple(found[-limit:]) if limit > 0 else tuple(found)
 
-    def recent_accepted_keyed(self, subject_id: str, limit: int
-                              ) -> Tuple[GovernedAction, ...]:
-        """The most recent accepted, key-selected actions for one subject.
+    def latest_episode(self, subject_id: str, limit: int,
+                       is_learnable=None) -> Tuple[GovernedAction, ...]:
+        """The latest contiguous learnable episode for one subject.
 
-        These are the only entries that can become learned PatternSteps: an
-        accepted mutation that was chosen from the host-owned legal table, and
-        so has an instance-independent typed form. Refused actions and
-        freehand drags are excluded here while remaining visible for audit.
+        This is what the host means by "that". It is deliberately a
+        *contiguous* run rather than a filter, so nothing is silently skipped
+        over: scanning backwards from the most recent action, an entry joins
+        the episode only while it stays learnable for this subject, and the
+        first entry that is not ends it.
+
+        An episode is terminated by any of:
+
+        * **a switch to another subject** -- the child's attention moved, so
+          the run of actions about this sticker is over;
+        * **a non-learnable action on this subject** -- a refused proposal, a
+          freehand drag with no typed form, or an accepted action outside the
+          remembered verb families such as a removal;
+        * **the `limit`**, which is the caller's maximum pattern length;
+        * **the end of the bounded history window**.
+
+        Every boundary is already observable in this record. None of them
+        needs model judgement, and none of them is decided by OmegaLLM.
         """
-        found = [
-            e for e in self._entries
-            if e.subject_id == subject_id and e.accepted and e.key
-        ]
-        return tuple(found[-limit:]) if limit > 0 else tuple(found)
+        episode = []
+        for entry in reversed(self._entries):
+            if entry.subject_id != subject_id:
+                break
+            if not entry.accepted or not entry.key:
+                break
+            if is_learnable is not None and not is_learnable(entry):
+                break
+            episode.append(entry)
+            if limit > 0 and len(episode) >= limit:
+                break
+        episode.reverse()
+        return tuple(episode)
 
     def describe_for_scene(self, limit: int = MAX_SCENE_HISTORY) -> list:
         """Bounded recent history for the OmegaLLM conversation scene."""

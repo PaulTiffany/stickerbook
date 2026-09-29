@@ -274,11 +274,17 @@ host-owned record of what actually happened, so the host resolves "that" from
 real kernel receipts rather than from anything the model says. Recall goes to
 OmegaJev, which picks each step from the current finite legal table.
 
+The host resolves "that" deterministically: the latest contiguous learnable
+accepted run for the named subject, ending at a switch to another subject, a
+non-learnable action, the pattern-length limit, or the history window.
+OmegaLLM never picks the slice.
+
 Replay is non-atomic: if a later step is no longer legal the earlier accepted
 steps stay applied and the attempt stops. Every attempt produces a host-side
-`PatternReplayRecord` (`completed` / `partial` / `stopped`, with the failing
-step and reason) that groups ordinary kernel receipts without holding any
-authority itself.
+`PatternReplayRecord` that groups ordinary kernel receipts without holding any
+authority itself, keeping `plannedSteps`, `submittedSteps` and `acceptedSteps`
+separate, plus `result` (`completed` / `partial` / `stopped`), `stoppedAt` and
+`stoppedReason`.
 
 See `docs/AGENT-INTERFACE.md` for the full seam.
 

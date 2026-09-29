@@ -396,6 +396,43 @@ for audit, but an arbitrary coordinate has no instance-independent typed form,
 so it can never become a learned `PatternStep`. Refused actions stay visible
 for audit and are never learnable.
 
+#### The episode rule: what "that" resolves to
+
+OmegaLLM names the subject and the label. It does **not** choose the
+historical slice. The host resolves "that" to one deterministic, bounded
+episode:
+
+> the latest **contiguous learnable accepted** run of actions for the named
+> subject, ending before the remember request.
+
+It is a contiguous run scanned backwards, not a filter, so nothing is silently
+reached across. An episode ends at the first of:
+
+| Boundary | Why |
+|---|---|
+| a switch to another subject | the child's attention moved to a different sticker |
+| a non-learnable action on this subject | a refused proposal, a freehand drag with no typed form, or an accepted action outside the remembered verb families, such as a removal |
+| the pattern-length limit | memory is bounded; the most recent steps win |
+| the edge of the bounded history window | history is bounded |
+
+Every boundary is already observable in the host record. None requires model
+judgement, and none is decided by OmegaLLM. So:
+
+```text
+frog   MOVE STEP-E
+frog   MOVE STEP-N
+bird   MOVE STEP-W        <- subject switch ends the frog episode
+frog   ANIMATE hop
+child: "Remember that as happy dance"
+```
+
+"that" is unambiguously `[ANIMATE/hop]`. The two earlier frog moves belong to
+an earlier episode.
+
+One deliberate non-boundary: a previous remember does **not** end an episode.
+Naming the same run twice is harmless, and tracking it would need host state
+that is not already in the record.
+
 #### Replay is non-atomic, and says so
 
 A remembered pattern is a sequence of fresh governed actions, not a
@@ -404,10 +441,35 @@ remains applied and the replay stops. There is no rollback and no compensating
 mutation, because inventing one would be a privilege the child never had.
 
 Every attempt produces a host-side `PatternReplayRecord`: replay id, pattern
-id and label, subject, initiating principal, starting revision, mode, the
-ordered attempted steps with each ordinary kernel receipt, any step that could
-not be submitted, and a result of `completed`, `partial` or `stopped`, with the
-failing step index and reason.
+id and label, subject, initiating principal, starting revision, mode, and the
+ordered attempted steps with each ordinary kernel receipt or, for a step that
+could not be submitted, its `unavailableReason`.
+
+Three counts are kept separate, because they answer different questions:
+
+| Field | Meaning |
+|---|---|
+| `plannedSteps` | steps in the resolved pattern; never varies with what happened |
+| `submittedSteps` | steps actually submitted to the kernel |
+| `acceptedSteps` | steps that produced an accepted kernel receipt |
+| `result` | `completed`, `partial` or `stopped` |
+| `stoppedAt` | 1-based pattern step where execution stopped |
+| `stoppedReason` | why |
+
+A two-step pattern whose second step is no longer offered records:
+
+```text
+plannedSteps:   2
+submittedSteps: 1
+acceptedSteps:  1
+result:         partial
+stoppedAt:      2
+stoppedReason:  pattern-step-unavailable
+```
+
+`stoppedReason` distinguishes two different pieces of evidence.
+`pattern-step-unavailable` means the current world never offered the
+remembered form. `jev-noop` means it *was* offered and OmegaJev declined it.
 
 That record observes and groups authority events. It does not possess
 authority, and the kernel never learns what a "happy dance" is: its receipts

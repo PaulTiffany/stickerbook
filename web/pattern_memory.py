@@ -351,13 +351,22 @@ class PatternReplayRecord:
     requested_by: str
     starting_revision: int
     mode: str
+    planned_steps: int
     steps: Tuple[ReplayStepRecord, ...]
     result: str
     stopped_at: Optional[int] = None
     stopped_reason: Optional[str] = None
 
+    # Three different counts, named for what each actually means. A step can
+    # be planned and never submitted, because the world stopped offering it;
+    # or submitted and refused, because the kernel said no. `planned_steps` is
+    # the resolved pattern's length and never varies with what happened.
     @property
-    def completed_steps(self) -> int:
+    def submitted_steps(self) -> int:
+        return sum(1 for s in self.steps if s.submitted)
+
+    @property
+    def accepted_steps(self) -> int:
         return sum(
             1 for s in self.steps
             if s.receipt is not None and s.receipt.get("accepted") is True)
@@ -372,8 +381,9 @@ class PatternReplayRecord:
             "startingRevision": self.starting_revision,
             "mode": self.mode,
             "steps": [s.to_dict() for s in self.steps],
-            "stepCount": len(self.steps),
-            "completedSteps": self.completed_steps,
+            "plannedSteps": self.planned_steps,
+            "submittedSteps": self.submitted_steps,
+            "acceptedSteps": self.accepted_steps,
             "result": self.result,
             "stoppedAt": self.stopped_at,
             "stoppedReason": self.stopped_reason,

@@ -336,7 +336,12 @@ class HostResolvesThat(RememberCase):
         self.assertFalse(result["ok"])
         self.assertEqual(result["error"], "no-accepted-pattern-steps")
 
-    def test_only_accepted_steps_of_a_mixed_history_are_learned(self):
+    def test_a_refused_action_ends_the_episode(self):
+        """A non-learnable action separates one episode from the next.
+
+        The episode is a contiguous run, not a filter, so the earlier hop is
+        not silently reached across the refusal.
+        """
         self.perform(["ANIMATE:frog-1:hop"])
         self.perform(["MOVE:frog-1:STEP-E"], actor=AGENT_ID, prefix="nope")
         self.perform(["MOVE:frog-1:STEP-N"], prefix="ok2")
@@ -346,8 +351,46 @@ class HostResolvesThat(RememberCase):
         self.assertTrue(result["ok"], result)
         self.assertEqual(
             result["pattern"]["steps"],
-            [{"verb": ANIMATE, "suffix": "hop"},
-             {"verb": MOVE, "suffix": "STEP-N"}])
+            [{"verb": MOVE, "suffix": "STEP-N"}])
+
+    def test_switching_subject_ends_the_episode(self):
+        """Froggy, Froggy, Bird, Froggy -> "that" is the last Froggy run."""
+        self.perform(["MOVE:frog-1:STEP-E", "MOVE:frog-1:STEP-N"])
+        self.perform(["MOVE:butterfly-1:STEP-W"], subject="butterfly-1",
+                     prefix="bird")
+        self.perform(["ANIMATE:frog-1:hop"], prefix="after")
+
+        result = self.controller.remember_recent(
+            subject_id="frog-1", label="happy dance", learned_by=HUMAN_ID)
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(
+            result["pattern"]["steps"],
+            [{"verb": ANIMATE, "suffix": "hop"}])
+        self.assertEqual(len(result["resolvedFrom"]), 1)
+
+    def test_an_uninterrupted_run_is_learned_whole(self):
+        """Without a boundary, the whole contiguous run is the episode."""
+        self.perform(["MOVE:frog-1:STEP-E", "MOVE:frog-1:STEP-N",
+                      "ANIMATE:frog-1:hop"])
+        result = self.controller.remember_recent(
+            subject_id="frog-1", label="happy dance", learned_by=HUMAN_ID)
+        self.assertEqual(
+            result["pattern"]["steps"],
+            [{"verb": MOVE, "suffix": "STEP-E"},
+             {"verb": MOVE, "suffix": "STEP-N"},
+             {"verb": ANIMATE, "suffix": "hop"}])
+
+    def test_episode_is_bounded_by_pattern_length(self):
+        self.perform(["MOVE:frog-1:STEP-E", "MOVE:frog-1:STEP-N",
+                      "ANIMATE:frog-1:hop"])
+        result = self.controller.remember_recent(
+            subject_id="frog-1", label="short", learned_by=HUMAN_ID,
+            max_steps=2)
+        # The two most recent, not the first two.
+        self.assertEqual(
+            result["pattern"]["steps"],
+            [{"verb": MOVE, "suffix": "STEP-N"},
+             {"verb": ANIMATE, "suffix": "hop"}])
 
     def test_freehand_drag_is_audited_but_not_learnable(self):
         """A drag is a real mutation with no instance-independent form."""
@@ -466,7 +509,7 @@ class RecallThroughJev(RememberCase):
         record = result["replay"]
         self.assertEqual(record["result"], "completed")
         self.assertEqual(record["mode"], "agent")
-        self.assertEqual(record["completedSteps"], 3)
+        self.assertEqual(record["acceptedSteps"], 3)
         self.assertEqual(record["subject"], "frog-2")
         self.assertEqual(record["requestedBy"], HUMAN_ID)
         self.assertEqual(
@@ -501,9 +544,13 @@ class RecallThroughJev(RememberCase):
             actor=HUMAN_ID, command_prefix="edge", requested_by=HUMAN_ID)
 
         self.assertFalse(result["ok"])
-        self.assertEqual(result["result"], "partial")
-        self.assertEqual(result["completed"], 1)
         record = result["replay"]
+        # Three unambiguous counts: the pattern had two steps, one was
+        # submitted to the kernel, one was accepted.
+        self.assertEqual(record["plannedSteps"], 2)
+        self.assertEqual(record["submittedSteps"], 1)
+        self.assertEqual(record["acceptedSteps"], 1)
+        self.assertEqual(record["result"], "partial")
         self.assertEqual(record["stoppedAt"], 2)
         # The world changed, so this reads the same as mechanical replay
         # rather than blaming the chooser for declining.
@@ -514,6 +561,34 @@ class RecallThroughJev(RememberCase):
                          "pattern-step-unavailable")
         # The first movement stays applied. No rollback.
         self.assertEqual(self.kernel.sticker("frog-edge").x, 1.0)
+
+    def test_declining_an_available_step_is_recorded_as_jev_noop(self):
+        """Available but declined is different evidence from never offered."""
+        class DecliningJev(FakeOmegaJev):
+            def choose(self, **kwargs):
+                super().choose(**kwargs)
+                return {"ok": True, "choice": "NOOP"}
+
+        self.teach_happy_dance()
+        self.place_frog("frog-2", x=0.30, y=0.30)
+        controller = JevController(
+            self.kernel, DecliningJev(), patterns=self.patterns,
+            history=self.history, replays=self.replays)
+
+        result = controller.perform_known_pattern(
+            {"subject": "frog-2", "intent": PERFORM_PATTERN,
+             "label": "happy dance"},
+            actor=HUMAN_ID, command_prefix="declined", requested_by=HUMAN_ID)
+
+        record = result["replay"]
+        self.assertEqual(record["stoppedReason"], "jev-noop")
+        self.assertEqual(record["stoppedAt"], 1)
+        self.assertEqual(record["plannedSteps"], 3)
+        self.assertEqual(record["submittedSteps"], 0)
+        self.assertEqual(record["acceptedSteps"], 0)
+        self.assertEqual(record["result"], "stopped")
+        # Nothing happened to the world.
+        self.assertEqual(self.kernel.sticker("frog-2").animation, "rest")
 
     def test_action_budget_still_applies_across_a_recall(self):
         self.kernel.register_principal(Principal(
@@ -534,7 +609,7 @@ class RecallThroughJev(RememberCase):
             requested_by="agent:tiny")
 
         self.assertFalse(result["ok"])
-        self.assertEqual(result["completed"], 1)
+        self.assertEqual(result["acceptedSteps"], 1)
         self.assertEqual(result["replay"]["steps"][1]["receipt"]["reason"],
                          "action-budget-exhausted")
 
