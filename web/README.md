@@ -31,8 +31,8 @@ gallery. A small bottom-right title-page target is reserved for responsible
 adult / developer controls.
 
 The gallery is thumbnail-first. In the public mechanical profile it is driven
-by the asset manifest and currently exposes **Farm, Beach, Playground, and
-Space**, plus a **+ Make a page** tile. Each public demo page has independent
+by the asset manifest and currently exposes **Farm, Beach, Playground, Space,
+School, and Theater**, plus a **+ Make a page** tile. Each public demo page has independent
 in-memory StickerInstances for the current session.
 
 The governed localhost profile is intentionally stricter: a visual page asset
@@ -96,8 +96,9 @@ creators expose **Upload** and **Make with StickerBook**. The installed sticker
 catalog is no longer assumed to fit comfortably in one tiled view: the library
 has deterministic text search over names, aliases, themes, categories and tags,
 plus world/theme and category chips. Search is local catalog filtering, not a
-model call. The current built-in catalog contains 33 sticker definitions / 132
-initial pose sprites across Farm, Beach, Playground, Space, School, and Theater.
+model call. The current built-in catalog contains 76 sticker definitions, each
+with four initial pose sprites, across Farm, Beach, Playground, Space, School,
+and Theater.
 
 Page uploads accept SVG, PNG, JPEG/JPG, and WebP. On public GitHub Pages the
 selected file remains a local browser preview and is never sent to a model. In
@@ -163,8 +164,9 @@ animation-only choice surface instead.
 
 ## Adult / developer controls
 
-The title-page gear opens a deliberately separate **Responsible adult /
-developer** panel. It links directly to the project repository at
+The title-page gear opens a deliberately separate **Responsible adult** panel.
+Research/developer links are grouped in their own footer inside that panel rather
+than being presented as part of the parent guide. It links directly to the project repository at
 `https://github.com/PaulTiffany/stickerbook` and exposes conversational
 runtime options without mixing those controls into the child's normal play
 surface.
