@@ -686,6 +686,58 @@ kernel action, receipt, revision, memory pattern, frame, or execution path.
 
 The architecture is unchanged by any of that:
 
+#### Non-executing trajectory references
+
+OmegaLLM may emit exactly:
+
+```json
+{"subject":"bird-1","intent":"reference-trajectory","demonstration":"input-event-2","frame":"subject"}
+```
+
+`frame` is required and is either `page` or `subject`. No extra fields are
+accepted. `bind-demonstration` still identifies evidence only and rejects
+frame. Both provider and host admit current page-path evidence or exactly the
+exposed pending subject/event pair. The subject must be visible on the current
+kernel page. No sticker-drag trajectory references are supported.
+
+Page frame uses q_i = p_i, with no segment from the subject to the path start.
+Subject frame uses q_i = s + (p_i - p_0): translation from the first retained
+observed point onto the subject's position at resolution, in page axes/units.
+Facing and sticker scale do not affect this formula. No rounding, smoothing,
+resampling, rotation, reversal, clipping, or clamping is applied. Source times
+and duration remain evidence, not a replay schedule; equal times and retained
+endpoints other than t=0/1 are preserved.
+
+The frozen host-only `ResolvedTrajectoryReference` fields are `subject`,
+`demonstration`, `path_ref`, `frame`, `principal`, `page`, `source_episode`,
+`source_start`, `subject_start`, `source_samples`, `resolved_samples`,
+`observed_duration_ms`, `source_scene_revision`, and `resolution_scene_revision`.
+Points and samples are frozen dataclasses; arrays are tuples of copied retained
+observations or derived samples. The source revision is the path's recording
+revision; the resolution revision and subject position come from one coherent
+host snapshot after inference. That snapshot, the multi-object kernel reads a
+choice is made against, and every bridge-reachable kernel mutation
+(`propose`, `propose_key`, `begin_turn`) are serialized on one host world
+lock. The lock is held only for the world operation: no OmegaLLM or OmegaJev
+inference, and no runtime availability probe, ever runs inside it, so model
+latency cannot queue a child's own gesture. A bare `kernel.sticker()` lookup
+is exempt, returning a frozen instance that cannot be observed half-applied.
+Host serialization only orders concurrent work; `based_on_revision` remains
+the kernel's own staleness adjudication and is not replaced by it.
+Later moves and source-log eviction do not change an already-resolved object.
+
+The bridge keeps one last successful reference for host inspection. Its result
+under the legacy `jev` key is `resolved`, with subject, event, path ref, frame,
+and a bounded reference summary (starts, count, provenance, duration, revisions).
+Sample arrays remain host-side; no resolved geometry enters OmegaLLM scenes.
+No neutral result-envelope migration is needed by current consumers.
+
+Pending use consumes carry without renewal. The host dereferences only the
+already-admitted path ID, without searching prior episodes. If geometry was
+evicted before resolution, it fails with `trajectory-evidence-unavailable`;
+no recency fallback occurs. No Jev call, kernel proposal/receipt, world revision,
+legal action, or movement memory is created. Motor interpretation is future work.
+
 ```text
 child voice/gesture -> OmegaLLM -> bounded semantic goal
                     -> OmegaJev -> current finite legal choices

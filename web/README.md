@@ -482,7 +482,23 @@ a successful binding replaces it. Inference failures preserve it for retry,
 while each new input episode remains recorded. Explicit rebinding renews the
 same referent with its original provenance. No transcript or trajectory
 samples enter the carry, and no historical lookup or world mutation is added.
-Trajectory coordinate frames and motor work remain future tranches.
+`reference-trajectory` may now use current or pending page-path evidence with
+an explicit required `frame: "page" | "subject"`. Page frame keeps the retained
+points; subject frame translates their first point to the subject's position
+at resolution, using page axes and units. Out-of-page coordinates remain
+unchanged. No default, scaling, rotation, timing reinterpretation, or execution
+is implied. `bind-demonstration` remains purely referential.
+
+The host takes a coherent position/revision snapshot after inference and keeps
+one immutable `ResolvedTrajectoryReference`, including copied retained samples
+and their translated counterparts. One host world lock serializes that snapshot
+with every bridge-reachable kernel mutation, and is deliberately not held
+across model think-time, so a child's own drag or tap is never queued behind
+OmegaLLM or OmegaJev inference. The existing `jev` response field carries
+only a bounded summary; OmegaJev is not invoked and sample arrays are not sent
+to OmegaLLM. Resolution consumes pending carry without renewal. Missing evicted
+geometry fails closed. No memory, receipt, or world revision is created. Motor
+interpretation and trajectory control remain future work.
 
 ```bash
 cd web

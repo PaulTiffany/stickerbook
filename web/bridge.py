@@ -34,7 +34,8 @@ import json
 import os
 import re
 import sys
-from threading import Lock
+from functools import wraps
+from threading import Lock, RLock
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -58,6 +59,7 @@ from governed_history import (  # noqa: E402
 import interaction  # noqa: E402
 import page_path  # noqa: E402
 import sticker_drag  # noqa: E402
+import trajectory_reference  # noqa: E402
 from semantic_reference import PendingSemanticReference  # noqa: E402
 from pattern_memory import PatternLibrary, ReplayLog  # noqa: E402
 from stickerbook_core import (  # noqa: E402
@@ -88,6 +90,15 @@ _MODEL_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,119}$")
 _INPUT_EVENT_RE = re.compile(r"^input-event-[1-9][0-9]{0,15}$")
 
 
+def _world_locked(method):
+    """Serialize bridge mutation paths and coherent world reads."""
+    @wraps(method)
+    def locked(self, *args, **kwargs):
+        with self._world_lock:
+            return method(self, *args, **kwargs)
+    return locked
+
+
 class Bridge:
     """Kernel-facing logic, kept free of HTTP so it can be tested directly."""
 
@@ -97,6 +108,10 @@ class Bridge:
             governed_history=None, replay_log=None, drag_log=None,
             interaction_log=None, page_path_log=None, observed_input_log=None):
         self.kernel = kernel or farm.build_world()
+        self._world_lock = RLock()
+        # One inspectable host-only snapshot, replaced on successful resolution.
+        # No historical lookup endpoint or execution consumer.
+        self.last_trajectory_reference = None
         # OmegaLLM is the conversational/linguistic loop. OmegaJev is a
         # separate discriminative control loop with its own narrow runtime.
         self.agent_runtime = agent_runtime or DisabledAgentRuntime()
@@ -127,7 +142,8 @@ class Bridge:
         self._conversation_lock = Lock()
         self.jev_controller = JevController(
             self.kernel, self.jev_runtime, patterns=self.patterns,
-            history=self.history, replays=self.replays)
+            history=self.history, replays=self.replays,
+            world_lock=self._world_lock)
         self._jev_counter = 0
         self.page_image_runtime = (
             page_image_runtime or DisabledPageImageRuntime())
@@ -136,8 +152,16 @@ class Bridge:
     # -- reads -------------------------------------------------------------
 
     def state(self) -> dict:
-        """Authoritative state, as the browser's principal may observe it."""
-        view = self.kernel.view(BROWSER_PRINCIPAL)
+        """Authoritative state, as the browser's principal may observe it.
+
+        Only the kernel read is world-locked. kernel.view() already returns a
+        detached deep copy, and the capability probes below are runtime and
+        network availability checks: the browser's polling endpoint must not
+        hold the world lock across those.
+        """
+        with self._world_lock:
+            view = self.kernel.view(BROWSER_PRINCIPAL)
+        capabilities = self._agent_capabilities()
         chrome = farm.page_chrome()
         stickers = []
         for s in view["stickers"]:
@@ -173,7 +197,7 @@ class Bridge:
                 }
                 for name, d in sorted(farm.ASSETS.items())
             ],
-            "capabilities": self._agent_capabilities(),
+            "capabilities": capabilities,
             "stickers": stickers,
         }
 
@@ -295,6 +319,7 @@ class Bridge:
             "page_image_creator": page_image_creator,
         }
 
+    @_world_locked
     def _gesture(self, command):
         """Apply one direct human gesture and note it in host history.
 
@@ -384,8 +409,15 @@ class Bridge:
                 # Legacy result key also holds non-Jev semantic work such as
                 # remember-pattern. Binding is validation only: no Jev call.
                 payload["jev"] = self._bind_demonstration(goal, episode, pending)
+            elif isinstance(goal, dict) and goal.get("intent") == "reference-trajectory":
+                payload["jev"] = self._reference_trajectory(goal, episode, pending)
             else:
                 self._jev_counter += 1
+                # Unlocked on purpose: this path can run several OmegaJev
+                # inferences. The controller holds the same world lock
+                # briefly around each coherent read and each kernel
+                # proposal, so a child's gesture is never queued behind
+                # model latency.
                 payload["jev"] = self.jev_controller.run_semantic_goal(
                     goal,
                     actor=BROWSER_PRINCIPAL,
@@ -401,14 +433,24 @@ class Bridge:
         """Admit current evidence or the exact carry exposed to this turn."""
         if set(goal) != {"subject", "intent", "demonstration"}:
             return {"ok": False, "error": "invalid-demonstration-goal"}
+        admitted, error = self._admitted_demonstration(goal, episode, pending)
+        if error:
+            return {"ok": False, "error": error}
+        self.pending_reference = admitted
+        return {"ok": True, "result": "bound", "subject": admitted.subject,
+                "demonstration": admitted.demonstration, "pathRef": admitted.path_ref}
+
+    @_world_locked
+    def _admitted_demonstration(self, goal, episode, pending):
+        """Select no evidence: validate the model's exact current/carry choice."""
         subject = goal["subject"]
         event_id = goal["demonstration"]
         sticker = self.kernel.sticker(subject) if isinstance(subject, str) else None
         if not isinstance(subject, str) or not subject or len(subject) > 160 \
                 or sticker is None or sticker.page != self.kernel.page:
-            return {"ok": False, "error": "invalid-demonstration-subject"}
+            return None, "invalid-demonstration-subject"
         if not isinstance(event_id, str) or not _INPUT_EVENT_RE.fullmatch(event_id):
-            return {"ok": False, "error": "invalid-demonstration-reference"}
+            return None, "invalid-demonstration-reference"
         for signal in episode.signals:
             if signal.kind != interaction.SIGNAL_PAGE_PATH \
                     or signal.source_event != event_id:
@@ -416,21 +458,49 @@ class Bridge:
             trace = self.page_paths.get(signal.ref)
             if trace is not None and trace.principal == episode.principal \
                     and trace.page == book.DEFAULT_PAGE:
-                self.pending_reference = PendingSemanticReference(
+                return PendingSemanticReference(
                     subject, event_id, signal.ref, episode.episode_id,
-                    episode.principal, trace.page)
-                return {"ok": True, "result": "bound", "subject": subject,
-                        "demonstration": event_id, "pathRef": signal.ref}
+                    episode.principal, trace.page), None
         if pending is not None and pending.subject == subject \
                 and pending.demonstration == event_id \
                 and pending.principal == episode.principal == BROWSER_PRINCIPAL \
                 and pending.page == book.DEFAULT_PAGE:
             # Explicit successful rebinding renews the single slot, retaining
             # its original provenance. No historical episode/trace search.
-            self.pending_reference = pending
-            return {"ok": True, "result": "bound", "subject": subject,
-                    "demonstration": event_id, "pathRef": pending.path_ref}
-        return {"ok": False, "error": "demonstration-not-in-current-episode"}
+            return pending, None
+        return None, "demonstration-not-in-current-episode"
+
+    def _reference_trajectory(self, goal, episode, pending):
+        if set(goal) != {"subject", "intent", "demonstration", "frame"} \
+                or goal.get("frame") not in ("page", "subject"):
+            return {"ok": False, "error": "invalid-trajectory-goal"}
+        admitted, error = self._admitted_demonstration(goal, episode, pending)
+        if error:
+            return {"ok": False, "error": error}
+        # Exact dereference AFTER admission, not a search of historical events.
+        trace = self.page_paths.get(admitted.path_ref)
+        if trace is None:
+            return {"ok": False, "error": "trajectory-evidence-unavailable"}
+        if trace.kind != interaction.SIGNAL_PAGE_PATH \
+                or trace.principal != admitted.principal or trace.page != admitted.page:
+            return {"ok": False, "error": "trajectory-provenance-mismatch"}
+        # OmegaLLM inference ran outside this lock: a child may have moved the
+        # sticker meanwhile. Read position/visibility and revision together now.
+        with self._world_lock:
+            view = self.kernel.view(BROWSER_PRINCIPAL)
+            subject = next((s for s in view["stickers"]
+                            if s["id"] == admitted.subject), None)
+            if subject is None:
+                return {"ok": False, "error": "invalid-demonstration-subject"}
+            start = trajectory_reference.Point(subject["x"], subject["y"])
+            revision = view["revision"]
+        resolved = trajectory_reference.resolve(
+            admitted, trace, frame=goal["frame"], subject_start=start,
+            resolution_scene_revision=revision)
+        self.last_trajectory_reference = resolved
+        return {"ok": True, "result": "resolved", "subject": resolved.subject,
+                "demonstration": resolved.demonstration, "pathRef": resolved.path_ref,
+                "frame": resolved.frame, "reference": resolved.describe()}
 
     def _associate_inputs(self):
         """Newest observed inputs since the previous turn, in host order."""
@@ -716,6 +786,10 @@ class Bridge:
         malformed HTTP, not proposals. Everything that *is* a well-formed
         proposal goes to the kernel, including ones certain to be refused, so
         the refusal is recorded as a receipt.
+
+        The world lock brackets the before-read, the proposal and the
+        after-read, because a gesture must be measured against the same world
+        it mutated. It is released before the response state is projected.
         """
         if not isinstance(body, dict):
             return self._bad_request("body is not a JSON object")
@@ -734,71 +808,72 @@ class Bridge:
         if based_on is not None and not isinstance(based_on, int):
             return self._bad_request("based_on_revision must be an integer")
 
-        # The authoritative starting position, read BEFORE anything is
-        # proposed. A gesture is measured against this, never against a start
-        # the browser asserted.
-        before = self.kernel.sticker(sticker_id)
+        with self._world_lock:
+            # The authoritative starting position, read BEFORE anything is
+            # proposed. A gesture is measured against this, never against a start
+            # the browser asserted.
+            before = self.kernel.sticker(sticker_id)
 
-        # Drag telemetry is auxiliary observation, not authority. If it is
-        # unusable the observation is discarded, but the child's move is still
-        # adjudicated normally: failure to observe must not become failure to
-        # act.
-        raw_drag = body.get("drag")
-        interior = duration_ms = None
-        drag_error = None
-        if raw_drag is not None:
-            if before is None:
-                drag_error = "no such sticker"
-            else:
-                interior, duration_ms, drag_error = sticker_drag.parse_drag(
-                    raw_drag,
-                    start=sticker_drag.Point(x=before.x, y=before.y))
+            # Drag telemetry is auxiliary observation, not authority. If it is
+            # unusable the observation is discarded, but the child's move is still
+            # adjudicated normally: failure to observe must not become failure to
+            # act.
+            raw_drag = body.get("drag")
+            interior = duration_ms = None
+            drag_error = None
+            if raw_drag is not None:
+                if before is None:
+                    drag_error = "no such sticker"
+                else:
+                    interior, duration_ms, drag_error = sticker_drag.parse_drag(
+                        raw_drag,
+                        start=sticker_drag.Point(x=before.x, y=before.y))
 
-        # NOTE: actor is NOT taken from the request. Whatever the browser
-        # claims about who it is has no effect.
-        receipt = self.kernel.propose(Command(
-            action=MOVE_STICKER,
-            actor=BROWSER_PRINCIPAL,
-            command_id=command_id,
-            object_id=sticker_id,
-            params=(("x", point.get("x")), ("y", point.get("y"))),
-            based_on_revision=based_on,
-        ))
-
-        # A demonstration is retained only when its terminal governed move was
-        # accepted. A refused move demonstrates nothing that happened.
-        trace = None
-        if interior is not None and drag_error is None and receipt.accepted:
-            after = self.kernel.sticker(sticker_id)
-            start = sticker_drag.Point(x=before.x, y=before.y)
-            # Both endpoints are bound by the host from authoritative state.
-            # The browser's own first and last samples are not trusted to
-            # coincide with them.
-            end = sticker_drag.Point(x=after.x, y=after.y)
-            trace = self.traces.add(sticker_drag.StickerDragTrace(
-                trace_id=self.traces.next_trace_id(),
-                subject_id=sticker_id,
-                asset=before.asset,
-                demonstrated_by=BROWSER_PRINCIPAL,
-                starting_revision=before.revision,
-                start=start,
-                end=end,
-                duration_ms=duration_ms,
-                samples=sticker_drag.anchor(
-                    interior, start=start, end=end),
-                observed_sample_count=len(interior),
-                terminal_command_id=command_id,
-                terminal_move_accepted=True,
+            # NOTE: actor is NOT taken from the request. Whatever the browser
+            # claims about who it is has no effect.
+            receipt = self.kernel.propose(Command(
+                action=MOVE_STICKER,
+                actor=BROWSER_PRINCIPAL,
+                command_id=command_id,
+                object_id=sticker_id,
+                params=(("x", point.get("x")), ("y", point.get("y"))),
+                based_on_revision=based_on,
             ))
-            self.observed_inputs.add(BROWSER_PRINCIPAL, interaction.InputSignal(
-                kind=interaction.SIGNAL_STICKER_DRAG,
-                ref=trace.trace_id, subject=trace.subject_id,
-                duration_ms=trace.duration_ms))
 
-        self.history.record(
-            receipt, origin=ORIGIN_HUMAN_GESTURE,
-            gesture_trace=trace.trace_id if trace else None,
-            gesture_kind=trace.kind if trace else None)
+            # A demonstration is retained only when its terminal governed move was
+            # accepted. A refused move demonstrates nothing that happened.
+            trace = None
+            if interior is not None and drag_error is None and receipt.accepted:
+                after = self.kernel.sticker(sticker_id)
+                start = sticker_drag.Point(x=before.x, y=before.y)
+                # Both endpoints are bound by the host from authoritative state.
+                # The browser's own first and last samples are not trusted to
+                # coincide with them.
+                end = sticker_drag.Point(x=after.x, y=after.y)
+                trace = self.traces.add(sticker_drag.StickerDragTrace(
+                    trace_id=self.traces.next_trace_id(),
+                    subject_id=sticker_id,
+                    asset=before.asset,
+                    demonstrated_by=BROWSER_PRINCIPAL,
+                    starting_revision=before.revision,
+                    start=start,
+                    end=end,
+                    duration_ms=duration_ms,
+                    samples=sticker_drag.anchor(
+                        interior, start=start, end=end),
+                    observed_sample_count=len(interior),
+                    terminal_command_id=command_id,
+                    terminal_move_accepted=True,
+                ))
+                self.observed_inputs.add(BROWSER_PRINCIPAL, interaction.InputSignal(
+                    kind=interaction.SIGNAL_STICKER_DRAG,
+                    ref=trace.trace_id, subject=trace.subject_id,
+                    duration_ms=trace.duration_ms))
+
+            self.history.record(
+                receipt, origin=ORIGIN_HUMAN_GESTURE,
+                gesture_trace=trace.trace_id if trace else None,
+                gesture_kind=trace.kind if trace else None)
 
         payload = {"ok": True, "receipt": receipt.to_dict(),
                    "state": self.state()}
@@ -855,6 +930,10 @@ class Bridge:
         it does not receive command arguments or bypass the kernel. When no
         Jev runtime is connected, the historical mechanical toggle remains so
         local/public interaction does not depend on model availability.
+
+        Deliberately not world-locked as a whole: available() is a network
+        health probe and double_click can run OmegaJev inference. The reads
+        and the one mutation below are each serialized on their own.
         """
         if not isinstance(body, dict):
             return self._bad_request("body is not a JSON object")
@@ -888,26 +967,32 @@ class Bridge:
                 "state": self.state(),
             }
 
-        definition = self.kernel.assets.get(sticker.asset)
-        rest = definition.rest_animation if definition else "none"
-        active = [
-            a for a in (definition.animations if definition else ())
-            if a not in ("none", rest)
-        ]
-        # A toggle: use the definition's living rest clip as the settled
-        # state, and the first declared active clip as the simple child
-        # double-tap behavior.
-        wanted = rest if sticker.animation != rest else (
-            active[0] if active else rest)
+        # The settled clip is read from the same world the toggle proposes
+        # against, so a concurrent gesture cannot invert the intended flip.
+        with self._world_lock:
+            sticker = self.kernel.sticker(sticker_id)
+            if sticker is None:
+                return self._bad_request("no such sticker")
+            definition = self.kernel.assets.get(sticker.asset)
+            rest = definition.rest_animation if definition else "none"
+            active = [
+                a for a in (definition.animations if definition else ())
+                if a not in ("none", rest)
+            ]
+            # A toggle: use the definition's living rest clip as the settled
+            # state, and the first declared active clip as the simple child
+            # double-tap behavior.
+            wanted = rest if sticker.animation != rest else (
+                active[0] if active else rest)
 
-        receipt = self._gesture(Command(
-            action=ANIMATE_OWN_STICKER,
-            actor=BROWSER_PRINCIPAL,
-            command_id=command_id,
-            object_id=sticker_id,
-            params=(("animation", wanted),),
-            based_on_revision=based_on,
-        ))
+            receipt = self._gesture(Command(
+                action=ANIMATE_OWN_STICKER,
+                actor=BROWSER_PRINCIPAL,
+                command_id=command_id,
+                object_id=sticker_id,
+                params=(("animation", wanted),),
+                based_on_revision=based_on,
+            ))
         return {"ok": True, "receipt": receipt.to_dict(), "state": self.state()}
 
     def resize(self, body: dict) -> dict:

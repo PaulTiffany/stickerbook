@@ -87,11 +87,12 @@ INFERENCE_PRESETS = {
 
 _ALLOWED_GOAL_FIELDS = frozenset({
     "subject", "intent", "behavior", "target", "facing", "scale",
-    "demonstration", "label", "pattern",
+    "demonstration", "label", "pattern", "frame",
 })
 _ALLOWED_INTENTS = frozenset({
     "control", "animate", "move", "move-and-animate", "bind-demonstration",
     "remember-pattern", "perform-pattern",
+    "reference-trajectory",
 })
 
 
@@ -296,16 +297,23 @@ def clean_goal(raw):
     if {"label", "pattern"} & raw.keys():
         raise ValueError("pattern fields require pattern intent")
 
-    if intent == "bind-demonstration":
-        if set(raw) != {"subject", "intent", "demonstration"}:
+    if intent in ("bind-demonstration", "reference-trajectory"):
+        fields = {"subject", "intent", "demonstration"}
+        if intent == "reference-trajectory":
+            fields.add("frame")
+        if set(raw) != fields:
             raise ValueError("invalid demonstration goal fields")
         event_id = raw["demonstration"]
         if not isinstance(event_id, str) or not _INPUT_EVENT_RE.fullmatch(event_id):
             raise ValueError("invalid demonstration reference")
-        return {"subject": subject, "intent": intent,
-                "demonstration": event_id}
-    if "demonstration" in raw:
-        raise ValueError("demonstration requires bind intent")
+        goal = {"subject": subject, "intent": intent, "demonstration": event_id}
+        if intent == "reference-trajectory":
+            if raw["frame"] not in ("page", "subject"):
+                raise ValueError("invalid trajectory frame")
+            goal["frame"] = raw["frame"]
+        return goal
+    if {"demonstration", "frame"} & raw.keys():
+        raise ValueError("trajectory fields require demonstration intent")
 
     goal = {"subject": subject, "intent": intent}
 
@@ -335,8 +343,14 @@ def clean_goal(raw):
 
 def validate_demonstration_goal(goal, scene):
     """Admit only a supported event offered in this turn's bounded scene."""
-    if goal is None or goal.get("intent") != "bind-demonstration":
+    if goal is None or goal.get("intent") not in ("bind-demonstration", "reference-trajectory"):
         return
+    if goal["intent"] == "reference-trajectory":
+        stickers = scene.get("stickers") if isinstance(scene, dict) else None
+        if not isinstance(stickers, list) or not any(
+                isinstance(sticker, dict) and sticker.get("id") == goal["subject"]
+                for sticker in stickers):
+            raise ValueError("trajectory subject not visible")
     interaction = scene.get("interaction") if isinstance(scene, dict) else None
     signals = interaction.get("signals") if isinstance(interaction, dict) else None
     if not isinstance(signals, list):
@@ -398,16 +412,32 @@ clearly expressed, omit goal. If a goal is appropriate,
 use only these fields:
 - subject: exact sticker instance id visible in scene
 - intent: control | animate | move | move-and-animate | bind-demonstration |
-          remember-pattern | perform-pattern
+          remember-pattern | perform-pattern | reference-trajectory
 - behavior: optional short desired behavior/clip word
 - target: optional {"kind":"sticker","id":"..."} or
           {"kind":"point","x":0..1,"y":0..1}
 - facing: optional left | right
 - scale: optional number from 0.90 through 1.10
-- demonstration: for bind-demonstration only, one exact `sourceEvent` from a
+- demonstration: for bind-demonstration or reference-trajectory, one exact `sourceEvent` from a
   `page-path` signal in THIS `scene.interaction`, or the exact demonstration
-  and subject pair in `scene.pendingReference`; use no other goal fields
-  besides subject, intent, and demonstration for that intent
+  and subject pair in `scene.pendingReference`
+- frame: REQUIRED for reference-trajectory only, exactly page | subject
+
+bind-demonstration carries exactly subject, intent, demonstration: WHICH
+evidence the child means. reference-trajectory carries exactly subject,
+intent, demonstration, frame: the child treats that evidence as an ordered
+spatial course and specifies how its coordinates are situated. Neither goal
+requests execution or learning. Do not put frame on bind-demonstration.
+
+For page frame, retain the observed page positions ("where I drew it", "those
+places on the page"). For subject frame, translate the first retained observed
+point to the subject's current position ("starting where you are", "from your
+own spot"). Subject frame uses page axes and page units; it does not rotate
+with facing or scale with sticker size. The host does the coordinate math.
+Do not choose a frame from shape, modality, or recency. "Go like this", "fly
+along this", and "copy that" alone need not determine a frame. If uncertain,
+omit reference-trajectory; you may bind the referent and ask a clarification.
+There is no default frame, trajectory execution, or motor timing contract.
 
 For a child referring to a demonstration, you may semantically select one
 current page-path event from `scene.interaction`. Use the utterance, scene,
@@ -420,8 +450,8 @@ input evidence. It is a previously admitted referent available for this
 linguistic turn, not a new gesture or transcript history. You may use it as
 discourse context or ignore it. Never change its subject or invent historical
 events. An explicit successful bind may renew it; a reply without a successful
-binding consumes it. No trajectory frame or movement intent is supported by
-this carry itself.
+binding consumes it. reference-trajectory can use the exact exposed carry
+but consumes it without renewal. Carry itself grants no movement authority.
 
 For "Remember that as your happy dance", use remember-pattern with subject
 and label. The host resolves "that" from actual recent governed actions; you
