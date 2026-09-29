@@ -178,6 +178,22 @@ uses the same `/api/agent/converse` path as voice, can display voice
 transcripts while enabled, and does not gain any additional world-mutation
 authority.
 
+The same panel contains **StickerBook talking brain**, a responsible-adult
+session control for OmegaLLM inference. It reads the secret-free provider
+catalog from `GET /api/adult/inference` and updates the current bridge session
+through `POST /api/adult/inference`.
+
+Current lanes are Sponsored ASI Cloud, Anthropic, OpenAI, OpenRouter, ASI:One,
+and Off. Sponsored ASI Cloud is preferred automatically when configured and is
+model-locked to `minimax/minimax-m3`. Other configured lanes expose a bounded
+model-id field so the adult may select a provider-supported model. Unconfigured
+lanes remain visible but disabled.
+
+Provider/model selection is deliberately **not** part of normal `/api/state`
+and is not copied into the child-facing `scene`. Child conversation payloads
+cannot override it; the bridge supplies the selected lane separately when it
+calls OmegaLLM.
+
 The public mechanical demo keeps voice disabled but allows the text chat UI to
 be opened and exercised. Its replies are fixed mechanical stub text and no
 model is called. This lets the accessibility surface be reviewed on GitHub
