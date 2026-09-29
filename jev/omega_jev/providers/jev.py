@@ -8,9 +8,10 @@ Security design (see SECURITY.md):
 
   * Jev never produces an executable string. It selects an ACTION_ID, which the
     host compiles via the frozen table in jev_core.ACTIONS.
-  * The API key is NEVER in this process's environment. Requests go to the
-    in-container nginx proxy (GATEWAY_URL), which injects the Authorization
-    header. The agent process cannot read the credential.
+  * Credential handling is deployment-specific. In gateway mode the real key
+    and any key-shaped environment value are absent from this process. In
+    OpenShell mode the process receives only OpenShell's provider placeholder;
+    the real provider credential remains at the OpenShell boundary.
   * On load and again on start, Omega's global LLM_COMMANDS allowlist is
     narrowed to exactly the command heads our table can emit, so that even a
     bug here cannot let `shell`, `metta`, `write-file` or `delete-file` run.
@@ -90,7 +91,7 @@ def harden_llm_commands(actions=None):
 
 
 # ---------------------------------------------------------------------------
-# Transport: talks only to the local nginx proxy, never directly to OpenRouter.
+# Transport: explicit gateway or OpenShell provider boundary.
 # ---------------------------------------------------------------------------
 
 class ProxyTransport:
@@ -289,7 +290,7 @@ class JevProvider(providers.LLMProvider):
 
         logger.info("[jev] provider started")
         logger.info("[jev]   model         : %s", self.model)
-        logger.info("[jev]   decisions via : %s (credential injected by proxy)", url)
+        logger.info("[jev]   decisions via : %s", url)
         logger.info("[jev]   max turns     : %s", self.max_turns)
         logger.info("[jev]   action set    : %s", set_name)
         logger.info("[jev]   action table  : %s", sorted(self.actions))
