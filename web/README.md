@@ -286,25 +286,32 @@ authority itself, keeping `plannedSteps`, `submittedSteps` and `acceptedSteps`
 separate, plus `result` (`completed` / `partial` / `stopped`), `stoppedAt` and
 `stoppedReason`.
 
-### Embodied gesture traces
+### Sticker-drag traces
 
-**Input history is not world history.** A freehand drag shows the browser a
+**Input history is not world history.** Dragging a sticker shows the browser a
 whole trajectory but asks the kernel for exactly one `MOVE_STICKER` at the
-release point. `web/gesture_trace.py` keeps the demonstration as a bounded
-`GestureTrace`: an authoritative start read before the move, up to 32 observed
-`TrajectorySample(t, dx, dy)` points measured as displacement from that start,
-the duration, and an authoritative end read after the kernel accepted.
+release point. `web/sticker_drag.py` keeps the demonstration as a bounded
+`StickerDragTrace` with three labelled classes of evidence: a host-bound
+authoritative start (`t=0, dx=0, dy=0`), observed interior samples, and a
+host-bound authoritative terminal point taken from the accepted move. The
+browser's own first and last samples are not trusted to coincide with those
+anchors.
+
+This is **one input type, not a gesture ontology** — hence `kind =
+"sticker-drag"`. Pointing, boxing a region, path drawing in empty space and
+speech-plus-gesture are different input types and are not modelled here.
+
+**Failure to observe must not become failure to act.** Unusable telemetry is
+discarded and never reaches history, but the child's move is still adjudicated
+normally; the response carries `dragIgnored` with the reason. A malformed
+*move* is still a bad request.
 
 No intermediate pointer position becomes a kernel receipt, and the kernel is
-unchanged. The browser is the input surface and stays untrusted for world
-state: the subject comes from the request path, the principal is fixed by the
-bridge, and any gesture field beyond `samples` and `duration_ms` makes the
-request malformed. A trace is retained only when its terminal move was
-accepted.
-
-`GovernedHistory` links the one accepted move to its `gestureTrace` and
-`gestureKind` without pretending the samples were governed mutations. A
-freehand drag is still deliberately not learnable as a discrete `PatternStep`.
+unchanged. Limits: 32 retained samples, 192 raw accepted, 64 retained by the
+browser, 20 s, sized to fit the 8192-byte body ceiling. Both browser and host
+reduce by dropping the interior point that changes the path least, so a brief
+sharp bend survives. A sticker drag is still deliberately not learnable as a
+discrete `PatternStep`.
 
 See `docs/AGENT-INTERFACE.md` for the full seam.
 

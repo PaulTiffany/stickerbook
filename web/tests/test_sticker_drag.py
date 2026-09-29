@@ -20,17 +20,24 @@ learnable by the discrete PatternStep mechanism.
 
 from __future__ import annotations
 
+import json
 import math
 import os
+import re
+import shutil
+import subprocess
 import sys
+import tempfile
+import threading
 import unittest
+import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import bridge as bridge_mod  # noqa: E402
 import farm  # noqa: E402
-import gesture_trace  # noqa: E402
-from gesture_trace import (  # noqa: E402
+import sticker_drag  # noqa: E402
+from sticker_drag import (  # noqa: E402
     MAX_DURATION_MS, MAX_INPUT_SAMPLES, MAX_SAMPLES, Point, TrajectorySample,
     decimate,
 )
@@ -61,8 +68,8 @@ class GestureCase(unittest.TestCase):
             animation="rest"))
         return self.kernel.sticker(sticker_id)
 
-    def gesture(self, points, duration_ms=800):
-        """Build a browser-shaped gesture payload from absolute points."""
+    def drag_payload(self, points, duration_ms=800):
+        """Build a browser-shaped drag payload from absolute points."""
         last = len(points) - 1 or 1
         return {
             "samples": [
@@ -73,15 +80,15 @@ class GestureCase(unittest.TestCase):
         }
 
     def drag(self, points, *, sticker="frog-1", command_id="move-1",
-             release=None, duration_ms=800, gesture=True):
+             release=None, duration_ms=800, telemetry=True):
         release = release if release is not None else points[-1]
         body = {
             "sticker": sticker,
             "command_id": command_id,
             "point": {"x": release[0], "y": release[1]},
         }
-        if gesture:
-            body["gesture"] = self.gesture(points, duration_ms)
+        if telemetry:
+            body["drag"] = self.drag_payload(points, duration_ms)
         return self.bridge.propose_move(body)
 
 
@@ -101,7 +108,7 @@ class Capture(GestureCase):
         self.assertEqual(trace.subject_id, "frog-1")
         self.assertEqual(trace.asset, "frog")
         self.assertEqual(trace.demonstrated_by, HUMAN_ID)
-        self.assertEqual(trace.kind, "freehand")
+        self.assertEqual(trace.kind, "sticker-drag")
         self.assertTrue(trace.terminal_move_accepted)
         self.assertEqual(trace.terminal_command_id, "move-1")
         self.assertLessEqual(len(trace.samples), MAX_SAMPLES)
@@ -202,8 +209,8 @@ class ShapeSurvives(GestureCase):
 
     def test_decimation_observes_the_whole_gesture(self):
         """A long drag must not fill the buffer early and miss its end."""
-        points = [(0.05 + 0.9 * i / 200, 0.40 + 0.2 * math.sin(i / 8))
-                  for i in range(201)]
+        points = [(0.05 + 0.9 * i / 179, 0.40 + 0.2 * math.sin(i / 8))
+                  for i in range(180)]
         self.drag(points)
         samples = self.traces.traces()[0].samples
         self.assertLessEqual(len(samples), MAX_SAMPLES)
@@ -234,29 +241,51 @@ class ShapeSurvives(GestureCase):
 
 class BrowserIsUntrusted(GestureCase):
 
-    def assert_refused(self, body_gesture, fragment=None):
+    def assert_refused(self, body_drag, fragment=None, command_id="bad-1"):
+        """Unusable telemetry is discarded; the ordinary move still happens.
+
+        Failure to observe must not become failure to act. The child's
+        sticker does not snap back because auxiliary observation was bad.
+        """
+        before = self.kernel.sticker("frog-1")
         result = self.bridge.propose_move({
-            "sticker": "frog-1", "command_id": "bad-1",
+            "sticker": "frog-1", "command_id": command_id,
             "point": {"x": 0.42, "y": 0.44},
-            "gesture": body_gesture,
+            "drag": body_drag,
         })
-        self.assertFalse(result["ok"], result)
+        # The move was adjudicated normally.
+        self.assertTrue(result["ok"], result)
+        self.assertTrue(result["receipt"]["accepted"], result)
+        self.assertEqual(result["receipt"]["action"], "move-sticker")
+        after = self.kernel.sticker("frog-1")
+        self.assertAlmostEqual(after.x, 0.42, places=6)
+        self.assertAlmostEqual(after.y, 0.44, places=6)
+        self.assertNotEqual((after.x, after.y), (before.x, before.y))
+        # The observation was discarded and never reached history.
         self.assertEqual(len(self.traces), 0)
+        self.assertNotIn("drag", result)
+        self.assertIn("dragIgnored", result)
+        self.assertIsNone(self.history.entries()[-1].gesture_trace)
         if fragment:
-            self.assertIn(fragment, result["error"])
+            self.assertIn(fragment, result["dragIgnored"])
         return result
 
     def test_non_finite_samples_are_refused(self):
-        for bad in (float("nan"), float("inf"), float("-inf")):
+        for index, bad in enumerate(
+                (float("nan"), float("inf"), float("-inf"))):
+            self.setUp()
             self.assert_refused({
-                "samples": [{"t": 0.0, "x": bad, "y": 0.4}],
-                "duration_ms": 100})
+                "samples": [{"t": 0.5, "x": bad, "y": 0.4}],
+                "duration_ms": 100}, command_id="nf-%d" % index)
 
     def test_out_of_range_samples_are_refused(self):
         self.assert_refused({
-            "samples": [{"t": 0.0, "x": 1.5, "y": 0.4}], "duration_ms": 100})
+            "samples": [{"t": 0.5, "x": 1.5, "y": 0.4}], "duration_ms": 100},
+            command_id="oor-1")
+        self.setUp()
         self.assert_refused({
-            "samples": [{"t": 2.0, "x": 0.4, "y": 0.4}], "duration_ms": 100})
+            "samples": [{"t": 2.0, "x": 0.4, "y": 0.4}], "duration_ms": 100},
+            command_id="oor-2")
 
     def test_unordered_progress_is_refused(self):
         self.assert_refused({
@@ -279,32 +308,37 @@ class BrowserIsUntrusted(GestureCase):
 
     def test_excessive_duration_is_refused(self):
         self.assert_refused({
-            "samples": [{"t": 0.0, "x": 0.3, "y": 0.4}],
+            "samples": [{"t": 0.5, "x": 0.3, "y": 0.4}],
             "duration_ms": MAX_DURATION_MS + 1}, "duration")
 
     def test_zero_or_negative_duration_is_refused(self):
-        for bad in (0, -5):
+        for index, bad in enumerate((0, -5)):
+            self.setUp()
             self.assert_refused({
-                "samples": [{"t": 0.0, "x": 0.3, "y": 0.4}],
-                "duration_ms": bad}, "duration")
+                "samples": [{"t": 0.5, "x": 0.3, "y": 0.4}],
+                "duration_ms": bad}, "duration", command_id="d-%d" % index)
 
     def test_executable_or_metadata_content_is_refused(self):
         self.assert_refused({
-            "samples": [{"t": 0.0, "x": 0.3, "y": 0.4,
+            "samples": [{"t": 0.5, "x": 0.3, "y": 0.4,
                          "onload": "alert(1)"}],
-            "duration_ms": 100}, "malformed")
+            "duration_ms": 100}, "malformed", command_id="x-1")
+        self.setUp()
         self.assert_refused({
-            "samples": [{"t": 0.0, "x": 0.3, "y": 0.4}],
+            "samples": [{"t": 0.5, "x": 0.3, "y": 0.4}],
             "duration_ms": 100,
-            "actor": "operator"}, "unknown gesture field")
+            "actor": "operator"}, "unknown drag telemetry field",
+            command_id="x-2")
+        self.setUp()
         self.assert_refused({
-            "samples": [{"t": 0.0, "x": 0.3, "y": 0.4}],
+            "samples": [{"t": 0.5, "x": 0.3, "y": 0.4}],
             "duration_ms": 100,
-            "origin": "omegallm-jev"}, "unknown gesture field")
+            "origin": "omegallm-jev"}, "unknown drag telemetry field",
+            command_id="x-3")
 
     def test_string_coordinates_are_refused(self):
         self.assert_refused({
-            "samples": [{"t": "0", "x": "0.3", "y": "0.4"}],
+            "samples": [{"t": "0.5", "x": "0.3", "y": "0.4"}],
             "duration_ms": 100}, "malformed")
 
     def test_browser_cannot_choose_the_acting_principal(self):
@@ -312,19 +346,19 @@ class BrowserIsUntrusted(GestureCase):
             "sticker": "frog-1", "command_id": "spoof-1",
             "point": {"x": 0.42, "y": 0.44},
             "actor": "operator",
-            "gesture": self.gesture([(0.30, 0.40), (0.42, 0.44)]),
+            "drag": self.drag_payload([(0.30, 0.40), (0.42, 0.44)]),
         })
         self.assertTrue(result["ok"])
         self.assertEqual(result["receipt"]["actor"], HUMAN_ID)
         trace = self.traces.traces()[0]
         self.assertEqual(trace.demonstrated_by, HUMAN_ID)
 
-    def test_browser_cannot_name_another_subject_in_the_gesture(self):
-        """The subject comes from the request path, not gesture metadata."""
+    def test_browser_cannot_name_another_subject_in_the_drag(self):
+        """The subject comes from the request path, not drag metadata."""
         self.assert_refused({
-            "samples": [{"t": 0.0, "x": 0.3, "y": 0.4}],
+            "samples": [{"t": 0.5, "x": 0.3, "y": 0.4}],
             "duration_ms": 100,
-            "subject": "cow-1"}, "unknown gesture field")
+            "subject": "cow-1"}, "unknown drag telemetry field")
 
 
 # ---------------------------------------------------------------------------
@@ -338,12 +372,12 @@ class Eligibility(GestureCase):
             "sticker": "frog-1", "command_id": "stale-1",
             "point": {"x": 0.42, "y": 0.44},
             "based_on_revision": 0,
-            "gesture": self.gesture([(0.30, 0.40), (0.42, 0.44)]),
+            "drag": self.drag_payload([(0.30, 0.40), (0.42, 0.44)]),
         })
         self.assertTrue(result["ok"])
         self.assertFalse(result["receipt"]["accepted"])
         self.assertEqual(len(self.traces), 0)
-        self.assertNotIn("gesture", result)
+        self.assertNotIn("drag", result)
 
     def test_release_outside_the_page_produces_no_demonstration(self):
         """The browser proposes nothing at all, so there is nothing to keep."""
@@ -353,7 +387,7 @@ class Eligibility(GestureCase):
         self.assertEqual(len(self.history), 0)
 
     def test_move_without_a_gesture_still_works(self):
-        result = self.drag([(0.42, 0.44)], gesture=False)
+        result = self.drag([(0.42, 0.44)], telemetry=False)
         self.assertTrue(result["ok"])
         self.assertTrue(result["receipt"]["accepted"])
         self.assertEqual(len(self.traces), 0)
@@ -394,8 +428,8 @@ class InputIsNotWorldHistory(GestureCase):
         self.assertEqual(entry.action, "move-sticker")
         self.assertEqual(entry.origin, "human-gesture")
         self.assertTrue(entry.accepted)
-        self.assertEqual(entry.gesture_trace, "gesture-1")
-        self.assertEqual(entry.gesture_kind, "freehand")
+        self.assertEqual(entry.gesture_trace, "drag-1")
+        self.assertEqual(entry.gesture_kind, "sticker-drag")
         # Still no typed key: a drag is not a discrete PatternStep.
         self.assertIsNone(entry.key)
 
@@ -404,8 +438,8 @@ class InputIsNotWorldHistory(GestureCase):
         described = self.history.describe_for_scene()
         self.assertEqual(len(described), 1)
         entry = described[0]
-        self.assertEqual(entry["gestureTrace"], "gesture-1")
-        self.assertEqual(entry["gestureKind"], "freehand")
+        self.assertEqual(entry["gestureTrace"], "drag-1")
+        self.assertEqual(entry["gestureKind"], "sticker-drag")
         self.assertNotIn("samples", entry)
         for value in entry.values():
             self.assertNotIsInstance(value, (list, dict))
@@ -414,7 +448,7 @@ class InputIsNotWorldHistory(GestureCase):
         self.drag([(0.30, 0.40), (0.36, 0.44), (0.42, 0.44)])
         summary = self.traces.traces()[0].summary()
         self.assertNotIn("samples", summary)
-        self.assertEqual(summary["kind"], "freehand")
+        self.assertEqual(summary["kind"], "sticker-drag")
         self.assertGreater(summary["sampleCount"], 0)
 
 
@@ -524,3 +558,281 @@ class FroggyDrawsALoop(GestureCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# ---------------------------------------------------------------------------
+# Correction 1: the endpoints are bound by the host, not by the browser
+# ---------------------------------------------------------------------------
+
+class EndpointsAreHostBound(GestureCase):
+
+    def test_first_sample_is_the_authoritative_origin(self):
+        # The browser claims the drag began somewhere else entirely.
+        self.drag([(0.90, 0.10), (0.60, 0.20), (0.42, 0.44)])
+        samples = self.traces.traces()[0].samples
+        self.assertEqual(samples[0].t, 0.0)
+        self.assertEqual(samples[0].dx, 0.0)
+        self.assertEqual(samples[0].dy, 0.0)
+
+    def test_last_sample_is_the_accepted_authoritative_endpoint(self):
+        # The browser claims the drag ended somewhere it did not.
+        self.drag([(0.30, 0.40), (0.35, 0.45), (0.05, 0.05)],
+                  release=(0.42, 0.44))
+        trace = self.traces.traces()[0]
+        after = self.kernel.sticker("frog-1")
+        last = trace.samples[-1]
+        self.assertEqual(last.t, 1.0)
+        self.assertAlmostEqual(last.dx, after.x - trace.start.x, places=6)
+        self.assertAlmostEqual(last.dy, after.y - trace.start.y, places=6)
+        self.assertAlmostEqual(last.dx, 0.12, places=6)
+        self.assertAlmostEqual(last.dy, 0.04, places=6)
+
+    def test_browser_endpoint_claims_are_dropped_not_trusted(self):
+        """Samples at the extremes of progress never survive as evidence."""
+        self.drag([(0.99, 0.99), (0.36, 0.44), (0.01, 0.01)],
+                  release=(0.42, 0.44))
+        trace = self.traces.traces()[0]
+        # Two interior samples were offered at t=0 and t=1; both were
+        # replaced by host-bound anchors.
+        self.assertEqual(trace.observed_sample_count, 1)
+        self.assertEqual(len(trace.samples), 3)
+        for sample in trace.samples:
+            self.assertNotAlmostEqual(sample.dx, 0.69, places=3)
+
+    def test_interior_samples_remain_observed_input(self):
+        self.drag([(0.30, 0.40), (0.36, 0.30), (0.44, 0.34), (0.42, 0.44)])
+        trace = self.traces.traces()[0]
+        interior = trace.samples[1:-1]
+        self.assertTrue(interior)
+        for sample in interior:
+            self.assertGreater(sample.t, 0.0)
+            self.assertLess(sample.t, 1.0)
+
+    def test_a_trace_with_no_usable_interior_still_has_both_anchors(self):
+        self.drag([(0.30, 0.40), (0.42, 0.44)], release=(0.42, 0.44))
+        samples = self.traces.traces()[0].samples
+        self.assertEqual(len(samples), 2)
+        self.assertEqual((samples[0].t, samples[0].dx, samples[0].dy),
+                         (0.0, 0.0, 0.0))
+        self.assertEqual(samples[-1].t, 1.0)
+
+
+# ---------------------------------------------------------------------------
+# Correction 2: failure to observe is not failure to act
+# ---------------------------------------------------------------------------
+
+class ObservationFailureDoesNotCancelTheMove(GestureCase):
+
+    def test_malformed_telemetry_still_moves_the_sticker(self):
+        result = self.bridge.propose_move({
+            "sticker": "frog-1", "command_id": "m-1",
+            "point": {"x": 0.55, "y": 0.60},
+            "drag": {"samples": [{"t": 0.5, "x": "oops", "y": 0.4}],
+                     "duration_ms": 100},
+        })
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["receipt"]["accepted"])
+        after = self.kernel.sticker("frog-1")
+        self.assertAlmostEqual(after.x, 0.55, places=6)
+        self.assertAlmostEqual(after.y, 0.60, places=6)
+        self.assertEqual(len(self.traces), 0)
+        self.assertEqual(result["dragIgnored"], "malformed drag sample")
+
+    def test_oversized_telemetry_still_moves_the_sticker(self):
+        samples = [{"t": 0.5, "x": 0.3, "y": 0.4}
+                   for _ in range(MAX_INPUT_SAMPLES + 1)]
+        result = self.bridge.propose_move({
+            "sticker": "frog-1", "command_id": "m-2",
+            "point": {"x": 0.55, "y": 0.60},
+            "drag": {"samples": samples, "duration_ms": 900},
+        })
+        self.assertTrue(result["receipt"]["accepted"])
+        self.assertEqual(len(self.traces), 0)
+        self.assertIn("too many", result["dragIgnored"])
+
+    def test_telemetry_that_is_not_an_object_still_moves_the_sticker(self):
+        result = self.bridge.propose_move({
+            "sticker": "frog-1", "command_id": "m-3",
+            "point": {"x": 0.55, "y": 0.60},
+            "drag": "not an object",
+        })
+        self.assertTrue(result["receipt"]["accepted"])
+        self.assertEqual(len(self.traces), 0)
+        self.assertIn("must be an object", result["dragIgnored"])
+
+    def test_a_still_invalid_move_is_still_refused(self):
+        """Tolerating bad telemetry does not tolerate a bad move."""
+        result = self.bridge.propose_move({
+            "sticker": "frog-1", "command_id": "m-4",
+            "point": {"x": 0.55, "y": 0.60},
+            "based_on_revision": 0,
+            "drag": {"samples": [{"t": 0.5, "x": "oops", "y": 0.4}],
+                     "duration_ms": 100},
+        })
+        self.assertFalse(result["receipt"]["accepted"])
+        self.assertEqual(len(self.traces), 0)
+
+    def test_a_malformed_move_shape_is_still_a_bad_request(self):
+        result = self.bridge.propose_move({
+            "sticker": "frog-1", "command_id": "m-5",
+            "drag": {"samples": [{"t": 0.5, "x": 0.3, "y": 0.4}],
+                     "duration_ms": 100},
+        })
+        self.assertFalse(result["ok"])
+        self.assertIn("pointer position", result["error"])
+
+
+# ---------------------------------------------------------------------------
+# Correction 3: the browser reducer keeps sharp bends, not just coverage
+# ---------------------------------------------------------------------------
+
+class BrowserReducerKeepsShape(unittest.TestCase):
+    """Runs the reducer that actually ships in app.js, through node.
+
+    A source assertion alone would not prove the algorithm behaves; this
+    extracts the shipped code and executes it.
+    """
+
+    def setUp(self):
+        self.app = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "static", "app.js")
+        with open(self.app, encoding="utf-8") as handle:
+            self.source = handle.read()
+        if shutil.which("node") is None:
+            self.skipTest("node is not available")
+
+    def reducer_source(self):
+        start = self.source.index("const DRAG_SAMPLE_CAP")
+        end = self.source.index("const round3", start)
+        return self.source[start:end]
+
+    def run_reducer(self, points):
+        harness = self.reducer_source() + """
+        const out = [];
+        for (const p of INPUT) { observeDrag(p); }
+        console.log(JSON.stringify(dragSamples.map(s => [s.x, s.y])));
+        """
+        harness = ("const INPUT = " + json.dumps(
+            [{"x": x, "y": y} for x, y in points]) + ";\n"
+            + "const performance = { now: () => 0 };\n"
+            + harness)
+        with tempfile.NamedTemporaryFile(
+                "w", suffix=".js", delete=False, encoding="utf-8") as handle:
+            handle.write(harness)
+            path = handle.name
+        try:
+            output = subprocess.run(
+                ["node", path], capture_output=True, text=True, timeout=30)
+            self.assertEqual(output.returncode, 0, output.stderr)
+            return json.loads(output.stdout.strip().splitlines()[-1])
+        finally:
+            os.unlink(path)
+
+    def test_it_does_not_halve_by_index(self):
+        source = self.reducer_source()
+        self.assertIn("pathError", source)
+        self.assertNotIn("i % 2", source)
+        self.assertNotIn("gestureStride", source)
+
+    def test_a_sharp_wiggle_survives_a_long_drag(self):
+        """A brief hook inside a long sweep must not be discarded."""
+        points = [(0.05 + 0.006 * i, 0.50) for i in range(120)]
+        # One sharp two-point wiggle, far off the straight sweep.
+        wiggle_at = len(points)
+        points += [(0.77, 0.20), (0.80, 0.80)]
+        points += [(0.80 + 0.002 * i, 0.50) for i in range(60)]
+
+        kept = self.run_reducer(points)
+        self.assertLessEqual(len(kept), 64)
+        ys = [y for _, y in kept]
+        # The hook survived: both extremes are still present.
+        self.assertLess(min(ys), 0.25)
+        self.assertGreater(max(ys), 0.75)
+        self.assertGreater(wiggle_at, 0)
+
+    def test_coverage_across_the_whole_drag_is_kept(self):
+        points = [(0.02 + 0.0078 * i, 0.50 + 0.2 * math.sin(i / 5))
+                  for i in range(125)]
+        kept = self.run_reducer(points)
+        xs = [x for x, _ in kept]
+        self.assertLessEqual(len(kept), 64)
+        self.assertAlmostEqual(xs[0], 0.02, places=6)
+        self.assertGreater(max(xs), 0.9)
+        self.assertGreater(len([x for x in xs if x > 0.5]), 5)
+
+    def test_reduction_is_deterministic(self):
+        points = [(0.05 + 0.007 * i, 0.5 + 0.2 * math.sin(i / 3))
+                  for i in range(130)]
+        self.assertEqual(self.run_reducer(points), self.run_reducer(points))
+
+
+# ---------------------------------------------------------------------------
+# Correction 4: a worst-case legal payload fits the transport
+# ---------------------------------------------------------------------------
+
+class PayloadFitsTheTransport(unittest.TestCase):
+
+    def browser_shaped_body(self, count):
+        """Worst case: longest ids, full-width coordinates, max duration."""
+        return json.dumps({
+            "sticker": "butterfly-99",
+            "command_id": "move-1759000000000-000",
+            "point": {"x": 0.9999, "y": 0.9999},
+            "drag": {
+                "samples": [
+                    {"t": round(i / max(1, count - 1), 3),
+                     "x": 0.9999, "y": 0.9999}
+                    for i in range(count)
+                ],
+                "duration_ms": MAX_DURATION_MS - 1,
+            },
+        }, separators=(",", ":")).encode("utf-8")
+
+    def test_browser_retention_fits_comfortably(self):
+        body = self.browser_shaped_body(64)
+        self.assertLess(len(body), bridge_mod.MAX_BODY_BYTES // 2)
+
+    def test_host_sample_cap_fits_the_transport(self):
+        body = self.browser_shaped_body(MAX_INPUT_SAMPLES)
+        self.assertLessEqual(len(body), bridge_mod.MAX_BODY_BYTES)
+
+    def test_the_app_caps_browser_retention_below_the_host_cap(self):
+        app = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "static", "app.js")
+        with open(app, encoding="utf-8") as handle:
+            source = handle.read()
+        cap = int(re.search(
+            r"const DRAG_SAMPLE_CAP = (\d+)", source).group(1))
+        self.assertLessEqual(cap, MAX_INPUT_SAMPLES)
+        self.assertLess(len(self.browser_shaped_body(cap)),
+                        bridge_mod.MAX_BODY_BYTES)
+
+    def test_a_worst_case_payload_survives_a_real_http_round_trip(self):
+        httpd, bridge = bridge_mod.serve("127.0.0.1", 0, quiet=True)
+        port = httpd.server_address[1]
+        thread = threading.Thread(target=httpd.serve_forever,
+                                  kwargs={"poll_interval": 0.05})
+        thread.daemon = True
+        thread.start()
+        try:
+            bridge.kernel.place_sticker(StickerInstance(
+                "butterfly-99", HUMAN_ID, HUMAN_ID, "butterfly", 1,
+                x=0.30, y=0.40, animation="rest"))
+            body = self.browser_shaped_body(64)
+            self.assertLess(len(body), bridge_mod.MAX_BODY_BYTES)
+            request = urllib.request.Request(
+                "http://127.0.0.1:%d/api/propose-move" % port,
+                data=body, method="POST",
+                headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(request, timeout=5) as response:
+                payload = json.load(response)
+            self.assertTrue(payload["ok"], payload)
+            self.assertTrue(payload["receipt"]["accepted"], payload)
+            self.assertIn("drag", payload)
+            self.assertEqual(payload["drag"]["kind"], "sticker-drag")
+        finally:
+            httpd.shutdown()
+            httpd.server_close()
+            thread.join(timeout=5)

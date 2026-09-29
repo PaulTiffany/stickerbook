@@ -54,7 +54,7 @@ from page_image_runtime import (  # noqa: E402
 from governed_history import (  # noqa: E402
     ORIGIN_HUMAN_GESTURE, GovernedHistory,
 )
-import gesture_trace  # noqa: E402
+import sticker_drag  # noqa: E402
 from pattern_memory import PatternLibrary, ReplayLog  # noqa: E402
 from stickerbook_core import (  # noqa: E402
     ADD_OWN_STICKER, ANIMATE_OWN_STICKER, Command, MOVE_STICKER,
@@ -89,7 +89,7 @@ class Bridge:
     def __init__(
             self, kernel=None, agent_runtime=None, jev_runtime=None,
             page_image_runtime=None, pattern_library=None,
-            governed_history=None, replay_log=None, gesture_log=None):
+            governed_history=None, replay_log=None, drag_log=None):
         self.kernel = kernel or farm.build_world()
         # OmegaLLM is the conversational/linguistic loop. OmegaJev is a
         # separate discriminative control loop with its own narrow runtime.
@@ -104,9 +104,10 @@ class Bridge:
         # audit of attempts to perform remembered behaviour.
         self.history = governed_history or GovernedHistory()
         self.replays = replay_log or ReplayLog()
-        # Bounded record of what the child physically demonstrated. Input
-        # history, kept separate from world history on purpose.
-        self.traces = gesture_log or gesture_trace.GestureTraceLog()
+        # Bounded record of what the child physically demonstrated by
+        # dragging a sticker. Input history, kept separate from world history
+        # on purpose. This is one input type, not a gesture ontology.
+        self.traces = drag_log or sticker_drag.StickerDragLog()
         self.jev_controller = JevController(
             self.kernel, self.jev_runtime, patterns=self.patterns,
             history=self.history, replays=self.replays)
@@ -566,19 +567,20 @@ class Bridge:
         # the browser asserted.
         before = self.kernel.sticker(sticker_id)
 
-        raw_gesture = body.get("gesture")
-        samples = duration_ms = None
-        if raw_gesture is not None:
+        # Drag telemetry is auxiliary observation, not authority. If it is
+        # unusable the observation is discarded, but the child's move is still
+        # adjudicated normally: failure to observe must not become failure to
+        # act.
+        raw_drag = body.get("drag")
+        interior = duration_ms = None
+        drag_error = None
+        if raw_drag is not None:
             if before is None:
-                return self._bad_request("no such sticker")
-            samples, duration_ms, error = gesture_trace.parse_gesture(
-                raw_gesture,
-                start=gesture_trace.Point(x=before.x, y=before.y))
-            if error:
-                # A malformed trajectory is a malformed request, refused here
-                # without reaching the kernel -- the same treatment the rest
-                # of this shape validation gets.
-                return self._bad_request(error)
+                drag_error = "no such sticker"
+            else:
+                interior, duration_ms, drag_error = sticker_drag.parse_drag(
+                    raw_drag,
+                    start=sticker_drag.Point(x=before.x, y=before.y))
 
         # NOTE: actor is NOT taken from the request. Whatever the browser
         # claims about who it is has no effect.
@@ -594,20 +596,25 @@ class Bridge:
         # A demonstration is retained only when its terminal governed move was
         # accepted. A refused move demonstrates nothing that happened.
         trace = None
-        if samples is not None and receipt.accepted:
+        if interior is not None and drag_error is None and receipt.accepted:
             after = self.kernel.sticker(sticker_id)
-            trace = self.traces.add(gesture_trace.GestureTrace(
+            start = sticker_drag.Point(x=before.x, y=before.y)
+            # Both endpoints are bound by the host from authoritative state.
+            # The browser's own first and last samples are not trusted to
+            # coincide with them.
+            end = sticker_drag.Point(x=after.x, y=after.y)
+            trace = self.traces.add(sticker_drag.StickerDragTrace(
                 trace_id=self.traces.next_trace_id(),
                 subject_id=sticker_id,
                 asset=before.asset,
                 demonstrated_by=BROWSER_PRINCIPAL,
                 starting_revision=before.revision,
-                start=gesture_trace.Point(x=before.x, y=before.y),
-                # The authoritative endpoint, which is what the kernel
-                # accepted -- not the last place the pointer happened to be.
-                end=gesture_trace.Point(x=after.x, y=after.y),
+                start=start,
+                end=end,
                 duration_ms=duration_ms,
-                samples=tuple(samples),
+                samples=sticker_drag.anchor(
+                    interior, start=start, end=end),
+                observed_sample_count=len(interior),
                 terminal_command_id=command_id,
                 terminal_move_accepted=True,
             ))
@@ -620,7 +627,10 @@ class Bridge:
         payload = {"ok": True, "receipt": receipt.to_dict(),
                    "state": self.state()}
         if trace is not None:
-            payload["gesture"] = trace.summary()
+            payload["drag"] = trace.summary()
+        elif drag_error is not None:
+            # Say so, but do not fail the move over it.
+            payload["dragIgnored"] = drag_error
         return payload
 
     def place(self, body: dict) -> dict:

@@ -1997,42 +1997,68 @@ function grabPlaced(event, sticker) {
     };
   };
 
-  // What the child physically demonstrates. These are observations of input,
-  // not world mutations: only the final release is proposed to the kernel.
-  // Recording halves itself when full, so a long drag keeps covering the
-  // whole gesture instead of filling up early and missing the end, and a fast
-  // pointer cannot grow the POST without bound. The host decimates and
-  // validates again regardless.
-  const GESTURE_SAMPLE_CAP = 128;
-  const gestureSamples = [];
-  let gestureStride = 1;
-  let gestureSeen = 0;
+  // What the child physically demonstrates while dragging this sticker.
+  // These are observations of input, not world mutations: only the final
+  // release is proposed to the kernel, and the host binds both endpoints from
+  // authoritative state.
+  //
+  // When the buffer fills, drop the single interior point whose removal
+  // changes the path least -- perpendicular distance from the line between
+  // its neighbours, the same principle the host uses. Dropping every other
+  // point by index would keep coverage but could destroy a brief sharp bend
+  // or hook before the host's geometry-aware pass ever sees it, and once the
+  // browser throws that away the host cannot recover it.
+  //
+  // Points are only ever removed, never invented or moved: no smoothing, no
+  // fitting, no classification. The host validates and decimates again
+  // regardless.
+  const DRAG_SAMPLE_CAP = 64;
+  const dragSamples = [];
 
-  const observeGesture = (point) => {
-    gestureSeen += 1;
-    if (gestureSeen % gestureStride !== 0) return;
-    gestureSamples.push({ at: performance.now(), x: point.x, y: point.y });
-    if (gestureSamples.length >= GESTURE_SAMPLE_CAP) {
-      for (let i = gestureSamples.length - 1; i > 0; i -= 1) {
-        if (i % 2 === 1) gestureSamples.splice(i, 1);
+  const pathError = (a, b, c) => {
+    const sx = c.x - a.x;
+    const sy = c.y - a.y;
+    const length = Math.hypot(sx, sy);
+    if (length === 0) return Math.hypot(b.x - a.x, b.y - a.y);
+    return Math.abs(sy * b.x - sx * b.y + c.x * a.y - c.y * a.x) / length;
+  };
+
+  const observeDrag = (point) => {
+    dragSamples.push({ at: performance.now(), x: point.x, y: point.y });
+    while (dragSamples.length > DRAG_SAMPLE_CAP) {
+      let worst = 1;
+      let worstError = Infinity;
+      for (let i = 1; i < dragSamples.length - 1; i += 1) {
+        const error = pathError(
+          dragSamples[i - 1], dragSamples[i], dragSamples[i + 1]);
+        if (error < worstError) {
+          worstError = error;
+          worst = i;
+        }
       }
-      gestureStride *= 2;
+      dragSamples.splice(worst, 1);
     }
   };
 
-  const gesturePayload = (finalPoint) => {
-    if (!gestureSamples.length) return null;
-    const first = gestureSamples[0].at;
+  // Rounding before transmission is input compression, not interpretation,
+  // and it keeps a worst-case payload inside the bridge's body limit.
+  const round3 = (value) => Math.round(value * 1000) / 1000;
+  const round4 = (value) => Math.round(value * 10000) / 10000;
+
+  const dragPayload = () => {
+    if (!dragSamples.length) return null;
+    const first = dragSamples[0].at;
     const last = performance.now();
     const duration = Math.max(1, Math.round(last - first));
     const span = last - first || 1;
-    const samples = gestureSamples.map((sample) => ({
-      t: Math.min(1, Math.max(0, (sample.at - first) / span)),
-      x: sample.x,
-      y: sample.y,
-    }));
-    samples.push({ t: 1, x: finalPoint.x, y: finalPoint.y });
-    return { samples: samples, duration_ms: duration };
+    return {
+      samples: dragSamples.map((sample) => ({
+        t: round3(Math.min(1, Math.max(0, (sample.at - first) / span))),
+        x: round4(sample.x),
+        y: round4(sample.y),
+      })),
+      duration_ms: duration,
+    };
   };
 
   const onMove = (moveEvent) => {
@@ -2044,12 +2070,12 @@ function grabPlaced(event, sticker) {
       moved = true;
       // Preserve where the child actually grabbed the sticker. Starting a
       // drag must not teleport the sticker center to the pointer.
-      observeGesture({ x: sticker.x, y: sticker.y });
+      observeDrag({ x: sticker.x, y: sticker.y });
     }
     if (!moved) return;
 
     const point = draggedFraction(moveEvent);
-    observeGesture(point);
+    observeDrag(point);
     node.setAttribute(
       "transform",
       (() => {
@@ -2103,8 +2129,8 @@ function grabPlaced(event, sticker) {
       command_id: nextId("move"),
       point: releasePoint,
     };
-    const gesture = gesturePayload(releasePoint);
-    if (gesture) request.gesture = gesture;
+    const drag = dragPayload();
+    if (drag) request.drag = drag;
     await send("/api/propose-move", request);
   };
 
