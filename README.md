@@ -322,6 +322,7 @@ Browser JavaScript is syntax-checked in GitHub Actions.
 | [`SECURITY.md`](SECURITY.md) | Constitutional security model and implementation status. |
 | [`docs/MEDIUM.md`](docs/MEDIUM.md) | Why the sticker-book medium is itself the experiment. |
 | [`docs/AGENT-INTERFACE.md`](docs/AGENT-INTERFACE.md) | Conversational Omega, voice, creator drafts, documentation projection, and authority separation. |
+| [`docs/PROJECT-LINEAGE.md`](docs/PROJECT-LINEAGE.md) | Detailed research/developer lineage: Chalked, AlphaClaw, BGI Commons community context, and how those lessons map into StickerBook. |
 | [`docs/TOOLS-AND-MODIFICATIONS.md`](docs/TOOLS-AND-MODIFICATIONS.md) | Research/developer ledger of upstream tools, exact pins, local modifications, rationale, trust boundaries, and verification status. |
 | [`core/README.md`](core/README.md) | Authority kernel. |
 | [`web/README.md`](web/README.md) | Browser, page, and bridge behavior. |
@@ -349,9 +350,15 @@ broader multi-agent delegation remain separate future work.
 ## Built on
 
 StickerBook draws from and experiments with several projects and prior design
-lines, including AlphaClaw, Chalked, SingularityNET Omega, PeTTa, NVIDIA
-OpenShell, OpenRouter, and TypeSafe Jev. See [`NOTICE`](NOTICE) and the relevant component documents
-for exact third-party licensing and version information.
+lines, including the developer's earlier AlphaClaw and Chalked work, BGI
+Commons/Omega community engagement, SingularityNET Omega, PeTTa, NVIDIA
+OpenShell, OpenRouter, and TypeSafe Jev. See
+[`docs/PROJECT-LINEAGE.md`](docs/PROJECT-LINEAGE.md) for the detailed human
+and research lineage, and [`NOTICE`](NOTICE) for third-party attribution.
+
+BGI Commons participation is documented as community/research context, not as
+employment, sponsorship, endorsement, or a claim that StickerBook is an
+official BGI Commons or SingularityNET Foundation deliverable.
 
 Omega's source is not vendored here. The tested upstream versions and local
 modifications are recorded under `jev/`.

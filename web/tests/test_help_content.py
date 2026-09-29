@@ -89,6 +89,10 @@ class HelpContentCase(unittest.TestCase):
             "openrouter",
             "asi:one",
             "child cannot select a provider",
+            "chalked",
+            "alphaclaw",
+            "bgi commons",
+            "does not imply",
         ):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, adult)
@@ -117,6 +121,7 @@ class HelpContentCase(unittest.TestCase):
         self.assertIn('id="adult-guide-sections"', html)
         self.assertIn('id="inference-provider"', html)
         self.assertIn('id="inference-model"', html)
+        self.assertIn("PROJECT-LINEAGE.md", html)
         self.assertIn('fetch("static/help.json"', app)
         self.assertIn("renderHelpContent()", app)
 

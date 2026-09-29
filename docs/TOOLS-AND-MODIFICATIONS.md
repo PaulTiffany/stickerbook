@@ -708,8 +708,25 @@ profile to VERIFIED.
 
 ---
 
-## 19. Where to read next
+## 19. Project lineage and community context
 
+The dependency ledger above records the software substrate. The separate
+[PROJECT-LINEAGE.md](PROJECT-LINEAGE.md) records the human/research lineage
+behind the architecture: Chalked's visible authority/provenance contract,
+AlphaClaw's externally bounded reasoner and evidence discipline, and
+developer-reported BGI Commons/Omega community engagement around hosted-agent
+observability, operator control, and legal-exposure questions.
+
+That document keeps public repository evidence, public BGI Commons context, and
+developer-reported participation explicitly separate. It does not treat
+community participation as employment, sponsorship, endorsement, or formal
+BGI Commons product status.
+
+---
+
+## 20. Where to read next
+
+- [PROJECT-LINEAGE.md](PROJECT-LINEAGE.md) — detailed developer/project ancestry and BGI Commons context
 - [SECURITY.md](../SECURITY.md) — binding authority/security model
 - [AGENT-INTERFACE.md](AGENT-INTERFACE.md) — OmegaLLM/OmegaJev browser interfaces
 - [runtime/README.md](../runtime/README.md) — powered boot/shutdown lifecycle

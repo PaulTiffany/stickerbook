@@ -103,6 +103,13 @@
         ]
       },
       {
+        "id": "lineage",
+        "title": "Where StickerBook came from",
+        "paragraphs": [
+          "StickerBook is independent research by Paul Tiffany, building on lessons from his earlier Chalked and AlphaClaw projects and participation in BGI Commons community work; that history does not imply BGI Commons, SingularityNET Foundation, ASI Alliance, or inference-provider sponsorship or endorsement of StickerBook."
+        ]
+      },
+      {
         "id": "limits",
         "title": "Current limits",
         "paragraphs": [
