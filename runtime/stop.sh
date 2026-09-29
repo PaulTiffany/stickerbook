@@ -20,8 +20,8 @@ if [[ -f "$STATE/bridge.pid" ]]; then
 fi
 
 if command -v openshell >/dev/null 2>&1; then
-  sb_sandbox_delete stickerbook-omega-jev 8762 || true
-  sb_sandbox_delete stickerbook-omega-llm 8761 || true
+  sb_sandbox_delete stickerbook-jev 8762 || true
+  sb_sandbox_delete stickerbook-llm 8761 || true
 fi
 
 if [[ "$quiet" -eq 0 ]]; then

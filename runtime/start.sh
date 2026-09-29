@@ -28,15 +28,57 @@ docker info >/dev/null 2>&1 || {
   exit 2
 }
 
+# Installing OpenShell lays down a system package, so the pinned installer
+# needs root. Say so before the password prompt appears: an unexplained
+# "[sudo] password" in a child-facing launcher looks like a credential request
+# for StickerBook itself, which it is not.
+openshell_install_preflight() {
+  if [[ "$(ps -p 1 -o comm= 2>/dev/null)" != "systemd" ]]; then
+    echo "OpenShell runs its gateway as a systemd user service, but systemd is" >&2
+    echo "not PID 1 in this Linux environment." >&2
+    echo >&2
+    echo "On WSL: add the following to /etc/wsl.conf, then run" >&2
+    echo "'wsl.exe --shutdown' from Windows and start StickerBook again." >&2
+    echo "  [boot]" >&2
+    echo "  systemd=true" >&2
+    exit 2
+  fi
+
+  [[ "$(id -u)" -eq 0 ]] && return 0
+
+  if ! command -v sudo >/dev/null 2>&1; then
+    echo "Pinned OpenShell v0.1.2 is not installed, and installing it needs root." >&2
+    echo "Install sudo, or run this launcher as root, then start again." >&2
+    exit 2
+  fi
+
+  if ! sudo -n true 2>/dev/null; then
+    echo
+    echo "One-time setup: StickerBook needs to install pinned OpenShell v0.1.2."
+    echo "That installs a system package, so Linux is about to ask for the"
+    echo "password of your '$(id -un)' Linux account."
+    echo
+    echo "That is your computer's Linux login. It is NOT an API key, it is not"
+    echo "stored by StickerBook, and it is not sent anywhere."
+    echo
+  fi
+}
+
 # OpenShell is pinned project infrastructure. Install/repair the pin when the
 # exact version is not available; the installer URL itself is commit-pinned.
 if ! command -v openshell >/dev/null 2>&1 \
    || ! openshell --version 2>/dev/null | grep -q '0\.1\.2'; then
+  openshell_install_preflight
   bash "$ROOT/openshell/install-pinned.sh"
   hash -r
 fi
 need openshell
-openshell status >/dev/null
+if ! openshell status >/dev/null 2>&1; then
+  echo "OpenShell is installed but its gateway is not responding." >&2
+  echo "Try: systemctl --user restart openshell-gateway" >&2
+  echo "then run Start StickerBook again." >&2
+  exit 2
+fi
 
 # Accept a cached baseline only if it identifies the pinned Omega source and
 # resolves SWI to the exact executable authorized by the provider profiles.

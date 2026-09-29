@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-NAME="${STICKERBOOK_OPENSHELL_JEV_NAME:-stickerbook-omega-jev}"
+NAME="${STICKERBOOK_OPENSHELL_JEV_NAME:-stickerbook-jev}"
 IMAGE="${STICKERBOOK_OPENSHELL_JEV_IMAGE:-stickerbook-omega-jev:openshell}"
 PROVIDER="${STICKERBOOK_OPENSHELL_JEV_PROVIDER:-stickerbook-openrouter-omega-jev}"
 

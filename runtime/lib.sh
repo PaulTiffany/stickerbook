@@ -1,15 +1,53 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# OpenShell v0.1.2 rejects sandbox names longer than this. Provider and profile
+# ids are not subject to it, so only sandbox names are checked.
+SB_SANDBOX_NAME_MAX=19
+
+# Re-apply a repository provider profile to the live OpenShell gateway.
+#
+# Two OpenShell rules shape this:
+#   * `profile lint` rejects an id that is already registered, so linting can
+#     only guard a profile on its way in;
+#   * `profile update` requires the submitted file to carry the live
+#     `resource_version`, as an optimistic-concurrency token.
+#
+# The repository file stays authoritative -- it declares the egress allowlist
+# and the canonical swipl binary -- so an existing profile is refreshed from
+# the repo file with only the concurrency token carried over. Skipping the
+# refresh would let a live profile drift from the reviewed repository policy.
 sb_profile_apply() {
   local profile_id="$1"
   local file="$2"
-  openshell profile lint --file "$file" >/dev/null
-  if openshell profile describe "$profile_id" >/dev/null 2>&1; then
-    openshell profile update "$profile_id" --file "$file" >/dev/null
-  else
+
+  if ! openshell profile describe "$profile_id" >/dev/null 2>&1; then
+    openshell profile lint --file "$file" >/dev/null
     openshell profile import --file "$file" >/dev/null
+    return 0
   fi
+
+  local rv
+  rv="$(openshell profile export "$profile_id" 2>/dev/null | awk '/^resource_version:/ { print $2; exit }')"
+  if [[ -z "$rv" ]]; then
+    echo "Could not read resource_version for OpenShell profile $profile_id." >&2
+    return 2
+  fi
+
+  local tmp
+  # OpenShell infers the profile format from the file extension.
+  tmp="$(mktemp)"
+  mv "$tmp" "$tmp.yaml"
+  tmp="$tmp.yaml"
+  {
+    echo "resource_version: $rv"
+    grep -v '^resource_version:' "$file"
+  } > "$tmp"
+  if ! openshell profile update "$profile_id" --file "$tmp" >/dev/null; then
+    rm -f "$tmp"
+    return 1
+  fi
+  rm -f "$tmp"
 }
 
 sb_provider_ensure() {
@@ -54,6 +92,12 @@ sb_sandbox_create_service() {
   local policy="$4"
   local providers_csv="$5"
   shift 5
+
+  if (( ${#name} > SB_SANDBOX_NAME_MAX )); then
+    echo "OpenShell sandbox name '$name' is ${#name} characters; the limit is ${SB_SANDBOX_NAME_MAX}." >&2
+    echo "Shorten the name (the StickerBook defaults are 15 characters)." >&2
+    return 2
+  fi
 
   local provider_args=()
   local provider

@@ -9,6 +9,15 @@ The normal Windows path is intentionally boring:
 2. use StickerBook in the browser opened at `http://127.0.0.1:8756/`;
 3. double-click **`Stop StickerBook.cmd`** when finished.
 
+On a host where pinned OpenShell v0.1.2 is not yet installed, the first start
+installs it. That writes a system package, so Linux asks once for **your Linux
+account password**. That prompt belongs to the operating system, not to
+StickerBook: it is not an API key, and StickerBook neither stores nor forwards
+it. The launcher prints an explanation before the prompt appears. OpenShell
+runs its gateway as a systemd user service, so a WSL distribution needs
+`systemd=true` under `[boot]` in `/etc/wsl.conf`; the launcher checks this and
+says so rather than failing obscurely.
+
 The first powered start may build the pinned Omega base image and ask once for
 an **OpenRouter API key**. OpenRouter remains required because OmegaJev uses the
 Jev Decisions API. The launcher may then ask for an optional **Sponsored ASI
@@ -170,23 +179,61 @@ No repository directory or Docker socket is mounted into either agent sandbox.
 
 ## Verification status
 
-**IMPLEMENTED + mechanically checked, NOT YET LIVE-HOST VERIFIED.**
+**Live-host deployment status: PARTIALLY VERIFIED on 2026-09-29.**
 
-CI checks Python/shell syntax, browser/runtime seam tests, voice-seam regression
-tests, and `openshell/verify.py`. CI does not run Paul's WSL2/Docker Desktop
-host, possess his OpenRouter provider, or launch the actual OpenShell sandboxes.
+Two claims are kept apart here, because they are not the same claim:
+**mechanically verified architecture is not a live-host verified agent graph.**
+CI checks Python/shell syntax, browser/runtime seam tests, voice-seam
+regression tests, and `openshell/verify.py`. CI does not run a WSL2/Docker
+Desktop host, possess an OpenRouter provider, or launch real OpenShell
+sandboxes.
 
-The first successful local powered start should therefore be treated as a
-deployment verification event, not as something CI has already proved. Verify
-at minimum:
+First live-host attempt: Windows 11 + WSL2 (Ubuntu) + Docker Desktop, kernel
+`6.6.87.2-microsoft-standard-WSL2`.
 
-- both health endpoints report the intended role;
-- OpenRouter succeeds through each role-specific provider;
-- unrelated destinations such as GitHub and PyPI remain denied in each
-  sandbox;
-- the process sees only the OpenShell credential placeholder, never the real
-  secret;
-- SWI's canonical executable matches the profile;
-- OmegaJev can return only an offered key;
-- the kernel still issues the final acceptance/refusal receipt;
-- Stop StickerBook tears the system down without agent cooperation.
+Verified on that host:
+
+- Docker reachable from WSL (29.8.0);
+- the launcher installed pinned OpenShell v0.1.2 itself, from a commit-pinned
+  installer whose checksum was verified;
+- the OpenShell gateway started and authenticated over mTLS;
+- provider profiles imported and re-applied cleanly, and the OpenRouter and
+  Sponsored ASI Cloud provider instances were created with their credentials
+  held by OpenShell, not by this repository;
+- the cached Omega baseline satisfied its pinned-source identity check, and
+  all four role images built;
+- the canonical SWI identity check passed for both role images
+  (`/usr/lib/swipl/bin/x86_64-linux/swipl`);
+- failed-boot cleanup and `runtime/stop.sh` both left no sandbox, forward,
+  loopback listener or bridge process behind.
+
+Blocked, and therefore unverified:
+
+- OpenShell sandbox provisioning fails with `ControlSupervisorStartFailed`:
+  `seccomp notification probe / notification launcher disappeared`;
+- the same failure reproduces from a bare local image with **no** StickerBook
+  policy and **no** provider attached, so it is not produced by this
+  repository's configuration;
+- the OpenShell gateway itself remains healthy across the failure, and
+  cleanup still succeeds.
+
+Upstream NVIDIA/OpenShell issue #3842 reports the same failure text on the same
+WSL2 kernel family. Our reproduction matches that report. We have not
+independently confirmed the mechanism that report suspects, and no fix for it
+exists in v0.1.2.
+
+Because no sandbox ever started, all of the following remain unverified and
+must not be assumed:
+
+- both health endpoints reporting the intended role;
+- OpenRouter succeeding through each role-specific provider;
+- unrelated destinations such as GitHub and PyPI being denied in each sandbox;
+- the workload seeing only the OpenShell credential placeholder, never the
+  real secret;
+- SWI's canonical executable as observed inside a running sandbox;
+- OmegaJev returning only an offered key;
+- the kernel issuing a final acceptance/refusal receipt over a live turn.
+
+Powered execution status: **BLOCKED_UPSTREAM / LIVE GRAPH UNVERIFIED.**
+Development continues against the headless kernel, the bridge-only runtime,
+the mechanical browser path, and deterministic test doubles.
