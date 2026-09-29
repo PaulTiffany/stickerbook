@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import os
 import sys
 import unittest
 from pathlib import Path
@@ -106,11 +105,7 @@ class HelpContentCase(unittest.TestCase):
         self.assertIn(
             "cp web/static/help.json _site/static/help.json", workflow)
         self.assertIn(
-            "help\\.json|assets/.+))
-
-if __name__ == "__main__":
-    unittest.main()
- || true)", workflow)
+            r"help\.json|assets/.+))$' || true)", workflow)
         self.assertEqual(
             workflow.count("uses: actions/deploy-pages@v4"), 1)
         self.assertEqual(
