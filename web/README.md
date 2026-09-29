@@ -46,7 +46,8 @@ inventory. It is flush to the screen edges and owns a reserved bottom control
 strip in both orientations, so it never obscures the governed page surface.
 
 Built-in page artwork is authored directly for that remaining browser rectangle:
-**1916 × 717** landscape and **941 × 1574** portrait. The title/cover uses
+**1916 × 717** landscape and **941 × 1574** portrait.
+School and Theater ship as text-SVG page assets at those same canonical sizes; they can later be replaced by manually uploaded raster artwork without changing page semantics. The title/cover uses
 separate **1916 × 821** and **941 × 1672** artboards because it does not share
 space with the hotbar.
 
@@ -96,7 +97,7 @@ catalog is no longer assumed to fit comfortably in one tiled view: the library
 has deterministic text search over names, aliases, themes, categories and tags,
 plus world/theme and category chips. Search is local catalog filtering, not a
 model call. The current built-in catalog contains 33 sticker definitions / 132
-initial pose sprites across Farm, Beach, Playground and Space.
+initial pose sprites across Farm, Beach, Playground, Space, School, and Theater.
 
 Page uploads accept SVG, PNG, JPEG/JPG, and WebP. On public GitHub Pages the
 selected file remains a local browser preview and is never sent to a model. In
