@@ -29,9 +29,11 @@ mechanical static demo; the powered authority-kernel runtime runs on localhost.
 - PR #42: non-sticker bare-page path observation and generic input ordering.
 - PR #43: host-issued physical input-event provenance for box/path co-origin.
 - PR #44: bounded semantic demonstration binding to a current page-path event.
-- This tranche: real OmegaLLM provider contract for the existing discrete
+- PR #45: real OmegaLLM provider contract for the existing discrete
   remember-pattern/perform-pattern intents, plus correct kernel-page checking
   for demonstration subjects (the UI page ID is a different namespace).
+- This tranche: one host-owned pending semantic reference for bounded
+  linguistic continuation, separate from current input evidence.
 
 The provider now accepts subject/intent plus a bounded label or pattern id for
 the existing pattern intents. Remember requires a label; perform requires a
@@ -49,8 +51,9 @@ at recording time. A conversation receives the newest four entries since the
 previous linguistic turn, in host arrival order. Monotonic sequence numbers
 keep eviction deterministic. Input remains recorded and the cursor advances if
 inference fails. The
-next turn receives only its own episode, so retry context is a future design
-question. The record holds at most 24 episodes and does not persist.
+next turn receives only its own input episode; semantic carry below preserves
+an admitted referent without replaying earlier inputs. The record holds at
+most 24 episodes and does not persist.
 
 The existing background drag still creates a deictic box. In powered localhost
 mode it also sends a `PagePathTrace`: up to 32 retained observed page-space
@@ -75,8 +78,8 @@ It does not solve cross-request timing or assign semantic meaning.
 
 OmegaLLM may now return exactly `{subject, intent: "bind-demonstration",
 demonstration: "input-event-N"}`. Its provider checks the identifier against
-the current `scene.interaction` page-path signals; the host checks the exact
-current episode again, the retained path's fixed principal/page, and the
+the current `scene.interaction` page-path signals or exposed pending reference;
+the host checks the same admissibility window, the path's fixed principal/page, and the
 subject's current page. The model selects which eligible event it means; the
 host does not choose by recency, box matching, or geometry. A valid result is
 an inspectable, non-mutating `{result: "bound", subject, demonstration,
@@ -85,6 +88,24 @@ The response remains under the legacy `jev` key, also used for host-side
 pattern memory; renaming that public envelope is deferred for compatibility.
 The semantic goal carries no path samples or movement instructions. Motor
 interpretation and execution remain unimplemented.
+
+A successful host-validated binding admits/replaces one immutable
+`PendingSemanticReference`: subject, demonstration, path ref, source episode,
+fixed principal, and page. The next linguistic call receives its bounded
+projection as `scene.pendingReference`, separate from `scene.interaction`.
+Binding can select current page-path evidence or exactly that exposed
+pending subject/event pair. No prior episode lookup is introduced.
+A valid linguistic response consumes the carry, including when its goal is
+refused; a successful binding replaces it. Explicit rebinding of the same
+carry renews it without changing its original provenance. Runtime errors,
+provider failure, and invalid response envelopes preserve it while the new
+input episode and observation cursor still record the turn normally.
+Linguistic calls are serialized so concurrent requests cannot share a
+one-turn consumption window. Direct gestures do not consume the carry.
+No transcript or samples are retained in this slot. It does not pin path
+geometry against log eviction or grant future execution rights. Its lifetime
+is measured in successful turns, not elapsed time; repeated failures preserve
+the one slot. Open-ended transcript memory remains absent.
 
 ## OpenShell status
 
@@ -103,6 +124,8 @@ cd ../jev && python -m unittest discover -s tests
 cd ../web && python -m unittest discover -s tests -p test_interaction.py
 python -m unittest discover -s tests -p test_demonstration_binding.py
 python -m unittest discover -s tests -p test_pattern_provider.py
+python -m unittest discover -s tests -p test_semantic_carry.py
+python -m py_compile semantic_reference.py tests/test_semantic_carry.py
 python -m py_compile tests/test_pattern_provider.py
 python -m unittest discover -s tests -p test_page_path.py
 python -m unittest discover -s tests -p test_input_event.py
@@ -120,13 +143,9 @@ alone, and has not appeared in Linux CI.
 
 ## Next research and build questions
 
-The immediate next tranche is bounded clarification carry-forward for a
-previously admitted semantic reference: voice clarification must retain its
-referent without granting arbitrary historical lookup. Its admission,
-expiration, cancellation, and replacement rules require explicit design.
-After that, implement trajectory-reference semantics with required
+The next tranche is trajectory-reference semantics with required
 page/subject frame and translation-only resolution. Preserve retained timing
-as evidence. Neither stage implies execution or remembering.
+as evidence. Reference resolution does not imply execution or remembering.
 
 1. Decide whether a bound page path is a demonstration, route, region, or other meaning in context before defining motor behavior.
 2. Extend binding to “around there” and “do that” across other evidence kinds without geometry-only heuristics.

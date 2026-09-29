@@ -34,6 +34,7 @@ import json
 import os
 import re
 import sys
+from threading import Lock
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -57,6 +58,7 @@ from governed_history import (  # noqa: E402
 import interaction  # noqa: E402
 import page_path  # noqa: E402
 import sticker_drag  # noqa: E402
+from semantic_reference import PendingSemanticReference  # noqa: E402
 from pattern_memory import PatternLibrary, ReplayLog  # noqa: E402
 from stickerbook_core import (  # noqa: E402
     ADD_OWN_STICKER, ANIMATE_OWN_STICKER, Command, MOVE_STICKER,
@@ -119,6 +121,10 @@ class Bridge:
         self.interactions = interaction_log or interaction.InteractionLog()
         # Host arrival sequence consumed by the previous linguistic turn.
         self._input_marker = 0
+        self.pending_reference = None
+        # A carry belongs to one linguistic turn even with concurrent HTTP
+        # callers. Direct gestures and auxiliary observations remain separate.
+        self._conversation_lock = Lock()
         self.jev_controller = JevController(
             self.kernel, self.jev_runtime, patterns=self.patterns,
             history=self.history, replays=self.replays)
@@ -302,6 +308,10 @@ class Bridge:
         return receipt
 
     def converse(self, body: dict) -> dict:
+        with self._conversation_lock:
+            return self._converse(body)
+
+    def _converse(self, body: dict) -> dict:
         """Run the OmegaLLM language loop and validate its optional goal.
 
         OmegaLLM never emits a kernel command.  It may return one bounded goal;
@@ -330,12 +340,16 @@ class Bridge:
         episode = self._begin_episode(
             text=text, reference=reference,
             input_mode=body.get("input_mode"))
+        pending = self.pending_reference
+        scene = self._conversation_scene(episode)
+        if pending is not None:
+            scene["pendingReference"] = pending.describe()
 
         try:
             result = self.agent_runtime.converse(
                 text=text,
                 principal=BROWSER_PRINCIPAL,
-                scene=self._conversation_scene(episode),
+                scene=scene,
                 reference=reference,
                 inference=dict(self._inference_selection))
         except Exception:
@@ -360,13 +374,16 @@ class Bridge:
 
         payload = {"ok": True, "reply": reply.strip(),
                    "interaction": episode.describe()}
+        # A valid linguistic response consumes the carry even if its goal is
+        # refused. All runtime/invalid-response exits above preserve it.
+        self.pending_reference = None
 
         goal = result.get("goal")
         if goal is not None:
             if isinstance(goal, dict) and goal.get("intent") == "bind-demonstration":
                 # Legacy result key also holds non-Jev semantic work such as
                 # remember-pattern. Binding is validation only: no Jev call.
-                payload["jev"] = self._bind_demonstration(goal, episode)
+                payload["jev"] = self._bind_demonstration(goal, episode, pending)
             else:
                 self._jev_counter += 1
                 payload["jev"] = self.jev_controller.run_semantic_goal(
@@ -380,8 +397,8 @@ class Bridge:
         payload["state"] = self.state()
         return payload
 
-    def _bind_demonstration(self, goal: dict, episode) -> dict:
-        """Admit only a page-path event in this exact host-composed turn."""
+    def _bind_demonstration(self, goal: dict, episode, pending=None) -> dict:
+        """Admit current evidence or the exact carry exposed to this turn."""
         if set(goal) != {"subject", "intent", "demonstration"}:
             return {"ok": False, "error": "invalid-demonstration-goal"}
         subject = goal["subject"]
@@ -399,8 +416,20 @@ class Bridge:
             trace = self.page_paths.get(signal.ref)
             if trace is not None and trace.principal == episode.principal \
                     and trace.page == book.DEFAULT_PAGE:
+                self.pending_reference = PendingSemanticReference(
+                    subject, event_id, signal.ref, episode.episode_id,
+                    episode.principal, trace.page)
                 return {"ok": True, "result": "bound", "subject": subject,
                         "demonstration": event_id, "pathRef": signal.ref}
+        if pending is not None and pending.subject == subject \
+                and pending.demonstration == event_id \
+                and pending.principal == episode.principal == BROWSER_PRINCIPAL \
+                and pending.page == book.DEFAULT_PAGE:
+            # Explicit successful rebinding renews the single slot, retaining
+            # its original provenance. No historical episode/trace search.
+            self.pending_reference = pending
+            return {"ok": True, "result": "bound", "subject": subject,
+                    "demonstration": event_id, "pathRef": pending.path_ref}
         return {"ok": False, "error": "demonstration-not-in-current-episode"}
 
     def _associate_inputs(self):

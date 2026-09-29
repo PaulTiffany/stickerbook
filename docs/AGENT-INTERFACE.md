@@ -653,13 +653,36 @@ OmegaLLM may select one current page-path event with a semantic goal containing
 exactly `subject`, `intent: "bind-demonstration"`, and the opaque host-issued
 `demonstration: "input-event-N"`. The provider checks the current episode's
 page-path signals; the host independently checks the same current episode,
-retained path principal/page, and subject. Old, fabricated, malformed, or
+retained path principal/page, and subject. Unrelated old, fabricated, malformed, or
 unsupported references fail closed. The host does not select the latest path
 or infer meaning from the box. A valid binding reports the selected event and
 path reference without calling OmegaJev, changing memory or world state, or
 creating a kernel receipt. Retained trajectory samples stay host-side; no
 geometry or motor program enters the semantic goal. The legacy HTTP `jev`
 result key also holds this host-side semantic result for compatibility.
+
+#### Bounded semantic reference carry
+
+After successful host admission, one `PendingSemanticReference` records
+subject, demonstration event, path ref, original source episode, principal,
+and page. Its `scene.pendingReference` projection additionally states
+`kind: "page-path"`. This is discourse context; `scene.interaction` still
+contains only the current turn's input evidence. The provider and host may
+admit a current supported page-path event OR exactly the exposed pending
+subject/event pair. The client cannot author this slot or its provenance.
+
+One subsequent valid linguistic response consumes it, even if a returned
+goal is refused. A successful binding replaces it; rebinding the pending
+event renews the slot while preserving its original source episode and other
+provenance. Runtime/provider errors and invalid response envelopes preserve
+the carry. The new input episode remains recorded and the input cursor still
+advances independently. Direct gestures do not consume it. Linguistic turns
+are serialized to make this one-turn rule deterministic under concurrency.
+
+There is no host recognition of clarification/cancellation language, no
+transcript memory, and no historical episode search. The slot holds no path
+samples and does not pin retained geometry against eviction. It adds no
+kernel action, receipt, revision, memory pattern, frame, or execution path.
 
 The architecture is unchanged by any of that:
 

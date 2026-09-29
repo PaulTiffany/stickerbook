@@ -341,11 +341,17 @@ def validate_demonstration_goal(goal, scene):
     signals = interaction.get("signals") if isinstance(interaction, dict) else None
     if not isinstance(signals, list):
         raise ValueError("missing current interaction")
-    if not any(isinstance(signal, dict)
+    if any(isinstance(signal, dict)
                and signal.get("kind") == "page-path"
                and signal.get("sourceEvent") == goal["demonstration"]
                for signal in signals):
-        raise ValueError("demonstration not in current interaction")
+        return
+    pending = scene.get("pendingReference")
+    if isinstance(pending, dict) and pending.get("kind") == "page-path" \
+            and pending.get("demonstration") == goal["demonstration"] \
+            and pending.get("subject") == goal["subject"]:
+        return
+    raise ValueError("demonstration not in current interaction or pending reference")
 
 
 def _extract_content(body: dict) -> str:
@@ -399,7 +405,8 @@ use only these fields:
 - facing: optional left | right
 - scale: optional number from 0.90 through 1.10
 - demonstration: for bind-demonstration only, one exact `sourceEvent` from a
-  `page-path` signal in THIS `scene.interaction`; use no other goal fields
+  `page-path` signal in THIS `scene.interaction`, or the exact demonstration
+  and subject pair in `scene.pendingReference`; use no other goal fields
   besides subject, intent, and demonstration for that intent
 
 For a child referring to a demonstration, you may semantically select one
@@ -407,6 +414,14 @@ current page-path event from `scene.interaction`. Use the utterance, scene,
 and factual sourceEvent relationships; do not simply pick the newest signal.
 The host retains path geometry. You do not receive its trajectory samples.
 Binding records a reference only; it does not move or teach a sticker.
+
+The host may expose ONE `scene.pendingReference` separately from current
+input evidence. It is a previously admitted referent available for this
+linguistic turn, not a new gesture or transcript history. You may use it as
+discourse context or ignore it. Never change its subject or invent historical
+events. An explicit successful bind may renew it; a reply without a successful
+binding consumes it. No trajectory frame or movement intent is supported by
+this carry itself.
 
 For "Remember that as your happy dance", use remember-pattern with subject
 and label. The host resolves "that" from actual recent governed actions; you
