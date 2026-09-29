@@ -36,9 +36,13 @@ class DisabledAgentRuntime:
             "conversational_agent": False,
         }
 
+    def inference_options(self) -> list:
+        return []
+
     def converse(
             self, *, text: str, principal: str, scene: dict,
-            reference: dict | None = None) -> dict:
+            reference: dict | None = None,
+            inference: dict | None = None) -> dict:
         return {
             "ok": False,
             "error": "conversational-agent-unavailable",
@@ -117,9 +121,31 @@ class LoopbackAgentRuntime:
             "conversational_agent": ready,
         }
 
+    def inference_options(self) -> list:
+        try:
+            health = self._json("/health")
+        except Exception:
+            return []
+        raw = health.get("inference_options")
+        if not isinstance(raw, list):
+            return []
+        clean = []
+        allowed = {
+            "id", "label", "description", "default_model",
+            "model_locked", "sponsored", "available",
+        }
+        for item in raw:
+            if not isinstance(item, dict) or set(item) != allowed:
+                continue
+            if not isinstance(item.get("id"), str):
+                continue
+            clean.append({key: item[key] for key in allowed})
+        return clean
+
     def converse(
             self, *, text: str, principal: str, scene: dict,
-            reference: dict | None = None) -> dict:
+            reference: dict | None = None,
+            inference: dict | None = None) -> dict:
         payload = {
             "text": text,
             "principal": principal,
@@ -127,6 +153,8 @@ class LoopbackAgentRuntime:
         }
         if reference is not None:
             payload["reference"] = reference
+        if inference is not None:
+            payload["inference"] = inference
         return self._json("/converse", payload)
 
     def creator_draft(
