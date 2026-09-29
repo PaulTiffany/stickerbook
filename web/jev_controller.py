@@ -18,6 +18,7 @@ from __future__ import annotations
 import math
 import os
 import sys
+from contextlib import nullcontext
 
 sys.path.insert(0, os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "core"))
@@ -66,10 +67,16 @@ class JevController:
     """Finite choice adapter around a Jev decision runtime."""
 
     def __init__(self, kernel, runtime, selector_id: str = OMEGA_JEV_ID,
-                 patterns=None, history=None, replays=None):
+                 patterns=None, history=None, replays=None, world_lock=None):
         self.kernel = kernel
         self.runtime = runtime
         self.selector_id = selector_id
+        # Optional host serialization for the world operation only. The
+        # kernel has no internal lock, so a coherent read and the mutation
+        # that follows it are each held briefly. Model think-time is NEVER
+        # inside it: runtime.choose() always runs with the lock released.
+        # This orders concurrent host work; based_on_revision still decides.
+        self.world_lock = world_lock
         # Host-owned movement memory. Optional: everything below degrades to
         # "no patterns known" when it is absent, and the Jev seam is
         # unchanged. The library is never passed to the runtime.
@@ -80,7 +87,13 @@ class JevController:
         self.history = history
         self.replays = replays
 
+    def _world(self):
+        """Hold the host world lock, when one was supplied, or nothing."""
+        return nullcontext() if self.world_lock is None else self.world_lock
+
     def available(self) -> bool:
+        # Deliberately unlocked: the live adapter's health probe is network
+        # I/O, and no world state is read or written here.
         try:
             return bool(self.runtime.available())
         except Exception:
@@ -334,7 +347,12 @@ class JevController:
         trace = []
 
         for index in range(max_turns):
-            table, moves = self._table(actor, goal, animate_only=animate_only)
+            # One coherent read: table, scene, and the revision the choice is
+            # made against all describe the same world.
+            with self._world():
+                table, moves = self._table(
+                    actor, goal, animate_only=animate_only)
+                scene = self._scene(actor, goal, table) if table else None
             if not table:
                 return {
                     "ok": False,
@@ -343,8 +361,10 @@ class JevController:
                     "trace": trace,
                 }
 
-            scene = self._scene(actor, goal, table)
             descriptions = self._describe_actions(table)
+            # OmegaJev think-time, with no lock held. A child may move a
+            # sticker meanwhile; scene["revision"] below lets the kernel
+            # refuse a choice made against a world that has since moved.
             try:
                 decision = self.runtime.choose(
                     goal=dict(goal),
@@ -380,22 +400,23 @@ class JevController:
                     "trace": trace,
                 }
 
-            receipt = self.kernel.propose_key(
-                actor,
-                choice,
-                "%s-%d" % (command_prefix, index + 1),
-                based_on_revision=scene["revision"],
-                requested_by=requested_by,
-                translated_by=translated_by,
-                selected_by=self.selector_id,
-                move_candidates=moves,
-            )
-            self._record(
-                receipt,
-                origin=(ORIGIN_OMEGALLM_JEV if translated_by
-                        else ORIGIN_GESTURE_JEV),
-                key=choice,
-                subject_id=goal["subject"])
+            with self._world():
+                receipt = self.kernel.propose_key(
+                    actor,
+                    choice,
+                    "%s-%d" % (command_prefix, index + 1),
+                    based_on_revision=scene["revision"],
+                    requested_by=requested_by,
+                    translated_by=translated_by,
+                    selected_by=self.selector_id,
+                    move_candidates=moves,
+                )
+                self._record(
+                    receipt,
+                    origin=(ORIGIN_OMEGALLM_JEV if translated_by
+                            else ORIGIN_GESTURE_JEV),
+                    key=choice,
+                    subject_id=goal["subject"])
             trace.append({
                 "turn": index + 1,
                 "choice": choice,
@@ -417,7 +438,8 @@ class JevController:
                     "stopped": "noop",
                 }
             if index + 1 < max_turns:
-                self.kernel.begin_turn()
+                with self._world():
+                    self.kernel.begin_turn()
 
         return {
             "ok": True,
@@ -636,7 +658,15 @@ class JevController:
         planned = min(len(pattern.steps), MAX_PATTERN_STEPS)
 
         for index in range(planned):
-            subject = self.kernel.sticker(subject_id)
+            # One coherent read per step: subject, current legal table and
+            # the scene OmegaJev will answer against.
+            with self._world():
+                subject = self.kernel.sticker(subject_id)
+                table, moves = (self._table(actor, goal, animate_only=False)
+                                if subject is not None else (None, None))
+                scene = self._scene(
+                    actor, goal, table, pattern_context=(pattern, index)
+                ) if table else None
             if subject is None:
                 stopped_at = index + 1
                 stopped_reason = "unknown-pattern-subject"
@@ -646,15 +676,13 @@ class JevController:
                 stopped_reason = "pattern-definition-mismatch"
                 break
 
-            table, moves = self._table(actor, goal, animate_only=False)
             if not table:
                 stopped_at = index + 1
                 stopped_reason = "no-legal-jev-actions"
                 break
 
-            scene = self._scene(
-                actor, goal, table, pattern_context=(pattern, index))
             descriptions = self._describe_actions(table)
+            # OmegaJev think-time, with no lock held.
             try:
                 decision = self.runtime.choose(
                     goal=dict(goal),
@@ -703,19 +731,20 @@ class JevController:
                 stopped_reason = "unknown-jev-choice"
                 break
 
-            receipt = self.kernel.propose_key(
-                actor,
-                choice,
-                "%s-%d" % (command_prefix, index + 1),
-                based_on_revision=self.kernel.revision,
-                requested_by=requested_by,
-                translated_by=translated_by,
-                selected_by=self.selector_id,
-                move_candidates=moves,
-            )
-            self._record(
-                receipt, origin=ORIGIN_PATTERN_PERFORM, key=choice,
-                subject_id=subject_id)
+            with self._world():
+                receipt = self.kernel.propose_key(
+                    actor,
+                    choice,
+                    "%s-%d" % (command_prefix, index + 1),
+                    based_on_revision=self.kernel.revision,
+                    requested_by=requested_by,
+                    translated_by=translated_by,
+                    selected_by=self.selector_id,
+                    move_candidates=moves,
+                )
+                self._record(
+                    receipt, origin=ORIGIN_PATTERN_PERFORM, key=choice,
+                    subject_id=subject_id)
             step_records.append(ReplayStepRecord(
                 index=index + 1, verb=step.verb, suffix=step.suffix,
                 submitted=True, receipt=receipt.to_dict()))
@@ -757,49 +786,52 @@ class JevController:
         planned = len(pattern.steps)
 
         for index, step in enumerate(pattern.steps):
-            # 1. fresh current state, every step
-            subject = self.kernel.sticker(subject_id)
-            if subject is None:
+            # No model is consulted on this path, so one step's current read
+            # and its proposal are a single brief world operation.
+            receipt = None
+            with self._world():
+                # 1. fresh current state, every step
+                subject = self.kernel.sticker(subject_id)
+                # A pattern belongs to a StickerDefinition. An incompatible
+                # definition never inherits it by accident.
+                if subject is None:
+                    stopped_reason = "unknown-pattern-subject"
+                elif subject.asset != pattern.asset:
+                    stopped_reason = "pattern-definition-mismatch"
+                else:
+                    # 2. rebuild the current host-owned legal table
+                    moves = self._move_candidates(subject)
+                    table = self.kernel.available_actions(
+                        actor, move_candidates=moves)
+
+                    # 3. re-bind the stored fragment to the current instance
+                    key = bind_key(step, subject_id)
+
+                    # 4. the key has to exist in the table as it is right now
+                    if key not in table:
+                        stopped_reason = "pattern-step-unavailable"
+                    else:
+                        # 5. ordinary kernel proposal path; no pattern-level
+                        # privilege
+                        receipt = self.kernel.propose_key(
+                            actor,
+                            key,
+                            "%s-%d" % (command_prefix, index + 1),
+                            based_on_revision=self.kernel.revision,
+                            requested_by=requested_by,
+                            move_candidates=moves,
+                        )
+                        self._record(
+                            receipt, origin=ORIGIN_PATTERN_REPLAY, key=key,
+                            subject_id=subject_id)
+            if receipt is None:
+                if stopped_reason == "pattern-step-unavailable":
+                    step_records.append(ReplayStepRecord(
+                        index=index + 1, verb=step.verb, suffix=step.suffix,
+                        submitted=False,
+                        unavailable_reason="pattern-step-unavailable"))
                 stopped_at = index + 1
-                stopped_reason = "unknown-pattern-subject"
                 break
-            # A pattern belongs to a StickerDefinition. An incompatible
-            # definition never inherits it by accident.
-            if subject.asset != pattern.asset:
-                stopped_at = index + 1
-                stopped_reason = "pattern-definition-mismatch"
-                break
-
-            # 2. rebuild the current host-owned legal table
-            moves = self._move_candidates(subject)
-            table = self.kernel.available_actions(
-                actor, move_candidates=moves)
-
-            # 3. re-bind the stored fragment to the current instance
-            key = bind_key(step, subject_id)
-
-            # 4. the key has to exist in the table as it is right now
-            if key not in table:
-                step_records.append(ReplayStepRecord(
-                    index=index + 1, verb=step.verb, suffix=step.suffix,
-                    submitted=False,
-                    unavailable_reason="pattern-step-unavailable"))
-                stopped_at = index + 1
-                stopped_reason = "pattern-step-unavailable"
-                break
-
-            # 5. ordinary kernel proposal path; no pattern-level privilege
-            receipt = self.kernel.propose_key(
-                actor,
-                key,
-                "%s-%d" % (command_prefix, index + 1),
-                based_on_revision=self.kernel.revision,
-                requested_by=requested_by,
-                move_candidates=moves,
-            )
-            self._record(
-                receipt, origin=ORIGIN_PATTERN_REPLAY, key=key,
-                subject_id=subject_id)
             step_records.append(ReplayStepRecord(
                 index=index + 1, verb=step.verb, suffix=step.suffix,
                 submitted=True, receipt=receipt.to_dict()))

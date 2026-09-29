@@ -32,8 +32,10 @@ mechanical static demo; the powered authority-kernel runtime runs on localhost.
 - PR #45: real OmegaLLM provider contract for the existing discrete
   remember-pattern/perform-pattern intents, plus correct kernel-page checking
   for demonstration subjects (the UI page ID is a different namespace).
-- This tranche: one host-owned pending semantic reference for bounded
+- PR #46: one host-owned pending semantic reference for bounded
   linguistic continuation, separate from current input evidence.
+- This tranche: non-executing page-path trajectory references with explicit
+  page/subject frame and immutable host-resolved geometry.
 
 The provider now accepts subject/intent plus a bounded label or pattern id for
 the existing pattern intents. Remember requires a label; perform requires a
@@ -86,8 +88,7 @@ an inspectable, non-mutating `{result: "bound", subject, demonstration,
 pathRef}`. It creates no memory, Jev call, kernel receipt, or world revision.
 The response remains under the legacy `jev` key, also used for host-side
 pattern memory; renaming that public envelope is deferred for compatibility.
-The semantic goal carries no path samples or movement instructions. Motor
-interpretation and execution remain unimplemented.
+The semantic goal carries no path samples or movement instructions.
 
 A successful host-validated binding admits/replaces one immutable
 `PendingSemanticReference`: subject, demonstration, path ref, source episode,
@@ -107,6 +108,40 @@ geometry against log eviction or grant future execution rights. Its lifetime
 is measured in successful turns, not elapsed time; repeated failures preserve
 the one slot. Open-ended transcript memory remains absent.
 
+`reference-trajectory` has exactly subject, intent, demonstration, and required
+frame (`page` or `subject`, without a default). Provider and host validate the
+same current-or-pending evidence window and visible subject; the host resolves
+only the admitted path ref. Evicted source geometry returns
+`trajectory-evidence-unavailable`, with no substitute or episode search.
+Successful resolution consumes carry without renewal. `bind-demonstration`
+remains purely referential and is still the only carry admission operation.
+
+For retained source points p_i, page frame preserves q_i = p_i; subject frame
+uses q_i = s + (p_i - p_0), where s is the subject position at resolution. Page
+axes/units, shape, orientation, scale, sample order, t, and observed duration
+are preserved. Out-of-page derived coordinates remain unchanged. Timing is
+evidence, not an execution schedule. No segment to the page-path start is added.
+
+The frozen `ResolvedTrajectoryReference` holds provenance, source/subject
+starts, immutable source and resolved sample tuples, observed duration, source
+recording revision, and resolution revision. A host world lock shared by every
+bridge-reachable kernel mutation makes the subject/visibility/revision snapshot
+coherent. It brackets the world operation only: both OmegaLLM and OmegaJev
+inference, and the runtime availability probes behind `state()`, run outside
+it, so child movement during inference is reflected at resolution and model
+latency never blocks a gesture or a state poll. The kernel's own
+`based_on_revision` check, not the lock, still adjudicates staleness.
+The bridge retains only its last successful reference,
+without lookup endpoints or persistence. Response summaries omit sample arrays,
+and no resolved geometry is added to later OmegaLLM scenes. The legacy `jev`
+response key remains for compatibility, not as evidence of a Jev call.
+
+Layering: PagePathTrace = observed geometry; sourceEvent = physical co-origin;
+bind-demonstration = evidence selection; PendingSemanticReference = discourse
+carry; reference-trajectory = semantic frame selection; ResolvedTrajectoryReference
+= host-derived non-authoritative geometry. Motor interpretation and trajectory
+control by OmegaJev are NOT YET implemented. Kernel authority is unchanged.
+
 ## OpenShell status
 
 **BLOCKED_UPSTREAM / LIVE GRAPH UNVERIFIED.** See
@@ -118,13 +153,15 @@ the one slot. Open-ended transcript memory remains absent.
 From the repository root unless a `cd` is shown:
 
 ```bash
-python -m py_compile web/page_path.py web/interaction.py web/sticker_drag.py web/bridge.py web/tests/test_demonstration_binding.py web/tests/test_input_event.py web/tests/test_page_path.py web/tests/test_interaction.py jev/omega_jev/providers/jev.py llm/omega_llm/providers/stickerbook_llm.py runtime/omega/stickerbookrpc.py
+python -m py_compile web/page_path.py web/interaction.py web/sticker_drag.py web/bridge.py web/jev_controller.py web/tests/test_demonstration_binding.py web/tests/test_input_event.py web/tests/test_page_path.py web/tests/test_interaction.py jev/omega_jev/providers/jev.py llm/omega_llm/providers/stickerbook_llm.py runtime/omega/stickerbookrpc.py
 cd core && python -m unittest discover -s tests
 cd ../jev && python -m unittest discover -s tests
 cd ../web && python -m unittest discover -s tests -p test_interaction.py
 python -m unittest discover -s tests -p test_demonstration_binding.py
 python -m unittest discover -s tests -p test_pattern_provider.py
 python -m unittest discover -s tests -p test_semantic_carry.py
+python -m unittest discover -s tests -p test_trajectory_reference.py
+python -m py_compile trajectory_reference.py tests/test_trajectory_reference.py
 python -m py_compile semantic_reference.py tests/test_semantic_carry.py
 python -m py_compile tests/test_pattern_provider.py
 python -m unittest discover -s tests -p test_page_path.py
@@ -143,9 +180,11 @@ alone, and has not appeared in Linux CI.
 
 ## Next research and build questions
 
-The next tranche is trajectory-reference semantics with required
-page/subject frame and translation-only resolution. Preserve retained timing
-as evidence. Reference resolution does not imply execution or remembering.
+The next design question is which explicit movement-use intent permits a
+resolved spatial reference to become a bounded motor objective, including how
+to handle a page-frame start away from the sticker. Reference resolution alone
+does not request execution or remembering. Candidate generation, timing use,
+page-edge behavior, and trajectory memory remain unimplemented research work.
 
 1. Decide whether a bound page path is a demonstration, route, region, or other meaning in context before defining motor behavior.
 2. Extend binding to “around there” and “do that” across other evidence kinds without geometry-only heuristics.
