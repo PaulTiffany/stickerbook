@@ -211,8 +211,11 @@ Creation remains separate:
   and portrait page-image draft metadata.
 
 Creator/media seams receive no kernel object and cannot install themselves.
-The shipped OmegaLLM and OmegaJev runtime adapters are inert by default. Public
-GitHub Pages ships neither Python runtime nor provider credential.
+The shipped OmegaLLM and OmegaJev runtime adapters remain inert by default, but
+may be explicitly attached to the governed loopback services with
+`STICKERBOOK_OMEGA_LLM_URL` and `STICKERBOOK_OMEGA_JEV_URL`. Those adapters
+refuse non-loopback URLs and carry no provider credential or kernel object.
+Public GitHub Pages ships neither Python runtime nor provider credential.
 
 ## Governed localhost path
 
@@ -251,12 +254,17 @@ Add `?dev=1` for revision, acting principal, last verdict, and receipt stream.
 **If Python changes, restart the bridge.** Static HTML/CSS/JS are read per
 request, but the kernel is imported once at startup.
 
+For the complete powered path, use the repository-root
+`Start StickerBook.cmd`; it starts the two OpenShell-contained Omega loops
+before attaching the bridge. For bridge-only development:
+
 ```bash
 cd web
 python bridge.py
 # http://127.0.0.1:8756/
 ```
 
+With no runtime URL environment variables, the bridge remains model-inert.
 Add `?mechanical=1` to exercise the same public mechanical adapter locally.
 
 ### Optional local page-image gateway
