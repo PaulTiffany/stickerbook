@@ -31,12 +31,21 @@ jobs:
         working-directory: web
         run: python -m unittest discover -s tests
 
-      - name: Check OmegaJev OpenShell adapter syntax
+      - name: Check governed Omega/OpenShell runtime syntax
         run: |
           python -m py_compile jev/omega_jev/providers/jev.py
+          python -m py_compile llm/omega_llm/providers/stickerbook_llm.py
+          python -m py_compile runtime/omega/stickerbookrpc.py
           bash -n openshell/install-pinned.sh
           bash -n openshell/run-omega-jev.sh
+          bash -n openshell/run-omega-jev-service.sh
+          bash -n openshell/run-omega-llm-service.sh
           bash -n jev/openshell-entrypoint.sh
+          bash -n runtime/omega/openshell-entrypoint.sh
+          bash -n runtime/lib.sh
+          bash -n runtime/start.sh
+          bash -n runtime/stop.sh
+          bash -n runtime/status.sh
 
-      - name: Verify pinned OpenShell integration contract
+      - name: Verify governed OpenShell integration contract
         run: python openshell/verify.py
