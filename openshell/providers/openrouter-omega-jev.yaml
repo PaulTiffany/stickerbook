@@ -22,9 +22,9 @@ endpoints:
     access: read-write
     enforcement: enforce
 
-# Omega embeds Python inside SWI-Prolog. Keep this list to the interpreter
-# executable paths used by the pinned SWI image rather than granting curl,
-# shells, package managers, or arbitrary Python programs network access.
+# The pinned swipl:10.0.2 image builds SWI with CMAKE_INSTALL_PREFIX=/usr.
+# OpenShell matches the kernel-resolved executable (/proc/<pid>/exe), not the
+# /usr/bin/swipl symlink, so provider authority is granted only to that
+# canonical executable. runtime/start.sh independently checks readlink -f.
 binaries:
-  - /usr/local/bin/swipl
-  - /usr/bin/swipl
+  - /usr/lib/swipl/bin/x86_64-linux/swipl
