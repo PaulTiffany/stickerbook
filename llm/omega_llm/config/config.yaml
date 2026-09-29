@@ -1,0 +1,33 @@
+# StickerBook OmegaLLM service configuration.
+maxNewInputLoops: 1
+maxWakeLoops: 0
+spamShield: False
+sleepInterval: 0.25
+provider: StickerBookLLM
+maxOutputToken: 1200
+reasoningMode: low
+wakeupInterval: 86400000
+logConfigPath: ""
+memoryDirectory: "./repos/Omega/memory"
+
+maxFeedback: 2000
+maxRecallItems: 5
+maxEpisodeRecallLines: 5
+maxHistory: 4000
+chromaDbPath: "./chroma_db"
+embeddingprovider: Local
+embeddingModel: ""
+memoryExportEnabled: false
+
+securityPolicyPath: "./repos/Omega/profile/policy.yaml"
+
+commchannel: stickerbookrpc
+stickerbookRpcRole: "omegallm"
+stickerbookRpcPort: 8761
+stickerbookRpcTimeout: 45
+
+stickerbookLlmModel: "z-ai/glm-5.2"
+stickerbookLlmUrl: "https://openrouter.ai/api/v1/chat/completions"
+stickerbookLlmTimeout: 40
+
+openClawEnabled: disabled
