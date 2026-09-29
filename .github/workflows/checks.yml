@@ -20,8 +20,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Check browser JavaScript syntax
-        run: node --check web/static/app.js
+      - name: Check browser JavaScript and help data
+        run: |
+          node --check web/static/app.js
+          python -m json.tool web/static/help.json >/dev/null
 
       - name: Test authority kernel
         working-directory: core
