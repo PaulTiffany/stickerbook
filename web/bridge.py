@@ -55,6 +55,7 @@ from governed_history import (  # noqa: E402
     ORIGIN_HUMAN_GESTURE, GovernedHistory,
 )
 import interaction  # noqa: E402
+import page_path  # noqa: E402
 import sticker_drag  # noqa: E402
 from pattern_memory import PatternLibrary, ReplayLog  # noqa: E402
 from stickerbook_core import (  # noqa: E402
@@ -91,7 +92,7 @@ class Bridge:
             self, kernel=None, agent_runtime=None, jev_runtime=None,
             page_image_runtime=None, pattern_library=None,
             governed_history=None, replay_log=None, drag_log=None,
-            interaction_log=None):
+            interaction_log=None, page_path_log=None, observed_input_log=None):
         self.kernel = kernel or farm.build_world()
         # OmegaLLM is the conversational/linguistic loop. OmegaJev is a
         # separate discriminative control loop with its own narrow runtime.
@@ -110,12 +111,13 @@ class Bridge:
         # dragging a sticker. Input history, kept separate from world history
         # on purpose. This is one input type, not a gesture ontology.
         self.traces = drag_log or sticker_drag.StickerDragLog()
+        self.page_paths = page_path_log or page_path.PagePathLog()
+        self.observed_inputs = observed_input_log or interaction.ObservedInputLog()
         # Which bounded child inputs took part in each conversational turn.
         # Facts about co-occurrence, never an interpretation of them.
         self.interactions = interaction_log or interaction.InteractionLog()
-        # Deterministic association cursor: the newest drag trace already
-        # offered to a previous linguistic turn.
-        self._drag_marker = None
+        # Host arrival sequence consumed by the previous linguistic turn.
+        self._input_marker = 0
         self.jev_controller = JevController(
             self.kernel, self.jev_runtime, patterns=self.patterns,
             history=self.history, replays=self.replays)
@@ -372,10 +374,9 @@ class Bridge:
         payload["state"] = self.state()
         return payload
 
-    def _associate_drags(self):
-        """Host-observed drags since the previous turn, newest four in order."""
-        return self.traces.after(self._drag_marker)[
-            -interaction.MAX_SIGNALS_PER_EPISODE:]
+    def _associate_inputs(self):
+        """Newest observed inputs since the previous turn, in host order."""
+        return self.observed_inputs.after(self._input_marker)
 
     def _begin_episode(self, *, text, reference, input_mode):
         """Record which bounded inputs took part in this conversational turn.
@@ -383,17 +384,9 @@ class Bridge:
         This creates no kernel receipt and changes no world revision: it is a
         statement about input, not about the world.
         """
-        recent = self.traces.after(self._drag_marker)
-        traces = self._associate_drags()
-        signals = tuple(
-            interaction.InputSignal(
-                kind=interaction.SIGNAL_STICKER_DRAG,
-                ref=trace.trace_id,
-                subject=trace.subject_id,
-                duration_ms=trace.duration_ms,
-            )
-            for trace in traces
-        )
+        recent = self._associate_inputs()
+        signals = tuple(item.signal for item in
+                        recent[-interaction.MAX_SIGNALS_PER_EPISODE:])
         episode = self.interactions.add(interaction.InteractionEpisode(
             episode_id=self.interactions.next_episode_id(),
             principal=BROWSER_PRINCIPAL,
@@ -406,8 +399,27 @@ class Bridge:
         ))
         # The child supplied this turn even if inference later fails.
         if recent:
-            self._drag_marker = recent[-1].trace_id
+            self._input_marker = recent[-1].sequence
         return episode
+
+    def observe_page_path(self, body: dict) -> dict:
+        """Keep an auxiliary bare-page observation; never propose a mutation."""
+        samples, duration, error = page_path.parse_path(body)
+        if error:
+            return {"ok": False, "pathIgnored": error}
+        trace = self.page_paths.add(page_path.PagePathTrace(
+            trace_id=self.page_paths.next_trace_id(),
+            principal=BROWSER_PRINCIPAL,
+            page=book.DEFAULT_PAGE,
+            scene_revision_at_recording=self.kernel.revision,
+            duration_ms=duration,
+            samples=samples,
+            observed_sample_count=len(body["samples"]),
+        ))
+        self.observed_inputs.add(BROWSER_PRINCIPAL, interaction.InputSignal(
+            kind=interaction.SIGNAL_PAGE_PATH, ref=trace.trace_id,
+            duration_ms=trace.duration_ms))
+        return {"ok": True, "path": trace.summary()}
 
     @staticmethod
     def _deictic_reference(raw):
@@ -672,6 +684,10 @@ class Bridge:
                 terminal_command_id=command_id,
                 terminal_move_accepted=True,
             ))
+            self.observed_inputs.add(BROWSER_PRINCIPAL, interaction.InputSignal(
+                kind=interaction.SIGNAL_STICKER_DRAG,
+                ref=trace.trace_id, subject=trace.subject_id,
+                duration_ms=trace.duration_ms))
 
         self.history.record(
             receipt, origin=ORIGIN_HUMAN_GESTURE,
@@ -925,6 +941,7 @@ def make_handler(bridge: Bridge, quiet: bool = False):
                   "/api/resize": "resize",
                   "/api/facing": "facing",
                   "/api/agent/converse": "converse",
+                  "/api/observe-page-path": "observe_page_path",
                   "/api/adult/inference": "set_inference",
                   "/api/creator/draft": "creator_draft"}
 

@@ -102,6 +102,7 @@ let stickerCategory = "all";
 let pendingDeicticReference = null;
 let deicticGesture = null;
 let deicticReferenceSerial = 0;
+let pendingPathObservation = Promise.resolve();
 let bookCache = null;
 let pagePreviewUrl = null;
 let pageUploadDraft = null;
@@ -889,6 +890,22 @@ const kernelWorld = {
       body: JSON.stringify(body),
     });
     return res.json();
+  },
+
+  async observePagePath(body) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2000);
+    try {
+      const res = await fetch("/api/observe-page-path", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      return res.json();
+    } finally {
+      clearTimeout(timeout);
+    }
   },
 
   async send(path, body) {
@@ -1861,6 +1878,7 @@ function startDeicticGesture(event) {
     startClientX: event.clientX,
     startClientY: event.clientY,
     boxed: false,
+    samples: [{ at: performance.now(), x: start.x, y: start.y }],
   };
 
   event.preventDefault();
@@ -1873,6 +1891,7 @@ function updateDeicticGesture(event) {
 
   const point = pageFraction(event);
   deicticGesture.current = point;
+  observePagePathPoint(deicticGesture, point);
   if (
     Math.hypot(
       event.clientX - deicticGesture.startClientX,
@@ -1900,6 +1919,46 @@ function updateDeicticGesture(event) {
   );
 }
 
+function observePagePathPoint(gesture, point) {
+  const samples = gesture.samples;
+  samples.push({ at: performance.now(), x: point.x, y: point.y });
+  const error = (a, b, c) => {
+    const sx = c.x - a.x;
+    const sy = c.y - a.y;
+    const length = Math.hypot(sx, sy);
+    if (!length) return Math.hypot(b.x - a.x, b.y - a.y);
+    return Math.abs(sy * b.x - sx * b.y + c.x * a.y - c.y * a.x) / length;
+  };
+  while (samples.length > 64) {
+    let worst = 1;
+    let least = Infinity;
+    for (let i = 1; i < samples.length - 1; i += 1) {
+      const value = error(samples[i - 1], samples[i], samples[i + 1]);
+      if (value < least) { least = value; worst = i; }
+    }
+    samples.splice(worst, 1);
+  }
+}
+
+function recordPagePath(gesture) {
+  if (world !== kernelWorld || gesture.samples.length < 2) return;
+  const first = gesture.samples[0].at;
+  const last = gesture.samples[gesture.samples.length - 1].at;
+  const span = Math.max(1, last - first);
+  const round = (value, places) => Number(value.toFixed(places));
+  const body = {
+    duration_ms: Math.max(1, Math.round(span)),
+    samples: gesture.samples.map((sample) => ({
+      t: round(Math.min(1, Math.max(0, (sample.at - first) / span)), 3),
+      x: round(sample.x, 4),
+      y: round(sample.y, 4),
+    })),
+  };
+  // Serialize page observations; the box mark is already established locally.
+  pendingPathObservation = pendingPathObservation.catch(() => {}).then(
+    () => world.observePagePath(body));
+}
+
 function finishDeicticGesture(event) {
   if (!deicticGesture || deicticGesture.pointerId !== event.pointerId) return;
 
@@ -1924,6 +1983,7 @@ function finishDeicticGesture(event) {
     kind: "box",
     box: { x1, y1, x2, y2 },
   });
+  recordPagePath(gesture);
 }
 
 async function tapSticker(sticker) {
@@ -3131,6 +3191,7 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
   const reference = deicticPayload(pendingDeicticReference);
 
   try {
+    await pendingPathObservation.catch(() => {});
     // Whether the child spoke or typed. The browser owns the microphone and
     // the keyboard, so it is the only thing that honestly knows. Descriptive
     // only: it carries no authority and nothing branches on it.

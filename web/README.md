@@ -128,6 +128,12 @@ saved as page state, is not a sticker, and is not automatically visible to Jev.
 Starting on a sticker still grabs the sticker, so object manipulation and
 background reference remain distinct.
 
+In powered localhost mode, the same bare-page drag also sends a bounded
+`PagePathTrace` to the host as observed input. This retains its pointer route
+without changing the existing box mark. Its points are observed page-space
+fractions, not authoritative world anchors; no sticker or kernel state changes.
+Malformed path telemetry is ignored while the box remains usable.
+
 - drag from hotbar to page: place a StickerInstance;
 - drag a placed sticker: move it;
 - drag a placed sticker downward across the hotbar's top edge and release: remove it from the page;
@@ -437,8 +443,9 @@ Each `/api/agent/converse` turn records a bounded host-owned interaction
 episode. The browser supplies the transcript or typed text, optional point or
 box, and descriptive `input_mode` (`voice` or `text`). The host stamps the
 episode ID, sequence and scene revision, then associates the newest four
-sticker drags observed since the previous linguistic turn in observation
-order. The browser cannot select historical drag IDs. OmegaLLM receives these
+accepted sticker-drag and page-path observations since the previous linguistic
+turn in host arrival order. The browser cannot select historical trace IDs.
+OmegaLLM receives these
 facts without raw trajectory samples or geometry labels. A failed inference
 still records the input and advances the drag cursor; the current episode is
 the only interaction record supplied to that OmegaLLM call. Recording does
