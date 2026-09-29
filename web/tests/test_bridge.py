@@ -451,6 +451,10 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             ("/static/assets/pages/playground-vertical.svg", "image/svg+xml"),
             ("/static/assets/pages/space.svg", "image/svg+xml"),
             ("/static/assets/pages/space-vertical.svg", "image/svg+xml"),
+            ("/static/assets/pages/school.svg", "image/svg+xml"),
+            ("/static/assets/pages/school-vertical.svg", "image/svg+xml"),
+            ("/static/assets/pages/theater.svg", "image/svg+xml"),
+            ("/static/assets/pages/theater-vertical.svg", "image/svg+xml"),
             ("/static/assets/stickers/frog.svg", "image/svg+xml"),
             ("/static/assets/stickers/bird/flight-up.svg", "image/svg+xml"),
             ("/static/assets/stickers/butterfly/wings-down.svg", "image/svg+xml"),
@@ -511,7 +515,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
         self.assertEqual(manifest["version"], 4)
         self.assertEqual(
             set(manifest["pages"]),
-            {"farm", "beach", "playground", "space"})
+            {"farm", "beach", "playground", "space", "school", "theater"})
 
         cover_variants = manifest["cover"]["variants"]
         self.assertEqual(
@@ -592,7 +596,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
 
         self.assertEqual(
             themes_seen,
-            {"farm", "beach", "playground", "space"},
+            {"farm", "beach", "playground", "space", "school", "theater"},
         )
         for added in (
                 "puppy", "cat", "seagull", "sandcastle", "pinwheel",
@@ -618,7 +622,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             self.assertEqual(manifest["stickers"][added]["category"], "people")
             self.assertEqual(
                 set(manifest["stickers"][added]["themes"]),
-                {"farm", "beach", "playground", "space"},
+                {"farm", "beach", "playground", "space", "school", "theater"},
             )
         for added in (
                 "fm-2030", "robert-ettinger", "hans-moravec",
@@ -629,7 +633,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             self.assertEqual(manifest["stickers"][added]["category"], "people")
             self.assertEqual(
                 set(manifest["stickers"][added]["themes"]),
-                {"farm", "beach", "playground", "space"},
+                {"farm", "beach", "playground", "space", "school", "theater"},
             )
         for added in (
                 "giulio-prisco", "david-orban", "paul-tiffany"):
@@ -638,7 +642,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             self.assertEqual(manifest["stickers"][added]["category"], "people")
             self.assertEqual(
                 set(manifest["stickers"][added]["themes"]),
-                {"farm", "beach", "playground", "space"},
+                {"farm", "beach", "playground", "space", "school", "theater"},
             )
         self.assertEqual(
             sum(1 for key in manifest["stickers"] if "bostrom" in key),
