@@ -23,5 +23,4 @@ endpoints:
     enforcement: enforce
 
 binaries:
-  - /usr/local/bin/swipl
-  - /usr/bin/swipl
+  - /usr/lib/swipl/bin/x86_64-linux/swipl
