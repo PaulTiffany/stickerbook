@@ -28,7 +28,19 @@ mechanical static demo; the powered authority-kernel runtime runs on localhost.
 - PR #41: bounded multimodal InteractionEpisode records for linguistic turns.
 - PR #42: non-sticker bare-page path observation and generic input ordering.
 - PR #43: host-issued physical input-event provenance for box/path co-origin.
-- This tranche: bounded semantic demonstration binding to a current page-path event.
+- PR #44: bounded semantic demonstration binding to a current page-path event.
+- This tranche: real OmegaLLM provider contract for the existing discrete
+  remember-pattern/perform-pattern intents, plus correct kernel-page checking
+  for demonstration subjects (the UI page ID is a different namespace).
+
+The provider now accepts subject/intent plus a bounded label or pattern id for
+the existing pattern intents. Remember requires a label; perform requires a
+label or id. Label validation and normalization match host memory; pattern ids
+remain bounded references that the host resolves. The provider never supplies
+PatternSteps, action keys, trajectory geometry, or a historical slice. Tests
+exercise real provider parsing/staging with a fake inference transport and
+then host remembering and Jev selection. This proves the powered-language
+contract mechanically, not live model interpretation or OpenShell execution.
 
 An episode records utterance, optional validated point/box, descriptive
 voice/text mode, scene revision, and up to four recent host-observed input
@@ -90,6 +102,8 @@ cd core && python -m unittest discover -s tests
 cd ../jev && python -m unittest discover -s tests
 cd ../web && python -m unittest discover -s tests -p test_interaction.py
 python -m unittest discover -s tests -p test_demonstration_binding.py
+python -m unittest discover -s tests -p test_pattern_provider.py
+python -m py_compile tests/test_pattern_provider.py
 python -m unittest discover -s tests -p test_page_path.py
 python -m unittest discover -s tests -p test_input_event.py
 python -m unittest discover -s tests
@@ -106,11 +120,13 @@ alone, and has not appeared in Linux CI.
 
 ## Next research and build questions
 
-The next motor-design decision is what a bound page-path event should mean for
-movement, and which bounded evidence a future Jev selector may use without
-turning the retained trajectory into an executable command. This tranche
-proves reference selection only; other phrases and evidence kinds still need
-deliberate binding design.
+The immediate next tranche is bounded clarification carry-forward for a
+previously admitted semantic reference: voice clarification must retain its
+referent without granting arbitrary historical lookup. Its admission,
+expiration, cancellation, and replacement rules require explicit design.
+After that, implement trajectory-reference semantics with required
+page/subject frame and translation-only resolution. Preserve retained timing
+as evidence. Neither stage implies execution or remembering.
 
 1. Decide whether a bound page path is a demonstration, route, region, or other meaning in context before defining motor behavior.
 2. Extend binding to “around there” and “do that” across other evidence kinds without geometry-only heuristics.

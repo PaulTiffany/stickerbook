@@ -388,7 +388,7 @@ class Bridge:
         event_id = goal["demonstration"]
         sticker = self.kernel.sticker(subject) if isinstance(subject, str) else None
         if not isinstance(subject, str) or not subject or len(subject) > 160 \
-                or sticker is None or sticker.page != book.DEFAULT_PAGE:
+                or sticker is None or sticker.page != self.kernel.page:
             return {"ok": False, "error": "invalid-demonstration-subject"}
         if not isinstance(event_id, str) or not _INPUT_EVENT_RE.fullmatch(event_id):
             return {"ok": False, "error": "invalid-demonstration-reference"}

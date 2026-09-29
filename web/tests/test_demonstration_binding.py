@@ -11,7 +11,6 @@ from unittest.mock import patch
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import bridge  # noqa: E402
-import book  # noqa: E402
 import farm  # noqa: E402
 import interaction  # noqa: E402
 from stickerbook_core import StickerInstance  # noqa: E402
@@ -23,7 +22,7 @@ class Binding(unittest.TestCase):
     def setUp(self):
         self.kernel = farm.build_world()
         self.kernel.place_sticker(StickerInstance(
-            "bird-1", farm.HUMAN_ID, farm.HUMAN_ID, "bird", book.DEFAULT_PAGE,
+            "bird-1", farm.HUMAN_ID, farm.HUMAN_ID, "bird", self.kernel.page,
             x=.4, y=.4, animation="rest"))
         self.llm = FakeOmegaLLM()
         self.jev = FakeOmegaJev()
@@ -39,6 +38,7 @@ class Binding(unittest.TestCase):
         return self.bridge.converse(request)
 
     def test_one_current_event_binds_without_motor_or_world_effect(self):
+        self.assertIn("bird-1", [item["id"] for item in self.bridge.state()["stickers"]])
         capture = self.bridge.observe_page_path(path())
         revision, receipts = self.kernel.revision, len(self.kernel.receipts)
         result = self.bind(capture["sourceEvent"],
@@ -124,6 +124,15 @@ class Binding(unittest.TestCase):
         self.assertEqual(result["jev"]["error"],
                          "demonstration-not-in-current-episode")
         self.assertEqual(self.jev.calls, [])
+
+    def test_subject_on_another_kernel_page_is_rejected(self):
+        self.kernel.place_sticker(StickerInstance(
+            "elsewhere", farm.HUMAN_ID, farm.HUMAN_ID, "bird", self.kernel.page + 1))
+        event = self.bridge.observe_page_path(path())["sourceEvent"]
+        self.llm.goal = {"subject": "elsewhere", "intent": "bind-demonstration",
+                         "demonstration": event}
+        result = self.bridge.converse({"text": "like this"})
+        self.assertEqual(result["jev"]["error"], "invalid-demonstration-subject")
 
     def test_ordinary_goal_still_uses_jev_and_double_click_bypasses_llm(self):
         self.llm.goal = {"subject": "bird-1", "intent": "animate"}

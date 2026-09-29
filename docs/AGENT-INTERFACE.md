@@ -636,6 +636,17 @@ the reported correlation; the browser remains the physical input sensor, so
 the host cannot independently attest pointer hardware provenance. The token
 does not change host arrival chronology or imply what the gesture meant.
 
+#### Provider pattern-intent contract
+
+The real OmegaLLM provider also supports the existing `remember-pattern` and
+`perform-pattern` goals. Pattern goals carry only subject, intent, label, and/or
+pattern id; remember requires label and perform requires label or id. Labels
+are 1..48 trimmed characters, without colon, CR, LF, or tab, and whitespace is
+canonicalized as in host memory. Pattern ids are nonempty strings of at most
+64 characters without colons. The host resolves memory/history and remains
+the final validator. No PatternSteps, action keys, or trajectory samples may
+enter these provider goals. This does not enable continuous movement learning.
+
 #### Bounded demonstration binding
 
 OmegaLLM may select one current page-path event with a semantic goal containing
