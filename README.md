@@ -22,6 +22,7 @@ it.
 | **`core/`** | Headless authority kernel: principals, sticker ownership, revisions, receipts, deployment ceilings, action budgets, and legal-action tables. Standard library only. 67 tests. |
 | **`web/`** | Child-facing StickerBook surface with a title page, image-forward page gallery, active page, working sticker hotbar, overlay sticker library, mechanical animations, and responsible-adult/developer access. The same renderer supports a governed localhost world and a mechanical public world. |
 | **`jev/`** | OmegaJev: typed Jev decision selection inside a bounded Omega path. The model selects from host-provided legal choices; the host validates the choice and the kernel decides. 40 unit tests plus container/host verification suites. |
+| **`openshell/`** | Pinned OpenShell v0.1.2 containment layer: separate OmegaLLM/OmegaJev policies and provider profiles, a non-root OmegaJev sandbox image, and static integration checks. Live browser wiring remains deliberately separate work. |
 
 ## Child-facing navigation
 
@@ -134,7 +135,9 @@ human gesture / agent choice
 ```
 
 Omega/Jev integration remains local and bounded. Models do not directly mutate
-the page.
+the page. The powered deployment now has a pinned OpenShell containment layer
+under `openshell/`; OpenShell constrains the live process/filesystem/network
+boundary while the StickerBook kernel remains the authority boundary.
 
 ## Visual asset system
 
@@ -226,6 +229,12 @@ adjudicates.
 
 The public Pages build is intentionally outside that powered path.
 
+For the powered localhost path, OpenShell is pinned to **v0.1.2**
+(commit `6648bd0c290efbc41ba131ee9831ee45cd431f94`). Separate policies are kept
+for OmegaLLM and OmegaJev; neither base policy grants network access. Provider
+access is contributed explicitly at the OpenShell boundary. See
+[`openshell/README.md`](openshell/README.md).
+
 ## Running locally
 
 ```bash
@@ -258,6 +267,7 @@ Browser JavaScript is syntax-checked in GitHub Actions.
 | [`web/README.md`](web/README.md) | Browser, page, and bridge behavior. |
 | [`jev/SECURITY.md`](jev/SECURITY.md) | OmegaJev boundaries and verification. |
 | [`jev/EXPERIMENT.md`](jev/EXPERIMENT.md) | Experimental record, including failures and retractions. |
+| [`openshell/README.md`](openshell/README.md) | Pinned containment layer, policies, provider profiles, and current proof boundary. |
 | [`NOTICE`](NOTICE) | Third-party attribution and upstream modifications. |
 
 ## Current direction
@@ -275,8 +285,8 @@ broader multi-agent delegation remain separate future work.
 ## Built on
 
 StickerBook draws from and experiments with several projects and prior design
-lines, including AlphaClaw, Chalked, SingularityNET Omega, PeTTa, OpenRouter,
-and TypeSafe Jev. See [`NOTICE`](NOTICE) and the relevant component documents
+lines, including AlphaClaw, Chalked, SingularityNET Omega, PeTTa, NVIDIA
+OpenShell, OpenRouter, and TypeSafe Jev. See [`NOTICE`](NOTICE) and the relevant component documents
 for exact third-party licensing and version information.
 
 Omega's source is not vendored here. The tested upstream versions and local
