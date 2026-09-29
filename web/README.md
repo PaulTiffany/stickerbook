@@ -460,7 +460,7 @@ different tokens, while a failed path observation leaves its box unlinked.
 
 OmegaLLM can return a bounded `bind-demonstration` goal naming one current
 page-path `sourceEvent` and a sticker subject. Provider and host validation
-reject unknown, malformed, historical, or unsupported references. The model
+reject unknown, malformed, unrelated historical, or unsupported references. The model
 chooses the event; the host only checks admissibility. A valid binding returns
 `bound` with the selected path reference under the existing `jev` response
 field. It does not call OmegaJev, store a movement, or mutate the world.
@@ -472,8 +472,17 @@ The real OmegaLLM provider now admits the existing `remember-pattern` and
 label/pattern references; the host constructs memory from governed history,
 and Jev performs through current legal choices. Provider-to-host tests use a
 fake inference transport, so this is mechanical verification, not live
-OpenShell proof. Bounded voice clarification is the next tranche, before
-trajectory coordinate frames or motor work.
+OpenShell proof.
+
+A successfully admitted demonstration binding now creates one host-owned
+pending semantic reference. The next linguistic turn receives it separately
+as `scene.pendingReference`; only that exact subject/event pair or current
+page-path evidence is admissible. A valid response consumes the slot unless
+a successful binding replaces it. Inference failures preserve it for retry,
+while each new input episode remains recorded. Explicit rebinding renews the
+same referent with its original provenance. No transcript or trajectory
+samples enter the carry, and no historical lookup or world mutation is added.
+Trajectory coordinate frames and motor work remain future tranches.
 
 ```bash
 cd web
