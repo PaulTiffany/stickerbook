@@ -7,7 +7,7 @@ OmegaLLM and OmegaJev are separate cognitive loops:
     ACTION KEY -> StickerBook kernel -> Receipt
 
 A child double-click enters the same OmegaJev selection seam without passing
-through OmegaLLM.  In that case the choice surface is animation-only.
+through OmegaLLM. It invites a small episode of finite-body improvisation.
 
 This module contains no model inference and no network code.  It creates only
 finite, host-owned choices and applies a selected key through Kernel.propose_key.
@@ -71,6 +71,7 @@ MAX_AGENT_TRAJECTORY_STEPS = (
     trajectory_execution.MAX_AGENT_TRAJECTORY_STEPS)
 MOVE_STEP = 0.06
 MAX_GOAL_TURNS = 6
+MAX_DOUBLE_TAP_TURNS = 3
 
 _ALLOWED_GOAL_FIELDS = frozenset({
     "subject", "intent", "behavior", "target", "facing", "scale",
@@ -345,10 +346,11 @@ class JevController:
         return out
 
     def _table(self, actor: str, goal: dict, *, animate_only: bool = False,
-               move_only: bool = False) -> tuple:
+               move_only: bool = False, improvise_only: bool = False) -> tuple:
         """The subject's current finite choice surface, plus NOOP.
 
-        `animate_only` is the child double-tap surface. `move_only` is the
+        `improvise_only` excludes resize from the child double-tap surface.
+        `animate_only` restricts clips where explicitly requested. `move_only` is the
         narrow surface a continuous movement objective needs: the subject's
         currently legal local steps and nothing that changes its appearance,
         so a chooser cannot satisfy a movement goal by animating, resizing or
@@ -356,15 +358,16 @@ class JevController:
         neither invents a choice, and the kernel still decides.
         """
         subject = self.kernel.sticker(goal["subject"])
+        if subject is None:
+            return {}, {}
         moves = self._move_candidates(subject)
         raw = self.kernel.available_actions(actor, move_candidates=moves)
-        prefix = ":" + subject.id + ":"
         allowed = {}
         for key, command in raw.items():
             if key == "NOOP":
                 allowed[key] = command
                 continue
-            if prefix not in key:
+            if command.object_id != subject.id:
                 continue
             if animate_only:
                 if command.action == ANIMATE_OWN_STICKER:
@@ -375,13 +378,15 @@ class JevController:
             elif command.action in (
                     MOVE_STICKER, ANIMATE_OWN_STICKER,
                     RESIZE_OWN_STICKER, SET_STICKER_FACING):
-                allowed[key] = command
+                if not improvise_only or command.action != RESIZE_OWN_STICKER:
+                    allowed[key] = command
         return allowed, moves
 
     def run_goal(
             self, raw_goal: dict, *, actor: str, command_prefix: str,
             requested_by: str, translated_by: str | None = None,
             animate_only: bool = False,
+            improvise_only: bool = False,
             max_turns: int = MAX_GOAL_TURNS) -> dict:
         if not self.available():
             return {"ok": False, "error": "jev-runtime-unavailable"}
@@ -401,8 +406,9 @@ class JevController:
                 if activation is None or self.activity() != activation:
                     return {"ok": False, "error": "page-changed", "goal": goal, "trace": trace}
                 table, moves = self._table(
-                    actor, goal, animate_only=animate_only)
+                    actor, goal, animate_only=animate_only, improvise_only=improvise_only)
                 scene = self._scene(actor, goal, table) if table else None
+                watermark = self._history_watermark()
             if not table:
                 return {
                     "ok": False,
@@ -469,16 +475,20 @@ class JevController:
                             else ORIGIN_GESTURE_JEV),
                     key=choice,
                     subject_id=goal["subject"])
+            superseded = (improvise_only and not receipt.accepted
+                          and receipt.reason == "stale-revision"
+                          and self._human_moved_since(goal["subject"], watermark))
             trace.append({
                 "turn": index + 1,
                 "choice": choice,
                 "receipt": receipt.to_dict(),
+                **({"superseded": True} if superseded else {}),
             })
 
             if not receipt.accepted:
                 return {
                     "ok": False,
-                    "error": "jev-action-refused",
+                    "error": "human-superseded" if superseded else "jev-action-refused",
                     "goal": goal,
                     "trace": trace,
                 }
@@ -1370,11 +1380,11 @@ class JevController:
             self, sticker_id: str, *, actor: str, command_prefix: str,
             requested_by: str) -> dict:
         return self.run_goal(
-            {"subject": sticker_id, "intent": "animate"},
+            {"subject": sticker_id, "intent": "control", "behavior": "improvise"},
             actor=actor,
             command_prefix=command_prefix,
             requested_by=requested_by,
             translated_by=None,
-            animate_only=True,
-            max_turns=1,
+            improvise_only=True,
+            max_turns=MAX_DOUBLE_TAP_TURNS,
         )

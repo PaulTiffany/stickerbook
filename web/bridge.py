@@ -984,10 +984,11 @@ class Bridge:
         return {"ok": True, "receipt": receipt.to_dict(), "state": self.state()}
 
     def animate(self, body: dict) -> dict:
-        """Handle the child's double-click/tap animation intent.
+        """Handle the child's double-click/tap invitation to come alive.
 
-        When OmegaJev is connected, the gesture becomes a one-turn Jev goal
-        with an animation-only choice surface. Jev chooses the declared clip;
+        When OmegaJev is connected, the gesture becomes a three-turn Jev goal
+        with subject-only movement, facing and animation choices. Jev composes
+        currently legal primitives, with learned patterns as advisory context;
         it does not receive command arguments or bypass the kernel. When no
         Jev runtime is connected, the historical mechanical toggle remains so
         local/public interaction does not depend on model availability.

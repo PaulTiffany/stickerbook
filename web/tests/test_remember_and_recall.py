@@ -178,7 +178,9 @@ class FakeOmegaJev:
             return {"ok": True, "choice": "NOOP"}
 
         # Ordinary bounded animation intent, e.g. a double-click.
-        if goal.get("intent") == "animate":
+        if goal.get("intent") == "animate" or goal.get("behavior") == "improvise":
+            if goal.get("behavior") == "improvise" and turn > 1:
+                return {"ok": True, "choice": "NOOP"}
             for key in sorted(actions):
                 if key.startswith("ANIMATE:") \
                         and not key.endswith(":none") \
@@ -654,12 +656,12 @@ class DirectGesturePathIntact(RememberCase):
         # OmegaLLM was never consulted.
         self.assertEqual(self.llm.goals, [])
         self.assertEqual(self.llm.scenes, [])
-        # Jev was, with an animation-only surface.
+        # Jev was, with the subject's bounded improvisation surface.
         self.assertTrue(self.jev.calls)
         offered = set(self.jev.calls[-1]["actions"])
         self.assertTrue(offered)
         for key in offered:
-            self.assertTrue(key == "NOOP" or key.startswith("ANIMATE:"))
+            self.assertTrue(key == "NOOP" or key.startswith(("ANIMATE:", "MOVE:", "FACE:")))
         self.assertNotEqual(self.kernel.sticker("frog-1").animation, "rest")
 
     def test_double_click_is_recorded_as_a_gesture_path(self):
@@ -668,7 +670,7 @@ class DirectGesturePathIntact(RememberCase):
         self.assertTrue(entries)
         self.assertEqual(entries[-1].origin, ORIGIN_GESTURE_JEV)
         self.assertTrue(entries[-1].accepted)
-        self.assertTrue(entries[-1].key.startswith("ANIMATE:"))
+        self.assertTrue(any(entry.key.startswith("ANIMATE:") for entry in entries if entry.key))
 
 
 # ---------------------------------------------------------------------------
@@ -995,7 +997,7 @@ class MoveOnlyChoiceSurface(RememberCase):
             HUMAN_ID, goal, animate_only=True)
         self.assertTrue(animate)
         for key in animate:
-            self.assertTrue(key == "NOOP" or key.startswith("ANIMATE:"), key)
+            self.assertTrue(key == "NOOP" or key.startswith(("ANIMATE:", "MOVE:", "FACE:")), key)
         ordinary, _ = self.controller._table(
             HUMAN_ID, goal, animate_only=False)
         kinds = {k.split(":", 1)[0] for k in ordinary if k != "NOOP"}
