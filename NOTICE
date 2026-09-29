@@ -26,10 +26,10 @@ Licensed under the Apache License, Version 2.0.
   Tested at commit ee0618a293ec3662a32b10b09c6cbb073f59d6b2
   (describes as v0.1.19-141-gee0618a).
 
-  MODIFICATIONS (Apache-2.0 section 4(b)). The experiment image built by
-  jev/Dockerfile.jev makes the following changes to an unmodified upstream
-  Omega image. None are committed to Omega; they exist only in a locally
-  built derived image.
+  MODIFICATIONS (Apache-2.0 section 4(b)). StickerBook's derived Omega role
+  images (including jev/Dockerfile.jev and llm/Dockerfile.omega-llm) make the
+  following changes to an unmodified upstream Omega image. None are committed
+  to Omega; they exist only in locally built derived images.
 
     1. entrypoint.sh - the final exec interpolated "$*" into a `sh -c`
        string, so any configuration value containing a space was word-split
@@ -41,14 +41,25 @@ Licensed under the Apache License, Version 2.0.
     3. /opt/nginx/nginx.sh is replaced with a no-op and the nginx config
        template removed, because the credential gateway is a separate
        container here.
-    4. Unused channel and provider modules are deleted from the image
-       (Telegram, Slack, IRC, Mattermost, WebSocket, and the generative LLM
-       providers), so that removed capabilities are absent rather than
-       merely unconfigured.
+    4. Unused channel and provider modules are deleted from the role images
+       (including Telegram, Slack, IRC, Mattermost, WebSocket, and providers
+       not needed by that role), so removed capabilities are absent rather
+       than merely unconfigured.
+    5. Role-specific config/plugin manifests replace the broad upstream
+       runtime surface. OmegaLLM and OmegaJev are built as separate roles.
+    6. OpenShell-derived role images run through StickerBook's non-root,
+       environment-scrubbing entrypoint rather than the legacy in-agent
+       credential proxy.
 
-  Additions (this project's own code, MIT licensed, layered into the image):
+  Additions (this project's own code, MIT licensed, layered into derived
+  images as applicable):
   providers/jev.py, providers/jev_core.py, providers/sb_bridge.py,
-  channels/jevconsole.py, plugins/jevskills/, and core/stickerbook_core/.
+  channels/jevconsole.py, plugins/jevskills/, runtime/omega/stickerbookrpc.py,
+  runtime/omega/stickerbookrpc.metta, llm/omega_llm/providers/stickerbook_llm.py,
+  llm/omega_llm/config/, and the StickerBook authority-kernel integration.
+
+  See docs/TOOLS-AND-MODIFICATIONS.md for the role-by-role rationale and
+  verification status.
 
 --------------------------------------------------------------------------------
 NVIDIA OpenShell
