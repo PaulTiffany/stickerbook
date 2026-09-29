@@ -59,11 +59,11 @@ Licensed under the Apache License, Version 2.0.
   StickerBook pins OpenShell v0.1.2 at commit
   6648bd0c290efbc41ba131ee9831ee45cd431f94.
 
-  OpenShell source is not vendored here. The repository contains only
-  StickerBook-authored policy/provider/deployment files under openshell/ and a
-  derived non-root OmegaJev image recipe. The OpenShell installer is fetched
-  by immutable upstream commit and instructed to install the exact v0.1.2
-  release.
+  OpenShell source is not vendored here. The repository contains
+  StickerBook-authored policy/provider/deployment/orchestration files and
+  derived non-root OmegaLLM/OmegaJev image recipes. The OpenShell installer is
+  fetched by immutable upstream commit and instructed to install the exact
+  v0.1.2 release.
 
 --------------------------------------------------------------------------------
 PeTTa
