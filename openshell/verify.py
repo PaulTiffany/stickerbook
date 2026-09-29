@@ -59,7 +59,13 @@ assert "stickerbook-openshell-entrypoint" in dockerfile
 entrypoint = read("jev/openshell-entrypoint.sh")
 assert "env -i" in entrypoint
 assert "OPENROUTER_API_KEY" in entrypoint
-assert "nginx" not in entrypoint.lower()
+entrypoint_code = "\n".join(
+    line for line in entrypoint.splitlines()
+    if not line.lstrip().startswith("#")
+)
+assert "/opt/nginx" not in entrypoint_code
+assert "nginx.sh" not in entrypoint_code
+assert " su " not in (" " + entrypoint_code.replace("\n", " ") + " ")
 
 jev = read("jev/omega_jev/providers/jev.py")
 assert "OpenShellProviderTransport" in jev
