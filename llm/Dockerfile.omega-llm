@@ -1,0 +1,34 @@
+# Dedicated OmegaLLM image for StickerBook.
+#
+# It reuses the exact pinned Omega baseline used by OmegaJev, but contains no
+# Jev provider and no StickerBook authority kernel. World authority remains in
+# the host browser bridge.
+
+FROM omega-jev:baseline
+
+COPY llm/omega_llm/providers/stickerbook_llm.py /PeTTa/repos/Omega/providers/stickerbook_llm.py
+COPY runtime/omega/stickerbookrpc.py /PeTTa/repos/Omega/channels/stickerbookrpc.py
+RUN mkdir -p /PeTTa/repos/Omega/plugins/stickerbookrpc
+COPY runtime/omega/stickerbookrpc.metta /PeTTa/repos/Omega/plugins/stickerbookrpc/stickerbookrpc.metta
+
+COPY llm/omega_llm/config/plugins.yaml /PeTTa/repos/Omega/config/plugins.yaml
+COPY llm/omega_llm/config/config.yaml /PeTTa/repos/Omega/config/config.yaml
+
+# No in-container credential gateway in the OpenShell path.
+RUN printf '#!/bin/sh\nexit 0\n' > /opt/nginx/nginx.sh \
+ && chmod 0755 /opt/nginx/nginx.sh \
+ && rm -f /opt/nginx/nginx.conf.template /opt/nginx/nginx.conf
+
+# Delete communication/provider capabilities this role does not use. The
+# plugin list already omits them; deleting the files is defence in depth.
+RUN rm -f /PeTTa/repos/Omega/channels/irc.py \
+          /PeTTa/repos/Omega/channels/telegram.py \
+          /PeTTa/repos/Omega/channels/slack.py \
+          /PeTTa/repos/Omega/channels/mattermost.py \
+          /PeTTa/repos/Omega/channels/wschat.py \
+          /PeTTa/repos/Omega/channels/mockchannel.py \
+          /PeTTa/repos/Omega/providers/openai.py \
+          /PeTTa/repos/Omega/providers/openaiapi.py \
+          /PeTTa/repos/Omega/providers/openrouter.py \
+          /PeTTa/repos/Omega/providers/asione.py \
+          /PeTTa/repos/Omega/providers/mockprovider.py
