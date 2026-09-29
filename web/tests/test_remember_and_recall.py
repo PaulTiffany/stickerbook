@@ -23,7 +23,9 @@ from __future__ import annotations
 
 import os
 import sys
+import threading
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -32,7 +34,9 @@ import farm  # noqa: E402
 from governed_history import (  # noqa: E402
     ORIGIN_GESTURE_JEV, ORIGIN_HUMAN_GESTURE, ORIGIN_PATTERN_PERFORM,
 )
-from jev_controller import JevController, PERFORM_PATTERN, REMEMBER_PATTERN  # noqa: E402
+from jev_controller import (  # noqa: E402
+    JevController, MOVE_STEP, PERFORM_PATTERN, REMEMBER_PATTERN,
+)
 from pattern_memory import ANIMATE, MOVE, PatternLibrary  # noqa: E402
 
 sys.path.insert(0, os.path.join(
@@ -779,6 +783,223 @@ class FroggyRemembersAndPerforms(RememberCase):
         # 7. And the frog that was taught is not the frog that danced.
         self.assertEqual(record["subject"], "frog-2")
         self.assertEqual(self.kernel.sticker("frog-2").animation, "hop")
+
+
+# ---------------------------------------------------------------------------
+# A finite move table belongs to the revision it was built from
+# ---------------------------------------------------------------------------
+
+class MoveTableRevisionIsAuthoritative(RememberCase):
+    """Absolute move destinations bind to one world revision.
+
+    `_move_candidates` bakes the subject's position at table-build time into
+    each MOVE key's destination coordinates, so a choice made against that
+    table is a claim about THAT world. Powered replay releases the world lock
+    for Jev think-time, during which a child may move the same sticker. The
+    proposal must therefore name the revision its own table came from: if it
+    re-read the revision instead, the kernel would accept an old coordinate
+    as current and silently drag the child's sticker back.
+    """
+
+    def teach_step_east(self):
+        self.perform(["MOVE:frog-1:STEP-E"])
+        result = self.controller.remember_recent(
+            subject_id="frog-1", label="hop east", learned_by=HUMAN_ID)
+        self.assertTrue(result["ok"], result)
+        return result["pattern"]["id"]
+
+    def child_moves_frog(self, x, y):
+        """A real child gesture, on its own thread, through the bridge."""
+        landed = []
+        thread = threading.Thread(target=lambda: landed.append(
+            self.bridge.propose_move({
+                "sticker": "frog-1", "command_id": "child-drag",
+                "point": {"x": x, "y": y}})))
+        thread.start()
+        thread.join(5)
+        # Not merely "eventually": it must finish while Jev is still thinking.
+        self.assertFalse(thread.is_alive(), "the child's gesture blocked")
+        self.assertEqual(len(landed), 1)
+        return landed[0]
+
+    def test_child_move_during_jev_think_time_refuses_stale_coordinate(self):
+        self.teach_step_east()
+        before = self.kernel.sticker("frog-1")
+        stale_revision = self.kernel.revision
+        # Where the pre-move table's STEP-E key points. Nothing may send the
+        # frog here once the child has moved it somewhere else.
+        stale_destination = (round(min(1.0, before.x + MOVE_STEP), 6),
+                             round(before.y, 6))
+        observed = {}
+        jev_choose = self.jev.choose
+        taught = len(self.kernel.receipts)
+
+        def choose(**request):
+            observed["table_revision"] = request["scene"]["revision"]
+            # The thread running powered replay holds no world lock here.
+            observed["own_lock"] = self.bridge._world_lock._is_owned()
+            # And no other holder is blocking the world either.
+            observed["child"] = self.child_moves_frog(0.20, 0.80)
+            return jev_choose(**request)
+
+        with patch.object(self.jev, "choose", side_effect=choose):
+            result = self.controller.perform_known_pattern(
+                {"subject": "frog-1", "intent": PERFORM_PATTERN,
+                 "label": "hop east"},
+                actor=HUMAN_ID, command_prefix="stale",
+                requested_by=HUMAN_ID)
+
+        # 1. Jev genuinely ran, against the pre-move table.
+        self.assertTrue(self.jev.calls)
+        self.assertEqual(observed["table_revision"], stale_revision)
+
+        # 2. It ran with no world lock held, on this thread or any other.
+        self.assertFalse(observed["own_lock"])
+        self.assertTrue(observed["child"]["ok"], observed["child"])
+
+        # 3. The child's move is the one that happened.
+        after = self.kernel.sticker("frog-1")
+        self.assertEqual((after.x, after.y), (0.20, 0.80))
+        self.assertNotEqual((after.x, after.y), stale_destination)
+        self.assertGreater(after.revision, stale_revision)
+
+        # 4. The stale Jev proposal was submitted and refused AS stale.
+        self.assertFalse(result["ok"], result)
+        record = result["replay"]
+        self.assertEqual(len(record["steps"]), 1)
+        step = record["steps"][0]
+        self.assertTrue(step["submitted"])
+        self.assertIsNone(step["unavailableReason"])
+        self.assertFalse(step["receipt"]["accepted"])
+        self.assertEqual(step["receipt"]["reason"], "stale-revision")
+        self.assertEqual(step["receipt"]["basedOnRevision"], stale_revision)
+
+        # 5. The audit says so truthfully, and nothing retried over the child.
+        self.assertEqual(record["result"], "stopped")
+        self.assertEqual(record["stoppedReason"], "pattern-step-refused")
+        self.assertEqual(record["stoppedAt"], 1)
+        self.assertEqual(record["acceptedSteps"], 0)
+        self.assertEqual(record["submittedSteps"], 1)
+        self.assertEqual(len(self.jev.calls), 1)
+
+        # 6. Of everything proposed after the teaching setup, exactly one
+        # was accepted on this sticker: the child's own gesture.
+        attempt = self.kernel.receipts[taught:]
+        accepted = [r for r in attempt
+                    if r.accepted and r.object_id == "frog-1"]
+        self.assertEqual([r.command_id for r in accepted], ["child-drag"])
+        self.assertEqual(
+            sorted((r.command_id, r.accepted) for r in attempt),
+            [("child-drag", True), ("stale-1", False)])
+
+    def test_undisturbed_powered_replay_still_completes(self):
+        # The fix must not make an ordinary attempt look stale to itself:
+        # each step proposes against the table it just built.
+        self.teach_step_east()
+        result = self.controller.perform_known_pattern(
+            {"subject": "frog-1", "intent": PERFORM_PATTERN,
+             "label": "hop east"},
+            actor=HUMAN_ID, command_prefix="clean", requested_by=HUMAN_ID)
+        self.assertTrue(result["ok"], result)
+        self.assertEqual(result["replay"]["result"], "completed")
+        self.assertEqual(result["replay"]["acceptedSteps"], 1)
+
+    def test_multi_step_replay_advances_its_own_revision(self):
+        # Consecutive accepted steps each bump the revision; a later step must
+        # not be refused as stale because an earlier step of the same attempt
+        # moved the subject.
+        self.perform(["MOVE:frog-1:STEP-E", "MOVE:frog-1:STEP-N",
+                      "MOVE:frog-1:STEP-E"])
+        remembered = self.controller.remember_recent(
+            subject_id="frog-1", label="zigzag", learned_by=HUMAN_ID)
+        self.assertTrue(remembered["ok"], remembered)
+        result = self.controller.perform_known_pattern(
+            {"subject": "frog-1", "intent": PERFORM_PATTERN,
+             "label": "zigzag"},
+            actor=HUMAN_ID, command_prefix="multi", requested_by=HUMAN_ID)
+        self.assertTrue(result["ok"], result)
+        record = result["replay"]
+        self.assertEqual(record["result"], "completed")
+        self.assertEqual(record["acceptedSteps"], 3)
+        revisions = [s["receipt"]["basedOnRevision"] for s in record["steps"]]
+        self.assertEqual(revisions, sorted(revisions))
+        self.assertEqual(len(set(revisions)), 3)
+
+
+class MoveOnlyChoiceSurface(RememberCase):
+    """The narrow surface a continuous movement objective needs."""
+
+    def surface(self, **mode):
+        goal = {"subject": "frog-1", "intent": PERFORM_PATTERN}
+        table, moves = self.controller._table(HUMAN_ID, goal, **mode)
+        return table, moves
+
+    def test_move_only_offers_exactly_current_subject_moves_and_noop(self):
+        self.place_frog("frog-2", x=0.30, y=0.30)
+        table, moves = self.surface(move_only=True)
+        expected = {"MOVE:frog-1:%s" % name for name in moves} | {"NOOP"}
+        self.assertEqual(set(table), expected)
+        # Eight local steps are all available from mid-page.
+        self.assertEqual(len(moves), 8)
+        for key, command in table.items():
+            if key == "NOOP":
+                continue
+            self.assertEqual(command.object_id, "frog-1")
+            self.assertEqual((command.param("x"), command.param("y")),
+                             moves[key.rsplit(":", 1)[1]])
+
+    def test_move_only_excludes_appearance_and_other_stickers(self):
+        self.place_frog("frog-2", x=0.30, y=0.30)
+        table, _ = self.surface(move_only=True)
+        for key in table:
+            self.assertFalse(key.startswith("ANIMATE:"), key)
+            self.assertFalse(key.startswith("SCALE:"), key)
+            self.assertFalse(key.startswith("FACE:"), key)
+            self.assertFalse(key.startswith("REMOVE:"), key)
+            self.assertTrue(key == "NOOP" or ":frog-1:" in key, key)
+        # Those choices genuinely exist on the ordinary surface.
+        ordinary, _ = self.surface()
+        self.assertTrue(any(k.startswith("ANIMATE:") for k in ordinary))
+        self.assertTrue(any(k.startswith("SCALE:") for k in ordinary))
+        self.assertTrue(any(k.startswith("FACE:") for k in ordinary))
+
+    def test_move_only_narrows_rather_than_widens_ordinary_surface(self):
+        ordinary, _ = self.surface()
+        narrow, _ = self.surface(move_only=True)
+        self.assertTrue(set(narrow) < set(ordinary))
+
+    def test_move_only_shrinks_at_a_page_edge_without_clamping(self):
+        # A corner offers fewer legal steps. The surface reports that by
+        # omission; no candidate is clamped into a no-op.
+        self.place_frog("corner-1", x=0.0, y=0.0)
+        goal = {"subject": "corner-1", "intent": PERFORM_PATTERN}
+        table, moves = self.controller._table(HUMAN_ID, goal, move_only=True)
+        # The three directions that cannot move at all are absent. The two
+        # diagonals that can still move in one axis are clamped to their
+        # usable component rather than dropped, so they survive as keys that
+        # happen to share a destination with an axis step.
+        self.assertEqual(set(moves),
+                         {"STEP-E", "STEP-NE", "STEP-SE", "STEP-S", "STEP-SW"})
+        self.assertEqual(len(set(moves.values())), 3)
+        self.assertEqual(moves["STEP-NE"], moves["STEP-E"])
+        self.assertEqual(moves["STEP-SW"], moves["STEP-S"])
+        self.assertEqual(set(table),
+                         {"MOVE:corner-1:%s" % n for n in moves} | {"NOOP"})
+        # Nothing was clamped into a no-op: every offered step really moves.
+        for destination in moves.values():
+            self.assertNotEqual(destination, (0.0, 0.0))
+
+    def test_existing_modes_are_unchanged(self):
+        goal = {"subject": "frog-1", "intent": PERFORM_PATTERN}
+        animate, _ = self.controller._table(
+            HUMAN_ID, goal, animate_only=True)
+        self.assertTrue(animate)
+        for key in animate:
+            self.assertTrue(key == "NOOP" or key.startswith("ANIMATE:"), key)
+        ordinary, _ = self.controller._table(
+            HUMAN_ID, goal, animate_only=False)
+        kinds = {k.split(":", 1)[0] for k in ordinary if k != "NOOP"}
+        self.assertEqual(kinds, {"MOVE", "ANIMATE", "SCALE", "FACE"})
 
 
 if __name__ == "__main__":
