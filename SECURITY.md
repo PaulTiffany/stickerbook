@@ -41,9 +41,13 @@ in its headless Stage 4 harness.
 The new dual-Omega browser substrate adds a bounded OmegaLLM -> OmegaJev goal
 and choice seam, but the **actual OmegaLLM and OmegaJev Omega processes are not
 yet wired into the browser runtime**. Tests use deterministic stand-ins for that
-integration. OpenShell containment is an intended next deployment layer, not a
-current dependency. Read every status marker before treating an interface-level
-test as proof of a deployed model/runtime boundary.
+integration. A pinned OpenShell containment layer now exists under
+`openshell/` (v0.1.2, commit
+`6648bd0c290efbc41ba131ee9831ee45cd431f94`) with separate sandbox policies,
+provider profiles, and a non-root OmegaJev image. That is an implemented
+deployment artifact, not yet end-to-end proof of the live dual-Omega path. Read
+every status marker before treating an interface-level test as proof of a
+deployed model/runtime boundary.
 
 ### Status vocabulary
 
@@ -804,6 +808,44 @@ no StickerBook authority. This is an operator-host exposure, not agent
 authority. A stronger secret-delivery design (a secrets store or a mounted
 tmpfs credential) is still required before broader distribution.
 
+### OpenShell containment profile
+
+**IMPLEMENTED, NOT YET END-TO-END VERIFIED.** StickerBook also carries a
+separate OpenShell deployment profile under `openshell/`, pinned to stable
+OpenShell v0.1.2 at commit
+`6648bd0c290efbc41ba131ee9831ee45cd431f94`.
+
+This path does **not** move authorization into OpenShell. OpenShell constrains
+the process/filesystem/network/provider boundary; the StickerBook kernel still
+answers the only question that can mutate the world: whether a particular
+principal may perform a particular typed action now.
+
+The checked-in base policies for OmegaLLM and OmegaJev grant no network rules.
+OpenRouter access is contributed only by separate OpenShell provider profiles.
+The provider boundary keeps the real OpenRouter secret outside the sandbox; the
+workload sees only the OpenShell placeholder used for an approved request to
+`openrouter.ai:443`. The OpenShell OmegaJev image runs as uid/gid 65534 and
+does not start the legacy nginx credential proxy.
+
+The existing split-container nginx path above remains the **VERIFIED
+(omegajev)** network experiment. The OpenShell path currently has only static
+repository checks (`openshell/verify.py`) plus the pinned deployment artifacts.
+It must not inherit the verified status of the older Docker-network experiment
+until a real OpenShell sandbox run proves the effective policy, provider
+attachment, canonical executable identity, denied destinations, and credential
+substitution behavior.
+
+OpenShell resolves a connecting binary through `/proc/<pid>/exe`, not merely
+through a friendly symlink. Therefore the checked-in SWI-Prolog binary allowlist
+is provisional until the built image's canonical `swipl` path is observed and
+mechanically verified. If it differs, the provider profile must be tightened to
+the resolved path before this status can advance to VERIFIED.
+
+The OmegaLLM policy/provider pair is intentionally checked in now, but no live
+OmegaLLM process is attached to it yet. Agent-driven policy auto-approval,
+repository-write mounts, and policy mutation from either Omega loop remain
+outside the allowed architecture.
+
 ### Page-image gateway
 
 Page creation introduces a second, separate provider boundary. It follows the
@@ -1157,9 +1199,12 @@ Current evidence:
   and no mutation when the Jev runtime is absent.
 
 **Not yet established:** the real OmegaLLM process implementing the language
-adapter, the real OmegaJev Omega loop implementing the `choose` runtime seam,
-OpenShell-enforced separation of those two processes, provider policies for the
-two sandboxes, or end-to-end deployment tests using the live model/provider.
-The deterministic test runtime is evidence for the StickerBook architecture,
-not evidence that a live Jev deployment already behaves identically.
+adapter, the real OmegaJev Omega loop implementing the `choose` runtime seam
+behind the browser adapter, OpenShell-enforced separation and messaging between
+those two live processes, or end-to-end deployment tests using the live
+model/provider. Separate OpenShell policies and provider profiles now exist for
+both roles, and a runnable non-root OmegaJev OpenShell image exists, but those
+artifacts are not evidence that the browser-to-dual-Omega path is live. The
+deterministic test runtime is evidence for the StickerBook architecture, not
+evidence that a live Jev deployment already behaves identically.
 
