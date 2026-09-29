@@ -1397,6 +1397,12 @@ button:focus-visible, a:focus-visible, label:focus-within {
   line-height: 1.45;
 }
 
+.adult-developer-links {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #ddd2c3;
+}
+
 .adult-links {
   display: flex;
   flex-wrap: wrap;
