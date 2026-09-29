@@ -4512,6 +4512,227 @@
           "loop": true
         }
       }
+    },
+    "giulio-prisco": {
+      "name": "Giulio Prisco",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "cosmic engineer",
+        "futurism",
+        "hplus",
+        "transhumanism",
+        "cosmism",
+        "turing church",
+        "spaceflight",
+        "writer",
+        "giulio prisco"
+      ],
+      "aliases": [
+        "Giulio",
+        "Prisco"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/giulio-prisco/rest.svg",
+        "cosmic": "static/assets/stickers/giulio-prisco/cosmic.svg",
+        "book": "static/assets/stickers/giulio-prisco/book.svg",
+        "think": "static/assets/stickers/giulio-prisco/think.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "cosmic": {
+          "frames": [
+            "rest",
+            "cosmic",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "book": {
+          "frames": [
+            "rest",
+            "book",
+            "rest"
+          ],
+          "frame_ms": 320,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        }
+      }
+    },
+    "david-orban": {
+      "name": "David Orban",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "cosmic engineer",
+        "futurism",
+        "hplus",
+        "transhumanism",
+        "artificial intelligence",
+        "network society",
+        "speaker",
+        "investor",
+        "david orban"
+      ],
+      "aliases": [
+        "David",
+        "Orban"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/david-orban/rest.svg",
+        "explain": "static/assets/stickers/david-orban/explain.svg",
+        "point": "static/assets/stickers/david-orban/point.svg",
+        "wave": "static/assets/stickers/david-orban/wave.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "explain": {
+          "frames": [
+            "rest",
+            "explain",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "point": {
+          "frames": [
+            "rest",
+            "point",
+            "rest"
+          ],
+          "frame_ms": 280,
+          "loop": true
+        },
+        "wave": {
+          "frames": [
+            "rest",
+            "wave",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        }
+      }
+    },
+    "paul-tiffany": {
+      "name": "Paul Tiffany",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "cosmic engineer",
+        "futurism",
+        "independent researcher",
+        "agi",
+        "hypothesis surface",
+        "chalkboard",
+        "poster",
+        "research",
+        "paul tiffany"
+      ],
+      "aliases": [
+        "Paul"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/paul-tiffany/rest.svg",
+        "explain": "static/assets/stickers/paul-tiffany/explain.svg",
+        "chalkboard": "static/assets/stickers/paul-tiffany/chalkboard.svg",
+        "poster": "static/assets/stickers/paul-tiffany/poster.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "explain": {
+          "frames": [
+            "rest",
+            "explain",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "chalkboard": {
+          "frames": [
+            "rest",
+            "chalkboard",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        },
+        "poster": {
+          "frames": [
+            "rest",
+            "poster",
+            "rest"
+          ],
+          "frame_ms": 340,
+          "loop": true
+        }
+      }
     }
   }
 }
