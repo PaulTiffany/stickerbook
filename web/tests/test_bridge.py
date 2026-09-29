@@ -70,6 +70,85 @@ class FakeAgentRuntime:
         }
 
 
+class FakeJevRuntime:
+    """Deterministic stand-in for the OmegaJev loop.
+
+    It still sees only the bounded scene and finite host-owned keys.
+    """
+
+    def __init__(self):
+        self.calls = []
+
+    def available(self):
+        return True
+
+    def choose(self, *, goal, scene, actions, turn, max_turns):
+        self.calls.append({
+            "goal": goal,
+            "scene": scene,
+            "actions": dict(actions),
+            "turn": turn,
+            "max_turns": max_turns,
+        })
+
+        behavior = goal.get("behavior")
+        if behavior:
+            if scene["subject"]["clip"] == behavior:
+                return {"ok": True, "choice": "NOOP"}
+            suffix = ":" + behavior
+            for key in actions:
+                if key.startswith("ANIMATE:") and key.endswith(suffix):
+                    return {"ok": True, "choice": key}
+
+        target = goal.get("target")
+        if target and target.get("kind") == "point":
+            subject = scene["subject"]
+            dx = target["x"] - subject["x"]
+            dy = target["y"] - subject["y"]
+            if abs(dx) <= 0.01 and abs(dy) <= 0.01:
+                return {"ok": True, "choice": "NOOP"}
+
+            horizontal = "E" if dx > 0.01 else ("W" if dx < -0.01 else "")
+            vertical = "S" if dy > 0.01 else ("N" if dy < -0.01 else "")
+            direction = vertical + horizontal
+            wanted = "MOVE:%s:STEP-%s" % (
+                goal["subject"], direction)
+            if wanted in actions:
+                return {"ok": True, "choice": wanted}
+
+        if goal.get("intent") == "animate":
+            for key in sorted(actions):
+                if key.startswith("ANIMATE:") \
+                        and not key.endswith(":none") \
+                        and not key.endswith(":rest"):
+                    return {"ok": True, "choice": key}
+
+        return {"ok": True, "choice": "NOOP"}
+
+
+class BadJevRuntime:
+    def available(self):
+        return True
+
+    def choose(self, **kwargs):
+        return {"ok": True, "choice": "SHELL:ABSOLUTELY-NOT"}
+
+
+class GoalAgentRuntime(FakeAgentRuntime):
+    """OmegaLLM stand-in that may attach one semantic goal to its reply."""
+
+    def __init__(self):
+        super().__init__()
+        self.goal = None
+
+    def converse(self, *, text, principal, scene, reference=None):
+        result = super().converse(
+            text=text, principal=principal, scene=scene, reference=reference)
+        if self.goal is not None:
+            result["goal"] = self.goal
+        return result
+
+
 class FakePageImageRuntime:
     def __init__(self):
         self.last_upload = None
@@ -112,11 +191,15 @@ class ServerCase(unittest.TestCase):
     """A fresh farm and a fresh server per test."""
 
     agent_runtime_factory = None
+    jev_runtime_factory = None
     page_image_runtime_factory = None
 
     def setUp(self):
         runtime = (self.agent_runtime_factory()
                    if self.agent_runtime_factory else None)
+        jev_runtime = (
+            self.jev_runtime_factory()
+            if self.jev_runtime_factory else None)
         page_runtime = (
             self.page_image_runtime_factory()
             if self.page_image_runtime_factory else None)
@@ -125,6 +208,7 @@ class ServerCase(unittest.TestCase):
             0,
             quiet=True,
             agent_runtime=runtime,
+            jev_runtime=jev_runtime,
             page_image_runtime=page_runtime,
         )
         self.port = self.httpd.server_address[1]
@@ -696,6 +780,7 @@ class Q1b_AgentInterfacesStayOutsideKernelAuthority(ServerCase):
         self.assertEqual(state["capabilities"], {
             "creator_agent": True,
             "conversational_agent": True,
+            "jev_controller": False,
             "page_image_creator": False,
         })
 
@@ -1384,6 +1469,120 @@ class TheBookIsACollection(ServerCase):
         _, b = self.get("/api/book")
         self.assertEqual([c["label"] for c in b["coming"]],
                          ["New Page", "Find Pages"])
+
+
+class DualOmegaJevControl(ServerCase):
+    """OmegaLLM translates language; OmegaJev chooses embodied actions."""
+
+    agent_runtime_factory = GoalAgentRuntime
+    jev_runtime_factory = FakeJevRuntime
+
+    def test_state_advertises_connected_jev_controller(self):
+        _, state = self.get("/api/state")
+        self.assertTrue(state["capabilities"]["jev_controller"])
+
+    def test_child_double_click_uses_animation_only_jev_surface(self):
+        _, out = self.post("/api/animate", {
+            "sticker": "cow-1",
+            "command_id": "child-double",
+        })
+        self.assertTrue(out["ok"], out)
+        self.assertEqual(len(out["jev"]["trace"]), 1)
+        choice = out["jev"]["trace"][0]["choice"]
+        self.assertTrue(choice.startswith("ANIMATE:cow-1:"), choice)
+        self.assertNotEqual(
+            self.bridge.kernel.sticker("cow-1").animation, "rest")
+
+        call = self.bridge.jev_runtime.calls[-1]
+        self.assertTrue(all(
+            key == "NOOP" or key.startswith("ANIMATE:cow-1:")
+            for key in call["actions"]))
+        receipt = out["receipt"]
+        self.assertEqual(receipt["actor"], farm.HUMAN_ID)
+        self.assertEqual(receipt["requestedBy"], farm.HUMAN_ID)
+        self.assertIsNone(receipt["translatedBy"])
+        self.assertEqual(receipt["selectedBy"], farm.AGENT_ID)
+
+    def test_omegallm_goal_is_translated_then_selected_by_omegajev(self):
+        self.bridge.agent_runtime.goal = {
+            "subject": "cow-1",
+            "intent": "animate",
+            "behavior": "look",
+        }
+        _, out = self.post("/api/agent/converse", {
+            "text": "Cow, look over there.",
+        })
+        self.assertTrue(out["ok"], out)
+        self.assertTrue(out["jev"]["ok"], out["jev"])
+        self.assertEqual(
+            self.bridge.kernel.sticker("cow-1").animation, "look")
+        self.assertEqual(
+            out["jev"]["trace"][0]["choice"], "ANIMATE:cow-1:look")
+        self.assertEqual(
+            out["jev"]["trace"][-1]["choice"], "NOOP")
+
+        first = out["jev"]["trace"][0]["receipt"]
+        self.assertEqual(first["requestedBy"], farm.HUMAN_ID)
+        self.assertEqual(first["translatedBy"], "agent:omega-llm")
+        self.assertEqual(first["selectedBy"], farm.AGENT_ID)
+
+    def test_jev_can_build_a_movement_pattern_from_local_steps(self):
+        self.bridge.agent_runtime.goal = {
+            "subject": "cow-1",
+            "intent": "move",
+            "target": {"kind": "point", "x": 0.42, "y": 0.86},
+        }
+        _, out = self.post("/api/agent/converse", {
+            "text": "Cow, walk over here.",
+        })
+        self.assertTrue(out["jev"]["ok"], out["jev"])
+        choices = [row["choice"] for row in out["jev"]["trace"]]
+        self.assertEqual(choices, [
+            "MOVE:cow-1:STEP-E",
+            "MOVE:cow-1:STEP-E",
+            "MOVE:cow-1:STEP-E",
+            "NOOP",
+        ])
+        cow = self.bridge.kernel.sticker("cow-1")
+        self.assertAlmostEqual(cow.x, 0.42)
+        self.assertAlmostEqual(cow.y, 0.86)
+
+        # OmegaJev sees updated world state on every turn rather than one
+        # precompiled movement program from OmegaLLM.
+        seen_x = [
+            round(call["scene"]["subject"]["x"], 2)
+            for call in self.bridge.jev_runtime.calls[-4:]
+        ]
+        self.assertEqual(seen_x, [0.24, 0.30, 0.36, 0.42])
+
+    def test_omegallm_goal_does_not_mutate_if_jev_is_not_connected(self):
+        # Covered separately with a fresh bridge so the default inert runtime
+        # is part of the evidence.
+        plain = bridge_mod.Bridge(agent_runtime=GoalAgentRuntime())
+        plain.agent_runtime.goal = {
+            "subject": "cow-1", "intent": "animate", "behavior": "look"}
+        before = plain.kernel.revision
+        out = plain.converse({"text": "Cow, look."})
+        self.assertTrue(out["ok"])
+        self.assertFalse(out["jev"]["ok"])
+        self.assertEqual(out["jev"]["error"], "jev-runtime-unavailable")
+        self.assertEqual(plain.kernel.revision, before)
+
+
+class BadJevChoiceFailsClosed(ServerCase):
+
+    jev_runtime_factory = BadJevRuntime
+
+    def test_unknown_jev_key_never_reaches_the_kernel(self):
+        before = self.bridge.kernel.revision
+        status, out = self.post("/api/animate", {
+            "sticker": "cow-1",
+            "command_id": "bad-jev",
+        })
+        self.assertEqual(status, 400)
+        self.assertFalse(out["ok"])
+        self.assertEqual(out["jev"]["error"], "unknown-jev-choice")
+        self.assertEqual(self.bridge.kernel.revision, before)
 
 
 class BringingAStickerToLife(ServerCase):

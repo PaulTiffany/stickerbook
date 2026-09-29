@@ -41,6 +41,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import book  # noqa: E402
 import farm  # noqa: E402
 from agent_runtime import DisabledAgentRuntime  # noqa: E402
+from jev_controller import JevController, OMEGA_LLM_ID  # noqa: E402
+from jev_runtime import DisabledJevRuntime  # noqa: E402
 from page_assets import supported_upload  # noqa: E402
 from page_image_runtime import (  # noqa: E402
     DisabledPageImageRuntime, page_image_runtime_from_env,
@@ -75,9 +77,15 @@ class Bridge:
     """Kernel-facing logic, kept free of HTTP so it can be tested directly."""
 
     def __init__(
-            self, kernel=None, agent_runtime=None, page_image_runtime=None):
+            self, kernel=None, agent_runtime=None, jev_runtime=None,
+            page_image_runtime=None):
         self.kernel = kernel or farm.build_world()
+        # OmegaLLM is the conversational/linguistic loop. OmegaJev is a
+        # separate discriminative control loop with its own narrow runtime.
         self.agent_runtime = agent_runtime or DisabledAgentRuntime()
+        self.jev_runtime = jev_runtime or DisabledJevRuntime()
+        self.jev_controller = JevController(self.kernel, self.jev_runtime)
+        self._jev_counter = 0
         self.page_image_runtime = (
             page_image_runtime or DisabledPageImageRuntime())
 
@@ -144,11 +152,17 @@ class Bridge:
             "creator_agent": bool(raw.get("creator_agent", False)),
             "conversational_agent": bool(
                 raw.get("conversational_agent", False)),
+            "jev_controller": self.jev_controller.available(),
             "page_image_creator": page_image_creator,
         }
 
     def converse(self, body: dict) -> dict:
-        """Return language only. This is not a kernel command path."""
+        """Run the OmegaLLM language loop and optionally hand a goal to Jev.
+
+        OmegaLLM never emits a kernel command.  It may return one bounded goal;
+        the host validates that goal, OmegaJev selects only from host-generated
+        choices, and the authority kernel still decides every mutation.
+        """
         if not isinstance(body, dict):
             return self._bad_request("body is not a JSON object")
 
@@ -194,7 +208,21 @@ class Bridge:
             return {"ok": False, "error": "invalid-agent-response",
                     "state": self.state()}
 
-        return {"ok": True, "reply": reply.strip(), "state": self.state()}
+        payload = {"ok": True, "reply": reply.strip()}
+
+        goal = result.get("goal")
+        if goal is not None:
+            self._jev_counter += 1
+            payload["jev"] = self.jev_controller.run_goal(
+                goal,
+                actor=BROWSER_PRINCIPAL,
+                command_prefix="omega-jev-%d" % self._jev_counter,
+                requested_by=BROWSER_PRINCIPAL,
+                translated_by=OMEGA_LLM_ID,
+            )
+
+        payload["state"] = self.state()
+        return payload
 
     @staticmethod
     def _deictic_reference(raw):
@@ -455,12 +483,13 @@ class Bridge:
         return {"ok": True, "receipt": receipt.to_dict(), "state": self.state()}
 
     def animate(self, body: dict) -> dict:
-        """Bring a sticker to life, or let it settle.
+        """Handle the child's double-click/tap animation intent.
 
-        The child gesture is a double-tap; which animation that means is
-        decided here from what the definition declares, never sent by the
-        browser. Later an agent may choose instead, without the gesture
-        changing.
+        When OmegaJev is connected, the gesture becomes a one-turn Jev goal
+        with an animation-only choice surface. Jev chooses the declared clip;
+        it does not receive command arguments or bypass the kernel. When no
+        Jev runtime is connected, the historical mechanical toggle remains so
+        local/public interaction does not depend on model availability.
         """
         if not isinstance(body, dict):
             return self._bad_request("body is not a JSON object")
@@ -477,6 +506,23 @@ class Bridge:
         sticker = self.kernel.sticker(sticker_id)
         if sticker is None:
             return self._bad_request("no such sticker")
+
+        if self.jev_controller.available():
+            result = self.jev_controller.double_click(
+                sticker_id,
+                actor=BROWSER_PRINCIPAL,
+                command_prefix=command_id,
+                requested_by=BROWSER_PRINCIPAL,
+            )
+            return {
+                "ok": bool(result.get("ok")),
+                "jev": result,
+                "receipt": (
+                    result["trace"][-1]["receipt"]
+                    if result.get("trace") else None),
+                "state": self.state(),
+            }
+
         definition = self.kernel.assets.get(sticker.asset)
         rest = definition.rest_animation if definition else "none"
         active = [
@@ -737,10 +783,11 @@ def make_handler(bridge: Bridge, quiet: bool = False):
 
 
 def serve(host="127.0.0.1", port=8756, kernel=None, quiet=False,
-          agent_runtime=None, page_image_runtime=None):
+          agent_runtime=None, jev_runtime=None, page_image_runtime=None):
     bridge = Bridge(
         kernel,
         agent_runtime=agent_runtime,
+        jev_runtime=jev_runtime,
         page_image_runtime=page_image_runtime,
     )
     httpd = ThreadingHTTPServer((host, port), make_handler(bridge, quiet))

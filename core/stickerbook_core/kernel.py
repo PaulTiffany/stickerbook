@@ -227,8 +227,17 @@ class Kernel:
             "available_actions": sorted(self.available_actions(principal_id)),
         })
 
-    def available_actions(self, principal_id: str) -> Dict[str, Command]:
+    def available_actions(
+            self, principal_id: str,
+            move_candidates: Optional[Dict[str, Tuple[float, float]]] = None
+            ) -> Dict[str, Command]:
         """Generate the context-dependent legal action table.
+
+        move_candidates is an optional host-generated set of ephemeral page
+        positions. It exists for discriminative controllers such as OmegaJev:
+        StickerBook keeps continuous coordinates, while a chooser receives a
+        small finite movement alphabet for this turn. Candidate names and
+        coordinates are validated here and confer no authority.
 
         Only currently-legal actions appear. An illegal operation is not
         representable as a key, so an agent selecting from this table cannot
@@ -251,11 +260,44 @@ class Kernel:
         if NOOP in tools:
             add("NOOP", NOOP)
 
-        mine = [s for s in self._stickers.values()
-                if s.owner == principal_id and s.page == self.page]
-        for s in sorted(mine, key=lambda x: x.id):
+        # Human/operator control is page-scoped for transforms; agents remain
+        # owner-scoped through may_act_on(). This mirrors the actual handlers,
+        # so generated tables never hide a transform the human may legally
+        # perform and never expose a human-owned sticker to an agent.
+        actionable = [
+            s for s in self._stickers.values()
+            if s.page == self.page and self.may_act_on(p, s)
+        ]
+
+        positions = dict(self.presets)
+        if isinstance(move_candidates, dict):
+            for name, point in move_candidates.items():
+                if not isinstance(name, str) or not name \
+                        or any(ch not in
+                               "abcdefghijklmnopqrstuvwxyz"
+                               "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                               "0123456789-_" for ch in name):
+                    continue
+                if not isinstance(point, (tuple, list)) or len(point) != 2:
+                    continue
+                raw_x, raw_y = point
+                if isinstance(raw_x, bool) or isinstance(raw_y, bool):
+                    continue
+                try:
+                    px, py = float(raw_x), float(raw_y)
+                except (TypeError, ValueError):
+                    continue
+                if px != px or py != py \
+                        or px in (float("inf"), float("-inf")) \
+                        or py in (float("inf"), float("-inf")):
+                    continue
+                if POSITION_MIN <= px <= POSITION_MAX \
+                        and POSITION_MIN <= py <= POSITION_MAX:
+                    positions[name] = (px, py)
+
+        for s in sorted(actionable, key=lambda x: x.id):
             if MOVE_STICKER in tools:
-                for name, (px, py) in sorted(self.presets.items()):
+                for name, (px, py) in sorted(positions.items()):
                     add("MOVE:%s:%s" % (s.id, name), MOVE_STICKER,
                         s.id, (("x", px), ("y", py)))
             if ANIMATE_OWN_STICKER in tools:
@@ -283,7 +325,8 @@ class Kernel:
                 if s.facing != "right":
                     add("FACE:%s:RIGHT" % s.id, SET_STICKER_FACING,
                         s.id, (("facing", "right"),))
-            if REMOVE_OWN_STICKER in tools:
+            if REMOVE_OWN_STICKER in tools \
+                    and s.owner == principal_id:
                 add("REMOVE:%s" % s.id, REMOVE_OWN_STICKER, s.id)
 
         if REMOVE_AGENT_STICKER in tools and p.kind in (HUMAN, OPERATOR):
@@ -309,26 +352,34 @@ class Kernel:
 
     # -- the gate ----------------------------------------------------------
 
-    def propose_key(self, principal_id: str, key: str, command_id: str,
-                    based_on_revision: Optional[int] = None,
-                    requested_by: Optional[str] = None) -> Receipt:
+    def propose_key(
+            self, principal_id: str, key: str, command_id: str,
+            based_on_revision: Optional[int] = None,
+            requested_by: Optional[str] = None,
+            translated_by: Optional[str] = None,
+            selected_by: Optional[str] = None,
+            move_candidates: Optional[Dict[str, Tuple[float, float]]] = None,
+            ) -> Receipt:
         """Select one entry from the generated action table.
 
         This is the agent-facing path and mirrors the OmegaJev pattern: the
         selector supplies a KEY, the host owns the Command behind it.
         """
-        table = self.available_actions(principal_id)
+        table = self.available_actions(
+            principal_id, move_candidates=move_candidates)
         template = table.get(key)
         if template is None:
             return self._reject(
                 Command(action="<unknown-key>", actor=principal_id,
                         command_id=command_id, requested_by=requested_by,
+                        translated_by=translated_by, selected_by=selected_by,
                         based_on_revision=based_on_revision),
                 "unknown-action-key")
         return self.propose(Command(
             action=template.action, actor=principal_id, command_id=command_id,
             object_id=template.object_id, params=template.params,
             based_on_revision=based_on_revision, requested_by=requested_by,
+            translated_by=translated_by, selected_by=selected_by,
         ))
 
     def propose(self, command: Command) -> Receipt:
@@ -347,6 +398,8 @@ class Kernel:
                 action=original.action, accepted=original.accepted,
                 reason=original.reason, object_id=original.object_id,
                 requested_by=original.requested_by,
+                translated_by=original.translated_by,
+                selected_by=original.selected_by,
                 based_on_revision=original.based_on_revision,
                 result_revision=original.result_revision, replayed=True,
             )
@@ -462,14 +515,18 @@ class Kernel:
         if why:
             return self._reject(command, why)
         self.revision += 1
-        # Direct human manipulation interrupts autonomous motion. A moved
+        # Direct pointer manipulation interrupts autonomous motion. A moved
         # sticker is set down still and must be explicitly animated again.
-        # Agent movement does not silently rewrite a separately chosen
-        # animation state.
+        # A Jev-selected move may still execute under the child's authority
+        # (the child originated the goal), but selected_by records that this
+        # was controller motion rather than a hand drag, so its separately
+        # chosen clip is preserved.
         asset = self.assets.get(sticker.asset)
+        direct_human_manipulation = (
+            p.kind in (HUMAN, OPERATOR) and command.selected_by is None)
         animation = (
             (asset.rest_animation if asset else "none")
-            if p.kind in (HUMAN, OPERATOR)
+            if direct_human_manipulation
             else sticker.animation
         )
         self._stickers[sticker.id] = StickerInstance(
@@ -617,6 +674,8 @@ class Kernel:
             action=command.action, accepted=True, reason=reason,
             object_id=object_id or command.object_id,
             requested_by=command.requested_by,
+            translated_by=command.translated_by,
+            selected_by=command.selected_by,
             based_on_revision=command.based_on_revision,
             result_revision=self.revision,
         ))
@@ -626,6 +685,8 @@ class Kernel:
             command_id=command.command_id, actor=command.actor,
             action=command.action, accepted=False, reason=reason,
             object_id=command.object_id, requested_by=command.requested_by,
+            translated_by=command.translated_by,
+            selected_by=command.selected_by,
             based_on_revision=command.based_on_revision,
             result_revision=self.revision,
         ))

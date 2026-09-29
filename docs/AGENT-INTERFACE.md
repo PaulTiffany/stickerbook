@@ -1,33 +1,50 @@
-# Conversational Omega interface
+# Dual-Omega play interface
 
-StickerBook separates conversation, decision selection, and authority.
+StickerBook separates linguistic interpretation, embodied decision selection,
+and authority.
 
-> **Omega talks. Jev chooses. The kernel decides.**
+> **OmegaLLM translates. OmegaJev chooses. The kernel decides.**
 
-These are different interfaces and should remain different even if one model
-or process eventually participates in more than one role.
+OmegaLLM and OmegaJev are intended to be two separate Omega agent loops.
+OmegaLLM bridges the child's language/voice/deictic reference into a bounded
+semantic goal. It does **not** prescribe a motor program. OmegaJev receives the
+goal plus fresh world feedback and repeatedly selects one key from a small
+host-owned action table. This lets movement patterns be discovered as sequences
+of local choices rather than being secretly hard-coded by the language model.
 
 ## Conversation is not authority
 
-The browser can send human language to the local conversational runtime through:
+The browser sends human language to OmegaLLM through:
 
 `POST /api/agent/converse`
 
-The bridge validates the input and fixes the acting principal. The runtime
-receives only:
+The bridge validates the input and fixes the browser principal. OmegaLLM
+receives only the validated text, the fixed browser principal id, the normal
+JSON scene view, and the optional transient deictic reference for that turn.
+It never receives the authority-kernel object.
 
-- the validated text;
-- the fixed browser principal id;
-- a JSON scene view returned by the normal browser view.
+OmegaLLM returns language and may optionally attach one bounded `goal` object,
+for example:
 
-It does **not** receive the authority-kernel object through this interface.
+```json
+{
+  "subject": "cow-1",
+  "intent": "move-and-animate",
+  "behavior": "look",
+  "target": {"kind": "point", "x": 0.42, "y": 0.86}
+}
+```
 
-The response is language only. It does not mutate scene state and it does not
-become a kernel command merely because Omega suggested something.
+That object is data, not a command. The host validates its schema, regenerates
+the legal Jev surface from authoritative state, and gives OmegaJev only the
+goal, a bounded scene projection, and descriptions of the offered keys.
+OmegaJev may return only one supplied key. The selected key then goes through
+`Kernel.propose_key()`; the kernel remains the mutation gate.
 
-If a conversational Omega wants an in-world action, that action must enter the
-same bounded path as other machine action: legal choices, typed selection,
-host validation, and kernel adjudication.
+The causal receipt records the child as the authority/origin
+(`requestedBy`), OmegaLLM as the linguistic transformer
+(`translatedBy`), and OmegaJev as the selector (`selectedBy`). None of
+those provenance fields are consulted for authorization.
 
 ## Creator drafts are also non-authoritative
 
@@ -135,31 +152,57 @@ field for compatibility). The v4 built-ins use frame sprites for clips; their
 clip recipes do not smuggle locomotion through CSS transforms.
 
 Translation, apparent depth, and horizontal facing are world state. Scale is
-currently bounded to 0.90–1.10 globally, and the host-generated agent action
-table offers only bounded 0.02 scale steps. Facing is a typed left/right
-transform with host-generated FACE choices. The kernel validates both
-independently.
+currently bounded to 0.90–1.10 globally, and the host-generated action table
+offers only bounded 0.02 scale steps. Facing is a typed left/right transform
+with host-generated FACE choices. The kernel validates both independently.
+
+For OmegaJev movement the host also supplies an **ephemeral local movement
+alphabet** each turn (N, NE, E, SE, S, SW, W, NW). Each entry is just another
+host-owned candidate coordinate checked by the kernel. The page itself remains
+continuous; there are no permanent snap slots. After each selected step the
+world is re-observed and a new table is generated, so OmegaJev can form
+movement patterns from feedback.
 
 The current local agent authority profiles intentionally contain no sticker
 removal capability. Human control retains removal. This is non-representability,
 not a prompt instruction.
 
-Jev integration is still a future experiment. When connected, its scene view
-must contain only explicitly declared objects/state, and a generated action key
-must not reveal an undeclared object merely by naming it. The intended play
-delegation is Child > OmegaLLM > OmegaJev, while the authority kernel remains
-the independent gate beneath all three.
+### Two ways a child can ask OmegaJev to animate
 
-## Default runtime
+1. **Through OmegaLLM.** Language such as “make the cow look over here” may be
+   translated into a bounded goal. OmegaJev can then choose the declared clip
+   and/or local movement steps over several turns.
+2. **Direct double-click/tap.** The existing child gesture bypasses OmegaLLM
+   and enters OmegaJev as a one-turn animation goal. The action surface contains
+   only declared animation choices for that sticker plus NOOP. If no Jev runtime
+   is connected, StickerBook retains the historical deterministic animation
+   toggle so ordinary play still works.
 
-`web/agent_runtime.py` ships with `DisabledAgentRuntime`.
+A Jev-selected move performed under the child's authority preserves a clip that
+Jev selected previously. A literal human pointer drag still interrupts motion
+and settles the sticker to its rest clip.
 
-It advertises no creator or conversational capability and performs no network
-access. GitHub Pages never receives this Python runtime at all; Pages remains
-the mechanical static profile.
+The bounded scene contains only explicitly declared objects/state. A generated
+action key must not reveal an undeclared object merely by naming it. Painted
+background pixels remain passive scenery unless OmegaLLM turns a validated
+child reference into explicit bounded goal data.
 
-A future local Omega adapter should implement the same small interface rather
-than reaching around the bridge into the kernel.
+## Default runtimes
+
+`web/agent_runtime.py` ships with `DisabledAgentRuntime` for OmegaLLM and
+`web/jev_runtime.py` ships with `DisabledJevRuntime` for OmegaJev. Both are
+inert and perform no network access. GitHub Pages receives neither Python
+runtime; Pages remains the mechanical static profile.
+
+A local OmegaLLM adapter should implement the conversational interface and may
+return a bounded goal. A local OmegaJev adapter should implement
+`choose(goal, scene, actions, turn, max_turns)` and return only one supplied
+choice key. Neither adapter should reach around the bridge into the kernel.
+
+OpenShell is the intended containment substrate for the two Omega loops, not a
+replacement for the StickerBook kernel. The repository does not require
+OpenShell to run yet; integration should preserve separate sandboxes/policies
+for OmegaLLM and OmegaJev.
 
 The page-image gateway is intentionally **not** an Omega capability. It is a
 narrow media transformer started by the operator, and successful image

@@ -211,7 +211,12 @@ class Command:
     based_on_revision: Optional[int] = None
     # Causal provenance. Recorded, but NEVER consulted for authorization --
     # the acting principal's own policy governs (root SECURITY.md section 9).
+    # requested_by is the origin of the intent; translated_by and selected_by
+    # record non-authoritative cognitive/controller stages such as OmegaLLM
+    # and OmegaJev. None of these fields can widen authority.
     requested_by: Optional[str] = None
+    translated_by: Optional[str] = None
+    selected_by: Optional[str] = None
 
     def param(self, key: str) -> Optional[str]:
         for k, v in self.params:
@@ -234,6 +239,8 @@ class Receipt:
     reason: str
     object_id: Optional[str] = None
     requested_by: Optional[str] = None
+    translated_by: Optional[str] = None
+    selected_by: Optional[str] = None
     based_on_revision: Optional[int] = None
     result_revision: Optional[int] = None
     replayed: bool = False
@@ -243,6 +250,8 @@ class Receipt:
             "commandId": self.command_id,
             "actor": self.actor,
             "requestedBy": self.requested_by,
+            "translatedBy": self.translated_by,
+            "selectedBy": self.selected_by,
             "action": self.action,
             "object": self.object_id,
             "basedOnRevision": self.based_on_revision,

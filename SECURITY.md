@@ -32,12 +32,18 @@ and points at the component document for the proof. The component document's
 specific verified claims are authoritative for OmegaJev and are not restated
 here in weaker form.
 
-Much of this document describes a system that does not yet exist. What exists
-today is the **authority kernel** (`core/`) and the **OmegaJev decision
-experiment** (`jev/`) — and they are not connected to each other. The book,
-the stickers, the renderer, the browser UI, the bridge and the human interface
-**have not been built**. Read every status marker before treating any
-statement here as a description of running software.
+The repository now contains the authority kernel (`core/`), a real
+browser/bridge/sticker/page implementation (`web/`), and the separate
+OmegaJev experiment (`jev/`). The browser and bridge are mechanically tested
+against the kernel. The OmegaJev experiment has also been coupled to the kernel
+in its headless Stage 4 harness.
+
+The new dual-Omega browser substrate adds a bounded OmegaLLM -> OmegaJev goal
+and choice seam, but the **actual OmegaLLM and OmegaJev Omega processes are not
+yet wired into the browser runtime**. Tests use deterministic stand-ins for that
+integration. OpenShell containment is an intended next deployment layer, not a
+current dependency. Read every status marker before treating an interface-level
+test as proof of a deployed model/runtime boundary.
 
 ### Status vocabulary
 
@@ -59,9 +65,9 @@ Evidence is further tagged by *where* it was proved, because the two
 implementations are not yet connected:
 
 * **VERIFIED (core)** — proved in `core/tests/test_authority.py` against the
-  headless authority kernel. The kernel is a working proof of this model. It
-  is **not yet wired to OmegaJev or to any renderer**, so a core-verified
-  invariant is a property of the model, not yet of a running agent system.
+  authority kernel. The same kernel is now used by the localhost bridge and by
+  the OmegaJev Stage 4 harness, but a core-only unit test still proves only the
+  kernel property, not the correctness of every integration around it.
 * **VERIFIED (omegajev)** — proved in the running OmegaJev container.
 
 Do not report a core-verified invariant as a property of the deployed system.
@@ -1088,3 +1094,72 @@ defensible step. The kernel should acquire a renderer only after that coupling
 is itself verified — the coupling is where a bypass would most easily hide,
 because it is the first place two separately-verified components have to agree
 about who may do what.
+
+---
+
+## 29. Dual-Omega child-control substrate
+
+**IMPLEMENTED and mechanically tested at the host/interface layer. Actual
+Omega process deployment remains a GAP.**
+
+The child-control architecture now distinguishes two Omega roles:
+
+```text
+child voice/text/deictic reference
+        -> OmegaLLM (linguistic translation)
+        -> bounded semantic goal
+        -> OmegaJev (typed discriminative selection)
+        -> host-owned action key
+        -> Kernel.propose_key()
+        -> Receipt + fresh world state
+```
+
+OmegaLLM may attach one schema-bounded goal to a conversational reply. It does
+not emit a command or a movement sequence. The host validates that goal and
+constructs a finite action surface for the named sticker. OmegaJev returns only
+one key already present in that surface.
+
+For movement, the host produces eight ephemeral local candidates
+(N/NE/E/SE/S/SW/W/NW) around the sticker's current normalized coordinate.
+Those candidates are validated inside `Kernel.available_actions()` and passed
+again to `Kernel.propose_key()`; a model cannot invent a coordinate or make a
+permanent snap-slot vocabulary appear. State is re-observed after every action,
+so multi-step motion can emerge from repeated choices.
+
+A child's double-click/tap is a second entry to OmegaJev. It bypasses OmegaLLM
+and supplies a one-turn, animation-only choice surface for the clicked sticker.
+If no Jev runtime is connected, the previous deterministic clip toggle remains
+as a non-model fallback.
+
+Assisted actions currently execute under the child's kernel authority because
+the child originated the request. Causal provenance is kept separate from
+authorization:
+
+- `requestedBy` — child/origin;
+- `translatedBy` — OmegaLLM when language mediation occurred;
+- `selectedBy` — OmegaJev;
+- `actor` — the principal whose authority the kernel evaluates.
+
+These provenance fields are never consulted by `effective_tools()`,
+`may_act_on()`, or another authorization check. A direct human pointer drag
+still settles a moving sticker to its rest clip; a Jev-selected move under
+child authority preserves the clip selected by the controller, allowing motion
+and animation to compose.
+
+Current evidence:
+
+- core tests verify bounded ephemeral movement keys, rejection of malformed or
+  off-page candidates, continued non-representability of human-owned stickers
+  to an agent principal, and multi-stage receipt provenance;
+- web bridge tests verify OmegaLLM goal handoff, a multi-turn local movement
+  sequence with fresh state each turn, child double-click entering an
+  animation-only Jev surface, fail-closed rejection of an invented Jev key,
+  and no mutation when the Jev runtime is absent.
+
+**Not yet established:** the real OmegaLLM process implementing the language
+adapter, the real OmegaJev Omega loop implementing the `choose` runtime seam,
+OpenShell-enforced separation of those two processes, provider policies for the
+two sandboxes, or end-to-end deployment tests using the live model/provider.
+The deterministic test runtime is evidence for the StickerBook architecture,
+not evidence that a live Jev deployment already behaves identically.
+

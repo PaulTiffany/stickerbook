@@ -22,6 +22,22 @@ once the goal state was reached.
 
 This is a narrow result. See *Limitations*.
 
+### Relationship to the current StickerBook browser substrate
+
+The production-facing StickerBook architecture has now advanced beyond the
+Stage 3/4 toy page used in this experiment. `web/jev_controller.py` defines a
+narrow runtime seam where **OmegaLLM** supplies a bounded semantic goal and
+**OmegaJev** supplies one host-offered choice key at a time. It also supports
+the child's direct double-click animation path and ephemeral local movement
+steps over continuous page coordinates.
+
+That host/interface substrate is mechanically tested with deterministic Jev
+stand-ins. It does **not** mean this experimental OmegaJev container is already
+wired into the browser. The next runtime-integration milestone is to make the
+real OmegaJev loop implement that `choose(goal, scene, actions, ...)` seam,
+preferably inside its own OpenShell sandbox, while preserving the kernel as the
+independent authority gate.
+
 ---
 
 ## Architecture
