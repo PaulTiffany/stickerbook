@@ -338,11 +338,111 @@ count and typed fragments. It contains no StickerInstance id and no complete
 action key, so nothing in it can be submitted to the kernel, and it never adds
 a key to the legal table. Pattern memory is not a second decision engine.
 
+### "Remember that" and "Do that again"
+
+Teaching is a conversation, not a programming interface. There is no record
+button and no macro editor; the child says what they mean.
+
+```text
+child:  "Remember that as your happy dance."
+            |
+            v
+OmegaLLM    interprets: this is a remember request,
+            "that" is about Froggy, the name is "happy dance"
+            |
+            v
+host        resolves "that" from ITS OWN record of what actually happened,
+            and stores typed fragments in the PatternLibrary
+```
+
+```text
+child:  "Froggy, do your happy dance."
+            |
+            v
+OmegaLLM    semantic goal: perform known pattern "happy dance" on Froggy
+            |
+            v
+host        resolves the bounded pattern reference
+            |
+            v
+OmegaJev    fresh state + CURRENT finite legal choices + pattern context
+            -> selects one offered key, per step
+            |
+            v
+kernel      accepts or refuses each mutation, one receipt at a time
+```
+
+OmegaLLM emits `remember-pattern` or `perform-pattern` with a `subject` and a
+`label`. It never emits movement, keys or `PatternStep`s. If it tries to
+attach anything else, host validation refuses the goal with
+`unknown-jev-goal-field`.
+
+#### Governed history gives "that" a safe meaning
+
+`web/governed_history.py` keeps a bounded, host-owned record of governed
+actions that really happened: subject, actor, kernel action, accepted or
+refused, revision, and which path the input came from (human gesture,
+OmegaLLM to OmegaJev, direct gesture to OmegaJev, mechanical replay, pattern
+performance). OmegaLLM receives a bounded declarative projection of it as
+`recent_actions` and may refer to it. Only the host writes it, and only from
+real kernel receipts:
+
+> The host remembers what happened. OmegaLLM interprets the child's reference
+> to it. OmegaLLM does not get to rewrite history.
+
+An entry carries a legal-action key only when the action was selected from the
+host-owned table. A freehand drag is a real governed mutation and is recorded
+for audit, but an arbitrary coordinate has no instance-independent typed form,
+so it can never become a learned `PatternStep`. Refused actions stay visible
+for audit and are never learnable.
+
+#### Replay is non-atomic, and says so
+
+A remembered pattern is a sequence of fresh governed actions, not a
+transaction. If step 1 is accepted and step 2 is no longer legal, step 1
+remains applied and the replay stops. There is no rollback and no compensating
+mutation, because inventing one would be a privilege the child never had.
+
+Every attempt produces a host-side `PatternReplayRecord`: replay id, pattern
+id and label, subject, initiating principal, starting revision, mode, the
+ordered attempted steps with each ordinary kernel receipt, any step that could
+not be submitted, and a result of `completed`, `partial` or `stopped`, with the
+failing step index and reason.
+
+That record observes and groups authority events. It does not possess
+authority, and the kernel never learns what a "happy dance" is: its receipts
+stay ordinary mutation receipts.
+
+#### Two modes, one set of semantics
+
+- **agent** (`perform_known_pattern`): OmegaJev chooses each step from the
+  current table, informed by bounded pattern context. This is the powered
+  path.
+- **mechanical** (`replay_pattern`): the host drives the steps itself. A
+  deterministic reference path that proves representation, rebinding, fresh
+  legality, kernel authority and partial behaviour without live inference,
+  while the OpenShell-hosted loops are blocked.
+
+Both use the same `PatternStep` representation and the same current
+legal-action table, and both produce the same record type. `PatternLibrary` is
+memory, not a decision engine: it never replaces OmegaJev and never adds an
+action to `available_actions`.
+
+#### Patterns transfer; authority does not
+
+A pattern applies to a StickerDefinition, not to ownership of the frog that
+first demonstrated it. A child may teach one frog and ask another compatible
+frog to perform it. Provenance records who taught it, which instance
+demonstrated it and at which revision. Ownership, budgets and every other
+principal restriction are still applied independently to each actual action by
+the kernel.
+
 ### Not yet
 
-No persistence across restart, no sharing between children, no Jev-authored
-patterns, no model-generated executable animation. Visual animation packages
-remain data and assets, never generated code.
+No persistence across restart, no sharing between children, no Jev-authored or
+OmegaLLM-authored patterns, no model-generated executable animation, no
+rollback transactions, and no child-facing programming interface. Visual
+animation packages remain data and assets, never generated code.
 
 ## Runtime attachment
 

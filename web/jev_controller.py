@@ -27,7 +27,15 @@ from stickerbook_core import (  # noqa: E402
     SET_STICKER_FACING,
 )
 
-from pattern_memory import bind_key, steps_from_trace  # noqa: E402
+from governed_history import (  # noqa: E402
+    ORIGIN_GESTURE_JEV, ORIGIN_OMEGALLM_JEV, ORIGIN_PATTERN_PERFORM,
+    ORIGIN_PATTERN_REPLAY,
+)
+from pattern_memory import (  # noqa: E402
+    COMPLETED, MODE_AGENT, MODE_MECHANICAL, PARTIAL, PatternReplayRecord,
+    MAX_PATTERN_STEPS, PatternStep, ReplayStepRecord, STOPPED, bind_key,
+    split_key, steps_from_trace, valid_label,
+)
 
 OMEGA_LLM_ID = "agent:omega-llm"
 OMEGA_JEV_ID = "agent:jev-visual-1"
@@ -36,17 +44,29 @@ MAX_GOAL_TURNS = 6
 
 _ALLOWED_GOAL_FIELDS = frozenset({
     "subject", "intent", "behavior", "target", "facing", "scale",
+    # Pattern intents refer to a remembered behaviour by the child-facing
+    # name, or by an already-resolved id. Neither is an action.
+    "label", "pattern",
 })
+
+# Semantic intents OmegaLLM may express. The first four drive the ordinary
+# bounded Jev control loop. The last two are about remembered behaviour:
+# they are still semantic goals, not mutations, and neither carries steps.
+REMEMBER_PATTERN = "remember-pattern"
+PERFORM_PATTERN = "perform-pattern"
+
 _ALLOWED_INTENTS = frozenset({
     "control", "animate", "move", "move-and-animate",
+    REMEMBER_PATTERN, PERFORM_PATTERN,
 })
+_PATTERN_INTENTS = frozenset({REMEMBER_PATTERN, PERFORM_PATTERN})
 
 
 class JevController:
     """Finite choice adapter around a Jev decision runtime."""
 
     def __init__(self, kernel, runtime, selector_id: str = OMEGA_JEV_ID,
-                 patterns=None):
+                 patterns=None, history=None, replays=None):
         self.kernel = kernel
         self.runtime = runtime
         self.selector_id = selector_id
@@ -54,6 +74,11 @@ class JevController:
         # "no patterns known" when it is absent, and the Jev seam is
         # unchanged. The library is never passed to the runtime.
         self.patterns = patterns
+        # Host-owned record of what actually happened, and host-side audit of
+        # attempts to perform remembered behaviour. Both observe authority
+        # events; neither possesses authority.
+        self.history = history
+        self.replays = replays
 
     def available(self) -> bool:
         try:
@@ -80,6 +105,25 @@ class JevController:
             return None, "invalid-jev-intent"
 
         goal = {"subject": subject, "intent": intent}
+
+        label = raw.get("label")
+        if label is not None:
+            if not valid_label(label):
+                return None, "invalid-jev-label"
+            goal["label"] = " ".join(label.split())
+
+        reference = raw.get("pattern")
+        if reference is not None:
+            if not isinstance(reference, str) or not reference                     or len(reference) > 64 or ":" in reference:
+                return None, "invalid-jev-pattern-reference"
+            goal["pattern"] = reference
+
+        # A remembered behaviour has to be nameable. Performing one has to
+        # say which one. Neither intent may carry movement data.
+        if intent == REMEMBER_PATTERN and "label" not in goal:
+            return None, "missing-jev-label"
+        if intent == PERFORM_PATTERN                 and "label" not in goal and "pattern" not in goal:
+            return None, "missing-jev-pattern-reference"
 
         behavior = raw.get("behavior")
         if behavior is not None:
@@ -166,7 +210,8 @@ class JevController:
                 out[name] = (round(x, 6), round(y, 6))
         return out
 
-    def _scene(self, actor: str, goal: dict, table: dict) -> dict:
+    def _scene(self, actor: str, goal: dict, table: dict,
+               pattern_context=None) -> dict:
         subject = self.kernel.sticker(goal["subject"])
         definition = self.kernel.assets.get(subject.asset)
 
@@ -204,6 +249,18 @@ class JevController:
         if self.patterns is not None and subject is not None:
             known_patterns = self.patterns.describe_for_scene(subject.asset)
 
+        scene_pattern = None
+        if pattern_context is not None:
+            # The remembered behaviour being asked for, plus which step the
+            # host is on. Declarative only: typed fragments, never keys. Jev
+            # still has to pick from available_actions.
+            pattern, step_index = pattern_context
+            scene_pattern = dict(pattern.describe())
+            scene_pattern["stepIndex"] = step_index
+            scene_pattern["nextStep"] = (
+                pattern.steps[step_index].to_dict()
+                if step_index < len(pattern.steps) else None)
+
         return {
             "revision": self.kernel.revision,
             "turn": self.kernel.turn,
@@ -213,6 +270,7 @@ class JevController:
             "target": target_state,
             "available_actions": sorted(table),
             "known_patterns": known_patterns,
+            "pattern": scene_pattern,
         }
 
     @staticmethod
@@ -332,6 +390,12 @@ class JevController:
                 selected_by=self.selector_id,
                 move_candidates=moves,
             )
+            self._record(
+                receipt,
+                origin=(ORIGIN_OMEGALLM_JEV if translated_by
+                        else ORIGIN_GESTURE_JEV),
+                key=choice,
+                subject_id=goal["subject"])
             trace.append({
                 "turn": index + 1,
                 "choice": choice,
@@ -368,14 +432,134 @@ class JevController:
     # Capture reads only ACCEPTED receipts; replay re-derives every key from
     # the CURRENT world and submits it through the ordinary kernel path.
 
-    def remember_trace(self, *, label, subject_id, trace, learned_by):
-        """Associate a child-facing name with an already-accepted trace.
+    def _record(self, receipt, *, origin, key=None, subject_id=None):
+        """Note one governed action in host-owned history, if it is present."""
+        if self.history is None:
+            return None
+        return self.history.record(
+            receipt, origin=origin, key=key, subject_id=subject_id)
 
-        This is the seam where OmegaLLM will eventually land: the child says
-        "remember that as your happy dance", and OmegaLLM turns that into one
-        bounded host request carrying a label and the trace that just
-        happened. OmegaLLM never writes arbitrary actions into a pattern --
-        only accepted kernel receipts become steps.
+    def _next_replay_id(self) -> str:
+        if self.replays is not None:
+            return self.replays.next_replay_id()
+        self._local_replay_counter = getattr(
+            self, "_local_replay_counter", 0) + 1
+        return "replay-local-%d" % self._local_replay_counter
+
+    @staticmethod
+    def _replay_result(step_records, expected, stopped_reason):
+        accepted = sum(
+            1 for r in step_records
+            if r.receipt is not None and r.receipt.get("accepted") is True)
+        if stopped_reason is None and expected > 0 and accepted == expected:
+            return COMPLETED
+        if accepted > 0:
+            return PARTIAL
+        return STOPPED
+
+    def _finish_replay(self, *, replay_id, pattern, subject_id, requested_by,
+                       starting_revision, mode, step_records, expected,
+                       stopped_at, stopped_reason):
+        """Build and file the host-side audit record for one replay attempt.
+
+        This observes and groups authority events. It has no authority, and
+        the kernel never learns what a "happy dance" is: its receipts stay
+        ordinary mutation receipts.
+        """
+        record = PatternReplayRecord(
+            replay_id=replay_id,
+            pattern_id=pattern.pattern_id,
+            label=pattern.label,
+            subject_id=subject_id,
+            requested_by=requested_by,
+            starting_revision=starting_revision,
+            mode=mode,
+            steps=tuple(step_records),
+            result=self._replay_result(
+                step_records, expected, stopped_reason),
+            stopped_at=stopped_at,
+            stopped_reason=stopped_reason,
+        )
+        if self.replays is not None:
+            self.replays.add(record)
+        return record
+
+    @staticmethod
+    def _replay_payload(record, pattern, subject_id):
+        payload = {
+            "ok": record.result == COMPLETED,
+            "result": record.result,
+            "pattern": pattern.pattern_id,
+            "label": pattern.label,
+            "subject": subject_id,
+            "completed": record.completed_steps,
+            "steps": len(pattern.steps),
+            "replay": record.to_dict(),
+        }
+        if record.stopped_reason:
+            payload["error"] = record.stopped_reason
+        return payload
+
+    # -- "remember that" ----------------------------------------------
+
+    def remember_recent(self, *, subject_id, label, learned_by,
+                        max_steps=None):
+        """Give "that" a safe meaning, from what the host saw actually happen.
+
+        OmegaLLM decides that the child meant "remember", which sticker they
+        meant and what to call it. It does NOT supply the movement. The host
+        resolves the referenced behaviour from its own governed history, and
+        only accepted, key-selected mutations can become steps.
+        """
+        if self.patterns is None:
+            return {"ok": False, "error": "pattern-memory-unavailable"}
+        if self.history is None:
+            return {"ok": False, "error": "governed-history-unavailable"}
+        if not valid_label(label):
+            return {"ok": False, "error": "invalid-pattern-label"}
+        subject = self.kernel.sticker(subject_id)
+        if subject is None:
+            return {"ok": False, "error": "unknown-pattern-subject"}
+
+        limit = int(max_steps) if max_steps else self.patterns.max_steps
+        entries = self.history.recent_accepted_keyed(subject_id, limit)
+
+        steps = []
+        resolved_from = []
+        for entry in entries:
+            step = split_key(entry.key, subject_id)
+            if step is None:
+                # An accepted action outside the remembered verb families,
+                # such as a removal. Visible in history, not learnable.
+                continue
+            steps.append(step)
+            resolved_from.append(entry.sequence)
+
+        if not steps:
+            return {"ok": False, "error": "no-accepted-pattern-steps"}
+
+        pattern, error = self.patterns.remember(
+            label=label,
+            asset=subject.asset,
+            steps=tuple(steps),
+            subject_id=subject_id,
+            learned_by=learned_by,
+            revision=self.kernel.revision,
+        )
+        if error:
+            return {"ok": False, "error": error}
+        return {
+            "ok": True,
+            "pattern": pattern.to_dict(),
+            "resolvedFrom": resolved_from,
+        }
+
+    def remember_trace(self, *, label, subject_id, trace, learned_by):
+        """Remember an explicitly supplied accepted trace.
+
+        The narrower sibling of `remember_recent`, kept for callers that
+        already hold the trace they mean -- notably the deterministic
+        mechanical path. Same rule: only accepted receipts become steps.
         """
         if self.patterns is None:
             return {"ok": False, "error": "pattern-memory-unavailable"}
@@ -399,17 +583,161 @@ class JevController:
             return {"ok": False, "error": error}
         return {"ok": True, "pattern": pattern.to_dict()}
 
+    # -- "do that again" ----------------------------------------------
+
+    def resolve_pattern(self, goal, subject):
+        """Resolve a bounded pattern reference. Returns (pattern, error)."""
+        if self.patterns is None:
+            return None, "pattern-memory-unavailable"
+        pattern = None
+        reference = goal.get("pattern")
+        if reference:
+            pattern = self.patterns.get(reference)
+        if pattern is None and goal.get("label"):
+            pattern = self.patterns.by_label(
+                goal["label"], asset=subject.asset)
+        if pattern is None:
+            return None, "unknown-pattern"
+        if pattern.asset != subject.asset:
+            return None, "pattern-definition-mismatch"
+        return pattern, None
+
+    def perform_known_pattern(self, goal, *, actor, command_prefix,
+                              requested_by, translated_by=None):
+        """Perform a remembered behaviour through OmegaJev.
+
+        This is the powered path. OmegaJev is handed fresh state, the current
+        finite legal-action table and bounded pattern context, and chooses one
+        offered key per step. Memory informs the choice; it never creates one,
+        and the kernel still decides every mutation.
+        """
+        if not self.available():
+            return {"ok": False, "error": "jev-runtime-unavailable"}
+        subject_id = goal["subject"]
+        subject = self.kernel.sticker(subject_id)
+        if subject is None:
+            return {"ok": False, "error": "unknown-pattern-subject"}
+        pattern, error = self.resolve_pattern(goal, subject)
+        if error:
+            return {"ok": False, "error": error}
+
+        replay_id = self._next_replay_id()
+        starting_revision = self.kernel.revision
+        step_records = []
+        stopped_at = None
+        stopped_reason = None
+
+        # The episode is bounded by the remembered length, not by open-ended
+        # search, so it does not borrow the ordinary goal turn limit.
+        expected = min(len(pattern.steps), MAX_PATTERN_STEPS)
+
+        for index in range(expected):
+            subject = self.kernel.sticker(subject_id)
+            if subject is None:
+                stopped_at = index + 1
+                stopped_reason = "unknown-pattern-subject"
+                break
+            if subject.asset != pattern.asset:
+                stopped_at = index + 1
+                stopped_reason = "pattern-definition-mismatch"
+                break
+
+            table, moves = self._table(actor, goal, animate_only=False)
+            if not table:
+                stopped_at = index + 1
+                stopped_reason = "no-legal-jev-actions"
+                break
+
+            scene = self._scene(
+                actor, goal, table, pattern_context=(pattern, index))
+            descriptions = self._describe_actions(table)
+            try:
+                decision = self.runtime.choose(
+                    goal=dict(goal),
+                    scene=scene,
+                    actions=descriptions,
+                    turn=index + 1,
+                    max_turns=expected,
+                )
+            except Exception:
+                stopped_at = index + 1
+                stopped_reason = "jev-runtime-error"
+                break
+
+            if not isinstance(decision, dict) or not decision.get("ok"):
+                stopped_at = index + 1
+                stopped_reason = (
+                    decision.get("error", "invalid-jev-decision")
+                    if isinstance(decision, dict) else "invalid-jev-decision")
+                break
+
+            choice = decision.get("choice")
+            if not isinstance(choice, str) or choice not in table:
+                stopped_at = index + 1
+                stopped_reason = "unknown-jev-choice"
+                break
+            if choice == "NOOP":
+                # Jev declined. Report WHY, so this path reads the same as
+                # mechanical replay: if the remembered form is simply not
+                # offered any more, the world changed, and saying "jev-noop"
+                # would blame the chooser for it.
+                stopped_at = index + 1
+                remembered = pattern.steps[index]
+                if bind_key(remembered, subject_id) not in table:
+                    step_records.append(ReplayStepRecord(
+                        index=index + 1, verb=remembered.verb,
+                        suffix=remembered.suffix, submitted=False,
+                        unavailable_reason="pattern-step-unavailable"))
+                    stopped_reason = "pattern-step-unavailable"
+                else:
+                    stopped_reason = "jev-noop"
+                break
+
+            step = split_key(choice, subject_id)
+            if step is None:
+                stopped_at = index + 1
+                stopped_reason = "unknown-jev-choice"
+                break
+
+            receipt = self.kernel.propose_key(
+                actor,
+                choice,
+                "%s-%d" % (command_prefix, index + 1),
+                based_on_revision=self.kernel.revision,
+                requested_by=requested_by,
+                translated_by=translated_by,
+                selected_by=self.selector_id,
+                move_candidates=moves,
+            )
+            self._record(
+                receipt, origin=ORIGIN_PATTERN_PERFORM, key=choice,
+                subject_id=subject_id)
+            step_records.append(ReplayStepRecord(
+                index=index + 1, verb=step.verb, suffix=step.suffix,
+                submitted=True, receipt=receipt.to_dict()))
+
+            if not receipt.accepted:
+                stopped_at = index + 1
+                stopped_reason = "pattern-step-refused"
+                break
+
+        record = self._finish_replay(
+            replay_id=replay_id, pattern=pattern, subject_id=subject_id,
+            requested_by=requested_by, starting_revision=starting_revision,
+            mode=MODE_AGENT, step_records=step_records, expected=expected,
+            stopped_at=stopped_at, stopped_reason=stopped_reason)
+        return self._replay_payload(record, pattern, subject_id)
+
     def replay_pattern(self, pattern_id, *, subject_id, actor,
                        command_prefix, requested_by):
         """Re-perform a remembered pattern as a sequence of FRESH proposals.
 
-        This is mechanical replay: the host executes the remembered forms
-        step by step so pattern safety and semantics can be proven without a
-        live Jev. It is not a macro with authority. For every step the world
-        is re-read, the legal table is rebuilt, the key is re-derived from
-        the stored (verb, suffix) plus the CURRENT subject, and the kernel
-        decides again. A step that is no longer offered, or is refused, stops
-        the replay where it stands.
+        The deterministic mechanical reference path. The host drives the steps
+        itself so pattern representation, rebinding, fresh legality, kernel
+        authority and partial behaviour can be verified without live
+        inference. It is not a macro with authority, and it uses the same
+        PatternStep representation and the same current legal-action table as
+        the OmegaJev path.
         """
         if self.patterns is None:
             return {"ok": False, "error": "pattern-memory-unavailable"}
@@ -417,18 +745,26 @@ class JevController:
         if pattern is None:
             return {"ok": False, "error": "unknown-pattern"}
 
-        trace = []
+        replay_id = self._next_replay_id()
+        starting_revision = self.kernel.revision
+        step_records = []
+        stopped_at = None
+        stopped_reason = None
+        expected = len(pattern.steps)
+
         for index, step in enumerate(pattern.steps):
             # 1. fresh current state, every step
             subject = self.kernel.sticker(subject_id)
             if subject is None:
-                return self._pattern_stop(
-                    pattern, trace, "unknown-pattern-subject")
+                stopped_at = index + 1
+                stopped_reason = "unknown-pattern-subject"
+                break
             # A pattern belongs to a StickerDefinition. An incompatible
             # definition never inherits it by accident.
             if subject.asset != pattern.asset:
-                return self._pattern_stop(
-                    pattern, trace, "pattern-definition-mismatch")
+                stopped_at = index + 1
+                stopped_reason = "pattern-definition-mismatch"
+                break
 
             # 2. rebuild the current host-owned legal table
             moves = self._move_candidates(subject)
@@ -440,8 +776,13 @@ class JevController:
 
             # 4. the key has to exist in the table as it is right now
             if key not in table:
-                return self._pattern_stop(
-                    pattern, trace, "pattern-step-unavailable")
+                step_records.append(ReplayStepRecord(
+                    index=index + 1, verb=step.verb, suffix=step.suffix,
+                    submitted=False,
+                    unavailable_reason="pattern-step-unavailable"))
+                stopped_at = index + 1
+                stopped_reason = "pattern-step-unavailable"
+                break
 
             # 5. ordinary kernel proposal path; no pattern-level privilege
             receipt = self.kernel.propose_key(
@@ -452,40 +793,57 @@ class JevController:
                 requested_by=requested_by,
                 move_candidates=moves,
             )
-            trace.append({
-                "step": index + 1,
-                "verb": step.verb,
-                "suffix": step.suffix,
-                "receipt": receipt.to_dict(),
-            })
+            self._record(
+                receipt, origin=ORIGIN_PATTERN_REPLAY, key=key,
+                subject_id=subject_id)
+            step_records.append(ReplayStepRecord(
+                index=index + 1, verb=step.verb, suffix=step.suffix,
+                submitted=True, receipt=receipt.to_dict()))
 
             # 6. an accepted receipt is required before advancing
             if not receipt.accepted:
-                return self._pattern_stop(
-                    pattern, trace, "pattern-step-refused")
+                stopped_at = index + 1
+                stopped_reason = "pattern-step-refused"
+                break
 
-        return {
-            "ok": True,
-            "pattern": pattern.pattern_id,
-            "label": pattern.label,
-            "subject": subject_id,
-            "completed": len(trace),
-            "steps": len(pattern.steps),
-            "trace": trace,
-        }
+        record = self._finish_replay(
+            replay_id=replay_id, pattern=pattern, subject_id=subject_id,
+            requested_by=requested_by, starting_revision=starting_revision,
+            mode=MODE_MECHANICAL, step_records=step_records,
+            expected=expected, stopped_at=stopped_at,
+            stopped_reason=stopped_reason)
+        return self._replay_payload(record, pattern, subject_id)
 
-    @staticmethod
-    def _pattern_stop(pattern, trace, error):
-        """Stop closed, keeping whatever was legitimately accepted visible."""
-        return {
-            "ok": False,
-            "error": error,
-            "pattern": pattern.pattern_id,
-            "label": pattern.label,
-            "completed": len(trace),
-            "steps": len(pattern.steps),
-            "trace": trace,
-        }
+    # -- semantic goal dispatch ---------------------------------------
+
+    def run_semantic_goal(self, raw_goal, *, actor, command_prefix,
+                          requested_by, translated_by=None, learned_by=None):
+        """Route one bounded OmegaLLM goal to the right bounded host action.
+
+        OmegaLLM expresses meaning. This decides which governed machinery that
+        meaning reaches: remembering reads host history and writes memory,
+        performing goes to OmegaJev, and everything else is the ordinary
+        bounded control loop. None of these paths lets OmegaLLM author an
+        action.
+        """
+        goal, error = self.normalize_goal(raw_goal)
+        if error:
+            return {"ok": False, "error": error}
+
+        if goal["intent"] == REMEMBER_PATTERN:
+            return self.remember_recent(
+                subject_id=goal["subject"],
+                label=goal["label"],
+                learned_by=learned_by or requested_by)
+
+        if goal["intent"] == PERFORM_PATTERN:
+            return self.perform_known_pattern(
+                goal, actor=actor, command_prefix=command_prefix,
+                requested_by=requested_by, translated_by=translated_by)
+
+        return self.run_goal(
+            raw_goal, actor=actor, command_prefix=command_prefix,
+            requested_by=requested_by, translated_by=translated_by)
 
     def double_click(
             self, sticker_id: str, *, actor: str, command_prefix: str,

@@ -236,6 +236,27 @@ class PatternLibrary:
     def for_asset(self, asset) -> Tuple[MovementPattern, ...]:
         return tuple(p for p in self._patterns.values() if p.asset == asset)
 
+    def by_label(self, label, asset=None) -> Optional[MovementPattern]:
+        """Resolve a child-facing name, optionally scoped to a definition.
+
+        The child says "happy dance", not "pattern-3". Matching is
+        case-insensitive and whitespace-tolerant because it comes from
+        speech. The most recently learned match wins.
+        """
+        if not isinstance(label, str):
+            return None
+        wanted = " ".join(label.split()).casefold()
+        if not wanted:
+            return None
+        best = None
+        for pattern in self._patterns.values():
+            if asset is not None and pattern.asset != asset:
+                continue
+            if " ".join(pattern.label.split()).casefold() == wanted:
+                if best is None or pattern.pattern_id > best.pattern_id:
+                    best = pattern
+        return best
+
     def describe_for_scene(self, asset, limit: int = MAX_SCENE_PATTERNS):
         out = []
         for pattern in sorted(self.for_asset(asset),
@@ -276,6 +297,121 @@ class PatternLibrary:
         return pattern, None
 
 
+# Replay outcomes. A remembered pattern is a sequence of fresh proposals, not
+# a transaction, so "partial" is a first-class, expected result.
+COMPLETED = "completed"
+PARTIAL = "partial"
+STOPPED = "stopped"
+
+# How the steps were driven.
+MODE_MECHANICAL = "mechanical"   # host-driven; deterministic reference path
+MODE_AGENT = "agent"             # OmegaJev chose each step
+
+
+@dataclass(frozen=True)
+class ReplayStepRecord:
+    """One attempted step of a replay, and what authority said about it.
+
+    `receipt` is an ordinary kernel mutation receipt. A step the host could
+    not even submit -- because the key was not offered in the current legal
+    table -- has no receipt and carries `unavailable_reason` instead.
+    """
+
+    index: int
+    verb: str
+    suffix: str
+    submitted: bool
+    receipt: Optional[dict] = None
+    unavailable_reason: Optional[str] = None
+
+    def to_dict(self) -> dict:
+        return {
+            "index": self.index,
+            "verb": self.verb,
+            "suffix": self.suffix,
+            "submitted": self.submitted,
+            "receipt": self.receipt,
+            "unavailableReason": self.unavailable_reason,
+        }
+
+
+@dataclass(frozen=True)
+class PatternReplayRecord:
+    """Host-side audit of one attempt to perform a remembered pattern.
+
+    This object OBSERVES and GROUPS authority events. It does not possess
+    authority, and the kernel knows nothing about it: kernel receipts stay
+    ordinary mutation receipts and never learn what a "happy dance" is.
+    """
+
+    replay_id: str
+    pattern_id: str
+    label: str
+    subject_id: str
+    requested_by: str
+    starting_revision: int
+    mode: str
+    steps: Tuple[ReplayStepRecord, ...]
+    result: str
+    stopped_at: Optional[int] = None
+    stopped_reason: Optional[str] = None
+
+    @property
+    def completed_steps(self) -> int:
+        return sum(
+            1 for s in self.steps
+            if s.receipt is not None and s.receipt.get("accepted") is True)
+
+    def to_dict(self) -> dict:
+        return {
+            "replayId": self.replay_id,
+            "patternId": self.pattern_id,
+            "label": self.label,
+            "subject": self.subject_id,
+            "requestedBy": self.requested_by,
+            "startingRevision": self.starting_revision,
+            "mode": self.mode,
+            "steps": [s.to_dict() for s in self.steps],
+            "stepCount": len(self.steps),
+            "completedSteps": self.completed_steps,
+            "result": self.result,
+            "stoppedAt": self.stopped_at,
+            "stoppedReason": self.stopped_reason,
+        }
+
+
+class ReplayLog:
+    """Bounded host-side log of replay records. Audit only."""
+
+    def __init__(self, max_records: int = 64):
+        self.max_records = int(max_records)
+        self._records = []
+        self._next_id = 1
+
+    def __len__(self) -> int:
+        return len(self._records)
+
+    def next_replay_id(self) -> str:
+        replay_id = "replay-%d" % self._next_id
+        self._next_id += 1
+        return replay_id
+
+    def add(self, record: PatternReplayRecord) -> PatternReplayRecord:
+        self._records.append(record)
+        if len(self._records) > self.max_records:
+            del self._records[0:len(self._records) - self.max_records]
+        return record
+
+    def records(self) -> Tuple[PatternReplayRecord, ...]:
+        return tuple(self._records)
+
+    def get(self, replay_id) -> Optional[PatternReplayRecord]:
+        for record in self._records:
+            if record.replay_id == replay_id:
+                return record
+        return None
+
+
 __all__ = [
     "MOVE", "ANIMATE", "SCALE", "FACE", "PATTERN_VERBS", "VERB_ACTIONS",
     "MAX_PATTERNS", "MAX_PATTERN_STEPS", "MAX_LABEL_LENGTH",
@@ -283,4 +419,6 @@ __all__ = [
     "PatternStep", "MovementPattern", "PatternLibrary",
     "bind_key", "split_key", "steps_from_trace",
     "valid_label", "valid_suffix",
+    "COMPLETED", "PARTIAL", "STOPPED", "MODE_MECHANICAL", "MODE_AGENT",
+    "ReplayStepRecord", "PatternReplayRecord", "ReplayLog",
 ]

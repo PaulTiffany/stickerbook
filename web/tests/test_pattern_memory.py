@@ -306,7 +306,7 @@ class Replay(PatternCase):
         self.assertTrue(result["ok"], result)
         self.assertEqual(result["completed"], 2)
         self.assertTrue(
-            all(e["receipt"]["accepted"] for e in result["trace"]))
+            all(e["receipt"]["accepted"] for e in result["replay"]["steps"]))
         after = self.kernel.sticker("frog-2")
         self.assertGreater(after.x, before.x)
         self.assertEqual(after.animation, "hop")
@@ -324,7 +324,7 @@ class Replay(PatternCase):
         self.assertFalse(result["ok"])
         self.assertEqual(result["error"], "pattern-step-unavailable")
         self.assertEqual(result["completed"], 1)
-        self.assertTrue(result["trace"][0]["receipt"]["accepted"])
+        self.assertTrue(result["replay"]["steps"][0]["receipt"]["accepted"])
         self.assertEqual(self.kernel.sticker("frog-edge").x, 1.0)
 
     def test_world_state_change_between_steps_affects_legality(self):
@@ -411,10 +411,13 @@ class Replay(PatternCase):
 
         self.assertFalse(result["ok"])
         self.assertEqual(result["error"], "pattern-step-refused")
-        self.assertEqual(result["completed"], 2)
-        self.assertTrue(result["trace"][0]["receipt"]["accepted"])
-        self.assertFalse(result["trace"][1]["receipt"]["accepted"])
-        self.assertEqual(result["trace"][1]["receipt"]["reason"],
+        self.assertEqual(result["result"], "partial")
+        # `completed` counts ACCEPTED steps; two were attempted.
+        self.assertEqual(result["completed"], 1)
+        self.assertEqual(len(result["replay"]["steps"]), 2)
+        self.assertTrue(result["replay"]["steps"][0]["receipt"]["accepted"])
+        self.assertFalse(result["replay"]["steps"][1]["receipt"]["accepted"])
+        self.assertEqual(result["replay"]["steps"][1]["receipt"]["reason"],
                          "action-budget-exhausted")
 
     def test_unknown_pattern_is_refused(self):
@@ -432,7 +435,7 @@ class Replay(PatternCase):
             pattern_id, subject_id="frog-3", actor=HUMAN_ID,
             command_prefix="receipts", requested_by=HUMAN_ID)
         self.assertTrue(result["ok"], result)
-        ids = [e["receipt"]["commandId"] for e in result["trace"]]
+        ids = [e["receipt"]["commandId"] for e in result["replay"]["steps"]]
         self.assertEqual(ids, ["receipts-1", "receipts-2"])
         self.assertEqual(len(set(ids)), 2)
 
@@ -571,9 +574,9 @@ class FroggyLearnsAHappyDance(PatternCase):
 
         # 5. The kernel decided each mutation, one receipt at a time.
         self.assertEqual(
-            [e["receipt"]["action"] for e in result["trace"]],
+            [e["receipt"]["action"] for e in result["replay"]["steps"]],
             ["move-sticker", "move-sticker", "animate-own-sticker"])
-        self.assertTrue(all(e["receipt"]["accepted"] for e in result["trace"]))
+        self.assertTrue(all(e["receipt"]["accepted"] for e in result["replay"]["steps"]))
 
         danced = self.kernel.sticker("frog-2")
         self.assertGreater(danced.x, froggy.x)
