@@ -830,15 +830,7 @@ const kernelWorld = {
   },
 
   async selectPage(pageId) {
-    const current = await this.state();
-    if (current.page && current.page.id === pageId) {
-      return { ok: true, state: current };
-    }
-    return {
-      ok: false,
-      error: "page-not-governed",
-      state: current,
-    };
+    return this.send("/api/select-page", { page: pageId });
   },
 
   async receipts() {
@@ -851,7 +843,7 @@ const kernelWorld = {
     const res = await fetch("/api/creator/draft", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ ...body, _page: state && state.page && state.page.id }),
     });
     return res.json();
   },
@@ -878,7 +870,7 @@ const kernelWorld = {
     const res = await fetch("/api/adult/inference", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ ...body, _page: state && state.page && state.page.id }),
     });
     return res.json();
   },
@@ -887,7 +879,7 @@ const kernelWorld = {
     const res = await fetch("/api/agent/converse", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ ...body, _page: state && state.page && state.page.id }),
     });
     return res.json();
   },
@@ -899,7 +891,7 @@ const kernelWorld = {
       const res = await fetch("/api/observe-page-path", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...body, _page: state && state.page && state.page.id }),
         signal: controller.signal,
       });
       return res.json();
@@ -912,7 +904,7 @@ const kernelWorld = {
     const res = await fetch(path, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify(path === "/api/select-page" ? body : { ...body, _page: state && state.page && state.page.id }),
     });
     return res.json();
   },
@@ -1701,7 +1693,7 @@ async function enterPlay(pageId) {
       speak(
         world.name === "public mechanical"
           ? "That page is unavailable."
-          : "That page has art, but its governed world is not connected yet."
+          : "That page is unavailable."
       );
       return;
     }

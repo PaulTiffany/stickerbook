@@ -1,60 +1,41 @@
-"""
-The book: a home for pages.
-
-Deliberately NOT an ordered array. A page is a thing you visit, not a slide
-you advance through. Pages may later be made by a child, revisited, found,
-remixed, shared or grouped thematically; ordering is one optional
-relationship among them, not their identity.
-
-So there is no index, no previous, no next. A page is reached by id.
-
-Only one page exists today. The point of this module is that the ontology
-is a collection from the start, so the product is not accidentally built
-around previous/next arrows and later discovered to be a linear reader.
-"""
-
-from __future__ import annotations
-
+"""Existing book pages: presentation metadata comes from the static manifest."""
+import json
+from pathlib import Path
 import farm
+import governed_world
 
 TITLE = "StickerBook"
-SUBTITLE = "Farm Book"
-
-# id -> page module. A page module supplies `build_world`, `page_chrome`
-# and the sticker definitions its tray offers.
-PAGES = {
-    "farm": {
-        "id": "farm",
-        "name": "The Farm",
-        "module": farm,
-        "summary": "A barn, a pond, a tree and a fence.",
-    },
-}
-
+SUBTITLE = "StickerBook"
 DEFAULT_PAGE = "farm"
+_MANIFEST = json.loads((Path(__file__).parent / "static/assets/manifest.json").read_text(encoding="utf-8"))
+PAGES = {page_id: {"id": page_id, **metadata, "world_page": index}
+         for index, (page_id, metadata) in enumerate(_MANIFEST["pages"].items(), 1)}
 
 
-def page(page_id: str):
-    """Look up a page. Unknown ids resolve to nothing, never to a default."""
+def page(page_id):
     return PAGES.get(page_id)
 
 
-def listing() -> dict:
-    """What the book's home screen shows.
+def build_world(page_id):
+    metadata = page(page_id)
+    if metadata is None:
+        raise ValueError("unknown-page")
+    if page_id == DEFAULT_PAGE:
+        return farm.build_world()
+    return governed_world.build_world(page=metadata["world_page"])
 
-    `pages` is a collection. Its order here is presentation, not structure.
-    """
-    return {
-        "title": TITLE,
-        "subtitle": SUBTITLE,
-        "pages": [
-            {"id": p["id"], "name": p["name"], "summary": p["summary"]}
-            for p in PAGES.values()
-        ],
-        # Named so the UI can show where these will live without pretending
-        # they exist. Nothing behind them is built.
-        "coming": [
-            {"id": "new-page", "label": "New Page"},
-            {"id": "find-pages", "label": "Find Pages"},
-        ],
-    }
+
+def page_chrome(page_id):
+    if page_id == DEFAULT_PAGE:
+        return farm.page_chrome()
+    metadata = PAGES[page_id]
+    return {"picture": {"description": metadata["summary"], "features": []},
+            "tray": sorted(governed_world.ASSETS)}
+
+
+def listing():
+    return {"title": TITLE, "subtitle": SUBTITLE,
+            "pages": [{k: metadata[k] for k in ("id", "name", "summary")}
+                      for metadata in PAGES.values()],
+            "coming": [{"id": "new-page", "label": "New Page"},
+                       {"id": "find-pages", "label": "Find Pages"}]}

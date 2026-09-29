@@ -97,7 +97,8 @@ class JevController:
 
     def __init__(self, kernel, runtime, selector_id: str = OMEGA_JEV_ID,
                  patterns=None, history=None, replays=None, world_lock=None,
-                 executions=None):
+                 executions=None, activity=None):
+        self.activity = activity or (lambda: 0)
         self.kernel = kernel
         self.runtime = runtime
         self.selector_id = selector_id
@@ -391,11 +392,14 @@ class JevController:
 
         max_turns = max(1, min(int(max_turns), MAX_GOAL_TURNS))
         trace = []
+        activation = self.activity()
 
         for index in range(max_turns):
             # One coherent read: table, scene, and the revision the choice is
             # made against all describe the same world.
             with self._world():
+                if activation is None or self.activity() != activation:
+                    return {"ok": False, "error": "page-changed", "goal": goal, "trace": trace}
                 table, moves = self._table(
                     actor, goal, animate_only=animate_only)
                 scene = self._scene(actor, goal, table) if table else None
@@ -447,6 +451,8 @@ class JevController:
                 }
 
             with self._world():
+                if self.activity() != activation:
+                    return {"ok": False, "error": "page-changed", "goal": goal, "trace": trace}
                 receipt = self.kernel.propose_key(
                     actor,
                     choice,
@@ -702,6 +708,7 @@ class JevController:
         # The episode is bounded by the remembered length, not by open-ended
         # search, so it does not borrow the ordinary goal turn limit.
         planned = min(len(pattern.steps), MAX_PATTERN_STEPS)
+        activation = self.activity()
 
         for index in range(planned):
             # One coherent read per step: subject, current legal table and
@@ -778,6 +785,9 @@ class JevController:
                 break
 
             with self._world():
+                if activation is None or self.activity() != activation:
+                    stopped_at, stopped_reason = index + 1, "page-changed"
+                    break
                 # scene["revision"], NOT a fresh read: `moves` holds absolute
                 # destinations derived from the subject as it was when this
                 # table was built, and Jev chose against that table. Re-reading
@@ -1003,6 +1013,7 @@ class JevController:
         with self._world():
             starting_revision = self.kernel.revision
 
+        activation = self.activity()
         while True:
             # 1. One coherent read: subject, progress, objective, the current
             # move_only surface, and the revision they all describe.
@@ -1142,6 +1153,9 @@ class JevController:
             # table's move destinations are absolute, so refreshing the
             # revision here would apply an old coordinate as current.
             with self._world():
+                if activation is None or self.activity() != activation:
+                    stopped_at, stopped_reason = len(steps) + 1, "page-changed"
+                    break
                 receipt = self.kernel.propose_key(
                     actor,
                     choice,

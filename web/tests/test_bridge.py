@@ -1580,7 +1580,8 @@ class TheBookIsACollection(ServerCase):
     def test_book_lists_its_pages(self):
         _, b = self.get("/api/book")
         self.assertEqual(b["title"], "StickerBook")
-        self.assertEqual([p["id"] for p in b["pages"]], ["farm"])
+        self.assertEqual({p["id"] for p in b["pages"]},
+                         {"farm", "beach", "playground", "space", "school", "theater"})
 
     def test_the_book_exposes_no_ordering(self):
         """No index, no previous, no next -- pages are visited, not advanced."""
