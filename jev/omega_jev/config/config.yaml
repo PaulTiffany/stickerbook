@@ -197,9 +197,16 @@ jevIntent: "Please confirm which version of Omega you are running."
 # Which host-owned action set is active: "generic" (VERSION/NOOP) or
 # "butterfly" (the Stage 3 StickerBook demonstration). Override at run time,
 # e.g.  docker run ... omega-jev:experiment jevActionSet=butterfly
-# "generic" (VERSION/NOOP), "butterfly" (standalone toy state), or
-# "stickerbook" (coupled to the authority kernel in ../core).
+# "generic" (VERSION/NOOP), "butterfly" (standalone toy state),
+# "stickerbook" (legacy in-container kernel demonstration), or
+# "stickerbook-rpc" (live browser service: host owns the kernel and table).
 jevActionSet: generic
+
+# Live service channel settings. These are inert unless commchannel is
+# explicitly overridden to stickerbookrpc by the operator launcher.
+stickerbookRpcRole: "omegajev"
+stickerbookRpcPort: 8762
+stickerbookRpcTimeout: 45
 # Deployment authority profile used in stickerbook mode.
 jevProfile: local-single-agent
 # Toy scene state for the butterfly set. Lives in the agent's one writable
