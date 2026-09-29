@@ -34,8 +34,13 @@ mechanical static demo; the powered authority-kernel runtime runs on localhost.
   for demonstration subjects (the UI page ID is a different namespace).
 - PR #46: one host-owned pending semantic reference for bounded
   linguistic continuation, separate from current input evidence.
-- This tranche: non-executing page-path trajectory references with explicit
-  page/subject frame and immutable host-resolved geometry.
+- PR #47: non-executing page-path trajectory references with explicit
+  page/subject frame and immutable host-resolved geometry, plus a world-lock
+  scope correction so no model think-time is serialized.
+- This tranche: movement staleness correctness. Powered pattern execution
+  proposes against the revision its own action table was built from, and a
+  narrow `move_only` choice surface is available for the future trajectory
+  follower.
 
 The provider now accepts subject/intent plus a bounded label or pattern id for
 the existing pattern intents. Remember requires a label; perform requires a
@@ -161,7 +166,10 @@ python -m unittest discover -s tests -p test_demonstration_binding.py
 python -m unittest discover -s tests -p test_pattern_provider.py
 python -m unittest discover -s tests -p test_semantic_carry.py
 python -m unittest discover -s tests -p test_trajectory_reference.py
+python -m unittest discover -s tests -p test_remember_and_recall.py
+python -m unittest discover -s tests -p test_pattern_memory.py
 python -m py_compile trajectory_reference.py tests/test_trajectory_reference.py
+python -m py_compile jev_controller.py tests/test_remember_and_recall.py
 python -m py_compile semantic_reference.py tests/test_semantic_carry.py
 python -m py_compile tests/test_pattern_provider.py
 python -m unittest discover -s tests -p test_page_path.py
@@ -178,13 +186,53 @@ The Windows-only intermittent
 `ConnectionAbortedError / WinError 10053`. It predates this tranche, passes
 alone, and has not appeared in Linux CI.
 
+## The action-table revision rule
+
+> A finite action table containing absolute move destinations is valid only
+> against the world revision from which that table was constructed. Model
+> think-time never refreshes the revision attached to an old choice.
+
+`_move_candidates` offers eight local steps as absolute page destinations
+derived from the subject's position when the table is built, and the world
+lock is deliberately released across chooser inference. A proposal therefore
+names its own table's revision, and the kernel answers `stale-revision` when
+the subject moved meanwhile. Re-reading the revision at submission time would
+apply an old coordinate as current and silently undo the child's own gesture.
+The ordinary bounded goal loop, powered pattern execution and mechanical
+replay all follow this rule. See
+[agent interface](AGENT-INTERFACE.md#a-finite-action-table-belongs-to-one-world-revision).
+
+## Trajectory follower roadmap
+
+Approved after architecture review, not yet implemented:
+
+- **Tranche B**: deterministic mechanical subject-frame trajectory follower.
+  Monotonic progress index, one-step lookahead objective, the `move_only`
+  finite surface, a deterministic distance-minimising selector, and truthful
+  partial/stopped audit. Page-frame trajectories stay non-executing reference
+  data, because a page-frame start away from the subject is a semantic
+  question (teleport, approach, refuse, clarify) rather than a geometry one.
+- **Tranche C**: the same controller shape with OmegaJev selecting instead of
+  the deterministic argmin.
+
+Decided policy for both: **direct human manipulation of the subject supersedes
+the current autonomous motor attempt.** The child is the higher-authority
+actor, so a stale-refused agent proposal stops the attempt truthfully with
+`superseded-by-human` rather than re-aiming and continuing. Automatic
+continue-and-re-aim is explicitly not the first policy.
+
+Measured during review, for Tranche B: retained waypoint spacing is finer than
+one `MOVE_STEP`, so a next-waypoint objective overshoots reference arc length
+by about 49% against roughly 7.5% for a one-step lookahead. A non-monotonic
+nearest-point rule is unsafe on out-and-return paths, where the first and last
+retained waypoints can coincide exactly and a tie resolved toward the later
+index would declare completion before a single step.
+
 ## Next research and build questions
 
-The next design question is which explicit movement-use intent permits a
-resolved spatial reference to become a bounded motor objective, including how
-to handle a page-frame start away from the sticker. Reference resolution alone
-does not request execution or remembering. Candidate generation, timing use,
-page-edge behavior, and trajectory memory remain unimplemented research work.
+The next build step is Tranche B above. Reference resolution alone does not
+request execution or remembering. Timing use, trajectory memory and
+page-frame execution semantics remain unimplemented research work.
 
 1. Decide whether a bound page path is a demonstration, route, region, or other meaning in context before defining motor behavior.
 2. Extend binding to “around there” and “do that” across other evidence kinds without geometry-only heuristics.

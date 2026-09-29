@@ -325,6 +325,41 @@ clip the current StickerDefinition does not declare never executes. A pattern
 learned for one definition is refused on an incompatible one. Ownership and
 per-turn budgets remain kernel restrictions.
 
+### A finite action table belongs to one world revision
+
+> A finite action table containing absolute move destinations is valid only
+> against the world revision from which that table was constructed. Model
+> think-time never refreshes the revision attached to an old choice.
+
+`JevController._move_candidates()` offers eight local steps as **absolute page
+destinations**, computed from where the subject is when the table is built.
+`Kernel.available_actions()` bakes those coordinates into each `MOVE` key. A
+selection made against that table is therefore a claim about *that* world, not
+a relative nudge that stays correct later.
+
+This matters because the world lock is deliberately released across chooser
+inference. A child can move the same sticker while OmegaJev is thinking. Every
+proposal consequently names the revision its own table came from:
+
+```text
+table/scene built at revision R
+  MOVE key encodes a destination derived from R
+
+world lock released; OmegaJev thinks
+child drags the same sticker    -> world becomes R+1
+
+OmegaJev returns a key from the R table
+host submits it with based_on_revision=R
+kernel answers stale-revision
+```
+
+Had the host re-read the revision at submission time, the kernel would have
+accepted an R-derived coordinate as current and the child's own gesture would
+have been silently undone. Powered pattern execution follows this rule, as do
+the ordinary bounded goal loop and mechanical replay. The child is the
+higher-authority actor, and a superseded agent proposal is recorded as a
+refused step rather than retried over them.
+
 ### Two modes, and why Jev still matters
 
 1. **Mechanical replay** (implemented): deterministic host execution, used to

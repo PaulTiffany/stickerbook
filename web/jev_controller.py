@@ -11,6 +11,19 @@ through OmegaLLM.  In that case the choice surface is animation-only.
 
 This module contains no model inference and no network code.  It creates only
 finite, host-owned choices and applies a selected key through Kernel.propose_key.
+
+One rule governs every path here that consults a model:
+
+    A finite action table containing absolute move destinations is valid only
+    against the world revision from which that table was constructed. Model
+    think-time never refreshes the revision attached to an old choice.
+
+`_move_candidates` bakes the subject's position at table-build time into each
+MOVE key's destination coordinates, so a choice made against that table is a
+statement about that world, not about a later one. Every proposal therefore
+names the revision its own table came from. If a child moved the subject while
+the chooser was thinking, the kernel returns `stale-revision` and the old
+coordinate is never applied.
 """
 
 from __future__ import annotations
@@ -310,7 +323,17 @@ class JevController:
                     "Face the subject %s." % command.param("facing"))
         return out
 
-    def _table(self, actor: str, goal: dict, *, animate_only: bool) -> tuple:
+    def _table(self, actor: str, goal: dict, *, animate_only: bool = False,
+               move_only: bool = False) -> tuple:
+        """The subject's current finite choice surface, plus NOOP.
+
+        `animate_only` is the child double-tap surface. `move_only` is the
+        narrow surface a continuous movement objective needs: the subject's
+        currently legal local steps and nothing that changes its appearance,
+        so a chooser cannot satisfy a movement goal by animating, resizing or
+        turning instead. Both are filters over the ordinary host-owned table;
+        neither invents a choice, and the kernel still decides.
+        """
         subject = self.kernel.sticker(goal["subject"])
         moves = self._move_candidates(subject)
         raw = self.kernel.available_actions(actor, move_candidates=moves)
@@ -324,6 +347,9 @@ class JevController:
                 continue
             if animate_only:
                 if command.action == ANIMATE_OWN_STICKER:
+                    allowed[key] = command
+            elif move_only:
+                if command.action == MOVE_STICKER:
                     allowed[key] = command
             elif command.action in (
                     MOVE_STICKER, ANIMATE_OWN_STICKER,
@@ -732,11 +758,18 @@ class JevController:
                 break
 
             with self._world():
+                # scene["revision"], NOT a fresh read: `moves` holds absolute
+                # destinations derived from the subject as it was when this
+                # table was built, and Jev chose against that table. Re-reading
+                # the revision here would submit an old coordinate as though it
+                # were current, so a child who moved this sticker during
+                # inference would be silently dragged back. The kernel refuses
+                # the stale choice instead.
                 receipt = self.kernel.propose_key(
                     actor,
                     choice,
                     "%s-%d" % (command_prefix, index + 1),
-                    based_on_revision=self.kernel.revision,
+                    based_on_revision=scene["revision"],
                     requested_by=requested_by,
                     translated_by=translated_by,
                     selected_by=self.selector_id,
@@ -799,10 +832,12 @@ class JevController:
                 elif subject.asset != pattern.asset:
                     stopped_reason = "pattern-definition-mismatch"
                 else:
-                    # 2. rebuild the current host-owned legal table
+                    # 2. rebuild the current host-owned legal table, and
+                    # keep the revision it was built from
                     moves = self._move_candidates(subject)
                     table = self.kernel.available_actions(
                         actor, move_candidates=moves)
+                    table_revision = self.kernel.revision
 
                     # 3. re-bind the stored fragment to the current instance
                     key = bind_key(step, subject_id)
@@ -812,12 +847,15 @@ class JevController:
                         stopped_reason = "pattern-step-unavailable"
                     else:
                         # 5. ordinary kernel proposal path; no pattern-level
-                        # privilege
+                        # privilege. No model is consulted here, so the table
+                        # revision is still current -- but the proposal names
+                        # it explicitly, because the table's absolute move
+                        # destinations are only valid against it.
                         receipt = self.kernel.propose_key(
                             actor,
                             key,
                             "%s-%d" % (command_prefix, index + 1),
-                            based_on_revision=self.kernel.revision,
+                            based_on_revision=table_revision,
                             requested_by=requested_by,
                             move_candidates=moves,
                         )
