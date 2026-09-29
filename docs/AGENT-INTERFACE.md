@@ -771,7 +771,55 @@ Pending use consumes carry without renewal. The host dereferences only the
 already-admitted path ID, without searching prior episodes. If geometry was
 evicted before resolution, it fails with `trajectory-evidence-unavailable`;
 no recency fallback occurs. No Jev call, kernel proposal/receipt, world revision,
-legal action, or movement memory is created. Motor interpretation is future work.
+legal action, or movement memory is created by RESOLVING a reference. Executing
+one is a separate host path, described next, that no child-facing intent
+reaches yet.
+
+#### Following a demonstrated trajectory
+
+`JevController.follow_trajectory()` is the **mechanical trajectory follower**:
+the same relationship to a resolved trajectory that `replay_pattern()` has to a
+remembered pattern, a deterministic host path that proves the control loop
+without a live chooser. It accepts only an already-resolved `frame: "subject"`
+reference. Page-frame references stay valid non-executing data.
+
+```text
+ResolvedTrajectoryReference  (frozen observation)
+    -> host derives the CURRENT local objective
+    -> host builds the CURRENT move_only legal surface
+    -> a selector picks one CURRENT legal move
+    -> kernel adjudicates an ordinary proposal
+    -> fresh world state, and repeat
+```
+
+Nothing is precompiled into keys, so a trajectory confers no more power than
+being allowed to propose one ordinary move at a time. Progress is a monotonic
+index that walks forward past consecutive points already within one
+`MOVE_STEP`, and the objective is the first point beyond that. It is never a
+nearest-point search: in an out-and-return path the first and last retained
+points can be the same coordinate, and a nearest-point rule could call the
+whole excursion finished before it began.
+
+Completion, unreachability and the step budget are all host bookkeeping,
+determined before the selector is consulted, so none of them can be confused
+with a selector declining. The step budget is
+`min(48, ceil(1.25 * arc_length / MOVE_STEP))` motor steps; exhaustion is
+reported as `partial`, never `completed`. Observed timing stays evidence on the
+reference and is not used to schedule anything.
+
+Direct human manipulation of the subject supersedes an attempt, since the child
+is the higher-authority actor. That label requires evidence: an accepted
+`human-gesture` record for this same subject, newer than the motor snapshot. A
+`stale-revision` refusal without it stops neutrally as `world-changed`, because
+the same subject can be moved by other controller paths and attributing that to
+the child would be fabricated provenance.
+
+`follow_trajectory(..., select=...)` is the seam a powered follower replaces.
+The selector receives a bounded declarative snapshot — current position,
+progress index, objective, local error vector, the next one or two retained
+points, and the honest current action table including `NOOP` — and returns one
+offered key. Only real moves carry destinations, so only they compete on
+distance. No sample array and no path history is handed over.
 
 ```text
 child voice/gesture -> OmegaLLM -> bounded semantic goal
@@ -787,8 +835,11 @@ chooser. The kernel remains the authority.
 A sticker drag is still **not** learnable by the discrete `PatternStep`
 mechanism, and "remember that" still resolves only over typed discrete
 actions. Collapsing a continuous demonstration into compass steps would
-quantise a semantic the child never supplied. How a demonstration becomes
-movement memory, and how OmegaJev consumes it, is the next decision.
+quantise a semantic the child never supplied. A drawn path can now be FOLLOWED
+mechanically, but it still cannot be REMEMBERED as continuous movement, and no
+child-facing intent asks for it to be followed. How OmegaJev consumes a
+trajectory, and how continuous demonstrated movement becomes memory without
+false quantisation, are the next decisions.
 
 ### Not yet
 

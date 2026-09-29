@@ -62,6 +62,9 @@ import sticker_drag  # noqa: E402
 import trajectory_reference  # noqa: E402
 from semantic_reference import PendingSemanticReference  # noqa: E402
 from pattern_memory import PatternLibrary, ReplayLog  # noqa: E402
+from trajectory_execution import (  # noqa: E402
+    TrajectoryExecutionLog,
+)
 from stickerbook_core import (  # noqa: E402
     ADD_OWN_STICKER, ANIMATE_OWN_STICKER, Command, MOVE_STICKER,
     REMOVE_OWN_STICKER, RESIZE_OWN_STICKER, SET_STICKER_FACING,
@@ -106,6 +109,7 @@ class Bridge:
             self, kernel=None, agent_runtime=None, jev_runtime=None,
             page_image_runtime=None, pattern_library=None,
             governed_history=None, replay_log=None, drag_log=None,
+            trajectory_execution_log=None,
             interaction_log=None, page_path_log=None, observed_input_log=None):
         self.kernel = kernel or farm.build_world()
         self._world_lock = RLock()
@@ -125,6 +129,10 @@ class Bridge:
         # audit of attempts to perform remembered behaviour.
         self.history = governed_history or GovernedHistory()
         self.replays = replay_log or ReplayLog()
+        # Audit of trajectory-following attempts. No lookup route and no
+        # authority; the mechanical follower is a host reference path.
+        self.trajectory_executions = (
+            trajectory_execution_log or TrajectoryExecutionLog())
         # Bounded record of what the child physically demonstrated by
         # dragging a sticker. Input history, kept separate from world history
         # on purpose. This is one input type, not a gesture ontology.
@@ -143,7 +151,8 @@ class Bridge:
         self.jev_controller = JevController(
             self.kernel, self.jev_runtime, patterns=self.patterns,
             history=self.history, replays=self.replays,
-            world_lock=self._world_lock)
+            world_lock=self._world_lock,
+            executions=self.trajectory_executions)
         self._jev_counter = 0
         self.page_image_runtime = (
             page_image_runtime or DisabledPageImageRuntime())

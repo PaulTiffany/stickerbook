@@ -37,10 +37,12 @@ mechanical static demo; the powered authority-kernel runtime runs on localhost.
 - PR #47: non-executing page-path trajectory references with explicit
   page/subject frame and immutable host-resolved geometry, plus a world-lock
   scope correction so no model think-time is serialized.
-- This tranche: movement staleness correctness. Powered pattern execution
-  proposes against the revision its own action table was built from, and a
-  narrow `move_only` choice surface is available for the future trajectory
-  follower.
+- PR #48: movement staleness correctness. Powered pattern execution proposes
+  against the revision its own action table was built from, plus a narrow
+  `move_only` choice surface for the trajectory follower.
+- This tranche: the deterministic mechanical subject-frame trajectory
+  follower. Monotonic progress, one-step lookahead objective, truthful
+  partial/stopped audit, and no model inference anywhere on the path.
 
 The provider now accepts subject/intent plus a bounded label or pattern id for
 the existing pattern intents. Remember requires a label; perform requires a
@@ -166,9 +168,11 @@ python -m unittest discover -s tests -p test_demonstration_binding.py
 python -m unittest discover -s tests -p test_pattern_provider.py
 python -m unittest discover -s tests -p test_semantic_carry.py
 python -m unittest discover -s tests -p test_trajectory_reference.py
+python -m unittest discover -s tests -p test_trajectory_follower.py
 python -m unittest discover -s tests -p test_remember_and_recall.py
 python -m unittest discover -s tests -p test_pattern_memory.py
 python -m py_compile trajectory_reference.py tests/test_trajectory_reference.py
+python -m py_compile trajectory_execution.py tests/test_trajectory_follower.py
 python -m py_compile jev_controller.py tests/test_remember_and_recall.py
 python -m py_compile semantic_reference.py tests/test_semantic_carry.py
 python -m py_compile tests/test_pattern_provider.py
@@ -202,37 +206,104 @@ The ordinary bounded goal loop, powered pattern execution and mechanical
 replay all follow this rule. See
 [agent interface](AGENT-INTERFACE.md#a-finite-action-table-belongs-to-one-world-revision).
 
-## Trajectory follower roadmap
+## Trajectory layering
 
-Approved after architecture review, not yet implemented:
+```text
+reference-trajectory            semantic coordinate frame
+ResolvedTrajectoryReference     frozen non-authoritative geometry
+mechanical trajectory follower  deterministic reference implementation
+powered trajectory follower     NOT YET
+kernel authority                unchanged
+```
 
-- **Tranche B**: deterministic mechanical subject-frame trajectory follower.
-  Monotonic progress index, one-step lookahead objective, the `move_only`
-  finite surface, a deterministic distance-minimising selector, and truthful
-  partial/stopped audit. Page-frame trajectories stay non-executing reference
-  data, because a page-frame start away from the subject is a semantic
-  question (teleport, approach, refuse, clarify) rather than a geometry one.
-- **Tranche C**: the same controller shape with OmegaJev selecting instead of
-  the deterministic argmin.
+`JevController.follow_trajectory()` follows one already-resolved
+**subject-frame** reference. Page-frame references remain valid non-executing
+data: a page-frame path can begin far from the subject, and whether that means
+teleport, approach, refuse or clarify is a semantic question, not a geometric
+one, so it is deliberately undecided.
 
-Decided policy for both: **direct human manipulation of the subject supersedes
-the current autonomous motor attempt.** The child is the higher-authority
-actor, so a stale-refused agent proposal stops the attempt truthfully with
-`superseded-by-human` rather than re-aiming and continuing. Automatic
-continue-and-re-aim is explicitly not the first policy.
+Nothing is precompiled. Each step re-derives everything from current state, so
+possessing a trajectory grants no more than the right to propose one ordinary
+move at a time. `perform-trajectory` does not exist yet: this path is a host
+reference implementation, not a child-facing contract.
 
-Measured during review, for Tranche B: retained waypoint spacing is finer than
-one `MOVE_STEP`, so a next-waypoint objective overshoots reference arc length
-by about 49% against roughly 7.5% for a one-step lookahead. A non-monotonic
-nearest-point rule is unsafe on out-and-return paths, where the first and last
-retained waypoints can coincide exactly and a tie resolved toward the later
-index would declare completion before a single step.
+**Monotonic progress and the one-step lookahead.** Progress is an index into
+the retained points that only ever moves forward:
+
+```text
+while progress < last and distance(subject_now, points[progress]) < MOVE_STEP:
+    progress += 1
+objective = points[progress]
+```
+
+It is never a nearest-point search and never projects across the path. That
+ordering is the only thing protecting loops. Retained waypoint spacing is
+typically finer than one `MOVE_STEP`, so a next-waypoint objective overshoots
+reference arc length by about 49% against roughly 7.5% for this lookahead. And
+in an out-and-return path the first and last retained points can be the same
+coordinate, so any nearest-point rule faces a tie that, resolved toward the
+later index, would declare the whole excursion complete before a single step.
+
+**Completion** is host bookkeeping only: sequential arrival at the final point,
+within the same reach. Never proximity to some later point, never proximity to
+the origin, never a selector declining, never budget exhaustion. An
+already-satisfied reference completes with zero proposals.
+
+**Step budget**, derived once from the frozen geometry, is a motor-step count
+and never a clock:
+
+```text
+planned = min(48, ceil(1.25 * arc_length / MOVE_STEP))
+```
+
+Exhaustion reports `step-budget-exhausted` as `partial` when steps landed, and
+never `completed`.
+
+**Duplicate destinations.** At a page edge, clamping makes some diagonal keys
+share a destination with an axis key, so `STEP-NE` and `STEP-E` can both mean
+the same place. The table is deliberately **not** deduplicated, because that is
+the honest legal surface a powered chooser will be shown. Selection orders by
+`(distance to objective, action key)`, so the tie-break decides the recorded
+key, not a different physical path.
+
+**Page edges.** The frozen reference keeps its off-page coordinates. When legal
+moves exist but none strictly reduces distance to the objective, the host stops
+with `trajectory-objective-unreachable`, `partial` if steps already landed.
+Host-determined, and never represented as a selector `NOOP`.
+
+**Timing** is ignored by execution. Observed `t` and `observed_duration_ms`
+stay on the reference as evidence; no wall-clock scheduling exists, and the
+speed at which the path was drawn is not simulated.
+
+**The action-table revision rule** applies to every step: the coherent read
+(subject, progress, objective, `move_only` table, revision) happens under a
+brief world lock, the lock is released across the selector seam, and the
+proposal names the snapshot revision. See
+[agent interface](AGENT-INTERFACE.md#a-finite-action-table-belongs-to-one-world-revision).
+
+**Human supersession, and what is not supersession.** Direct human
+manipulation of the subject supersedes the attempt: the child is the
+higher-authority actor, their move stands, and nothing re-aims or retries.
+But a `stale-revision` refusal alone is not evidence of that. The host labels
+`superseded-by-human` only when governed history shows an accepted
+`human-gesture` record for **this same subject**, newer than the motor
+snapshot. The same subject moved by another controller path stops neutrally as
+`world-changed`, because claiming the child did it would be fabricated
+provenance. A change to a *different* sticker does not disturb the attempt at
+all, since the staleness check in the kernel is per-sticker.
+
+**Tranche C** is the same controller shape with OmegaJev selecting instead of
+the deterministic argmin. `follow_trajectory(..., select=...)` is that seam:
+the objective, progress, table construction, revision discipline, audit,
+completion and boundary behaviour are all reused unchanged, and the bounded
+snapshot the selector receives is already the context a chooser needs.
 
 ## Next research and build questions
 
-The next build step is Tranche B above. Reference resolution alone does not
-request execution or remembering. Timing use, trajectory memory and
-page-frame execution semantics remain unimplemented research work.
+The next build step is Tranche C: swap the deterministic argmin for OmegaJev
+selection. Beyond that, timing use, continuous trajectory memory, page-frame
+execution semantics and the child-facing `perform-trajectory` contract all
+remain unimplemented research work.
 
 1. Decide whether a bound page path is a demonstration, route, region, or other meaning in context before defining motor behavior.
 2. Extend binding to “around there” and “do that” across other evidence kinds without geometry-only heuristics.
