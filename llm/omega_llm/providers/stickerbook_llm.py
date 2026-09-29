@@ -92,8 +92,18 @@ _ALLOWED_GOAL_FIELDS = frozenset({
 _ALLOWED_INTENTS = frozenset({
     "control", "animate", "move", "move-and-animate", "bind-demonstration",
     "remember-pattern", "perform-pattern",
-    "reference-trajectory",
+    "reference-trajectory", "perform-trajectory",
 })
+
+# Intents that name one already-observed demonstration, and which coordinate
+# frames each will accept. Referring supports both; performing is subject-only,
+# because a page-frame course can start far from the sticker and what that
+# should mean is still an open question. Neither frame is ever a default.
+_DEMONSTRATION_INTENTS = {
+    "bind-demonstration": (),
+    "reference-trajectory": ("page", "subject"),
+    "perform-trajectory": ("subject",),
+}
 
 
 def _helper_modules():
@@ -297,9 +307,10 @@ def clean_goal(raw):
     if {"label", "pattern"} & raw.keys():
         raise ValueError("pattern fields require pattern intent")
 
-    if intent in ("bind-demonstration", "reference-trajectory"):
+    if intent in _DEMONSTRATION_INTENTS:
+        frames = _DEMONSTRATION_INTENTS[intent]
         fields = {"subject", "intent", "demonstration"}
-        if intent == "reference-trajectory":
+        if frames:
             fields.add("frame")
         if set(raw) != fields:
             raise ValueError("invalid demonstration goal fields")
@@ -307,8 +318,8 @@ def clean_goal(raw):
         if not isinstance(event_id, str) or not _INPUT_EVENT_RE.fullmatch(event_id):
             raise ValueError("invalid demonstration reference")
         goal = {"subject": subject, "intent": intent, "demonstration": event_id}
-        if intent == "reference-trajectory":
-            if raw["frame"] not in ("page", "subject"):
+        if frames:
+            if raw["frame"] not in frames:
                 raise ValueError("invalid trajectory frame")
             goal["frame"] = raw["frame"]
         return goal
@@ -343,9 +354,9 @@ def clean_goal(raw):
 
 def validate_demonstration_goal(goal, scene):
     """Admit only a supported event offered in this turn's bounded scene."""
-    if goal is None or goal.get("intent") not in ("bind-demonstration", "reference-trajectory"):
+    if goal is None or goal.get("intent") not in _DEMONSTRATION_INTENTS:
         return
-    if goal["intent"] == "reference-trajectory":
+    if _DEMONSTRATION_INTENTS[goal["intent"]]:
         stickers = scene.get("stickers") if isinstance(scene, dict) else None
         if not isinstance(stickers, list) or not any(
                 isinstance(sticker, dict) and sticker.get("id") == goal["subject"]
@@ -412,16 +423,19 @@ clearly expressed, omit goal. If a goal is appropriate,
 use only these fields:
 - subject: exact sticker instance id visible in scene
 - intent: control | animate | move | move-and-animate | bind-demonstration |
-          remember-pattern | perform-pattern | reference-trajectory
+          remember-pattern | perform-pattern | reference-trajectory |
+          perform-trajectory
 - behavior: optional short desired behavior/clip word
 - target: optional {"kind":"sticker","id":"..."} or
           {"kind":"point","x":0..1,"y":0..1}
 - facing: optional left | right
 - scale: optional number from 0.90 through 1.10
-- demonstration: for bind-demonstration or reference-trajectory, one exact `sourceEvent` from a
+- demonstration: for bind-demonstration, reference-trajectory or
+  perform-trajectory, one exact `sourceEvent` from a
   `page-path` signal in THIS `scene.interaction`, or the exact demonstration
   and subject pair in `scene.pendingReference`
-- frame: REQUIRED for reference-trajectory only, exactly page | subject
+- frame: REQUIRED for reference-trajectory (page | subject) and for
+  perform-trajectory (subject only). Never a default.
 
 bind-demonstration carries exactly subject, intent, demonstration: WHICH
 evidence the child means. reference-trajectory carries exactly subject,
@@ -437,7 +451,18 @@ with facing or scale with sticker size. The host does the coordinate math.
 Do not choose a frame from shape, modality, or recency. "Go like this", "fly
 along this", and "copy that" alone need not determine a frame. If uncertain,
 omit reference-trajectory; you may bind the referent and ask a clarification.
-There is no default frame, trajectory execution, or motor timing contract.
+There is no default frame or motor timing contract.
+
+perform-trajectory carries exactly subject, intent, demonstration, and
+frame: "subject". Use it when the child asks the sticker to MOVE along the
+course they demonstrated, starting from where it is now: "do that movement
+starting where you are", "fly like that from your spot". It asks for movement
+now; reference-trajectory asks for nothing to happen. Use frame "subject"
+only. If the child means the drawn positions on the page rather than a course
+from the sticker, do not use perform-trajectory: refer to it instead, or ask
+what they mean. Movement may stop part-way, and the child may move the
+sticker themselves at any time; say so plainly if asked, and do not promise a
+result. The host owns all coordinates and timing.
 
 For a child referring to a demonstration, you may semantically select one
 current page-path event from `scene.interaction`. Use the utterance, scene,

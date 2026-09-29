@@ -40,9 +40,11 @@ mechanical static demo; the powered authority-kernel runtime runs on localhost.
 - PR #48: movement staleness correctness. Powered pattern execution proposes
   against the revision its own action table was built from, plus a narrow
   `move_only` choice surface for the trajectory follower.
-- This tranche: the deterministic mechanical subject-frame trajectory
-  follower. Monotonic progress, one-step lookahead objective, truthful
-  partial/stopped audit, and no model inference anywhere on the path.
+- PR #49: the deterministic mechanical subject-frame trajectory follower.
+  Monotonic progress, one-step lookahead objective, truthful partial/stopped
+  audit, and no model inference anywhere on the path.
+- This tranche: the powered follower. `perform-trajectory` asks for movement,
+  and OmegaJev selects each motor step from the same shared control loop.
 
 The provider now accepts subject/intent plus a bounded label or pattern id for
 the existing pattern intents. Remember requires a label; perform requires a
@@ -169,10 +171,12 @@ python -m unittest discover -s tests -p test_pattern_provider.py
 python -m unittest discover -s tests -p test_semantic_carry.py
 python -m unittest discover -s tests -p test_trajectory_reference.py
 python -m unittest discover -s tests -p test_trajectory_follower.py
+python -m unittest discover -s tests -p test_powered_trajectory.py
 python -m unittest discover -s tests -p test_remember_and_recall.py
 python -m unittest discover -s tests -p test_pattern_memory.py
 python -m py_compile trajectory_reference.py tests/test_trajectory_reference.py
 python -m py_compile trajectory_execution.py tests/test_trajectory_follower.py
+python -m py_compile tests/test_powered_trajectory.py
 python -m py_compile jev_controller.py tests/test_remember_and_recall.py
 python -m py_compile semantic_reference.py tests/test_semantic_carry.py
 python -m py_compile tests/test_pattern_provider.py
@@ -210,11 +214,38 @@ replay all follow this rule. See
 
 ```text
 reference-trajectory            semantic coordinate frame
+perform-trajectory              a request for movement now
 ResolvedTrajectoryReference     frozen non-authoritative geometry
 mechanical trajectory follower  deterministic reference implementation
-powered trajectory follower     NOT YET
+powered trajectory follower     OmegaJev selects each motor step
 kernel authority                unchanged
 ```
+
+`perform-trajectory` is the child-facing intent that asks for movement now:
+
+```json
+{"subject":"bird-1","intent":"perform-trajectory","demonstration":"input-event-7","frame":"subject"}
+```
+
+Exactly four fields, and `frame` must be `subject` with no default.
+`reference-trajectory` still takes both frames; `bind-demonstration` stays
+purely referential. All three admit evidence through one shared path, so
+there is no second way to name a demonstration. Performing consumes pending
+carry under the ordinary one-turn rule and never renews it.
+
+The attempt holds the frozen reference resolved at admission.
+`bridge.last_trajectory_reference` is an inspection slot, not execution
+state, and is never read back mid-attempt.
+
+Powered following swaps only the selector. OmegaJev receives a bounded
+`follow-trajectory` decision context -- position, progress index, objective,
+local error, at most a two-point lookahead, and the current action table
+including `NOOP` -- and returns one offered key. No sample array reaches
+either model. `MAX_AGENT_TRAJECTORY_STEPS = 12` bounds model spend separately
+from the `MAX_TRAJECTORY_STEPS = 48` motor cap, and the two exhaustion
+reasons are distinct. Jev declining is `jev-noop`; an absent runtime is
+`jev-unavailable`; a failing one is `jev-selection-failed`. None of those is
+completion.
 
 `JevController.follow_trajectory()` follows one already-resolved
 **subject-frame** reference. Page-frame references remain valid non-executing
@@ -292,18 +323,18 @@ snapshot. The same subject moved by another controller path stops neutrally as
 provenance. A change to a *different* sticker does not disturb the attempt at
 all, since the staleness check in the kernel is per-sticker.
 
-**Tranche C** is the same controller shape with OmegaJev selecting instead of
-the deterministic argmin. `follow_trajectory(..., select=...)` is that seam:
-the objective, progress, table construction, revision discipline, audit,
-completion and boundary behaviour are all reused unchanged, and the bounded
-snapshot the selector receives is already the context a chooser needs.
+Both followers remain available, and produce the same record shape with only
+`mode` and attribution differing, so a mechanical run and a powered run of the
+same reference are directly comparable.
 
 ## Next research and build questions
 
-The next build step is Tranche C: swap the deterministic argmin for OmegaJev
-selection. Beyond that, timing use, continuous trajectory memory, page-frame
-execution semantics and the child-facing `perform-trajectory` contract all
-remain unimplemented research work.
+The next step is live application testing: comparing a deterministic
+mechanical trajectory against an OmegaJev-powered one in the running app, and
+using measured latency to set the provisional agent decision cap and decide
+whether a wall-clock bound is needed. Beyond that, timing use, continuous
+trajectory memory and page-frame execution semantics remain unimplemented
+research work.
 
 1. Decide whether a bound page path is a demonstration, route, region, or other meaning in context before defining motor behavior.
 2. Extend binding to “around there” and “do that” across other evidence kinds without geometry-only heuristics.

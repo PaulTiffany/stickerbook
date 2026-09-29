@@ -821,6 +821,61 @@ points, and the honest current action table including `NOOP` — and returns one
 offered key. Only real moves carry destinations, so only they compete on
 distance. No sample array and no path history is handed over.
 
+**Powered following.** `follow_trajectory_with_jev()` changes exactly one
+thing: who picks one of the current legal choices. Objective, progress,
+completion, `move_only` construction, revision discipline, page-edge
+behaviour, human supersession and the audit record are the same shared
+implementation, so the chooser is the independent variable when comparing a
+mechanical run with a powered one.
+
+A trajectory selection is deliberately **not** an ordinary Jev semantic goal.
+`normalize_goal` and its intent/field vocabulary are untouched: `frame` never
+becomes acceptable on an unrelated intent, and `perform-trajectory` is an
+OmegaLLM intent that the Jev controller never parses. What OmegaJev gets is
+its own narrow decision context, typed `follow-trajectory`, carrying only:
+
+```json
+{"revision": 9, "principal": "human:kid",
+ "subject": {"id": "bird-1", "x": 0.5, "y": 0.5},
+ "available_actions": ["MOVE:bird-1:STEP-E", "...", "NOOP"],
+ "trajectory": {"pathRef": "path-1", "frame": "subject",
+                "progressIndex": 1, "waypointCount": 4, "remaining": 2,
+                "position": {"x": 0.5, "y": 0.5},
+                "objective": {"x": 0.56, "y": 0.5},
+                "error": {"dx": 0.06, "dy": 0.0, "distance": 0.06},
+                "next": [{"x": 0.62, "y": 0.5}, {"x": 0.68, "y": 0.5}]}}
+```
+
+No sample arrays, no transcript, no earlier episodes, no drag telemetry and no
+previous action tables. At most a two-point lookahead, so nothing in the scene
+could reconstruct the drawn course. OmegaJev returns one offered key and
+cannot supply coordinates: the host built the command behind every key.
+
+**Two caps, meaning different things.** `MAX_TRAJECTORY_STEPS = 48` stays the
+motor safety cap, a geometry and control bound. `MAX_AGENT_TRAJECTORY_STEPS =
+12` is a separate model-resource bound, and exhausting it reports
+`agent-step-budget-exhausted` rather than `step-budget-exhausted`, because
+"the geometry ran long" and "we declined to spend more inference" are not the
+same finding. The motor cap still wins when it is the smaller bound. The agent
+value is provisional and meant to be revisited once live latency is known; no
+wall-clock limit exists yet.
+
+**Selector outcomes stay distinct.** Jev declining is `jev-noop`: a real
+answer, and not completion, unreachability or budget, and nothing asks again.
+A runtime that is absent is `jev-unavailable`, reported before an attempt
+starts. A runtime that raises or answers badly is `jev-selection-failed`,
+never folded into a NOOP, because that would credit Jev with a judgement it
+never made. Any provider text is kept as one bounded, uninterpreted
+diagnostic string. A key the current table does not offer is
+`unknown-selector-choice` and never reaches the kernel.
+
+**Attribution.** A powered trajectory move carries the full chain: the child
+is `actor` and `requested_by`, OmegaLLM is `translated_by` because it turned
+an utterance into a bounded goal, OmegaJev is `selected_by` because it picked
+the key, and the kernel decided. The mechanical follower records
+`host:trajectory-argmin` as `selected_by` and no `translated_by`. Nothing
+pretends a language model authored a kernel command.
+
 ```text
 child voice/gesture -> OmegaLLM -> bounded semantic goal
                     -> OmegaJev -> current finite legal choices

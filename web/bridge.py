@@ -59,6 +59,7 @@ from governed_history import (  # noqa: E402
 import interaction  # noqa: E402
 import page_path  # noqa: E402
 import sticker_drag  # noqa: E402
+import trajectory_execution  # noqa: E402
 import trajectory_reference  # noqa: E402
 from semantic_reference import PendingSemanticReference  # noqa: E402
 from pattern_memory import PatternLibrary, ReplayLog  # noqa: E402
@@ -420,6 +421,8 @@ class Bridge:
                 payload["jev"] = self._bind_demonstration(goal, episode, pending)
             elif isinstance(goal, dict) and goal.get("intent") == "reference-trajectory":
                 payload["jev"] = self._reference_trajectory(goal, episode, pending)
+            elif isinstance(goal, dict) and goal.get("intent") == "perform-trajectory":
+                payload["jev"] = self._perform_trajectory(goal, episode, pending)
             else:
                 self._jev_counter += 1
                 # Unlocked on purpose: this path can run several OmegaJev
@@ -479,20 +482,27 @@ class Bridge:
             return pending, None
         return None, "demonstration-not-in-current-episode"
 
-    def _reference_trajectory(self, goal, episode, pending):
+    def _resolve_trajectory(self, goal, episode, pending, frames):
+        """Admit the demonstration and resolve it. Returns (resolved, error).
+
+        The single admission and resolution path shared by every trajectory
+        intent. `frames` is what THIS intent accepts, so a referring intent
+        and an executing one can differ on coordinate frames without there
+        being a second way to admit path evidence.
+        """
         if set(goal) != {"subject", "intent", "demonstration", "frame"} \
-                or goal.get("frame") not in ("page", "subject"):
-            return {"ok": False, "error": "invalid-trajectory-goal"}
+                or goal.get("frame") not in frames:
+            return None, "invalid-trajectory-goal"
         admitted, error = self._admitted_demonstration(goal, episode, pending)
         if error:
-            return {"ok": False, "error": error}
+            return None, error
         # Exact dereference AFTER admission, not a search of historical events.
         trace = self.page_paths.get(admitted.path_ref)
         if trace is None:
-            return {"ok": False, "error": "trajectory-evidence-unavailable"}
+            return None, "trajectory-evidence-unavailable"
         if trace.kind != interaction.SIGNAL_PAGE_PATH \
                 or trace.principal != admitted.principal or trace.page != admitted.page:
-            return {"ok": False, "error": "trajectory-provenance-mismatch"}
+            return None, "trajectory-provenance-mismatch"
         # OmegaLLM inference ran outside this lock: a child may have moved the
         # sticker meanwhile. Read position/visibility and revision together now.
         with self._world_lock:
@@ -500,16 +510,49 @@ class Bridge:
             subject = next((s for s in view["stickers"]
                             if s["id"] == admitted.subject), None)
             if subject is None:
-                return {"ok": False, "error": "invalid-demonstration-subject"}
+                return None, "invalid-demonstration-subject"
             start = trajectory_reference.Point(subject["x"], subject["y"])
             revision = view["revision"]
         resolved = trajectory_reference.resolve(
             admitted, trace, frame=goal["frame"], subject_start=start,
             resolution_scene_revision=revision)
+        # The one inspectable slot. It is NOT execution state: an attempt
+        # holds its own frozen reference and never reads this back.
         self.last_trajectory_reference = resolved
+        return resolved, None
+
+    def _reference_trajectory(self, goal, episode, pending):
+        """Resolve coordinate semantics only. Nothing moves."""
+        resolved, error = self._resolve_trajectory(
+            goal, episode, pending, ("page", "subject"))
+        if error:
+            return {"ok": False, "error": error}
         return {"ok": True, "result": "resolved", "subject": resolved.subject,
                 "demonstration": resolved.demonstration, "pathRef": resolved.path_ref,
                 "frame": resolved.frame, "reference": resolved.describe()}
+
+    def _perform_trajectory(self, goal, episode, pending):
+        """Resolve, then follow the demonstrated course with OmegaJev.
+
+        Subject frame only: a page-frame path can begin far from the subject,
+        and what that should mean is still an open semantic question.
+        """
+        resolved, error = self._resolve_trajectory(
+            goal, episode, pending, (trajectory_execution.FRAME_SUBJECT,))
+        if error:
+            return {"ok": False, "error": error}
+        self._jev_counter += 1
+        # The frozen object resolved above is handed over directly. Model
+        # think-time happens inside the follower, with no world lock held.
+        result = self.jev_controller.follow_trajectory_with_jev(
+            resolved,
+            actor=BROWSER_PRINCIPAL,
+            command_prefix="omega-jev-%d" % self._jev_counter,
+            requested_by=BROWSER_PRINCIPAL,
+            translated_by=OMEGA_LLM_ID,
+        )
+        result["reference"] = resolved.describe()
+        return result
 
     def _associate_inputs(self):
         """Newest observed inputs since the previous turn, in host order."""
