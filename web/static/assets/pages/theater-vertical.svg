@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 941 1574">
+  <defs>
+    <radialGradient id="spot" cx=".5" cy=".08" r=".9">
+      <stop offset="0" stop-color="#fff6cf"/>
+      <stop offset=".47" stop-color="#e8c779"/>
+      <stop offset="1" stop-color="#8f623d"/>
+    </radialGradient>
+    <linearGradient id="stage" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bd7b47"/>
+      <stop offset="1" stop-color="#8a5231"/>
+    </linearGradient>
+  </defs>
+  <rect width="941" height="1574" fill="#261c2d"/>
+  <path d="M0 0h941v160H0Z" fill="#4a1632"/>
+  <path d="M0 0h225q-18 367 61 650-132 76-286 118Z" fill="#7f1f3b"/>
+  <path d="M941 0H716q18 367-61 650 132 76 286 118Z" fill="#7f1f3b"/>
+  <path d="M0 0h164q-10 336 53 590-93 70-217 104Z" fill="#a62b49"/>
+  <path d="M941 0H777q10 336-53 590 93 70 217 104Z" fill="#a62b49"/>
+  <rect x="166" y="126" width="609" height="985" rx="20" fill="url(#spot)"/>
+  <ellipse cx="470" cy="950" rx="244" ry="121" fill="#fff2b5" opacity=".28"/>
+  <rect y="1057" width="941" height="517" fill="url(#stage)"/>
+  <path d="M0 1156h941M0 1280h941M0 1416h941M0 1525h941" stroke="#6d3c27" stroke-width="6" opacity=".6"/>
+  <g fill="#f2d061">
+    <circle cx="186" cy="1033" r="11"/><circle cx="243" cy="1033" r="11"/><circle cx="300" cy="1033" r="11"/>
+    <circle cx="357" cy="1033" r="11"/><circle cx="414" cy="1033" r="11"/><circle cx="471" cy="1033" r="11"/>
+    <circle cx="528" cy="1033" r="11"/><circle cx="585" cy="1033" r="11"/><circle cx="642" cy="1033" r="11"/>
+    <circle cx="699" cy="1033" r="11"/><circle cx="756" cy="1033" r="11"/>
+  </g>
+  <path d="M369 865h203l-18 111H387Z" fill="#1e2531" stroke="#d5c6a9" stroke-width="6"/>
+  <path d="M470 976v122M417 1098h106" stroke="#2a2529" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="470" cy="831" r="14" fill="#26222b"/><path d="M470 845v47" stroke="#26222b" stroke-width="8"/>
+  <text x="470" y="85" text-anchor="middle" font-family="system-ui, sans-serif" font-size="42" font-weight="700" fill="#f5dec1" opacity=".9">THEATER</text>
+</svg>
