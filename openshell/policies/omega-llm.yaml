@@ -1,0 +1,29 @@
+# StickerBook OmegaLLM sandbox policy.
+# This is a policy contract for the future live language loop. It is checked
+# into the repository now so OmegaLLM and OmegaJev do not inherit one ambient
+# sandbox. No browser/runtime wiring currently depends on this file.
+version: 1
+
+filesystem_policy:
+  include_workdir: false
+  read_only:
+    - /bin
+    - /usr
+    - /lib
+    - /proc
+    - /dev/urandom
+    - /etc
+    - /var/log
+    - /PeTTa
+    - /opt/huggingface
+    - /opt/sentence_transformers
+  read_write:
+    - /PeTTa/repos/Omega/memory
+    - /memory-transfer
+    - /tmp
+    - /dev/null
+
+landlock:
+  compatibility: best_effort
+
+network_policies: {}
