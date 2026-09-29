@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 941 1574">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3ead7"/>
+      <stop offset="1" stop-color="#e7d8ba"/>
+    </linearGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c98f5b"/>
+      <stop offset="1" stop-color="#a96f43"/>
+    </linearGradient>
+  </defs>
+  <rect width="941" height="1574" fill="url(#wall)"/>
+  <rect y="1120" width="941" height="454" fill="url(#floor)"/>
+  <rect x="127" y="143" width="687" height="371" rx="18" fill="#244e3b" stroke="#7e5d3d" stroke-width="18"/>
+  <path d="M184 245h212M184 315h390M184 384h288" stroke="#e9e6c8" stroke-width="9" stroke-linecap="round" opacity=".8"/>
+  <circle cx="653" cy="264" r="43" fill="none" stroke="#e9e6c8" stroke-width="8" opacity=".8"/>
+  <path d="M590 406q52-94 104 0t104 0" fill="none" stroke="#e9e6c8" stroke-width="8" opacity=".8"/>
+  <rect x="83" y="590" width="319" height="333" rx="16" fill="#c9e6f5" stroke="#f7f1dc" stroke-width="14"/>
+  <path d="M242 596v321M89 755h307" stroke="#f7f1dc" stroke-width="10"/>
+  <circle cx="145" cy="655" r="31" fill="#ffd760"/>
+  <path d="M95 880q88-91 158-40 73-54 144 40" fill="#8cc37c"/>
+  <rect x="574" y="570" width="271" height="401" rx="18" fill="#8b6544"/>
+  <path d="M592 678h235M592 785h235M592 892h235" stroke="#d9b58d" stroke-width="10"/>
+  <g fill="#e85f5c"><rect x="607" y="616" width="34" height="52"/><rect x="649" y="623" width="28" height="45"/></g>
+  <g fill="#5d8fd8"><rect x="692" y="616" width="34" height="52"/><rect x="734" y="623" width="28" height="45"/></g>
+  <g fill="#e3b64e"><rect x="777" y="616" width="31" height="52"/></g>
+  <g fill="#d9a96c" stroke="#8b5f38" stroke-width="9">
+    <path d="M65 1058h346l-26 139H91Z"/>
+    <path d="M518 1091h350l-26 139H544Z"/>
+    <path d="M207 1278h528l-34 152H241Z"/>
+  </g>
+  <g stroke="#785036" stroke-width="16" stroke-linecap="round">
+    <path d="M108 1197v115M369 1197v115M557 1230v100M829 1230v100M255 1430v102M686 1430v102"/>
+  </g>
+  <text x="470" y="96" text-anchor="middle" font-family="system-ui, sans-serif" font-size="42" font-weight="700" fill="#6f4d33" opacity=".8">SCHOOL</text>
+</svg>
