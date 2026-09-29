@@ -38,9 +38,21 @@ fi
 need openshell
 openshell status >/dev/null
 
-# Build the exact Omega baseline only once. Derived images are rebuilt each
-# launch so a git pull cannot leave an older service image running.
-if ! docker image inspect omega-jev:baseline >/dev/null 2>&1; then
+# Accept a cached baseline only if it identifies the pinned Omega source and
+# resolves SWI to the exact executable authorized by the provider profiles.
+baseline_ok=0
+if docker image inspect omega-jev:baseline >/dev/null 2>&1; then
+  baseline_version="$(docker run --rm --entrypoint cat omega-jev:baseline /PeTTa/repos/Omega/version 2>/dev/null || true)"
+  baseline_swipl="$(docker run --rm --entrypoint sh omega-jev:baseline -c 'readlink -f "$(command -v swipl)"' 2>/dev/null || true)"
+  if [[ "$baseline_version" == *"gee0618a"* \
+        && "$baseline_swipl" == "/usr/lib/swipl/bin/x86_64-linux/swipl" ]]; then
+    baseline_ok=1
+  fi
+fi
+
+# Build the exact Omega baseline when absent or stale. Derived images are
+# rebuilt each launch so a git pull cannot leave older role code running.
+if [[ "$baseline_ok" -ne 1 ]]; then
   echo "First run: preparing pinned Omega baseline..."
   rm -rf "$UPSTREAM"
   git init -q "$UPSTREAM"
@@ -58,6 +70,15 @@ docker build -t omega-jev:experiment -f "$ROOT/jev/Dockerfile.jev" "$ROOT"
 docker build -t stickerbook-omega-jev:openshell -f "$ROOT/jev/Dockerfile.openshell" "$ROOT"
 docker build -t stickerbook-omega-llm:experiment -f "$ROOT/llm/Dockerfile.omega-llm" "$ROOT"
 docker build -t stickerbook-omega-llm:openshell -f "$ROOT/llm/Dockerfile.openshell" "$ROOT"
+
+for image in stickerbook-omega-jev:openshell stickerbook-omega-llm:openshell; do
+  swipl_path="$(docker run --rm --entrypoint sh "$image" -c 'readlink -f "$(command -v swipl)"')"
+  if [[ "$swipl_path" != "/usr/lib/swipl/bin/x86_64-linux/swipl" ]]; then
+    echo "Refusing to start: $image resolves swipl to unexpected path: $swipl_path" >&2
+    echo "The OpenShell provider profile must match the canonical executable." >&2
+    exit 2
+  fi
+done
 
 # Provider credentials live in OpenShell, not in repo state. Prompt only when
 # one of the two role-specific provider instances still needs to be created.
