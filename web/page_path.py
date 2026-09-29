@@ -32,6 +32,7 @@ class PagePathTrace:
     duration_ms: int
     samples: Tuple[PathSample, ...]
     observed_sample_count: int
+    deictic_box: Optional[dict] = None
     kind: str = KIND_PAGE_PATH
 
     def to_dict(self) -> dict:
@@ -44,6 +45,7 @@ class PagePathTrace:
             "samples": [sample.to_dict() for sample in self.samples],
             "sampleCount": len(self.samples),
             "observedSampleCount": self.observed_sample_count,
+            "deicticBox": self.deictic_box,
             "kind": self.kind,
         }
 

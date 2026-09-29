@@ -31,13 +31,13 @@ join it only by a deterministic, observable host rule -- never by model
 judgement. See `Bridge.converse` for the rule.
 
 **Not hard-coded to sticker drags.** A signal carries a `kind` and a
-host-issued `ref`, so a future page-path gesture or other bounded input type
+host-issued `ref`, so a page-path gesture or another bounded input type
 can participate without changing the shape of the record.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import List, Optional, Tuple
 
 # Small explicit bounds. This is a conversation aid, not a surveillance log.
@@ -72,14 +72,18 @@ class InputSignal:
     ref: str
     subject: Optional[str] = None
     duration_ms: Optional[int] = None
+    source_event: Optional[str] = None
 
     def to_dict(self) -> dict:
-        return {
+        record = {
             "kind": self.kind,
             "ref": self.ref,
             "subject": self.subject,
             "durationMs": self.duration_ms,
         }
+        if self.source_event is not None:
+            record["sourceEvent"] = self.source_event
+        return record
 
 
 @dataclass(frozen=True)
@@ -97,7 +101,11 @@ class ObservedInputLog:
         self._inputs: List[ObservedInput] = []
         self._next_sequence = 1
 
-    def add(self, principal: str, signal: InputSignal) -> ObservedInput:
+    def add(self, principal: str, signal: InputSignal,
+            *, issue_event: bool = False) -> ObservedInput:
+        if issue_event:
+            signal = replace(signal,
+                             source_event="input-event-%d" % self._next_sequence)
         observed = ObservedInput(self._next_sequence, principal, signal)
         self._next_sequence += 1
         self._inputs.append(observed)

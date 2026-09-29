@@ -26,7 +26,8 @@ mechanical static demo; the powered authority-kernel runtime runs on localhost.
 - PR #39: Remember that / Do that again.
 - PR #40: StickerDragTrace capture.
 - PR #41: bounded multimodal InteractionEpisode records for linguistic turns.
-- This tranche: non-sticker bare-page path observation and generic input ordering.
+- PR #42: non-sticker bare-page path observation and generic input ordering.
+- This tranche: host-issued physical input-event provenance for box/path co-origin.
 
 An episode records utterance, optional validated point/box, descriptive
 voice/text mode, scene revision, and up to four recent host-observed input
@@ -48,6 +49,17 @@ only a `page-path` reference and duration. Host arrival order is the evidence
 order; network delay does not establish precise physical timing across separate
 requests. Page paths are not learnable or executable yet.
 
+For one bare-page drag, the auxiliary request carries both its existing box
+and bounded path samples. The host checks the box against observed endpoints,
+then returns `sourceEvent` as `input-event-N`, issued from its observation
+sequence. The browser attaches it only to the still-pending box. The host
+projects that token on the box only when it identifies the latest eligible
+path in the current bounded window and matches the box stored at capture. The
+path signal carries the same token. Stale, fabricated, mismatched, or failed
+captures leave the box usable but unlinked. This is checked correlation of
+client observations, not independent attestation of physical hardware events.
+It does not solve cross-request timing or assign semantic meaning.
+
 ## OpenShell status
 
 **BLOCKED_UPSTREAM / LIVE GRAPH UNVERIFIED.** See
@@ -59,11 +71,12 @@ requests. Page paths are not learnable or executable yet.
 From the repository root unless a `cd` is shown:
 
 ```bash
-python -m py_compile web/page_path.py web/interaction.py web/sticker_drag.py web/bridge.py web/tests/test_page_path.py web/tests/test_interaction.py jev/omega_jev/providers/jev.py llm/omega_llm/providers/stickerbook_llm.py runtime/omega/stickerbookrpc.py
+python -m py_compile web/page_path.py web/interaction.py web/sticker_drag.py web/bridge.py web/tests/test_input_event.py web/tests/test_page_path.py web/tests/test_interaction.py jev/omega_jev/providers/jev.py llm/omega_llm/providers/stickerbook_llm.py runtime/omega/stickerbookrpc.py
 cd core && python -m unittest discover -s tests
 cd ../jev && python -m unittest discover -s tests
 cd ../web && python -m unittest discover -s tests -p test_interaction.py
 python -m unittest discover -s tests -p test_page_path.py
+python -m unittest discover -s tests -p test_input_event.py
 python -m unittest discover -s tests
 cd ..
 python openshell/verify.py

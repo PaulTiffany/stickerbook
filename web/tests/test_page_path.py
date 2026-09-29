@@ -122,7 +122,7 @@ class PagePathCapture(unittest.TestCase):
         self.assertEqual(episode["deicticReference"]["kind"], "box")
         self.assertEqual(episode["signals"], [{
             "kind": "page-path", "ref": "path-1", "subject": None,
-            "durationMs": 900}])
+            "durationMs": 900, "sourceEvent": "input-event-1"}])
         self.assertEqual(self.llm.scenes[-1]["interaction"], episode)
         self.assertNotIn("samples", json.dumps(self.llm.scenes[-1]))
         self.assertEqual(len(self.bridge.page_paths.get("path-1").samples), 3)
@@ -203,18 +203,26 @@ let pendingDefinition = null;
 let stickerOverlay = {hidden: true};
 let screens = {play: {hidden: false}};
 let deicticGesture = null;
+let deicticReferenceSerial = 0;
+let pendingDeicticReference = null;
 let pendingPathObservation = Promise.resolve();
 let sent = [];
 let reference = null;
 let tick = 0;
 let performance = {now: () => ++tick * 100};
 let svg = {setPointerCapture() {}, releasePointerCapture() {}};
-let kernelWorld = {observePagePath: async (body) => { sent.push(body); }};
+let kernelWorld = {observePagePath: async (body) => {
+  sent.push(body); return {ok: true, sourceEvent: "input-event-1"};
+}};
 let world = kernelWorld;
+let copy = (value) => JSON.parse(JSON.stringify(value));
 let overPage = () => true;
 let pageFraction = (event) => event.point;
 let drawDeicticReference = () => {};
-let setDeicticReference = (value) => { reference = value; };
+let setDeicticReference = (value) => {
+  reference = value; pendingDeicticReference = value;
+  deicticReferenceSerial += 1;
+};
 """
         tail = r"""
 const event = (x, y, cx, cy) => ({pointerId: 1, button: 0,
@@ -229,7 +237,8 @@ pendingPathObservation.then(() => console.log(JSON.stringify({reference, sent}))
                                 capture_output=True, text=True, check=True)
         result = json.loads(output.stdout)
         self.assertEqual(result["reference"], {"kind": "box", "box": {
-            "x1": .2, "y1": .3, "x2": .8, "y2": .4}})
+            "x1": .2, "y1": .3, "x2": .8, "y2": .4},
+            "sourceEvent": "input-event-1"})
         self.assertEqual(len(result["sent"]), 1)
         samples = result["sent"][0]["samples"]
         self.assertEqual((samples[0]["x"], samples[-1]["x"]), (.2, .8))
