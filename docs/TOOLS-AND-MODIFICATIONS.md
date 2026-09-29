@@ -312,22 +312,44 @@ StickerBook does not modify or vendor OpenShell source.
 
 - openshell/policies/omega-llm.yaml
 - openshell/policies/omega-jev.yaml
-- openshell/providers/openrouter-omega-llm.yaml
 - openshell/providers/openrouter-omega-jev.yaml
+- openshell/providers/openrouter-omega-llm.yaml
+- openshell/providers/asicloud-omega-llm.yaml
+- openshell/providers/anthropic-omega-llm.yaml
+- openshell/providers/openai-omega-llm.yaml
+- openshell/providers/asione-omega-llm.yaml
 - pinned install helper
 - role-specific service launchers
 - operator lifecycle under runtime/
 - non-root derived Omega role images
 
-### Why there are two policies/providers
+### Why the two roles still have separate containment
 
 OmegaLLM and OmegaJev cooperate but have different roles. They should not
-inherit one ambient sandbox simply because they participate in one child turn.
+inherit one ambient sandbox merely because they participate in one child turn.
 
-Each base policy starts with no network allow rules. The matching OpenRouter
-provider contributes the approved provider endpoint.
+Each base policy starts with no network allow rules.
 
-The provider profiles bind egress to the kernel-resolved SWI executable:
+OmegaJev receives only its required OpenRouter provider profile for the Jev
+Decisions API.
+
+OmegaLLM can receive multiple **separately configured** inference provider
+profiles in the same sandbox. The Responsible Adult session selector chooses
+which already-configured lane the bounded OmegaLLM provider uses for a turn:
+
+| Lane | Credential placeholder | Allowed host | Default model |
+|---|---|---|---|
+| Sponsored ASI Cloud | ASI_API_KEY | inference.asicloud.cudos.org | minimax/minimax-m3 (locked) |
+| Anthropic | ANTHROPIC_API_KEY | api.anthropic.com | claude-opus-4-8 |
+| OpenAI | OPENAI_API_KEY | api.openai.com | gpt-5.5 |
+| OpenRouter | OPENROUTER_API_KEY | openrouter.ai | z-ai/glm-5.2 |
+| ASI:One | ASIONE_API_KEY | api.asi1.ai | asi1-ultra |
+
+The non-sponsored model fields are bounded strings rather than a hard-coded
+catalog. That intentionally preserves provider flexibility—especially
+OpenRouter—while preventing the child/model from selecting the inference lane.
+
+Every provider profile binds egress to the kernel-resolved SWI executable:
 
 ~~~text
 /usr/lib/swipl/bin/x86_64-linux/swipl
@@ -335,6 +357,10 @@ The provider profiles bind egress to the kernel-resolved SWI executable:
 
 The boot script independently verifies that canonical identity and refuses to
 start if the built image resolves swipl somewhere else.
+
+Real credentials remain at OpenShell provider boundaries. The OmegaLLM process
+receives provider placeholders only; the browser receives neither placeholders
+nor real credentials.
 
 ### Why OpenShell is not the authority system
 
@@ -349,7 +375,8 @@ It does not answer:
 
 > May this StickerBook principal move this sticker right now?
 
-That question remains in the StickerBook authority kernel.
+Nor does selecting a different inference provider change that answer. The
+StickerBook authority kernel remains the mutation authority.
 
 ### Approval behavior
 
@@ -363,40 +390,84 @@ Agent-authored policy expansion is not automatically approved.
 
 ### Verification status
 
-The checked-in dual-Omega OpenShell path is **IMPLEMENTED + mechanically
-checked, NOT YET LIVE-HOST VERIFIED**.
+The checked-in multi-provider OmegaLLM/OpenShell path is **IMPLEMENTED +
+mechanically checked, NOT YET LIVE-HOST VERIFIED**.
+
+The static contract verifies the provider hosts, placeholder names, canonical
+SWI binary restriction, host-owned inference endpoint, and the fact that child
+conversation cannot set the session selector. It does not prove any real
+provider accepted a live request.
 
 Do not inherit the verified status of the older Docker/nginx OmegaJev network
 experiment.
 
 ---
 
-## 8. OpenRouter
+## 8. Inference services
+
+Inference transport is deliberately separate from StickerBook authorization.
+
+### OpenRouter
 
 Service: https://openrouter.ai
 
-StickerBook currently uses OpenRouter in three conceptually separate ways:
+OpenRouter remains required for OmegaJev's Decisions API:
 
-1. OmegaJev: Decisions API — POST /api/alpha/decisions
-2. OmegaLLM: chat completion endpoint — POST /api/v1/chat/completions
-3. Optional page-image gateway: an operator-selected image editing model
+- POST /api/alpha/decisions
+- Jev model: typesafe/jev-1.13
 
-The first two provider credentials are held by separate OpenShell provider
-instances in the powered runtime. The agent workload receives an OpenShell
-placeholder; the real credential remains at the provider boundary.
+OpenRouter is also an optional OmegaLLM lane through the standard chat
+completion endpoint, with current default model z-ai/glm-5.2. The adult may
+enter another safe OpenRouter model id without changing StickerBook code.
 
-The optional page-image gateway is a separate process from the authority bridge
-and receives media rather than a kernel/principal object.
+The optional page-image gateway is a third, separate OpenRouter use. It is not
+inside either Omega role.
 
-### Model configuration
+### Sponsored ASI Cloud
 
-- Jev default/configured model: typesafe/jev-1.13
-- OmegaLLM current default: z-ai/glm-5.2
+The sponsored OmegaLLM lane uses the configured ASI Cloud credential and fixes
+the session model to:
 
-The OmegaLLM model string is configuration, not a reproducibility guarantee
-equivalent to the OpenShell/Omega commit pins. If exact model-revision
-reproducibility becomes necessary, add an explicit model-version record rather
-than silently treating a provider alias as immutable.
+~~~text
+minimax/minimax-m3
+~~~
+
+The parent may select Sponsored ASI Cloud or another configured lane, but the
+sponsored lane does not expose a model override.
+
+### Anthropic, OpenAI, and ASI:One
+
+These are optional direct OmegaLLM lanes when their OpenShell provider
+instances are configured:
+
+- Anthropic default: claude-opus-4-8
+- OpenAI default: gpt-5.5
+- ASI:One default: asi1-ultra
+
+Their model field is adult-editable within StickerBook's bounded model-id
+syntax. A provider may still reject an invalid or unavailable model; that
+failure is not converted into a different provider automatically.
+
+### Who chooses
+
+The browser's Responsible Adult endpoint owns the current session selection.
+It is not included in ordinary browser state or the child-facing Omega scene.
+
+The child cannot request a provider/model override through conversation.
+OmegaLLM cannot select its own provider, endpoint, credential, or billing
+source.
+
+This is currently an audience boundary rather than authenticated parental
+security: a person with direct access to the local loopback browser/devtools
+can invoke the adult endpoint. That affects inference routing/cost, not world
+authority.
+
+### Model-version reproducibility
+
+Provider model identifiers are configuration references, not immutable source
+pins equivalent to the OpenShell/Omega commit hashes. If exact hosted-model
+revision reproducibility is required, it must be recorded separately from this
+software provenance ledger.
 
 ---
 
@@ -585,9 +656,9 @@ that require the powered runtime remain unavailable.
 | Omega | Add stickerbookrpc channel | Preserve real Omega loop while giving host a narrow bounded seam |
 | Omega | Add fixed sb-return skill | Keep model-selected data out of executable text |
 | OmegaJev | Add Jev typed provider/core | Typed finite discriminative selection instead of generative executable output |
-| OmegaLLM | Add bounded JSON conversation provider | Separate language mediation from actuation |
+| OmegaLLM | Add bounded JSON conversation provider + host-owned inference router | Separate language mediation from actuation while letting the responsible adult choose among configured inference lanes |
 | OpenShell | No upstream source patch; local policies/providers/orchestration | Contain each role without creating a second authority system |
-| OpenRouter | No service patch; separate role endpoints/providers | Keep inference transport separate from world authorization |
+| Inference services | No service patches; separate OpenShell provider profiles | Let the adult choose transport/model without giving the child or Omega provider/billing authority |
 | PeTTa | No project patch | Used as Omega's MeTTa execution engine |
 | SWI-Prolog | No project patch | Runtime for PeTTa/Omega; canonical path is policy identity |
 | Web Speech APIs | No vendor patch | Voice/text are two projections of the same human conversation seam |
@@ -627,7 +698,8 @@ Use the status terms in the root security document precisely.
 | Child/adult documentation projection | **VERIFIED** at host/static seam | web/tests/test_help_content.py |
 | Voice uses same conversation seam as text | **VERIFIED** statically | web/tests/test_voice_contract.py |
 | Legacy OmegaJev Docker/nginx profile | **VERIFIED** for its named runtime claims | jev/tests/verify_*.py |
-| Dual-Omega OpenShell artifacts | **IMPLEMENTED + mechanically checked** | CI + openshell/verify.py |
+| Dual-Omega multi-provider OpenShell artifacts | **IMPLEMENTED + mechanically checked** | CI + openshell/verify.py |
+| Adult inference routing / child non-override | **VERIFIED** at host contract layer | web/tests/test_bridge.py + web/tests/test_runtime_adapters.py |
 | Dual-Omega OpenShell on actual WSL2/provider host | **NOT YET LIVE-HOST VERIFIED** | Requires local deployment proof |
 | Public Pages powered-agent absence | Build-target property, mechanically assembled | .github/workflows/pages.yml |
 

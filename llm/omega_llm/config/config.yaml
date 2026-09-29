@@ -26,8 +26,8 @@ stickerbookRpcRole: "omegallm"
 stickerbookRpcPort: 8761
 stickerbookRpcTimeout: 45
 
-stickerbookLlmModel: "z-ai/glm-5.2"
-stickerbookLlmUrl: "https://openrouter.ai/api/v1/chat/completions"
+# The trusted StickerBook host chooses an allow-listed provider/model per
+# browser session. Provider/model are not selected by Omega configuration.
 stickerbookLlmTimeout: 40
 
 openClawEnabled: disabled

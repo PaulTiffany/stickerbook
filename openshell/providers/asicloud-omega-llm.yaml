@@ -1,0 +1,26 @@
+id: stickerbook-asicloud-omega-llm
+display_name: StickerBook ASI Cloud for OmegaLLM
+description: Sponsored ASI Cloud inference for the bounded OmegaLLM language loop
+category: inference
+inference_capable: true
+
+credentials:
+  - name: api_key
+    description: Sponsored ASI Cloud API key
+    env_vars: [ASI_API_KEY]
+    required: true
+    auth_style: bearer
+    header_name: authorization
+
+discovery:
+  credentials: [api_key]
+
+endpoints:
+  - host: inference.asicloud.cudos.org
+    port: 443
+    protocol: rest
+    access: read-write
+    enforcement: enforce
+
+binaries:
+  - /usr/lib/swipl/bin/x86_64-linux/swipl

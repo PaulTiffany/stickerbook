@@ -1,0 +1,26 @@
+id: stickerbook-openai-omega-llm
+display_name: StickerBook OpenAI for OmegaLLM
+description: OpenAI inference for the bounded OmegaLLM language loop
+category: inference
+inference_capable: true
+
+credentials:
+  - name: api_key
+    description: OpenAI API key
+    env_vars: [OPENAI_API_KEY]
+    required: true
+    auth_style: bearer
+    header_name: authorization
+
+discovery:
+  credentials: [api_key]
+
+endpoints:
+  - host: api.openai.com
+    port: 443
+    protocol: rest
+    access: read-write
+    enforcement: enforce
+
+binaries:
+  - /usr/lib/swipl/bin/x86_64-linux/swipl

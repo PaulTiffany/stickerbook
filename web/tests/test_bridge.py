@@ -31,6 +31,7 @@ class FakeAgentRuntime:
         self.last_principal = None
         self.last_scene = None
         self.last_reference = None
+        self.last_inference = None
         self.last_creator = None
 
     def capabilities(self):
@@ -39,10 +40,44 @@ class FakeAgentRuntime:
             "conversational_agent": True,
         }
 
-    def converse(self, *, text, principal, scene, reference=None):
+    def inference_options(self):
+        return [
+            {
+                "id": "asicloud",
+                "label": "Sponsored ASI Cloud",
+                "description": "Sponsored MiniMax.",
+                "default_model": "minimax/minimax-m3",
+                "model_locked": True,
+                "sponsored": True,
+                "available": True,
+            },
+            {
+                "id": "openrouter",
+                "label": "OpenRouter",
+                "description": "Configured OpenRouter.",
+                "default_model": "z-ai/glm-5.2",
+                "model_locked": False,
+                "sponsored": False,
+                "available": True,
+            },
+            {
+                "id": "anthropic",
+                "label": "Anthropic",
+                "description": "Not configured.",
+                "default_model": "claude-opus-4-8",
+                "model_locked": False,
+                "sponsored": False,
+                "available": False,
+            },
+        ]
+
+    def converse(
+            self, *, text, principal, scene, reference=None,
+            inference=None):
         self.last_principal = principal
         self.last_scene = scene
         self.last_reference = reference
+        self.last_inference = inference
         return {"ok": True, "reply": "Omega heard: " + text}
 
     def creator_draft(
@@ -141,9 +176,12 @@ class GoalAgentRuntime(FakeAgentRuntime):
         super().__init__()
         self.goal = None
 
-    def converse(self, *, text, principal, scene, reference=None):
+    def converse(
+            self, *, text, principal, scene, reference=None,
+            inference=None):
         result = super().converse(
-            text=text, principal=principal, scene=scene, reference=reference)
+            text=text, principal=principal, scene=scene, reference=reference,
+            inference=inference)
         if self.goal is not None:
             result["goal"] = self.goal
         return result
@@ -799,6 +837,88 @@ class Q1b_AgentInterfacesStayOutsideKernelAuthority(ServerCase):
             bridge_mod.BROWSER_PRINCIPAL)
         self.assertNotIn("kernel", self.bridge.agent_runtime.last_scene)
         self.assertIsNone(self.bridge.agent_runtime.last_reference)
+
+
+    def test_adult_inference_defaults_to_sponsored_when_available(self):
+        status, body = self.get("/api/adult/inference")
+        self.assertEqual(status, 200)
+        self.assertEqual(body["selected"], {
+            "provider": "asicloud",
+            "model": "minimax/minimax-m3",
+        })
+        self.assertTrue(any(
+            item["id"] == "openrouter" and item["available"]
+            for item in body["options"]))
+
+    def test_adult_can_switch_provider_and_model_for_session(self):
+        status, body = self.post("/api/adult/inference", {
+            "provider": "openrouter",
+            "model": "anthropic/claude-sonnet-4.8",
+        })
+        self.assertEqual(status, 200)
+        self.assertTrue(body["ok"], body)
+        self.assertEqual(body["inference"]["selected"], {
+            "provider": "openrouter",
+            "model": "anthropic/claude-sonnet-4.8",
+        })
+
+        status, body = self.post("/api/agent/converse", {"text": "hello"})
+        self.assertEqual(status, 200)
+        self.assertTrue(body["ok"], body)
+        self.assertEqual(self.bridge.agent_runtime.last_inference, {
+            "provider": "openrouter",
+            "model": "anthropic/claude-sonnet-4.8",
+        })
+
+    def test_child_conversation_cannot_select_inference(self):
+        status, body = self.post("/api/agent/converse", {
+            "text": "hello",
+            "inference": {
+                "provider": "openrouter",
+                "model": "something/else",
+            },
+        })
+        self.assertEqual(status, 200)
+        self.assertTrue(body["ok"], body)
+        self.assertEqual(self.bridge.agent_runtime.last_inference, {
+            "provider": "asicloud",
+            "model": "minimax/minimax-m3",
+        })
+
+    def test_unavailable_provider_and_sponsored_model_override_fail_closed(self):
+        status, body = self.post("/api/adult/inference", {
+            "provider": "anthropic",
+            "model": "claude-opus-4-8",
+        })
+        self.assertEqual(status, 400)
+        self.assertEqual(body["error"], "inference-provider-unavailable")
+
+        status, body = self.post("/api/adult/inference", {
+            "provider": "asicloud",
+            "model": "minimax/minimax-m2.5",
+        })
+        self.assertEqual(status, 400)
+        self.assertEqual(body["error"], "inference-model-locked")
+
+    def test_adult_off_disables_conversational_omega_until_reenabled(self):
+        status, body = self.post("/api/adult/inference", {
+            "provider": "off",
+            "model": "",
+        })
+        self.assertEqual(status, 200)
+        self.assertTrue(body["ok"], body)
+        self.assertFalse(body["state"]["capabilities"]["conversational_agent"])
+
+        status, body = self.post("/api/agent/converse", {"text": "hello"})
+        self.assertEqual(status, 400)
+        self.assertEqual(body["error"], "conversational-agent-unavailable")
+
+        status, body = self.post("/api/adult/inference", {
+            "provider": "openrouter",
+            "model": "z-ai/glm-5.2",
+        })
+        self.assertEqual(status, 200)
+        self.assertTrue(body["state"]["capabilities"]["conversational_agent"])
 
     def test_transient_point_reference_accompanies_one_conversation(self):
         before = self.bridge.kernel.revision

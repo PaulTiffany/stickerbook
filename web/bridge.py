@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -74,6 +75,7 @@ CONTENT_TYPES = {".html": "text/html; charset=utf-8",
 
 MAX_BODY_BYTES = 8192
 MAX_PAGE_UPLOAD_BYTES = 20 * 1024 * 1024
+_MODEL_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,119}$")
 
 
 class Bridge:
@@ -91,6 +93,7 @@ class Bridge:
         self._jev_counter = 0
         self.page_image_runtime = (
             page_image_runtime or DisabledPageImageRuntime())
+        self._inference_selection = self._default_inference_selection()
 
     # -- reads -------------------------------------------------------------
 
@@ -147,6 +150,81 @@ class Bridge:
         scene["child_help"] = help_content.child_help_for_omega()
         return scene
 
+    def _runtime_inference_options(self) -> list:
+        try:
+            raw = self.agent_runtime.inference_options()
+        except Exception:
+            raw = []
+        return raw if isinstance(raw, list) else []
+
+    def _default_inference_selection(self) -> dict:
+        options = self._runtime_inference_options()
+        available = {
+            item.get("id"): item for item in options
+            if isinstance(item, dict) and item.get("available") is True
+        }
+        for provider_id in ("asicloud", "openrouter"):
+            item = available.get(provider_id)
+            if item:
+                return {
+                    "provider": provider_id,
+                    "model": item.get("default_model", ""),
+                }
+        for item in options:
+            if isinstance(item, dict) and item.get("available") is True:
+                return {
+                    "provider": item.get("id"),
+                    "model": item.get("default_model", ""),
+                }
+        return {"provider": "off", "model": ""}
+
+    def inference_settings(self) -> dict:
+        options = [{
+            "id": "off",
+            "label": "Off",
+            "description": "Disable conversational OmegaLLM for this session.",
+            "default_model": "",
+            "model_locked": True,
+            "sponsored": False,
+            "available": True,
+        }]
+        options.extend(self._runtime_inference_options())
+        return {
+            "selected": dict(self._inference_selection),
+            "options": options,
+        }
+
+    def set_inference(self, body: dict) -> dict:
+        if not isinstance(body, dict) or set(body) != {"provider", "model"}:
+            return {"ok": False, "error": "invalid-inference-selection",
+                    "inference": self.inference_settings()}
+
+        provider_id = body.get("provider")
+        model = body.get("model")
+        if provider_id == "off":
+            self._inference_selection = {"provider": "off", "model": ""}
+            return {"ok": True, "inference": self.inference_settings(),
+                    "state": self.state()}
+
+        option = next((
+            item for item in self._runtime_inference_options()
+            if isinstance(item, dict) and item.get("id") == provider_id
+        ), None)
+        if not option or option.get("available") is not True:
+            return {"ok": False, "error": "inference-provider-unavailable",
+                    "inference": self.inference_settings()}
+        if not isinstance(model, str) or not _MODEL_RE.fullmatch(model.strip()):
+            return {"ok": False, "error": "invalid-inference-model",
+                    "inference": self.inference_settings()}
+        model = model.strip()
+        if option.get("model_locked") and model != option.get("default_model"):
+            return {"ok": False, "error": "inference-model-locked",
+                    "inference": self.inference_settings()}
+
+        self._inference_selection = {"provider": provider_id, "model": model}
+        return {"ok": True, "inference": self.inference_settings(),
+                "state": self.state()}
+
     def receipts(self, limit: int = 12) -> list:
         return [r.to_dict() for r in self.kernel.receipts[-limit:]]
 
@@ -165,7 +243,8 @@ class Bridge:
         return {
             "creator_agent": bool(raw.get("creator_agent", False)),
             "conversational_agent": bool(
-                raw.get("conversational_agent", False)),
+                raw.get("conversational_agent", False))
+                and self._inference_selection.get("provider") != "off",
             "jev_controller": self.jev_controller.available(),
             "page_image_creator": page_image_creator,
         }
@@ -201,7 +280,8 @@ class Bridge:
                 text=text,
                 principal=BROWSER_PRINCIPAL,
                 scene=self._conversation_scene(),
-                reference=reference)
+                reference=reference,
+                inference=dict(self._inference_selection))
         except Exception:
             return {"ok": False, "error": "agent-runtime-error",
                     "state": self.state()}
@@ -681,6 +761,8 @@ def make_handler(bridge: Bridge, quiet: bool = False):
                 return self._send(200, book.listing())
             if path == "/api/receipts":
                 return self._send(200, {"receipts": bridge.receipts()})
+            if path == "/api/adult/inference":
+                return self._send(200, bridge.inference_settings())
             if path.startswith("/static/"):
                 return self._static(path[len("/static/"):])
             if path.startswith("/generated-pages/"):
@@ -694,6 +776,7 @@ def make_handler(bridge: Bridge, quiet: bool = False):
                   "/api/resize": "resize",
                   "/api/facing": "facing",
                   "/api/agent/converse": "converse",
+                  "/api/adult/inference": "set_inference",
                   "/api/creator/draft": "creator_draft"}
 
         def do_POST(self):

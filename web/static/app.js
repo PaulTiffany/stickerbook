@@ -53,6 +53,10 @@ const stickerCategories = document.getElementById("sticker-categories");
 const stickerLibraryView = document.getElementById("sticker-library-view");
 const stickerMakerView = document.getElementById("sticker-maker-view");
 const adultPanel = document.getElementById("adult-panel");
+const inferenceProviderSelect = document.getElementById("inference-provider");
+const inferenceModelInput = document.getElementById("inference-model");
+const inferenceApply = document.getElementById("inference-apply");
+const inferenceStatus = document.getElementById("inference-status");
 const childHelpPanel = document.getElementById("child-help-panel");
 const childHelpButton = document.getElementById("child-help-btn");
 const childHelpClose = document.getElementById("child-help-close");
@@ -106,6 +110,7 @@ let voiceEnabled = false;
 let textChatEnabled = false;
 let voiceRecognition = null;
 let voiceBusy = false;
+let adultInference = null;
 
 const nextId = (kind) => "ui-" + kind + "-" + Date.now() + "-" + (++seq);
 const copy = (value) => JSON.parse(JSON.stringify(value));
@@ -519,6 +524,66 @@ const DEMO_SEED = {
   ],
 };
 
+const DEMO_INFERENCE = {
+  selected: { provider: "off", model: "" },
+  options: [
+    {
+      id: "off",
+      label: "Off",
+      description: "Disable conversational OmegaLLM for this session.",
+      default_model: "",
+      model_locked: true,
+      sponsored: false,
+      available: true,
+    },
+    {
+      id: "asicloud",
+      label: "Sponsored ASI Cloud",
+      description: "Powered local mode can use sponsored MiniMax inference when configured.",
+      default_model: "minimax/minimax-m3",
+      model_locked: true,
+      sponsored: true,
+      available: false,
+    },
+    {
+      id: "anthropic",
+      label: "Anthropic",
+      description: "Powered local mode can use Claude with a configured Anthropic API key.",
+      default_model: "claude-opus-4-8",
+      model_locked: false,
+      sponsored: false,
+      available: false,
+    },
+    {
+      id: "openai",
+      label: "OpenAI",
+      description: "Powered local mode can use OpenAI with a configured API key.",
+      default_model: "gpt-5.5",
+      model_locked: false,
+      sponsored: false,
+      available: false,
+    },
+    {
+      id: "openrouter",
+      label: "OpenRouter",
+      description: "Powered local mode can route an adult-selected model through OpenRouter.",
+      default_model: "z-ai/glm-5.2",
+      model_locked: false,
+      sponsored: false,
+      available: false,
+    },
+    {
+      id: "asione",
+      label: "ASI:One",
+      description: "Powered local mode can use ASI:One with a configured API key.",
+      default_model: "asi1-ultra",
+      model_locked: false,
+      sponsored: false,
+      available: false,
+    },
+  ],
+};
+
 function createMechanicalWorld() {
   let worldState = copy(DEMO_SEED);
   let receipts = [];
@@ -623,6 +688,18 @@ function createMechanicalWorld() {
 
     async pageImageDraft() {
       return { ok: false, error: "page-image-creator-unavailable" };
+    },
+
+    async inferenceSettings() {
+      return copy(DEMO_INFERENCE);
+    },
+
+    async setInference() {
+      return {
+        ok: false,
+        error: "powered-local-only",
+        inference: copy(DEMO_INFERENCE),
+      };
     },
 
     async converse(body) {
@@ -786,6 +863,21 @@ const kernelWorld = {
         "X-StickerBook-Filename": encodeURIComponent(file.name || "page.png"),
       },
       body: file,
+    });
+    return res.json();
+  },
+
+  async inferenceSettings() {
+    const res = await fetch("/api/adult/inference", { cache: "no-store" });
+    if (!res.ok) throw new Error("adult inference: HTTP " + res.status);
+    return res.json();
+  },
+
+  async setInference(body) {
+    const res = await fetch("/api/adult/inference", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
     });
     return res.json();
   },
@@ -2742,6 +2834,111 @@ async function requestCreatorDraft(kind) {
 
 // ------------------------------------------------------ conversational Omega
 
+function inferenceOption(providerId) {
+  const options = adultInference && adultInference.options || [];
+  return options.find((item) => item.id === providerId) || null;
+}
+
+function updateInferenceDraft() {
+  if (!inferenceProviderSelect || !inferenceModelInput ||
+      !inferenceApply || !inferenceStatus) return;
+
+  const option = inferenceOption(inferenceProviderSelect.value);
+  if (!option) {
+    inferenceModelInput.disabled = true;
+    inferenceApply.disabled = true;
+    inferenceStatus.textContent = "Inference settings are unavailable.";
+    return;
+  }
+
+  const off = option.id === "off";
+  inferenceModelInput.disabled = off || Boolean(option.model_locked);
+  inferenceApply.disabled = option.available !== true;
+
+  if (off) {
+    inferenceModelInput.value = "";
+  } else if (!inferenceModelInput.value.trim()) {
+    inferenceModelInput.value = option.default_model || "";
+  }
+
+  const availability = option.available
+    ? (option.sponsored ? "Sponsored inference is configured." : "Provider is configured.")
+    : "Not configured on this local runtime.";
+  inferenceStatus.textContent = option.description + " " + availability;
+}
+
+function renderInferenceControls() {
+  if (!inferenceProviderSelect || !adultInference) return;
+
+  const selected = adultInference.selected || { provider: "off", model: "" };
+  inferenceProviderSelect.replaceChildren();
+
+  for (const item of adultInference.options || []) {
+    const option = document.createElement("option");
+    option.value = item.id;
+    option.textContent =
+      item.label +
+      (item.sponsored ? " · sponsored" : "") +
+      (item.available ? "" : " · not configured");
+    option.disabled = item.available !== true;
+    inferenceProviderSelect.appendChild(option);
+  }
+
+  const selectedOption = inferenceOption(selected.provider);
+  inferenceProviderSelect.value = selectedOption ? selected.provider : "off";
+  inferenceModelInput.value = selectedOption && selected.provider !== "off"
+    ? (selected.model || selectedOption.default_model || "")
+    : "";
+  updateInferenceDraft();
+}
+
+async function refreshInferenceControls() {
+  try {
+    adultInference = await world.inferenceSettings();
+  } catch (error) {
+    console.error(error);
+    adultInference = copy(DEMO_INFERENCE);
+  }
+  renderInferenceControls();
+}
+
+async function applyInferenceSelection() {
+  if (!adultInference) await refreshInferenceControls();
+
+  const option = inferenceOption(inferenceProviderSelect.value);
+  if (!option || option.available !== true) {
+    updateInferenceDraft();
+    return;
+  }
+
+  const provider = option.id;
+  const model = provider === "off"
+    ? ""
+    : inferenceModelInput.value.trim();
+
+  inferenceApply.disabled = true;
+  inferenceStatus.textContent = "Switching inference for this session…";
+
+  try {
+    const result = await world.setInference({ provider, model });
+    if (result && result.inference) adultInference = result.inference;
+    if (result && result.state) {
+      state = result.state;
+      render();
+    }
+    if (!result || !result.ok) {
+      inferenceStatus.textContent =
+        result && result.error || "Inference selection was refused.";
+    }
+  } catch (error) {
+    console.error(error);
+    inferenceStatus.textContent = "Inference selection is unavailable.";
+  }
+
+  renderInferenceControls();
+  updateConversationControls();
+}
+
 function conversationCapabilities() {
   return state && state.capabilities || {};
 }
@@ -2985,6 +3182,7 @@ document.getElementById("cover-enter").addEventListener("click", () => {
 
 document.getElementById("adult-hotspot").addEventListener("click", () => {
   adultPanel.hidden = false;
+  refreshInferenceControls();
 });
 
 childHelpButton.addEventListener("click", openChildHelp);
@@ -3064,6 +3262,16 @@ document.getElementById("page-agent-go").addEventListener("click", () => {
 document.getElementById("sticker-agent-go").addEventListener("click", () => {
   requestCreatorDraft("sticker");
 });
+
+inferenceProviderSelect.addEventListener("change", () => {
+  const option = inferenceOption(inferenceProviderSelect.value);
+  inferenceModelInput.value =
+    option && option.id !== "off" ? option.default_model || "" : "";
+  updateInferenceDraft();
+});
+
+inferenceModelInput.addEventListener("input", updateInferenceDraft);
+inferenceApply.addEventListener("click", applyInferenceSelection);
 
 voiceEnable.addEventListener("change", () => {
   voiceEnabled = voiceEnable.checked;

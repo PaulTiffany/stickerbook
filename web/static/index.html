@@ -277,6 +277,17 @@
     <p id="adult-world-note"></p>
 
     <div id="agent-adult-controls" class="agent-adult-controls" hidden>
+      <section class="adult-inference" aria-labelledby="adult-inference-title">
+        <strong id="adult-inference-title">StickerBook talking brain</strong>
+        <label for="inference-provider">Inference provider</label>
+        <select id="inference-provider"></select>
+        <label for="inference-model">Model</label>
+        <input id="inference-model" type="text" maxlength="120"
+               autocomplete="off" spellcheck="false">
+        <button id="inference-apply" type="button">Use this inference</button>
+        <p id="inference-status" class="adult-note" role="status"></p>
+      </section>
+
       <label class="adult-toggle" for="voice-enable">
         <input id="voice-enable" type="checkbox">
         <span>Enable voice on this device</span>

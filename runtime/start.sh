@@ -96,6 +96,23 @@ if [[ "$need_key" -eq 1 && -z "${OPENROUTER_API_KEY:-}" ]]; then
   export OPENROUTER_API_KEY
 fi
 
+# Sponsored ASI Cloud is the preferred OmegaLLM default when configured.
+# It is optional because OpenRouter is already sufficient for OmegaLLM and is
+# required separately by OmegaJev. Prompt once, but Enter cleanly skips it.
+if ! openshell provider get stickerbook-asicloud-omega-llm >/dev/null 2>&1 \
+   && [[ -z "${ASI_API_KEY:-}" ]]; then
+  printf 'Sponsored ASI Cloud key for OmegaLLM (optional; Enter to skip; input hidden): ' >&2
+  IFS= read -r -s ASI_API_KEY
+  printf '\n' >&2
+  if [[ -n "$ASI_API_KEY" ]]; then
+    export ASI_API_KEY
+  fi
+fi
+
+# Anthropic, OpenAI and ASI:One are optional parent-selectable lanes. If their
+# normal environment variables are present, the launcher imports them into
+# OpenShell; otherwise they simply appear as unavailable in the adult UI.
+
 # Cleanly replace only StickerBook-owned runtime processes/sandboxes.
 bash "$ROOT/runtime/stop.sh" --quiet || true
 

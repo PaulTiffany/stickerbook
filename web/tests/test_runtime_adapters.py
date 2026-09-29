@@ -42,7 +42,18 @@ class _Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         role = "omegallm" if self.server.server_address[1] == self.server.llm_port else "omegajev"
         if self.path == "/health":
-            return self._send({"ok": True, "role": role})
+            payload = {"ok": True, "role": role}
+            if role == "omegallm":
+                payload["inference_options"] = [{
+                    "id": "asicloud",
+                    "label": "Sponsored ASI Cloud",
+                    "description": "Sponsored MiniMax.",
+                    "default_model": "minimax/minimax-m3",
+                    "model_locked": True,
+                    "sponsored": True,
+                    "available": True,
+                }]
+            return self._send(payload)
         self.send_error(404)
 
     def do_POST(self):
@@ -93,17 +104,26 @@ class RuntimeAdapterCase(unittest.TestCase):
             "creator_agent": False,
             "conversational_agent": True,
         })
+        self.assertEqual(runtime.inference_options()[0]["id"], "asicloud")
         result = runtime.converse(
             text="Make the cow hop.",
             principal="human:player",
             scene={"revision": 7, "stickers": [{"id": "cow-1"}]},
             reference={"kind": "point", "x": 0.2, "y": 0.3},
+            inference={
+                "provider": "asicloud",
+                "model": "minimax/minimax-m3",
+            },
         )
         self.assertTrue(result["ok"])
         path, body = _Handler.requests[-1]
         self.assertEqual(path, "/converse")
         self.assertEqual(body["principal"], "human:player")
         self.assertEqual(body["scene"]["revision"], 7)
+        self.assertEqual(body["inference"], {
+            "provider": "asicloud",
+            "model": "minimax/minimax-m3",
+        })
         self.assertNotIn("kernel", body)
         self.assertNotIn("credential", json.dumps(body).lower())
 

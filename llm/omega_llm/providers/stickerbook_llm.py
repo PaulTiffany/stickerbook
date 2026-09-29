@@ -16,6 +16,7 @@ import importlib
 import json
 import math
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -26,10 +27,62 @@ from src.logger import get_logger
 
 logger = get_logger(__name__)
 
-DEFAULT_MODEL = "z-ai/glm-5.2"
-DEFAULT_URL = "https://openrouter.ai/api/v1/chat/completions"
 DEFAULT_TIMEOUT = 40
 MAX_REPLY_CHARS = 1000
+_MODEL_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,119}$")
+
+INFERENCE_PRESETS = {
+    "asicloud": {
+        "label": "Sponsored ASI Cloud",
+        "description": "Sponsored MiniMax inference supplied by ASI Cloud.",
+        "default_model": "minimax/minimax-m3",
+        "env": "ASI_API_KEY",
+        "url": "https://inference.asicloud.cudos.org/v1/chat/completions",
+        "protocol": "openai",
+        "sponsored": True,
+        "model_locked": True,
+    },
+    "anthropic": {
+        "label": "Anthropic",
+        "description": "Direct Claude inference using a configured Anthropic API key.",
+        "default_model": "claude-opus-4-8",
+        "env": "ANTHROPIC_API_KEY",
+        "url": "https://api.anthropic.com/v1/messages",
+        "protocol": "anthropic",
+        "sponsored": False,
+        "model_locked": False,
+    },
+    "openai": {
+        "label": "OpenAI",
+        "description": "Direct OpenAI inference using a configured OpenAI API key.",
+        "default_model": "gpt-5.5",
+        "env": "OPENAI_API_KEY",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "protocol": "openai",
+        "sponsored": False,
+        "model_locked": False,
+    },
+    "openrouter": {
+        "label": "OpenRouter",
+        "description": "OpenRouter inference; the responsible adult may choose an OpenRouter model id.",
+        "default_model": "z-ai/glm-5.2",
+        "env": "OPENROUTER_API_KEY",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "protocol": "openai",
+        "sponsored": False,
+        "model_locked": False,
+    },
+    "asione": {
+        "label": "ASI:One",
+        "description": "Direct ASI:One inference using a configured ASI:One API key.",
+        "default_model": "asi1-ultra",
+        "env": "ASIONE_API_KEY",
+        "url": "https://api.asi1.ai/v1/chat/completions",
+        "protocol": "openai",
+        "sponsored": False,
+        "model_locked": False,
+    },
+}
 
 _ALLOWED_GOAL_FIELDS = frozenset({
     "subject", "intent", "behavior", "target", "facing", "scale",
@@ -61,24 +114,57 @@ def harden_llm_commands():
     logger.info("[stickerbook-llm] LLM_COMMANDS narrowed to ['sb-return']")
 
 
-class OpenShellOpenRouterTransport:
-    """OpenRouter chat completion through an OpenShell provider placeholder."""
+def inference_options() -> list[dict]:
+    """Secret-free provider metadata for the responsible-adult UI."""
+    options = []
+    for provider_id, preset in INFERENCE_PRESETS.items():
+        options.append({
+            "id": provider_id,
+            "label": preset["label"],
+            "description": preset["description"],
+            "default_model": preset["default_model"],
+            "model_locked": bool(preset["model_locked"]),
+            "sponsored": bool(preset["sponsored"]),
+            "available": bool(os.environ.get(preset["env"], "").strip()),
+        })
+    return options
 
-    def __init__(self, url: str, timeout: int):
+
+def clean_inference(raw) -> tuple[str, str, dict]:
+    if not isinstance(raw, dict) or set(raw) != {"provider", "model"}:
+        raise ValueError("invalid inference selection")
+    provider_id = raw.get("provider")
+    model = raw.get("model")
+    if provider_id not in INFERENCE_PRESETS:
+        raise ValueError("unknown inference provider")
+    if not isinstance(model, str) or not _MODEL_RE.fullmatch(model.strip()):
+        raise ValueError("invalid inference model")
+    model = model.strip()
+    preset = INFERENCE_PRESETS[provider_id]
+    if preset["model_locked"] and model != preset["default_model"]:
+        raise ValueError("sponsored model is fixed")
+    if not os.environ.get(preset["env"], "").strip():
+        raise RuntimeError("selected inference provider is not configured")
+    return provider_id, model, preset
+
+
+class _HTTPTransport:
+    def __init__(self, url: str, env_var: str, timeout: int):
         self.url = url
+        self.env_var = env_var
         self.timeout = timeout
 
-    def __call__(self, payload: dict) -> dict:
-        token = os.environ.get("OPENROUTER_API_KEY", "").strip()
+    def _token(self) -> str:
+        token = os.environ.get(self.env_var, "").strip()
         if not token:
-            raise RuntimeError("OpenShell provider placeholder is unavailable")
+            raise RuntimeError("%s provider placeholder unavailable" % self.env_var)
+        return token
+
+    def _request(self, payload: dict, headers: dict) -> dict:
         request = urllib.request.Request(
             self.url,
             data=json.dumps(payload, separators=(",", ":")).encode("utf-8"),
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + token,
-            },
+            headers=headers,
             method="POST",
         )
         try:
@@ -90,12 +176,57 @@ class OpenShellOpenRouterTransport:
         except urllib.error.URLError as exc:
             raise RuntimeError("network failure: " + str(exc.reason)) from exc
         if len(raw) > 1024 * 1024:
-            raise RuntimeError("OpenRouter response too large")
+            raise RuntimeError("inference response too large")
         decoded = json.loads(raw.decode("utf-8"))
         if not isinstance(decoded, dict):
-            raise RuntimeError("OpenRouter returned a non-object")
+            raise RuntimeError("inference backend returned a non-object")
         return decoded
 
+
+class OpenAICompatibleTransport(_HTTPTransport):
+    def complete(self, model: str, safe_input: dict, max_tokens: int) -> str:
+        body = self._request({
+            "model": model,
+            "messages": [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": json.dumps(
+                    safe_input, separators=(",", ":"), sort_keys=True)},
+            ],
+            "max_tokens": min(int(max_tokens), 1200),
+        }, {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + self._token(),
+        })
+        return _extract_content(body)
+
+
+class AnthropicTransport(_HTTPTransport):
+    def complete(self, model: str, safe_input: dict, max_tokens: int) -> str:
+        body = self._request({
+            "model": model,
+            "system": SYSTEM_PROMPT,
+            "messages": [{
+                "role": "user",
+                "content": json.dumps(
+                    safe_input, separators=(",", ":"), sort_keys=True),
+            }],
+            "max_tokens": min(int(max_tokens), 1200),
+        }, {
+            "Content-Type": "application/json",
+            "x-api-key": self._token(),
+            "anthropic-version": "2023-06-01",
+        })
+        blocks = body.get("content")
+        if not isinstance(blocks, list):
+            raise ValueError("missing content")
+        text = "".join(
+            block.get("text", "")
+            for block in blocks
+            if isinstance(block, dict) and block.get("type") == "text"
+        ).strip()
+        if not text:
+            raise ValueError("missing content")
+        return text
 
 def _finite_number(value):
     if isinstance(value, bool):
@@ -230,24 +361,28 @@ class StickerBookLLMProvider(providers.LLMProvider):
 
     def __init__(self):
         super().__init__()
-        self.model = DEFAULT_MODEL
-        self.transport = None
+        self.timeout = DEFAULT_TIMEOUT
 
     def start(self) -> None:
         harden_llm_commands()
-        self.model = str(config_get_by_key(
-            "stickerbookLlmModel", DEFAULT_MODEL)).strip() or DEFAULT_MODEL
-        url = str(config_get_by_key(
-            "stickerbookLlmUrl", DEFAULT_URL)).strip() or DEFAULT_URL
-        timeout = int(config_get_by_key(
+        self.timeout = int(config_get_by_key(
             "stickerbookLlmTimeout", DEFAULT_TIMEOUT))
-        self.transport = OpenShellOpenRouterTransport(url, timeout)
         rpc = importlib.import_module("stickerbookrpc")
-        rpc.set_provider_ready("omegallm")
-        logger.info("[stickerbook-llm] provider ready; model=%s", self.model)
+        rpc.set_provider_ready("omegallm", {
+            "inference_options": inference_options(),
+        })
+        logger.info(
+            "[stickerbook-llm] configured inference lanes=%s",
+            [item["id"] for item in inference_options() if item["available"]],
+        )
 
     def stop(self) -> None:
-        self.transport = None
+        return None
+
+    def _transport(self, preset: dict):
+        cls = (AnthropicTransport if preset["protocol"] == "anthropic"
+               else OpenAICompatibleTransport)
+        return cls(preset["url"], preset["env"], self.timeout)
 
     def chat(self, prompt: str, max_tokens: int = 6000,
              reasoning_mode: str = "medium") -> str:
@@ -266,17 +401,11 @@ class StickerBookLLMProvider(providers.LLMProvider):
             "reference": request.get("reference"),
         }
         try:
-            body = self.transport({
-                "model": self.model,
-                "messages": [
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": json.dumps(
-                        safe_input, separators=(",", ":"), sort_keys=True)},
-                ],
-                "max_tokens": min(int(max_tokens), 1200),
-                "temperature": 0.2,
-            })
-            decoded = _parse_json_object(_extract_content(body))
+            provider_id, model, preset = clean_inference(
+                request.get("inference"))
+            raw = self._transport(preset).complete(
+                model, safe_input, min(int(max_tokens), 1200))
+            decoded = _parse_json_object(raw)
             if set(decoded) - {"reply", "goal"}:
                 raise ValueError("unknown response field")
             reply = decoded.get("reply")
@@ -285,7 +414,11 @@ class StickerBookLLMProvider(providers.LLMProvider):
             reply = reply.strip()
             if len(reply) > MAX_REPLY_CHARS:
                 raise ValueError("reply too long")
-            result = {"ok": True, "reply": reply}
+            result = {
+                "ok": True,
+                "reply": reply,
+                "inference": {"provider": provider_id, "model": model},
+            }
             goal = clean_goal(decoded.get("goal"))
             if goal is not None:
                 result["goal"] = goal

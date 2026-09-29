@@ -892,10 +892,29 @@ all keys compile inside Omega to the same `sb-return` literal. The selected
 key returns as data, is checked against the current host table, and only then is
 presented to `Kernel.propose_key()`.
 
-The checked-in base policies grant no network rules. OpenRouter access is
-contributed only by separate role-specific provider profiles. The real provider
-secret stays at the OpenShell boundary; the sandbox sees only the provider
-placeholder.
+The checked-in base policies grant no network rules. Provider access is
+contributed only by explicit OpenShell provider profiles.
+
+OmegaJev attaches the required OpenRouter/Jev profile. OmegaLLM may attach
+separate ASI Cloud, Anthropic, OpenAI, OpenRouter, and ASI:One profiles when
+those provider instances are configured. Each profile grants only its declared
+API host and the canonical SWI executable. The real provider secrets stay at
+their OpenShell boundaries; the sandbox sees only provider placeholders.
+
+The responsible-adult browser route chooses one configured OmegaLLM
+`{provider, model}` record for the current bridge session. That record is
+host-owned control data: it is not part of the child scene, is not projected
+through child help, and is not accepted from `/api/agent/converse`. The
+OmegaLLM provider validates the allow-listed lane again before making a request.
+
+**Current adult-control limitation.** The gear panel and
+`/api/adult/inference` are audience-separated but not authenticated. Direct
+access to the local browser/devtools can change the session's inference lane.
+That can affect which configured account bears inference cost, but it does not
+expand StickerBook world authority: provider choice still cannot bypass the
+OmegaLLM goal schema, OmegaJev finite selection, or kernel authorization.
+A deployed child-account product that must protect paid inference requires a
+separate authenticated adult boundary.
 
 OpenShell binds network authorization to the kernel-resolved executable
 identity. The pinned `swipl:10.0.2` image installs SWI through
@@ -1205,6 +1224,12 @@ next conversation turn, then is cleared.
 
 ### OmegaLLM
 
+The live host adapter accepts only a loopback URL. The host separately owns the
+current OmegaLLM inference selection. Sponsored ASI Cloud is preferred when
+configured, then OpenRouter, then another configured lane; Off disables
+conversation for that bridge session. The child cannot choose a provider/model
+through conversation, and OmegaLLM cannot alter the host selection.
+
 The live host adapter accepts only a loopback URL. Its bounded scene includes
 the child-facing `child_help` projection but not the responsible-adult guide.
 The sandbox provider may return:
@@ -1243,16 +1268,19 @@ The operator-owned launcher is outside both agent loops.
 2. accepts/builds only the pinned Omega baseline;
 3. rebuilds the two current role images;
 4. verifies the canonical SWI executable identity used by OpenShell;
-5. creates/reuses separate OpenRouter provider instances;
+5. creates/reuses the required OpenRouter providers and any configured
+   optional OmegaLLM providers;
 6. creates OmegaLLM and OmegaJev sandboxes with manual policy approval;
 7. binds only loopback forwards `:8761` and `:8762`;
 8. waits for role health;
 9. starts `web/bridge.py` with explicit loopback runtime URLs;
 10. reports READY only when the bridge sees both roles.
 
-On first provider creation the operator may enter the OpenRouter key once with
-hidden terminal input. The launcher does not write it into repository/runtime
-state.
+On first provider creation the operator may enter the required OpenRouter key
+once with hidden terminal input and may optionally enter the sponsored ASI
+Cloud key. Anthropic, OpenAI, and ASI:One are attached when their provider
+instances already exist or their normal environment variables are present.
+The launcher does not write credentials into repository/runtime state.
 
 `Stop StickerBook.cmd` stops the tracked host bridge and deletes both named
 OpenShell sandboxes. This is the independent stop path: no model cooperation is
@@ -1270,7 +1298,7 @@ credential or execute the WSL2/Docker Desktop/OpenShell host.
 The next deployment proof must therefore observe, rather than assume:
 
 - canonical SWI identity;
-- role-specific OpenRouter success;
+- OpenRouter/Jev success plus success for any selected OmegaLLM provider lane;
 - denied unrelated egress;
 - placeholder-only credential visibility;
 - one bounded OmegaLLM response;

@@ -23,7 +23,20 @@ class RecordingAgentRuntime:
     def capabilities(self):
         return {"conversational_agent": True, "creator_agent": False}
 
-    def converse(self, *, text, principal, scene, reference=None):
+    def inference_options(self):
+        return [{
+            "id": "asicloud",
+            "label": "Sponsored ASI Cloud",
+            "description": "Sponsored MiniMax.",
+            "default_model": "minimax/minimax-m3",
+            "model_locked": True,
+            "sponsored": True,
+            "available": True,
+        }]
+
+    def converse(
+            self, *, text, principal, scene, reference=None,
+            inference=None):
         self.scene = scene
         return {"ok": True, "reply": "You can drag stickers around the page."}
 
@@ -70,6 +83,12 @@ class HelpContentCase(unittest.TestCase):
             "cannot approve openshell policy changes",
             "stop stickerbook.cmd",
             "not labeled live-host verified",
+            "sponsored asi cloud",
+            "anthropic",
+            "openai",
+            "openrouter",
+            "asi:one",
+            "child cannot select a provider",
         ):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, adult)
@@ -96,6 +115,8 @@ class HelpContentCase(unittest.TestCase):
         self.assertIn('id="child-help-btn"', html)
         self.assertIn('id="child-help-panel"', html)
         self.assertIn('id="adult-guide-sections"', html)
+        self.assertIn('id="inference-provider"', html)
+        self.assertIn('id="inference-model"', html)
         self.assertIn('fetch("static/help.json"', app)
         self.assertIn("renderHelpContent()", app)
 

@@ -112,8 +112,26 @@ Services and base images
 ================================================================================
 
 OpenRouter - https://openrouter.ai
-  The Decisions API (alpha) is the inference transport used by this
-  experiment. Used as a service under OpenRouter's own terms.
+  Required for OmegaJev's Decisions API transport and available as an optional
+  OmegaLLM inference lane. The separate page-image gateway may also use
+  OpenRouter. Used as a service under OpenRouter's own terms.
+
+ASI Cloud
+  Optional sponsored OmegaLLM inference lane. StickerBook's current sponsored
+  preset uses minimax/minimax-m3. Used as a service under the provider's own
+  terms.
+
+Anthropic - https://www.anthropic.com
+  Optional direct OmegaLLM inference lane for configured Claude models. Used
+  as a service under Anthropic's own terms.
+
+OpenAI - https://openai.com
+  Optional direct OmegaLLM inference lane. Used as a service under OpenAI's
+  own terms.
+
+ASI:One - https://asi1.ai
+  Optional direct OmegaLLM inference lane. Used as a service under the
+  provider's own terms.
 
 TypeSafe Jev - model typesafe/jev-1.13, served via OpenRouter.
   The typed discriminative decision model this experiment is built around.
