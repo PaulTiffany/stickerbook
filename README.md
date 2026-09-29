@@ -22,7 +22,7 @@ it.
 | **`core/`** | Headless authority kernel: principals, sticker ownership, revisions, receipts, deployment ceilings, action budgets, and legal-action tables. Standard library only. 67 tests. |
 | **`web/`** | Child-facing StickerBook surface with a title page, image-forward page gallery, active page, working sticker hotbar, overlay sticker library, mechanical animations, and responsible-adult/developer access. The same renderer supports a governed localhost world and a mechanical public world. |
 | **`jev/`** | OmegaJev: typed Jev decision selection inside a bounded Omega path. The model selects from host-provided legal choices; the host validates the choice and the kernel decides. 40 unit tests plus container/host verification suites. |
-| **`openshell/`** | Pinned OpenShell v0.1.2 containment layer: separate OmegaLLM/OmegaJev policies and provider profiles, a non-root OmegaJev sandbox image, and static integration checks. Live browser wiring remains deliberately separate work. |
+| **`openshell/` + `runtime/`** | Pinned OpenShell v0.1.2 containment plus governed local orchestration: separate non-root OmegaLLM/OmegaJev sandboxes, role-specific provider profiles, loopback-only runtime adapters, voice-first conversation wiring, and one-command Windows/WSL start/stop. Mechanically checked; live WSL2/OpenShell proof remains a deployment milestone. |
 
 ## Child-facing navigation
 
@@ -135,9 +135,11 @@ human gesture / agent choice
 ```
 
 Omega/Jev integration remains local and bounded. Models do not directly mutate
-the page. The powered deployment now has a pinned OpenShell containment layer
-under `openshell/`; OpenShell constrains the live process/filesystem/network
-boundary while the StickerBook kernel remains the authority boundary.
+the page. The powered deployment has a pinned OpenShell containment layer under
+`openshell/` plus operator-owned boot/shutdown under `runtime/`. OpenShell
+constrains the live process/filesystem/network boundary while the StickerBook
+kernel remains the authority boundary. The bridge talks to each Omega role only
+through explicit loopback adapters; neither sandbox receives the kernel object.
 
 ## Visual asset system
 
@@ -237,14 +239,35 @@ access is contributed explicitly at the OpenShell boundary. See
 
 ## Running locally
 
+### Powered governed runtime — normal path
+
+On the Windows host, double-click **`Start StickerBook.cmd`**. The launcher
+uses WSL2 + Docker Desktop, verifies/builds the pinned runtime, starts the
+separate OmegaLLM and OmegaJev OpenShell sandboxes, health-checks them, starts
+the authority bridge, and opens `http://127.0.0.1:8756/`.
+
+The first powered start may ask once for the OpenRouter API key if the
+role-specific OpenShell providers have not yet been created. The key is not
+written into repository/runtime state. Later starts reuse the OpenShell
+providers.
+
+Double-click **`Stop StickerBook.cmd`** to stop the bridge and delete both
+StickerBook sandboxes without requiring agent cooperation.
+
+This path is **implemented and CI/mechanically checked, but not yet claimed as
+live-host verified**. See [`runtime/README.md`](runtime/README.md).
+
+### Bridge-only development path
+
 ```bash
 cd web
 python bridge.py
 # open http://127.0.0.1:8756/
 ```
 
-Add `?dev=1` to show revision, acting principal, verdicts, and receipts.
-Add `?mechanical=1` to preview the public adapter locally.
+Without explicit runtime URLs, both Omega adapters remain inert. Add `?dev=1`
+to show revision, acting principal, verdicts, and receipts. Add
+`?mechanical=1` to preview the public adapter locally.
 
 ## Tests
 
@@ -268,16 +291,20 @@ Browser JavaScript is syntax-checked in GitHub Actions.
 | [`jev/SECURITY.md`](jev/SECURITY.md) | OmegaJev boundaries and verification. |
 | [`jev/EXPERIMENT.md`](jev/EXPERIMENT.md) | Experimental record, including failures and retractions. |
 | [`openshell/README.md`](openshell/README.md) | Pinned containment layer, policies, provider profiles, and current proof boundary. |
+| [`runtime/README.md`](runtime/README.md) | One-command boot/shutdown, dual-Omega loopback seams, and voice-first deployment graph. |
 | [`NOTICE`](NOTICE) | Third-party attribution and upstream modifications. |
 
 ## Current direction
 
-The immediate product problem is the shared visual medium, not more autonomous
-capability. The UI should remain recognizable to a child before we expand
-agent behavior.
+The foundational local substrate is now represented in code: child voice/text
+enters OmegaLLM, bounded goals enter OmegaJev, typed host-owned keys return to
+the authority kernel, and operator-owned orchestration starts/stops the two
+OpenShell sandboxes plus the bridge. The remaining infrastructure milestone is
+live-host verification of that exact graph on WSL2/Docker Desktop.
 
-The next agent integration should expose bounded, legal sticker behavior on the
-same page without creating a second authority system.
+After that proof, work can move back toward StickerBook behavior itself —
+movement-pattern learning, richer child-directed animation, and creator
+features — without granting either Omega loop a second authority system.
 
 Persistence, accounts, social discovery, powered Sticker Maker behavior, and
 broader multi-agent delegation remain separate future work.
