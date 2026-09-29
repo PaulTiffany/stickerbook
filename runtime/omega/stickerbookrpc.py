@@ -196,6 +196,7 @@ class _Handler(BaseHTTPRequestHandler):
             return self._send(409, {"ok": False, "error": "omega-busy"})
 
         global _current, _serial, _staged
+        pending = None
         try:
             with _lock:
                 _serial += 1
@@ -216,7 +217,7 @@ class _Handler(BaseHTTPRequestHandler):
             return self._send(200, response)
         finally:
             with _lock:
-                if _current is not None and _current is pending:
+                if pending is not None and _current is not None and _current is pending:
                     _current = None
                     _staged = None
             _gate.release()
@@ -230,7 +231,7 @@ class StickerBookRPCChannel(channels.CommChannel):
         port = int(config_get_by_key(
             "stickerbookRpcPort", 8761 if _role == "omegallm" else 8762))
         _provider_ready = False
-        _server = ThreadingHTTPServer(("0.0.0.0", port), _Handler)
+        _server = ThreadingHTTPServer(("127.0.0.1", port), _Handler)
         _thread = threading.Thread(
             target=_server.serve_forever,
             name="stickerbook-omega-rpc",
