@@ -1,0 +1,30 @@
+id: stickerbook-openrouter-omega-jev
+display_name: StickerBook OpenRouter for OmegaJev
+description: OpenRouter Decisions API access for the bounded OmegaJev loop
+category: inference
+inference_capable: true
+
+credentials:
+  - name: api_key
+    description: OpenRouter API key
+    env_vars: [OPENROUTER_API_KEY]
+    required: true
+    auth_style: bearer
+    header_name: authorization
+
+discovery:
+  credentials: [api_key]
+
+endpoints:
+  - host: openrouter.ai
+    port: 443
+    protocol: rest
+    access: read-write
+    enforcement: enforce
+
+# Omega embeds Python inside SWI-Prolog. Keep this list to the interpreter
+# executable paths used by the pinned SWI image rather than granting curl,
+# shells, package managers, or arbitrary Python programs network access.
+binaries:
+  - /usr/local/bin/swipl
+  - /usr/bin/swipl
