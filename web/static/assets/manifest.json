@@ -3948,6 +3948,570 @@
           "loop": true
         }
       }
+    },
+    "fm-2030": {
+      "name": "FM-2030",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "fm-2030",
+        "fereidoun esfandiary",
+        "future",
+        "speaker"
+      ],
+      "aliases": [
+        "FM 2030",
+        "Fereidoun Esfandiary"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/fm-2030/rest.svg",
+        "wave": "static/assets/stickers/fm-2030/wave.svg",
+        "present": "static/assets/stickers/fm-2030/present.svg",
+        "think": "static/assets/stickers/fm-2030/think.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "wave": {
+          "frames": [
+            "rest",
+            "wave",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "present": {
+          "frames": [
+            "rest",
+            "present",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        }
+      }
+    },
+    "robert-ettinger": {
+      "name": "Robert Ettinger",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "cryonics",
+        "immortality",
+        "robert ettinger"
+      ],
+      "aliases": [
+        "Ettinger"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/robert-ettinger/rest.svg",
+        "present": "static/assets/stickers/robert-ettinger/present.svg",
+        "think": "static/assets/stickers/robert-ettinger/think.svg",
+        "point": "static/assets/stickers/robert-ettinger/point.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "present": {
+          "frames": [
+            "rest",
+            "present",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        },
+        "point": {
+          "frames": [
+            "rest",
+            "point",
+            "rest"
+          ],
+          "frame_ms": 280,
+          "loop": true
+        }
+      }
+    },
+    "hans-moravec": {
+      "name": "Hans Moravec",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "robotics",
+        "ai",
+        "hans moravec"
+      ],
+      "aliases": [
+        "Moravec"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/hans-moravec/rest.svg",
+        "explain": "static/assets/stickers/hans-moravec/explain.svg",
+        "think": "static/assets/stickers/hans-moravec/think.svg",
+        "present": "static/assets/stickers/hans-moravec/present.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "explain": {
+          "frames": [
+            "rest",
+            "explain",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        },
+        "present": {
+          "frames": [
+            "rest",
+            "present",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        }
+      }
+    },
+    "vernor-vinge": {
+      "name": "Vernor Vinge",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "singularity",
+        "science fiction",
+        "vernor vinge"
+      ],
+      "aliases": [
+        "Vinge"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/vernor-vinge/rest.svg",
+        "wave": "static/assets/stickers/vernor-vinge/wave.svg",
+        "think": "static/assets/stickers/vernor-vinge/think.svg",
+        "present": "static/assets/stickers/vernor-vinge/present.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "wave": {
+          "frames": [
+            "rest",
+            "wave",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        },
+        "present": {
+          "frames": [
+            "rest",
+            "present",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        }
+      }
+    },
+    "k-eric-drexler": {
+      "name": "K. Eric Drexler",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "nanotechnology",
+        "drexler",
+        "k eric drexler"
+      ],
+      "aliases": [
+        "Eric Drexler",
+        "Drexler"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/k-eric-drexler/rest.svg",
+        "explain": "static/assets/stickers/k-eric-drexler/explain.svg",
+        "point": "static/assets/stickers/k-eric-drexler/point.svg",
+        "think": "static/assets/stickers/k-eric-drexler/think.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "explain": {
+          "frames": [
+            "rest",
+            "explain",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "point": {
+          "frames": [
+            "rest",
+            "point",
+            "rest"
+          ],
+          "frame_ms": 280,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        }
+      }
+    },
+    "anders-sandberg": {
+      "name": "Anders Sandberg",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "oxford",
+        "future of humanity",
+        "anders sandberg"
+      ],
+      "aliases": [
+        "Anders",
+        "Sandberg"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/anders-sandberg/rest.svg",
+        "wave": "static/assets/stickers/anders-sandberg/wave.svg",
+        "present": "static/assets/stickers/anders-sandberg/present.svg",
+        "think": "static/assets/stickers/anders-sandberg/think.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "wave": {
+          "frames": [
+            "rest",
+            "wave",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "present": {
+          "frames": [
+            "rest",
+            "present",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        }
+      }
+    },
+    "david-pearce": {
+      "name": "David Pearce",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "abolitionism",
+        "david pearce",
+        "philosophy"
+      ],
+      "aliases": [
+        "Pearce"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/david-pearce/rest.svg",
+        "gesture": "static/assets/stickers/david-pearce/gesture.svg",
+        "think": "static/assets/stickers/david-pearce/think.svg",
+        "present": "static/assets/stickers/david-pearce/present.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "gesture": {
+          "frames": [
+            "rest",
+            "gesture",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "think": {
+          "frames": [
+            "rest",
+            "think",
+            "rest"
+          ],
+          "frame_ms": 360,
+          "loop": true
+        },
+        "present": {
+          "frames": [
+            "rest",
+            "present",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        }
+      }
+    },
+    "martine-rothblatt": {
+      "name": "Martine Rothblatt",
+      "category": "people",
+      "themes": [
+        "farm",
+        "beach",
+        "playground",
+        "space"
+      ],
+      "tags": [
+        "person",
+        "people",
+        "hplus",
+        "transhumanism",
+        "futurism",
+        "mind uploading",
+        "martine rothblatt",
+        "futurist"
+      ],
+      "aliases": [
+        "Rothblatt"
+      ],
+      "nominal_scale": 1,
+      "scale_bounds": {
+        "min": 0.9,
+        "max": 1.1
+      },
+      "default_clip": "rest",
+      "sprites": {
+        "rest": "static/assets/stickers/martine-rothblatt/rest.svg",
+        "wave": "static/assets/stickers/martine-rothblatt/wave.svg",
+        "present": "static/assets/stickers/martine-rothblatt/present.svg",
+        "celebrate": "static/assets/stickers/martine-rothblatt/celebrate.svg"
+      },
+      "clips": {
+        "rest": {
+          "frames": [
+            "rest"
+          ],
+          "loop": true
+        },
+        "wave": {
+          "frames": [
+            "rest",
+            "wave",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "present": {
+          "frames": [
+            "rest",
+            "present",
+            "rest"
+          ],
+          "frame_ms": 300,
+          "loop": true
+        },
+        "celebrate": {
+          "frames": [
+            "rest",
+            "celebrate",
+            "rest"
+          ],
+          "frame_ms": 220,
+          "loop": true
+        }
+      }
     }
   }
 }

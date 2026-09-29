@@ -474,6 +474,14 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             ("/static/assets/stickers/max-more/wave.svg", "image/svg+xml"),
             ("/static/assets/stickers/natasha-vita-more/present.svg", "image/svg+xml"),
             ("/static/assets/stickers/eliezer-yudkowsky/explain.svg", "image/svg+xml"),
+            ("/static/assets/stickers/fm-2030/present.svg", "image/svg+xml"),
+            ("/static/assets/stickers/robert-ettinger/point.svg", "image/svg+xml"),
+            ("/static/assets/stickers/hans-moravec/explain.svg", "image/svg+xml"),
+            ("/static/assets/stickers/vernor-vinge/think.svg", "image/svg+xml"),
+            ("/static/assets/stickers/k-eric-drexler/point.svg", "image/svg+xml"),
+            ("/static/assets/stickers/anders-sandberg/wave.svg", "image/svg+xml"),
+            ("/static/assets/stickers/david-pearce/gesture.svg", "image/svg+xml"),
+            ("/static/assets/stickers/martine-rothblatt/celebrate.svg", "image/svg+xml"),
         )
         for path, content_type in cases:
             with urllib.request.urlopen(self.url(path), timeout=5) as r:
@@ -549,7 +557,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
 
         self.assertTrue(manifest["stickers"])
 
-        self.assertEqual(len(manifest["stickers"]), 65)
+        self.assertEqual(len(manifest["stickers"]), 73)
 
         themes_seen = set()
         for kind, package in manifest["stickers"].items():
@@ -602,6 +610,17 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
                 "ben-goertzel", "aubrey-de-grey", "ray-kurzweil",
                 "david-eagleman", "nick-bostrom", "max-more",
                 "natasha-vita-more", "eliezer-yudkowsky"):
+            self.assertIn(added, manifest["stickers"])
+            self.assertEqual(len(manifest["stickers"][added]["sprites"]), 4)
+            self.assertEqual(manifest["stickers"][added]["category"], "people")
+            self.assertEqual(
+                set(manifest["stickers"][added]["themes"]),
+                {"farm", "beach", "playground", "space"},
+            )
+        for added in (
+                "fm-2030", "robert-ettinger", "hans-moravec",
+                "vernor-vinge", "k-eric-drexler", "anders-sandberg",
+                "david-pearce", "martine-rothblatt"):
             self.assertIn(added, manifest["stickers"])
             self.assertEqual(len(manifest["stickers"][added]["sprites"]), 4)
             self.assertEqual(manifest["stickers"][added]["category"], "people")

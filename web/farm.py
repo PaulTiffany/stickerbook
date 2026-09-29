@@ -133,6 +133,16 @@ ASSETS = {
     "max-more": _definition("max-more", "wave", "present", "think"),
     "natasha-vita-more": _definition("natasha-vita-more", "wave", "present", "think"),
     "eliezer-yudkowsky": _definition("eliezer-yudkowsky", "explain", "think", "present"),
+
+    # Classic H+ people pack, round two.
+    "fm-2030": _definition("fm-2030", "wave", "present", "think"),
+    "robert-ettinger": _definition("robert-ettinger", "present", "think", "point"),
+    "hans-moravec": _definition("hans-moravec", "explain", "think", "present"),
+    "vernor-vinge": _definition("vernor-vinge", "wave", "think", "present"),
+    "k-eric-drexler": _definition("k-eric-drexler", "explain", "point", "think"),
+    "anders-sandberg": _definition("anders-sandberg", "wave", "present", "think"),
+    "david-pearce": _definition("david-pearce", "gesture", "think", "present"),
+    "martine-rothblatt": _definition("martine-rothblatt", "wave", "present", "celebrate"),
 }
 
 HUMAN_TOOLS = frozenset({
