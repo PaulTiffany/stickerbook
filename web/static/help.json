@@ -62,6 +62,15 @@
         ]
       },
       {
+        "id": "inference",
+        "title": "Choosing StickerBook's talking brain",
+        "paragraphs": [
+          "The responsible-adult panel can choose which configured inference provider OmegaLLM uses for this browser session: sponsored ASI Cloud, Anthropic, OpenAI, OpenRouter, ASI:One, or Off. Sponsored ASI Cloud is preferred automatically when it is configured.",
+          "Sponsored ASI Cloud uses the sponsored MiniMax M3 lane and its model is fixed. Other configured providers expose a model field so the responsible adult can choose a provider-supported model id; OpenRouter therefore remains the broad escape hatch for models that Omega does not expose as a dedicated provider.",
+          "The child cannot select a provider or model through the conversation. OmegaLLM also cannot switch its own provider, endpoint, credential, or billing source. Provider credentials stay in OpenShell; the UI receives only provider names, model defaults, availability, and the current session choice."
+        ]
+      },
+      {
         "id": "voice-privacy",
         "title": "Voice and privacy",
         "paragraphs": [
