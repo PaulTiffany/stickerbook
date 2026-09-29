@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1916 717">
+  <defs>
+    <radialGradient id="spot" cx=".5" cy=".1" r=".9">
+      <stop offset="0" stop-color="#fff6cf"/>
+      <stop offset=".45" stop-color="#e9c979"/>
+      <stop offset="1" stop-color="#8f623d"/>
+    </radialGradient>
+    <linearGradient id="stage" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#bd7b47"/>
+      <stop offset="1" stop-color="#8a5231"/>
+    </linearGradient>
+  </defs>
+  <rect width="1916" height="717" fill="#261c2d"/>
+  <path d="M0 0h1916v120H0Z" fill="#4a1632"/>
+  <path d="M0 0h350q-35 183 47 346-154 48-397 94Z" fill="#7f1f3b"/>
+  <path d="M1916 0h-350q35 183-47 346 154 48 397 94Z" fill="#7f1f3b"/>
+  <path d="M0 0h264q-16 160 60 307-128 49-324 87Z" fill="#a62b49"/>
+  <path d="M1916 0h-264q16 160-60 307 128 49 324 87Z" fill="#a62b49"/>
+  <path d="M285 0q-26 143 30 309M1631 0q26 143-30 309" fill="none" stroke="#cf6a77" stroke-width="14" opacity=".45"/>
+  <rect x="333" y="78" width="1250" height="494" rx="20" fill="url(#spot)"/>
+  <ellipse cx="958" cy="474" rx="420" ry="95" fill="#fff2b5" opacity=".28"/>
+  <rect y="510" width="1916" height="207" fill="url(#stage)"/>
+  <path d="M0 561h1916M0 625h1916M0 684h1916" stroke="#6d3c27" stroke-width="6" opacity=".6"/>
+  <path d="M410 510 517 717M681 510 734 717M1235 510 1182 717M1506 510 1399 717" stroke="#a96942" stroke-width="5" opacity=".5"/>
+  <g fill="#f2d061">
+    <circle cx="410" cy="489" r="12"/><circle cx="486" cy="489" r="12"/><circle cx="562" cy="489" r="12"/>
+    <circle cx="638" cy="489" r="12"/><circle cx="714" cy="489" r="12"/><circle cx="790" cy="489" r="12"/>
+    <circle cx="866" cy="489" r="12"/><circle cx="942" cy="489" r="12"/><circle cx="1018" cy="489" r="12"/>
+    <circle cx="1094" cy="489" r="12"/><circle cx="1170" cy="489" r="12"/><circle cx="1246" cy="489" r="12"/>
+    <circle cx="1322" cy="489" r="12"/><circle cx="1398" cy="489" r="12"/><circle cx="1474" cy="489" r="12"/>
+  </g>
+  <path d="M849 388h218l-22 101H871Z" fill="#1e2531" stroke="#d5c6a9" stroke-width="6"/>
+  <path d="M957 489v78M905 567h104" stroke="#2a2529" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="956" cy="361" r="14" fill="#26222b"/><path d="M956 374v39" stroke="#26222b" stroke-width="8"/>
+  <text x="958" y="63" text-anchor="middle" font-family="system-ui, sans-serif" font-size="36" font-weight="700" fill="#f5dec1" opacity=".9">THEATER</text>
+</svg>
