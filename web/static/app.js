@@ -817,8 +817,8 @@ function createMechanicalWorld() {
 const kernelWorld = {
   name: "local kernel",
 
-  async state() {
-    const res = await fetch("/api/state", { cache: "no-store" });
+  async state(fast = false) {
+    const res = await fetch(fast ? "/api/state?watch=1" : "/api/state", { cache: "no-store" });
     if (!res.ok) throw new Error("state: HTTP " + res.status);
     return res.json();
   },
@@ -1533,63 +1533,133 @@ async function drawGallery() {
 
 // --------------------------------------------------------------- render
 
-function drawStickers(stickers) {
-  layers.stickers.replaceChildren();
+// Authoritative endpoints stay in `state`; these records are presentation only.
+const stickerVisuals = new Map();
+let motionEpoch = 0;
+const STATE_POLL_MS = 125;
+const MOVE_TWEEN_MS = 220;
 
-  for (const sticker of stickers) {
-    const clipName = sticker.animation && sticker.animation !== "none"
-      ? sticker.animation
-      : null;
-    const node = stickerNode(
-      sticker.definition,
-      "sticker",
-      true,
-      null,
-      clipName
-    );
-    node.setAttribute("data-id", sticker.id);
-    node.setAttribute(
-      "transform",
-      (() => {
-        const metrics = activePageMetrics();
-        const scale = Number.isFinite(sticker.scale) ? sticker.scale : 1;
-        const scaleX = sticker.facing === "left" ? -scale : scale;
-        return "translate(" +
-          (sticker.x * metrics.width) + " " +
-          (sticker.y * metrics.height) + ") scale(" +
-          scaleX + " " + scale + ")";
-      })()
-    );
-    node.setAttribute("tabindex", "0");
-    node.setAttribute("role", "button");
-    node.setAttribute(
-      "aria-label",
-      sticker.definition + " sticker. Drag to move. Double tap to bring to life."
-    );
+function setStickerPosition(visual, point) {
+  visual.position = { x: point.x, y: point.y };
+  const metrics = activePageMetrics();
+  const scale = Number.isFinite(visual.sticker.scale) ? visual.sticker.scale : 1;
+  const sx = visual.sticker.facing === "left" ? -scale : scale;
+  visual.node.setAttribute("transform", "translate(" + point.x * metrics.width +
+    " " + point.y * metrics.height + ") scale(" + sx + " " + scale + ")");
+}
 
-    if (sticker.animation && sticker.animation !== "none") {
-      node.classList.add("alive");
-      const clip = stickerClip(sticker.definition, sticker.animation);
-      // CSS motion is legacy/explicit only. A v4 clip name such as "flight"
-      // or "flutter" must not silently become a transform animation merely
-      // because an old CSS keyframe happens to share that name.
-      if (clip && clip.motion) {
-        node.setAttribute("data-alive", clip.motion);
-      }
-    }
+function cancelStickerTween(visual) {
+  if (visual.frame != null) cancelAnimationFrame(visual.frame);
+  visual.frame = null;
+}
 
-    node.addEventListener("pointerdown", (event) => grabPlaced(event, sticker));
-    node.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        send("/api/animate", {
-          sticker: sticker.id,
-          command_id: nextId("anim-key"),
-        });
-      }
+function cancelVisualMotion() {
+  motionEpoch += 1;
+  for (const visual of stickerVisuals.values()) cancelStickerTween(visual);
+}
+
+function tweenSticker(visual, endpoint) {
+  cancelStickerTween(visual);
+  const from = { ...visual.position };
+  const start = performance.now();
+  const epoch = motionEpoch;
+  const frame = (now) => {
+    if (visual.held || epoch !== motionEpoch) return;
+    const t = Math.min(1, Math.max(0, (now - start) / MOVE_TWEEN_MS));
+    const eased = t * t * (3 - 2 * t);
+    setStickerPosition(visual, t === 1 ? endpoint : {
+      x: from.x + (endpoint.x - from.x) * eased,
+      y: from.y + (endpoint.y - from.y) * eased,
     });
+    visual.frame = t < 1 ? requestAnimationFrame(frame) : null;
+  };
+  visual.frame = requestAnimationFrame(frame);
+}
 
-    layers.stickers.appendChild(node);
+function applyAuthoritativeState(next, epoch = motionEpoch) {
+  if (!next || epoch !== motionEpoch) return false;
+  if (state && (next.page.id !== state.page.id || next.revision < state.revision)) return false;
+  state = next;
+  render();
+  return true;
+}
+
+async function observePoweredRequest(request) {
+  if (world !== kernelWorld) return request();
+  const epoch = motionEpoch;
+  let finished = false;
+  let timer = null;
+  const poll = async () => {
+    if (finished || epoch !== motionEpoch) return;
+    try {
+      const next = await world.state(true);
+      if (!finished && epoch === motionEpoch && next.revision > state.revision) {
+        applyAuthoritativeState(next, epoch);
+      }
+    } catch (_) { /* The action response owns error reporting. */ }
+    if (!finished && epoch === motionEpoch) timer = setTimeout(poll, STATE_POLL_MS);
+  };
+  poll();
+  try {
+    const payload = await request();
+    if (payload && payload.state) applyAuthoritativeState(payload.state, epoch);
+    return payload;
+  } finally {
+    finished = true;
+    clearTimeout(timer);
+  }
+}
+
+function drawStickers(stickers) {
+  const ids = new Set(stickers.map((sticker) => sticker.id));
+  for (const [id, visual] of stickerVisuals) {
+    if (!ids.has(id)) {
+      cancelStickerTween(visual);
+      visual.node.remove();
+      stickerVisuals.delete(id);
+    }
+  }
+  for (const sticker of stickers) {
+    let visual = stickerVisuals.get(sticker.id);
+    if (!visual) {
+      const node = el("g", { class: "sticker", "data-id": sticker.id, tabindex: "0", role: "button" });
+      visual = { node, sticker, position: { x: sticker.x, y: sticker.y },
+        endpoint: { x: sticker.x, y: sticker.y }, frame: null, held: false, artKey: null };
+      stickerVisuals.set(sticker.id, visual);
+      node.addEventListener("pointerdown", (event) => grabPlaced(event, visual.sticker));
+      node.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          send("/api/animate", { sticker: sticker.id, command_id: nextId("anim-key") });
+        }
+      });
+      layers.stickers.appendChild(node);
+      setStickerPosition(visual, visual.position);
+    }
+    visual.sticker = sticker;
+    visual.node.setAttribute("aria-label", sticker.definition +
+      " sticker. Drag to move. Double tap to bring to life.");
+    if (visual.held) continue;
+    const artKey = sticker.definition + ":" + sticker.animation;
+    if (visual.artKey !== artKey) {
+      const art = stickerNode(sticker.definition, "sticker", true, null,
+        sticker.animation && sticker.animation !== "none" ? sticker.animation : null);
+      if (sticker.animation && sticker.animation !== "none") {
+        art.classList.add("alive");
+        const clip = stickerClip(sticker.definition, sticker.animation);
+        if (clip && clip.motion) art.setAttribute("data-alive", clip.motion);
+      }
+      visual.node.replaceChildren(art);
+      visual.artKey = artKey;
+    }
+    const endpoint = { x: sticker.x, y: sticker.y };
+    if (endpoint.x !== visual.endpoint.x || endpoint.y !== visual.endpoint.y) {
+      visual.endpoint = endpoint;
+      if (world === kernelWorld) tweenSticker(visual, endpoint);
+      else setStickerPosition(visual, endpoint);
+    } else if (visual.frame == null) {
+      setStickerPosition(visual, endpoint);
+    }
   }
 }
 
@@ -1672,7 +1742,7 @@ function speak(message) {
 function showScreen(name) {
   closeLibrary();
   clearPlacement();
-  if (name !== "play") clearDeicticReference(false);
+  if (name !== "play") { cancelVisualMotion(); clearDeicticReference(false); }
 
   for (const [key, node] of Object.entries(screens)) {
     node.hidden = key !== name;
@@ -1686,6 +1756,9 @@ function showScreen(name) {
 }
 
 async function enterPlay(pageId) {
+  cancelVisualMotion();
+  for (const visual of stickerVisuals.values()) visual.node.remove();
+  stickerVisuals.clear();
   try {
     const result = await world.selectPage(pageId);
 
@@ -1826,6 +1899,12 @@ function drawDeicticReference(reference, drafting = false) {
     }));
   }
 
+  if (reference.path && reference.path.length > 1) {
+    group.appendChild(el("polyline", {
+      points: reference.path.map((p) => (p.x * metrics.width) + "," + (p.y * metrics.height)).join(" "),
+      class: "deictic-path",
+    }));
+  }
   layers.reference.appendChild(group);
 }
 
@@ -1910,7 +1989,7 @@ function updateDeicticGesture(event) {
   const x2 = Math.max(deicticGesture.start.x, point.x);
   const y2 = Math.max(deicticGesture.start.y, point.y);
   drawDeicticReference(
-    { kind: "box", box: { x1, y1, x2, y2 } },
+    { kind: "box", box: { x1, y1, x2, y2 }, path: deicticGesture.samples },
     true
   );
 }
@@ -1988,6 +2067,7 @@ function finishDeicticGesture(event) {
   setDeicticReference({
     kind: "box",
     box: { x1, y1, x2, y2 },
+    path: gesture.samples,
   });
   recordPagePath(gesture);
 }
@@ -2016,14 +2096,16 @@ function grabPlaced(event, sticker) {
   event.stopPropagation();
 
   const node = event.currentTarget;
+  const visual = stickerVisuals.get(sticker.id);
+  if (visual) { cancelStickerTween(visual); visual.held = true; }
   const startedAt = performance.now();
   const startX = event.clientX;
   const startY = event.clientY;
   const metricsAtGrab = activePageMetrics();
   const pointAtGrab = pagePoint(event);
   const stickerCenterAtGrab = {
-    x: sticker.x * metricsAtGrab.width,
-    y: sticker.y * metricsAtGrab.height,
+    x: (visual ? visual.position.x : sticker.x) * metricsAtGrab.width,
+    y: (visual ? visual.position.y : sticker.y) * metricsAtGrab.height,
   };
   const grabOffset = pointAtGrab ? {
     x: pointAtGrab.x - stickerCenterAtGrab.x,
@@ -2157,13 +2239,20 @@ function grabPlaced(event, sticker) {
     hotbar.classList.toggle("drop-ready", overRemovalZone(moveEvent));
   };
 
-  const onCancel = () => {
-    cleanup();
+  const releaseVisual = () => {
+    if (visual) {
+      visual.held = false;
+      visual.artKey = null;
+      const current = state.stickers.find((item) => item.id === sticker.id);
+      if (current) { visual.endpoint = { x: current.x, y: current.y }; setStickerPosition(visual, visual.endpoint); }
+    }
     render();
   };
+  const onCancel = () => { cleanup(); releaseVisual(); };
 
   const onUp = async (upEvent) => {
     cleanup();
+    try {
 
     if (overRemovalZone(upEvent) && moved) {
       await send("/api/remove", {
@@ -2198,6 +2287,7 @@ function grabPlaced(event, sticker) {
     const drag = dragPayload();
     if (drag) request.drag = drag;
     await send("/api/propose-move", request);
+    } finally { releaseVisual(); }
   };
 
   node.addEventListener("pointermove", onMove);
@@ -2650,7 +2740,12 @@ async function send(path, body) {
   let payload;
 
   try {
-    payload = await world.send(path, body);
+    const epoch = motionEpoch;
+    payload = path === "/api/animate"
+      ? await observePoweredRequest(() => world.send(path, body))
+      : await world.send(path, body);
+    if (epoch !== motionEpoch) return;
+
   } catch (error) {
     console.error(error);
     try { await reload(); } catch (_) {}
@@ -2662,7 +2757,7 @@ async function send(path, body) {
     return;
   }
 
-  if (payload.state) state = payload.state;
+  if (payload.state) applyAuthoritativeState(payload.state);
   render();
 
   const receipt = payload.receipt;
@@ -3205,12 +3300,9 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
     // only: it carries no authority and nothing branches on it.
     const body = { text: clean, input_mode: aloud ? "voice" : "text" };
     if (reference) body.reference = reference;
-    const payload = await world.converse(body);
-
-    if (payload && payload.state) {
-      state = payload.state;
-      render();
-    }
+    const epoch = motionEpoch;
+    const payload = await observePoweredRequest(() => world.converse(body));
+    if (epoch !== motionEpoch) return null;
 
     if (!payload || !payload.ok || typeof payload.reply !== "string") {
       const messages = {

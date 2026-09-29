@@ -163,10 +163,11 @@ class Bridge:
         self.page_image_runtime = (
             page_image_runtime or DisabledPageImageRuntime())
         self._inference_selection = self._default_inference_selection()
+        self._state_capabilities = {}
 
     # -- reads -------------------------------------------------------------
 
-    def state(self) -> dict:
+    def state(self, *, fast=False) -> dict:
         """Authoritative state, as the browser's principal may observe it.
 
         Only the kernel read is world-locked. kernel.view() already returns a
@@ -176,7 +177,9 @@ class Bridge:
         """
         with self._world_lock:
             view = self.kernel.view(BROWSER_PRINCIPAL)
-        capabilities = self._agent_capabilities()
+        capabilities = self._state_capabilities if fast else self._agent_capabilities()
+        if not fast:
+            self._state_capabilities = capabilities
         chrome = book.page_chrome(self.page_id)
         stickers = []
         for s in view["stickers"]:
@@ -1249,7 +1252,7 @@ def make_handler(bridge: Bridge, quiet: bool = False):
             if path in ("/", "/index.html"):
                 return self._static("index.html")
             if path == "/api/state":
-                return self._send(200, bridge.state())
+                return self._send(200, bridge.state(fast="watch=1" in self.path))
             if path == "/api/book":
                 return self._send(200, book.listing())
             if path == "/api/receipts":
