@@ -3,7 +3,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT/runtime/lib.sh"
 
-NAME="${STICKERBOOK_OPENSHELL_JEV_NAME:-stickerbook-omega-jev}"
+NAME="${STICKERBOOK_OPENSHELL_JEV_NAME:-stickerbook-jev}"
 IMAGE="${STICKERBOOK_OPENSHELL_JEV_IMAGE:-stickerbook-omega-jev:openshell}"
 PROFILE="stickerbook-openrouter-omega-jev"
 PROVIDER="${STICKERBOOK_OPENSHELL_JEV_PROVIDER:-stickerbook-openrouter-omega-jev}"

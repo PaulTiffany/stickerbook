@@ -36,6 +36,17 @@ The normal StickerBook launcher performs this check itself. Manual installation
 is therefore an operator/debug path rather than a normal child-facing startup
 step.
 
+Installing OpenShell writes a system package, so this step needs root. On a
+host that has not yet installed the pin, the first start asks once for the
+operator's Linux account password. That is an operating-system prompt, not a
+StickerBook credential, and it is neither stored nor transmitted. The gateway
+itself runs as a systemd user service, so WSL distributions need
+`systemd=true` in `/etc/wsl.conf`.
+
+Sandbox names are capped at 19 characters by OpenShell v0.1.2. Provider and
+profile ids are not. `runtime/lib.sh` checks the sandbox name before creation
+so the limit surfaces as a named error rather than a gateway rejection.
+
 ## Two sandboxes, not one ambient agent
 
 The powered architecture uses separate sandbox identities:
@@ -158,7 +169,11 @@ host validation -> OmegaJev finite selection -> kernel authorization.
 
 ## Current proof boundary
 
-**IMPLEMENTED + CI/mechanically checked, NOT YET LIVE-HOST VERIFIED.**
+**Live-host deployment status: PARTIALLY VERIFIED on 2026-09-29.**
+
+Mechanically verified architecture is not a live-host verified agent graph.
+The containment layer below was exercised on a real host up to sandbox
+startup, which is blocked. See `runtime/README.md` for the full record.
 
 Implemented in the branch:
 
@@ -177,17 +192,41 @@ Implemented in the branch:
 - browser voice/text regression contract;
 - static CI contract checks in `openshell/verify.py`.
 
-Still requiring a real local deployment proof:
+Verified on the 2026-09-29 live host (Windows 11 + WSL2 + Docker Desktop,
+kernel `6.6.87.2-microsoft-standard-WSL2`):
 
-- OpenShell v0.1.2 startup on the actual WSL2/Docker Desktop host;
-- successful OpenRouter/Jev call and successful calls through whichever
-  OmegaLLM provider profiles are configured/selected;
+- the launcher installed the pinned v0.1.2 release itself and the gateway came
+  up authenticated over mTLS;
+- profiles imported/re-applied, and role provider instances were created with
+  credentials held by OpenShell;
+- both role images built and passed the canonical SWI identity check;
+- failed-boot cleanup and independent `Stop StickerBook` teardown left nothing
+  running.
+
+Blocked on that host, and therefore still unproven:
+
+- **OpenShell sandbox startup.** Provisioning fails with
+  `ControlSupervisorStartFailed`: `seccomp notification probe / notification
+  launcher disappeared`. This reproduces from a bare local image with no
+  StickerBook policy and no provider attached, so it is not caused by the
+  configuration in this directory. Upstream NVIDIA/OpenShell issue #3842
+  reports the same failure text on the same WSL2 kernel family; our
+  reproduction matches that report, and we have not independently confirmed
+  the mechanism it suspects.
+- successful OpenRouter/Jev call and calls through the configured OmegaLLM
+  provider profiles;
 - observed canonical SWI identity in the running sandbox;
 - denial of unrelated destinations such as GitHub and PyPI;
 - confirmation that only the provider placeholder, not the real secret, is
   visible to the workload;
-- end-to-end child voice/text -> OmegaLLM -> OmegaJev -> kernel receipt;
-- independent Stop StickerBook teardown.
+- end-to-end child voice/text -> OmegaLLM -> OmegaJev -> kernel receipt.
+
+The seccomp notification broker is mandatory in OpenShell's Docker driver and
+fails closed. That is the containment boundary behaving correctly. It must not
+be worked around with privileged containers, added capabilities, weakened
+seccomp, an alternate unrestricted sandbox, a repository mount, or a Docker
+socket. Powered execution is **BLOCKED_UPSTREAM / LIVE GRAPH UNVERIFIED**
+until upstream moves or the runtime is exercised on a non-WSL2 Linux host.
 
 Static artifacts do not inherit the **VERIFIED** status of the older
 split-container OmegaJev gateway experiment.
