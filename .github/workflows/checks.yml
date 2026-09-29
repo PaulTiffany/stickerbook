@@ -31,5 +31,12 @@ jobs:
         working-directory: web
         run: python -m unittest discover -s tests
 
+      - name: Check OmegaJev OpenShell adapter syntax
+        run: |
+          python -m py_compile jev/omega_jev/providers/jev.py
+          bash -n openshell/install-pinned.sh
+          bash -n openshell/run-omega-jev.sh
+          bash -n jev/openshell-entrypoint.sh
+
       - name: Verify pinned OpenShell integration contract
         run: python openshell/verify.py
