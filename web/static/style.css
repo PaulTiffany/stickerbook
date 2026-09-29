@@ -1418,6 +1418,64 @@ button:focus-visible, a:focus-visible, label:focus-within {
   background: #f8f3e9;
 }
 
+.adult-inference {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 7px;
+  margin: 0 0 16px;
+  padding: 14px;
+  border: 1px solid #d8cebe;
+  border-radius: 14px;
+  background: #fffaf1;
+}
+
+.adult-inference > strong {
+  color: #496953;
+  font-size: 15px;
+}
+
+.adult-inference label {
+  margin-top: 3px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #67645d;
+}
+
+.adult-inference select,
+.adult-inference input {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #cfc4b3;
+  border-radius: 10px;
+  background: #fffef9;
+  color: var(--ink);
+  padding: 8px 10px;
+  font: inherit;
+}
+
+.adult-inference select:disabled,
+.adult-inference input:disabled {
+  opacity: .62;
+  cursor: not-allowed;
+}
+
+.adult-inference button {
+  justify-self: start;
+  min-height: 38px;
+  padding: 8px 13px;
+  border: 1px solid #b8c7b8;
+  border-radius: 10px;
+  background: #eef5eb;
+  color: #3f654b;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.adult-inference button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
 .adult-toggle {
   display: flex;
   align-items: center;
