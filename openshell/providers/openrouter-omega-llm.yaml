@@ -1,0 +1,27 @@
+id: stickerbook-openrouter-omega-llm
+display_name: StickerBook OpenRouter for OmegaLLM
+description: OpenRouter inference access for the bounded OmegaLLM language loop
+category: inference
+inference_capable: true
+
+credentials:
+  - name: api_key
+    description: OpenRouter API key
+    env_vars: [OPENROUTER_API_KEY]
+    required: true
+    auth_style: bearer
+    header_name: authorization
+
+discovery:
+  credentials: [api_key]
+
+endpoints:
+  - host: openrouter.ai
+    port: 443
+    protocol: rest
+    access: read-write
+    enforcement: enforce
+
+binaries:
+  - /usr/local/bin/swipl
+  - /usr/bin/swipl
