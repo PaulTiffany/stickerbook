@@ -15,18 +15,18 @@ sb_profile_apply() {
 sb_provider_ensure() {
   local provider_name="$1"
   local profile_id="$2"
+  local credential_var="${3:-OPENROUTER_API_KEY}"
   if openshell provider get "$provider_name" >/dev/null 2>&1; then
     return 0
   fi
-  if [[ -z "${OPENROUTER_API_KEY:-}" ]]; then
-    echo "OpenRouter credential is required once to create $provider_name." >&2
+  if [[ -z "${!credential_var:-}" ]]; then
+    echo "$credential_var is not configured for $provider_name." >&2
     return 2
   fi
-  OPENROUTER_API_KEY="$OPENROUTER_API_KEY" \
-    openshell provider create \
-      --name "$provider_name" \
-      --type "$profile_id" \
-      --from-existing >/dev/null
+  openshell provider create \
+    --name "$provider_name" \
+    --type "$profile_id" \
+    --from-existing >/dev/null
 }
 
 sb_sandbox_delete() {
@@ -52,15 +52,22 @@ sb_sandbox_create_service() {
   local port="$2"
   local image="$3"
   local policy="$4"
-  local provider="$5"
+  local providers_csv="$5"
   shift 5
+
+  local provider_args=()
+  local provider
+  IFS=',' read -r -a _providers <<< "$providers_csv"
+  for provider in "${_providers[@]}"; do
+    [[ -n "$provider" ]] && provider_args+=(--provider "$provider")
+  done
 
   sb_sandbox_delete "$name" "$port"
   openshell sandbox create \
     --name "$name" \
     --from "$image" \
     --policy "$policy" \
-    --provider "$provider" \
+    "${provider_args[@]}" \
     --approval-mode manual \
     --forward "127.0.0.1:$port" \
     --detach \
