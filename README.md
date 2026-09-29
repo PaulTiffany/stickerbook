@@ -365,5 +365,11 @@ modifications are recorded under `jev/`.
 
 ## License
 
-MIT, © 2026 Paul Carver Tiffany III. See [`LICENSE`](LICENSE).
-Third-party attributions are in [`NOTICE`](NOTICE).
+StickerBook-authored code and documentation are MIT, © 2026 Paul Carver
+Tiffany III, unless a file states otherwise. See [`LICENSE`](LICENSE).
+
+The MIT grant does **not** relicense upstream software, base images, hosted
+inference services/models, APIs, or development tools used to build and test
+the project. Their licenses and/or service terms remain their own. See
+[`NOTICE`](NOTICE) for third-party software, services, and development-tool
+attribution.
