@@ -27,6 +27,8 @@ from stickerbook_core import (  # noqa: E402
     SET_STICKER_FACING,
 )
 
+from pattern_memory import bind_key, steps_from_trace  # noqa: E402
+
 OMEGA_LLM_ID = "agent:omega-llm"
 OMEGA_JEV_ID = "agent:jev-visual-1"
 MOVE_STEP = 0.06
@@ -43,10 +45,15 @@ _ALLOWED_INTENTS = frozenset({
 class JevController:
     """Finite choice adapter around a Jev decision runtime."""
 
-    def __init__(self, kernel, runtime, selector_id: str = OMEGA_JEV_ID):
+    def __init__(self, kernel, runtime, selector_id: str = OMEGA_JEV_ID,
+                 patterns=None):
         self.kernel = kernel
         self.runtime = runtime
         self.selector_id = selector_id
+        # Host-owned movement memory. Optional: everything below degrades to
+        # "no patterns known" when it is absent, and the Jev seam is
+        # unchanged. The library is never passed to the runtime.
+        self.patterns = patterns
 
     def available(self) -> bool:
         try:
@@ -188,6 +195,15 @@ class JevController:
         elif target and target["kind"] == "point":
             target_state = dict(target)
 
+        # Read-only, bounded, declarative. Pattern memory may INFORM a
+        # chooser; it can never manufacture a choice. These entries carry no
+        # StickerInstance id and no complete action key, so nothing here can
+        # be submitted to the kernel. The chooser still has to pick a key
+        # from available_actions.
+        known_patterns = []
+        if self.patterns is not None and subject is not None:
+            known_patterns = self.patterns.describe_for_scene(subject.asset)
+
         return {
             "revision": self.kernel.revision,
             "turn": self.kernel.turn,
@@ -196,6 +212,7 @@ class JevController:
             "subject": describe(subject),
             "target": target_state,
             "available_actions": sorted(table),
+            "known_patterns": known_patterns,
         }
 
     @staticmethod
@@ -343,6 +360,131 @@ class JevController:
             "goal": goal,
             "trace": trace,
             "stopped": "turn-limit",
+        }
+
+    # -- movement-pattern memory -------------------------------------
+    #
+    # A child teaching a sticker a way to move is remembering, not granting.
+    # Capture reads only ACCEPTED receipts; replay re-derives every key from
+    # the CURRENT world and submits it through the ordinary kernel path.
+
+    def remember_trace(self, *, label, subject_id, trace, learned_by):
+        """Associate a child-facing name with an already-accepted trace.
+
+        This is the seam where OmegaLLM will eventually land: the child says
+        "remember that as your happy dance", and OmegaLLM turns that into one
+        bounded host request carrying a label and the trace that just
+        happened. OmegaLLM never writes arbitrary actions into a pattern --
+        only accepted kernel receipts become steps.
+        """
+        if self.patterns is None:
+            return {"ok": False, "error": "pattern-memory-unavailable"}
+        subject = self.kernel.sticker(subject_id)
+        if subject is None:
+            return {"ok": False, "error": "unknown-pattern-subject"}
+
+        steps, error = steps_from_trace(trace, subject_id)
+        if error:
+            return {"ok": False, "error": error}
+
+        pattern, error = self.patterns.remember(
+            label=label,
+            asset=subject.asset,
+            steps=steps,
+            subject_id=subject_id,
+            learned_by=learned_by,
+            revision=self.kernel.revision,
+        )
+        if error:
+            return {"ok": False, "error": error}
+        return {"ok": True, "pattern": pattern.to_dict()}
+
+    def replay_pattern(self, pattern_id, *, subject_id, actor,
+                       command_prefix, requested_by):
+        """Re-perform a remembered pattern as a sequence of FRESH proposals.
+
+        This is mechanical replay: the host executes the remembered forms
+        step by step so pattern safety and semantics can be proven without a
+        live Jev. It is not a macro with authority. For every step the world
+        is re-read, the legal table is rebuilt, the key is re-derived from
+        the stored (verb, suffix) plus the CURRENT subject, and the kernel
+        decides again. A step that is no longer offered, or is refused, stops
+        the replay where it stands.
+        """
+        if self.patterns is None:
+            return {"ok": False, "error": "pattern-memory-unavailable"}
+        pattern = self.patterns.get(pattern_id)
+        if pattern is None:
+            return {"ok": False, "error": "unknown-pattern"}
+
+        trace = []
+        for index, step in enumerate(pattern.steps):
+            # 1. fresh current state, every step
+            subject = self.kernel.sticker(subject_id)
+            if subject is None:
+                return self._pattern_stop(
+                    pattern, trace, "unknown-pattern-subject")
+            # A pattern belongs to a StickerDefinition. An incompatible
+            # definition never inherits it by accident.
+            if subject.asset != pattern.asset:
+                return self._pattern_stop(
+                    pattern, trace, "pattern-definition-mismatch")
+
+            # 2. rebuild the current host-owned legal table
+            moves = self._move_candidates(subject)
+            table = self.kernel.available_actions(
+                actor, move_candidates=moves)
+
+            # 3. re-bind the stored fragment to the current instance
+            key = bind_key(step, subject_id)
+
+            # 4. the key has to exist in the table as it is right now
+            if key not in table:
+                return self._pattern_stop(
+                    pattern, trace, "pattern-step-unavailable")
+
+            # 5. ordinary kernel proposal path; no pattern-level privilege
+            receipt = self.kernel.propose_key(
+                actor,
+                key,
+                "%s-%d" % (command_prefix, index + 1),
+                based_on_revision=self.kernel.revision,
+                requested_by=requested_by,
+                move_candidates=moves,
+            )
+            trace.append({
+                "step": index + 1,
+                "verb": step.verb,
+                "suffix": step.suffix,
+                "receipt": receipt.to_dict(),
+            })
+
+            # 6. an accepted receipt is required before advancing
+            if not receipt.accepted:
+                return self._pattern_stop(
+                    pattern, trace, "pattern-step-refused")
+
+        return {
+            "ok": True,
+            "pattern": pattern.pattern_id,
+            "label": pattern.label,
+            "subject": subject_id,
+            "completed": len(trace),
+            "steps": len(pattern.steps),
+            "trace": trace,
+        }
+
+    @staticmethod
+    def _pattern_stop(pattern, trace, error):
+        """Stop closed, keeping whatever was legitimately accepted visible."""
+        return {
+            "ok": False,
+            "error": error,
+            "pattern": pattern.pattern_id,
+            "label": pattern.label,
+            "completed": len(trace),
+            "steps": len(pattern.steps),
+            "trace": trace,
         }
 
     def double_click(

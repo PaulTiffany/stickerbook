@@ -51,6 +51,7 @@ from page_assets import supported_upload  # noqa: E402
 from page_image_runtime import (  # noqa: E402
     DisabledPageImageRuntime, page_image_runtime_from_env,
 )
+from pattern_memory import PatternLibrary  # noqa: E402
 from stickerbook_core import (  # noqa: E402
     ADD_OWN_STICKER, ANIMATE_OWN_STICKER, Command, MOVE_STICKER,
     REMOVE_OWN_STICKER, RESIZE_OWN_STICKER, SET_STICKER_FACING,
@@ -83,13 +84,18 @@ class Bridge:
 
     def __init__(
             self, kernel=None, agent_runtime=None, jev_runtime=None,
-            page_image_runtime=None):
+            page_image_runtime=None, pattern_library=None):
         self.kernel = kernel or farm.build_world()
         # OmegaLLM is the conversational/linguistic loop. OmegaJev is a
         # separate discriminative control loop with its own narrow runtime.
         self.agent_runtime = agent_runtime or DisabledAgentRuntime()
         self.jev_runtime = jev_runtime or DisabledJevRuntime()
-        self.jev_controller = JevController(self.kernel, self.jev_runtime)
+        # Host-owned movement memory. In-memory for this tranche: a pattern
+        # is remembered for the life of the process and is not shared between
+        # children. It is passed to the controller, never to a runtime.
+        self.patterns = pattern_library or PatternLibrary()
+        self.jev_controller = JevController(
+            self.kernel, self.jev_runtime, patterns=self.patterns)
         self._jev_counter = 0
         self.page_image_runtime = (
             page_image_runtime or DisabledPageImageRuntime())
