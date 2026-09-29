@@ -83,6 +83,7 @@ CONTENT_TYPES = {".html": "text/html; charset=utf-8",
 MAX_BODY_BYTES = 8192
 MAX_PAGE_UPLOAD_BYTES = 20 * 1024 * 1024
 _MODEL_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,119}$")
+_INPUT_EVENT_RE = re.compile(r"^input-event-[1-9][0-9]{0,15}$")
 
 
 class Bridge:
@@ -301,7 +302,7 @@ class Bridge:
         return receipt
 
     def converse(self, body: dict) -> dict:
-        """Run the OmegaLLM language loop and optionally hand a goal to Jev.
+        """Run the OmegaLLM language loop and validate its optional goal.
 
         OmegaLLM never emits a kernel command.  It may return one bounded goal;
         the host validates that goal, OmegaJev selects only from host-generated
@@ -362,17 +363,45 @@ class Bridge:
 
         goal = result.get("goal")
         if goal is not None:
-            self._jev_counter += 1
-            payload["jev"] = self.jev_controller.run_semantic_goal(
-                goal,
-                actor=BROWSER_PRINCIPAL,
-                command_prefix="omega-jev-%d" % self._jev_counter,
-                requested_by=BROWSER_PRINCIPAL,
-                translated_by=OMEGA_LLM_ID,
-            )
+            if isinstance(goal, dict) and goal.get("intent") == "bind-demonstration":
+                # Legacy result key also holds non-Jev semantic work such as
+                # remember-pattern. Binding is validation only: no Jev call.
+                payload["jev"] = self._bind_demonstration(goal, episode)
+            else:
+                self._jev_counter += 1
+                payload["jev"] = self.jev_controller.run_semantic_goal(
+                    goal,
+                    actor=BROWSER_PRINCIPAL,
+                    command_prefix="omega-jev-%d" % self._jev_counter,
+                    requested_by=BROWSER_PRINCIPAL,
+                    translated_by=OMEGA_LLM_ID,
+                )
 
         payload["state"] = self.state()
         return payload
+
+    def _bind_demonstration(self, goal: dict, episode) -> dict:
+        """Admit only a page-path event in this exact host-composed turn."""
+        if set(goal) != {"subject", "intent", "demonstration"}:
+            return {"ok": False, "error": "invalid-demonstration-goal"}
+        subject = goal["subject"]
+        event_id = goal["demonstration"]
+        sticker = self.kernel.sticker(subject) if isinstance(subject, str) else None
+        if not isinstance(subject, str) or not subject or len(subject) > 160 \
+                or sticker is None or sticker.page != book.DEFAULT_PAGE:
+            return {"ok": False, "error": "invalid-demonstration-subject"}
+        if not isinstance(event_id, str) or not _INPUT_EVENT_RE.fullmatch(event_id):
+            return {"ok": False, "error": "invalid-demonstration-reference"}
+        for signal in episode.signals:
+            if signal.kind != interaction.SIGNAL_PAGE_PATH \
+                    or signal.source_event != event_id:
+                continue
+            trace = self.page_paths.get(signal.ref)
+            if trace is not None and trace.principal == episode.principal \
+                    and trace.page == book.DEFAULT_PAGE:
+                return {"ok": True, "result": "bound", "subject": subject,
+                        "demonstration": event_id, "pathRef": signal.ref}
+        return {"ok": False, "error": "demonstration-not-in-current-episode"}
 
     def _associate_inputs(self):
         """Newest observed inputs since the previous turn, in host order."""

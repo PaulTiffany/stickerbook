@@ -30,6 +30,7 @@ logger = get_logger(__name__)
 DEFAULT_TIMEOUT = 40
 MAX_REPLY_CHARS = 1000
 _MODEL_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,119}$")
+_INPUT_EVENT_RE = re.compile(r"^input-event-[1-9][0-9]{0,15}$")
 
 INFERENCE_PRESETS = {
     "asicloud": {
@@ -86,9 +87,10 @@ INFERENCE_PRESETS = {
 
 _ALLOWED_GOAL_FIELDS = frozenset({
     "subject", "intent", "behavior", "target", "facing", "scale",
+    "demonstration",
 })
 _ALLOWED_INTENTS = frozenset({
-    "control", "animate", "move", "move-and-animate",
+    "control", "animate", "move", "move-and-animate", "bind-demonstration",
 })
 
 
@@ -268,6 +270,17 @@ def clean_goal(raw):
     if intent not in _ALLOWED_INTENTS:
         raise ValueError("invalid goal intent")
 
+    if intent == "bind-demonstration":
+        if set(raw) != {"subject", "intent", "demonstration"}:
+            raise ValueError("invalid demonstration goal fields")
+        event_id = raw["demonstration"]
+        if not isinstance(event_id, str) or not _INPUT_EVENT_RE.fullmatch(event_id):
+            raise ValueError("invalid demonstration reference")
+        return {"subject": subject, "intent": intent,
+                "demonstration": event_id}
+    if "demonstration" in raw:
+        raise ValueError("demonstration requires bind intent")
+
     goal = {"subject": subject, "intent": intent}
 
     if "behavior" in raw:
@@ -292,6 +305,21 @@ def clean_goal(raw):
         goal["scale"] = scale
 
     return goal
+
+
+def validate_demonstration_goal(goal, scene):
+    """Admit only a supported event offered in this turn's bounded scene."""
+    if goal is None or goal.get("intent") != "bind-demonstration":
+        return
+    interaction = scene.get("interaction") if isinstance(scene, dict) else None
+    signals = interaction.get("signals") if isinstance(interaction, dict) else None
+    if not isinstance(signals, list):
+        raise ValueError("missing current interaction")
+    if not any(isinstance(signal, dict)
+               and signal.get("kind") == "page-path"
+               and signal.get("sourceEvent") == goal["demonstration"]
+               for signal in signals):
+        raise ValueError("demonstration not in current interaction")
 
 
 def _extract_content(body: dict) -> str:
@@ -336,12 +364,21 @@ Return exactly one JSON object and no other text:
 If no page action is clearly requested, omit goal. If a goal is appropriate,
 use only these fields:
 - subject: exact sticker instance id visible in scene
-- intent: control | animate | move | move-and-animate
+- intent: control | animate | move | move-and-animate | bind-demonstration
 - behavior: optional short desired behavior/clip word
 - target: optional {"kind":"sticker","id":"..."} or
           {"kind":"point","x":0..1,"y":0..1}
 - facing: optional left | right
 - scale: optional number from 0.90 through 1.10
+- demonstration: for bind-demonstration only, one exact `sourceEvent` from a
+  `page-path` signal in THIS `scene.interaction`; use no other goal fields
+  besides subject, intent, and demonstration for that intent
+
+For a child referring to a demonstration, you may semantically select one
+current page-path event from `scene.interaction`. Use the utterance, scene,
+and factual sourceEvent relationships; do not simply pick the newest signal.
+The host retains path geometry. You do not receive its trajectory samples.
+Binding records a reference only; it does not move or teach a sticker.
 
 The scene may include a `child_help` object. Treat that object as the
 authoritative child-facing documentation for questions such as "how do I play?",
@@ -420,6 +457,7 @@ class StickerBookLLMProvider(providers.LLMProvider):
                 "inference": {"provider": provider_id, "model": model},
             }
             goal = clean_goal(decoded.get("goal"))
+            validate_demonstration_goal(goal, safe_input["scene"])
             if goal is not None:
                 result["goal"] = goal
         except Exception as exc:  # every model/provider/schema failure is bounded
