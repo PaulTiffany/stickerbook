@@ -19,9 +19,10 @@ The browser sends human language to OmegaLLM through:
 `POST /api/agent/converse`
 
 The bridge validates the input and fixes the browser principal. OmegaLLM
-receives only the validated text, the fixed browser principal id, the normal
-JSON scene view, and the optional transient deictic reference for that turn.
-It never receives the authority-kernel object.
+receives only the validated text, the fixed browser principal id, a bounded
+JSON scene view, the child-facing help projection, and the optional transient
+deictic reference for that turn. It never receives the authority-kernel object
+or the responsible-adult guide.
 
 OmegaLLM returns language and may optionally attach one bounded `goal` object,
 for example:
@@ -45,6 +46,37 @@ The causal receipt records the child as the authority/origin
 (`requestedBy`), OmegaLLM as the linguistic transformer
 (`translatedBy`), and OmegaJev as the selector (`selectedBy`). None of
 those provenance fields are consulted for authorization.
+
+## Child-facing documentation is a bounded view
+
+The in-app help source is `web/static/help.json`, with separate `child` and
+`adult` branches.
+
+The browser may render both branches to their intended audiences. OmegaLLM
+receives **only** a defensive copy of the `child` branch under:
+
+```json
+{
+  "scene": {
+    "child_help": {
+      "title": "How StickerBook works",
+      "intro": "...",
+      "topics": [...]
+    }
+  }
+}
+```
+
+This gives conversational Omega a stable source of truth for questions such as
+"How do I play?", "What happens if I double-tap?", or "What can you do?".
+
+The child branch intentionally excludes operator setup, API keys, OpenShell,
+Docker, repository administration, provider configuration, and policy approval.
+The parent guide is not secret; it is simply **outside OmegaLLM's observation
+surface**.
+
+Documentation is descriptive data. It cannot grant a capability or authorize a
+mutation.
 
 ## Creator drafts are also non-authoritative
 
@@ -187,22 +219,28 @@ action key must not reveal an undeclared object merely by naming it. Painted
 background pixels remain passive scenery unless OmegaLLM turns a validated
 child reference into explicit bounded goal data.
 
-## Default runtimes
+## Runtime attachment
 
-`web/agent_runtime.py` ships with `DisabledAgentRuntime` for OmegaLLM and
-`web/jev_runtime.py` ships with `DisabledJevRuntime` for OmegaJev. Both are
-inert and perform no network access. GitHub Pages receives neither Python
-runtime; Pages remains the mechanical static profile.
+`web/agent_runtime.py` and `web/jev_runtime.py` still default to inert
+`Disabled*` adapters and perform no network access unless explicit loopback
+runtime URLs are supplied.
 
-A local OmegaLLM adapter should implement the conversational interface and may
-return a bounded goal. A local OmegaJev adapter should implement
-`choose(goal, scene, actions, turn, max_turns)` and return only one supplied
-choice key. Neither adapter should reach around the bridge into the kernel.
+The powered launcher attaches:
 
-OpenShell is the intended containment substrate for the two Omega loops, not a
-replacement for the StickerBook kernel. The repository does not require
-OpenShell to run yet; integration should preserve separate sandboxes/policies
-for OmegaLLM and OmegaJev.
+- OmegaLLM at host loopback port 8761;
+- OmegaJev at host loopback port 8762.
+
+Both adapters reject non-loopback URLs. Neither receives the kernel object or a
+provider credential.
+
+OpenShell is the containment substrate for those two powered Omega loops, not a
+replacement for the StickerBook kernel. They use separate sandboxes, policies,
+and provider identities. The dual-Omega OpenShell path is implemented and
+mechanically checked, but is not labeled live-host verified until exercised on
+the actual WSL2/Docker Desktop/provider host.
+
+GitHub Pages receives neither Python runtime and remains the mechanical static
+profile.
 
 The page-image gateway is intentionally **not** an Omega capability. It is a
 narrow media transformer started by the operator, and successful image
