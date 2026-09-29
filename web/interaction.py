@@ -47,7 +47,9 @@ MAX_SIGNALS_PER_EPISODE = 4
 # Input kinds that may currently participate. New bounded input types are
 # added here; the record shape does not change.
 SIGNAL_STICKER_DRAG = "sticker-drag"
-SIGNAL_KINDS = frozenset({SIGNAL_STICKER_DRAG})
+SIGNAL_PAGE_PATH = "page-path"
+SIGNAL_KINDS = frozenset({SIGNAL_STICKER_DRAG, SIGNAL_PAGE_PATH})
+MAX_OBSERVED_INPUTS = 64
 
 # How the child produced the text. Descriptive only: it confers no authority,
 # it is not trusted provenance, and nothing branches on it. The browser is the
@@ -62,10 +64,8 @@ INPUT_MODES = frozenset({INPUT_MODE_VOICE, INPUT_MODE_TEXT})
 class InputSignal:
     """One bounded reference to an input the host itself observed.
 
-    A reference, never the raw observation: the full trajectory of a sticker
-    drag stays in the host's `StickerDragLog`. OmegaLLM needs to know that the
-    child demonstrated something by dragging Froggy, not to receive dozens of
-    floating-point samples.
+    A reference, never the raw observation. Full sticker and bare-page
+    trajectories stay in their respective host logs.
     """
 
     kind: str
@@ -80,6 +80,33 @@ class InputSignal:
             "subject": self.subject,
             "durationMs": self.duration_ms,
         }
+
+
+@dataclass(frozen=True)
+class ObservedInput:
+    sequence: int
+    principal: str
+    signal: InputSignal
+
+
+class ObservedInputLog:
+    """One host arrival sequence across signal kinds; bounded data only."""
+
+    def __init__(self, max_inputs: int = MAX_OBSERVED_INPUTS):
+        self.max_inputs = int(max_inputs)
+        self._inputs: List[ObservedInput] = []
+        self._next_sequence = 1
+
+    def add(self, principal: str, signal: InputSignal) -> ObservedInput:
+        observed = ObservedInput(self._next_sequence, principal, signal)
+        self._next_sequence += 1
+        self._inputs.append(observed)
+        if len(self._inputs) > self.max_inputs:
+            del self._inputs[:len(self._inputs) - self.max_inputs]
+        return observed
+
+    def after(self, marker: int) -> Tuple[ObservedInput, ...]:
+        return tuple(item for item in self._inputs if item.sequence > marker)
 
 
 @dataclass(frozen=True)
@@ -111,8 +138,9 @@ class InteractionEpisode:
     def describe(self) -> dict:
         """The bounded projection OmegaLLM receives for this turn.
 
-        Everything here is a fact the host observed or issued itself. There is
-        no interpretation, no shape label, and no raw sample data.
+        Everything here is bounded input evidence or a host-issued stamp.
+        The voice/text mode and geometry originated at the client. There is no
+        interpretation, shape label, or raw trajectory sample data.
         """
         return {
             "episodeId": self.episode_id,
@@ -176,9 +204,10 @@ class InteractionLog:
 
 
 __all__ = [
-    "MAX_EPISODES", "MAX_SIGNALS_PER_EPISODE",
-    "SIGNAL_STICKER_DRAG", "SIGNAL_KINDS",
+    "MAX_EPISODES", "MAX_SIGNALS_PER_EPISODE", "MAX_OBSERVED_INPUTS",
+    "SIGNAL_STICKER_DRAG", "SIGNAL_PAGE_PATH", "SIGNAL_KINDS",
     "INPUT_MODE_VOICE", "INPUT_MODE_TEXT", "INPUT_MODES",
-    "InputSignal", "InteractionEpisode", "InteractionLog",
+    "InputSignal", "ObservedInput", "ObservedInputLog",
+    "InteractionEpisode", "InteractionLog",
     "valid_input_mode",
 ]

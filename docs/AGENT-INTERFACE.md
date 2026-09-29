@@ -597,21 +597,26 @@ sticker along a path demonstrated without touching it. The page already has
 point/box deictic interaction for OmegaLLM, whose semantics are unchanged
 here.
 
-The host now records one `InteractionEpisode` per OmegaLLM turn. It contains
+The host records one `InteractionEpisode` per OmegaLLM turn. It contains
 the utterance/transcript, optional validated point or box, scene revision,
-browser-observed voice/text mode, and at most four host-observed sticker-drag
-references. The client cannot select drag IDs. The host associates traces
-recorded since the preceding linguistic turn, keeps the newest four in
-observation order, and advances that cursor even when inference fails. If the
-old marker has left the 32-trace log, all retained traces are newer and the
-same newest-four rule applies. A failed turn remains in the 24-episode log;
+browser-observed voice/text mode, and at most four host-observed input
+references. The client cannot select historical trace IDs. A bounded host
+ledger sequences accepted sticker drags and bare-page paths together by host
+arrival, then associates the newest four observations since the preceding
+linguistic turn. If the marker has left the ledger, retained entries still
+carry monotonic sequences, so the same rule applies. The cursor advances even
+when inference fails. A failed turn remains in the 24-episode log;
 later OmegaLLM turns currently receive only their own episode, so an immediate
 retry does not automatically receive the earlier drag. This is input history,
 not world history: recording an episode creates no receipt or world revision.
 
-`InputSignal` is generic, so a future non-sticker path can use the same
-bounded record. The episode does not classify geometry or infer relevance.
-Raw trajectory samples remain in the host's `StickerDragLog`. The voice/text
+`InputSignal` carries `sticker-drag` or `page-path` summaries. The episode does
+not classify geometry or infer relevance. Raw samples remain in the host's
+`StickerDragLog` or `PagePathLog`. A bare-page drag also retains its existing
+box deictic mark: box and path are distinct evidence from one physical input.
+Every page-path sample is an observed normalized pointer position, with no
+authoritative world anchor and no kernel mutation. Malformed auxiliary path
+telemetry is discarded without invalidating the box. The voice/text
 mode comes from the browser's physical input channel and is descriptive
 metadata only; nothing security-relevant branches on it. No microphone audio
 is stored.

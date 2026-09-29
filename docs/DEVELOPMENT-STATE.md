@@ -25,16 +25,28 @@ mechanical static demo; the powered authority-kernel runtime runs on localhost.
 - PR #38: typed movement-pattern memory.
 - PR #39: Remember that / Do that again.
 - PR #40: StickerDragTrace capture.
-- This tranche: bounded multimodal InteractionEpisode records for linguistic turns.
+- PR #41: bounded multimodal InteractionEpisode records for linguistic turns.
+- This tranche: non-sticker bare-page path observation and generic input ordering.
 
 An episode records utterance, optional validated point/box, descriptive
-voice/text mode, scene revision, and up to four recent host-observed drag
-summaries. It does not interpret geometry. Drag associations are the newest
-traces since the previous linguistic turn, in host observation order. When an
-old cursor is evicted, all retained traces are newer and the newest four are
-used. Input remains recorded and the cursor advances if inference fails. The
+voice/text mode, scene revision, and up to four recent host-observed input
+summaries. The host ledger sequences sticker drags and bare-page paths together
+at recording time. A conversation receives the newest four entries since the
+previous linguistic turn, in host arrival order. Monotonic sequence numbers
+keep eviction deterministic. Input remains recorded and the cursor advances if
+inference fails. The
 next turn receives only its own episode, so retry context is a future design
 question. The record holds at most 24 episodes and does not persist.
+
+The existing background drag still creates a deictic box. In powered localhost
+mode it also sends a `PagePathTrace`: up to 32 retained observed page-space
+samples from at most 64 client samples, with no world anchors, interpretation,
+kernel receipt, or revision change. The browser samples the existing gesture,
+reduces it deterministically, and sends it through a separate auxiliary
+endpoint. Malformed telemetry is discarded; the box remains. OmegaLLM receives
+only a `page-path` reference and duration. Host arrival order is the evidence
+order; network delay does not establish precise physical timing across separate
+requests. Page paths are not learnable or executable yet.
 
 ## OpenShell status
 
@@ -47,10 +59,11 @@ question. The record holds at most 24 episodes and does not persist.
 From the repository root unless a `cd` is shown:
 
 ```bash
-python -m py_compile web/interaction.py web/sticker_drag.py web/bridge.py web/tests/test_interaction.py jev/omega_jev/providers/jev.py llm/omega_llm/providers/stickerbook_llm.py runtime/omega/stickerbookrpc.py
+python -m py_compile web/page_path.py web/interaction.py web/sticker_drag.py web/bridge.py web/tests/test_page_path.py web/tests/test_interaction.py jev/omega_jev/providers/jev.py llm/omega_llm/providers/stickerbook_llm.py runtime/omega/stickerbookrpc.py
 cd core && python -m unittest discover -s tests
 cd ../jev && python -m unittest discover -s tests
 cd ../web && python -m unittest discover -s tests -p test_interaction.py
+python -m unittest discover -s tests -p test_page_path.py
 python -m unittest discover -s tests
 cd ..
 python openshell/verify.py
@@ -65,13 +78,12 @@ alone, and has not appeared in Linux CI.
 
 ## Next research and build questions
 
-1. Capture a non-sticker child path demonstration as another bounded input signal.
-2. Bind multimodal phrases such as “like this,” “around there,” and “do that.”
-3. Turn embodied trajectories into movement memory without false symbolic quantisation.
-4. Let OmegaJev act relative to that memory while selecting only from a finite CURRENT legal surface.
-5. Determine trajectory scale, shape, and timing invariance.
-6. Design persistence and child/session boundaries.
-7. Prove the live OpenShell graph when upstream permits it.
+1. Decide how OmegaLLM should bind “like this,” “around there,” and “do that” to distinct point/box/path evidence without treating geometry alone as meaning.
+2. Turn embodied trajectories into movement memory without false symbolic quantisation.
+3. Let OmegaJev act relative to that memory while selecting only from a finite CURRENT legal surface.
+4. Determine trajectory scale, shape, and timing invariance.
+5. Design persistence and child/session boundaries.
+6. Prove the live OpenShell graph when upstream permits it.
 
 ## Repository workflow
 
