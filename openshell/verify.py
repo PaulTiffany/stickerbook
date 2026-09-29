@@ -31,14 +31,25 @@ for path in (
     assert "/PeTTa/repos/Omega/memory" in policy
     assert "openrouter.ai" not in policy
 
-for path in (
-    "openshell/providers/openrouter-omega-jev.yaml",
-    "openshell/providers/openrouter-omega-llm.yaml",
-):
+provider_profiles = {
+    "openshell/providers/openrouter-omega-jev.yaml":
+        ("openrouter.ai", "OPENROUTER_API_KEY"),
+    "openshell/providers/openrouter-omega-llm.yaml":
+        ("openrouter.ai", "OPENROUTER_API_KEY"),
+    "openshell/providers/asicloud-omega-llm.yaml":
+        ("inference.asicloud.cudos.org", "ASI_API_KEY"),
+    "openshell/providers/anthropic-omega-llm.yaml":
+        ("api.anthropic.com", "ANTHROPIC_API_KEY"),
+    "openshell/providers/openai-omega-llm.yaml":
+        ("api.openai.com", "OPENAI_API_KEY"),
+    "openshell/providers/asione-omega-llm.yaml":
+        ("api.asi1.ai", "ASIONE_API_KEY"),
+}
+for path, (host, credential) in provider_profiles.items():
     profile = read(path)
-    assert "host: openrouter.ai" in profile
+    assert "host: " + host in profile
     assert "enforcement: enforce" in profile
-    assert "OPENROUTER_API_KEY" in profile
+    assert credential in profile
     binary_lines = []
     in_binaries = False
     for line in profile.splitlines():
@@ -62,6 +73,12 @@ for path in ("jev/openshell-entrypoint.sh", "runtime/omega/openshell-entrypoint.
     entrypoint = read(path)
     assert "env -i" in entrypoint
     assert "OPENROUTER_API_KEY" in entrypoint
+    if path == "runtime/omega/openshell-entrypoint.sh":
+        for credential in (
+            "ASI_API_KEY", "ANTHROPIC_API_KEY",
+            "OPENAI_API_KEY", "ASIONE_API_KEY",
+        ):
+            assert credential in entrypoint
     code = "\n".join(
         line for line in entrypoint.splitlines()
         if not line.lstrip().startswith("#")
@@ -76,6 +93,8 @@ assert '"omegallm"' in rpc and '"omegajev"' in rpc
 assert 'set(payload) - allowed' in rpc
 assert 'set(payload) != allowed' in rpc
 assert "complete_staged" in rpc
+assert '"inference"' in rpc
+assert "_provider_metadata" in rpc
 
 agent_runtime = read("web/agent_runtime.py")
 jev_runtime = read("web/jev_runtime.py")
@@ -99,6 +118,12 @@ assert 'module.LLM_COMMANDS.add("sb-return")' in llm
 assert 'rpc.current_request("omegallm")' in llm
 assert 'clean_goal(decoded.get("goal"))' in llm
 assert '"reply": reply' in llm
+assert "INFERENCE_PRESETS" in llm
+for provider_id in ("asicloud", "anthropic", "openai", "openrouter", "asione"):
+    assert '"' + provider_id + '"' in llm
+assert "minimax/minimax-m3" in llm
+assert "claude-opus-4-8" in llm
+assert "gpt-5.5" in llm
 assert "stickerbook_core" not in llm
 
 llm_image = read("llm/Dockerfile.omega-llm")
@@ -115,10 +140,22 @@ for path, port in (
     assert "sb_sandbox_create_service" in script
     assert port in script
 
+llm_service = read("openshell/run-omega-llm-service.sh")
+for profile_id in (
+    "stickerbook-openrouter-omega-llm",
+    "stickerbook-asicloud-omega-llm",
+    "stickerbook-anthropic-omega-llm",
+    "stickerbook-openai-omega-llm",
+    "stickerbook-asione-omega-llm",
+):
+    assert profile_id in llm_service
+
 lib = read("runtime/lib.sh")
 assert '--approval-mode manual' in lib
 assert '--forward "127.0.0.1:$port"' in lib
 assert "--provider" in lib
+assert "providers_csv" in lib
+assert 'provider_args+=(--provider "$provider")' in lib
 assert "--detach" in lib
 assert "--privileged" not in lib
 assert "docker.sock" not in lib
@@ -129,9 +166,22 @@ assert CANONICAL_SWIPL in start
 assert "STICKERBOOK_OMEGA_LLM_URL=http://127.0.0.1:8761" in start
 assert "STICKERBOOK_OMEGA_JEV_URL=http://127.0.0.1:8762" in start
 assert "OPENROUTER_API_KEY" in start
+assert "ASI_API_KEY" in start
 assert ".stickerbook-runtime" in read(".gitignore")
 assert "wsl.exe" in read("Start StickerBook.cmd")
 assert "runtime/start.sh" in read("Start StickerBook.cmd")
 assert "runtime/stop.sh" in read("Stop StickerBook.cmd")
+
+bridge = read("web/bridge.py")
+assert '"/api/adult/inference"' in bridge
+assert "_inference_selection" in bridge
+assert '"provider": "off"' in bridge
+assert "inference-provider-unavailable" in bridge
+
+app = read("web/static/app.js")
+assert 'id="inference-provider"' in read("web/static/index.html")
+assert "refreshInferenceControls" in app
+assert "applyInferenceSelection" in app
+assert "world.setInference" in app
 
 print("Governed OpenShell runtime static contract: PASS")
