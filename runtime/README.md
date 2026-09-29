@@ -10,11 +10,19 @@ The normal Windows path is intentionally boring:
 3. double-click **`Stop StickerBook.cmd`** when finished.
 
 The first powered start may build the pinned Omega base image and ask once for
-an OpenRouter API key if the two OpenShell provider instances do not exist yet.
-Input is hidden. The launcher does not write that credential into the
-repository, `.stickerbook-runtime/`, command arguments, or bridge process.
-OpenShell owns the provider credential after creation. Later starts reuse those
-provider instances.
+an **OpenRouter API key**. OpenRouter remains required because OmegaJev uses the
+Jev Decisions API. The launcher may then ask for an optional **Sponsored ASI
+Cloud** key for OmegaLLM; Enter skips it. Input is hidden.
+
+The launcher does not write those credentials into the repository,
+`.stickerbook-runtime/`, command arguments, or bridge process. OpenShell owns
+provider credentials after creation. Later starts reuse provider instances.
+
+Anthropic (`ANTHROPIC_API_KEY`), OpenAI (`OPENAI_API_KEY`), and ASI:One
+(`ASIONE_API_KEY`) are optional OmegaLLM lanes. If their environment
+variables are present while the matching OpenShell provider is first created,
+or the provider already exists, they are attached to the OmegaLLM sandbox and
+appear in the Responsible Adult selector.
 
 ## Boot graph
 
@@ -28,7 +36,8 @@ operator launcher (trusted)
         |
         +-- OpenShell sandbox: OmegaLLM
         |      127.0.0.1:8761
-        |      OpenRouter provider profile: LLM only
+        |      parent-selectable provider profiles:
+        |      ASI Cloud / Anthropic / OpenAI / OpenRouter / ASI:One
         |
         +-- OpenShell sandbox: OmegaJev
         |      127.0.0.1:8762
@@ -51,6 +60,8 @@ OmegaLLM receives only:
 - the fixed browser principal id;
 - a JSON scene view;
 - an optional one-turn deictic reference.
+- the **host-selected inference provider/model**, carried separately from the
+  child scene.
 
 It may return child-facing `reply` text and one schema-bounded semantic
 `goal`. It does not receive the authority kernel.
@@ -71,6 +82,32 @@ communication channel: one host request becomes one new Omega message, the role
 provider stages one bounded JSON result, and Omega executes the fixed
 zero-argument `sb-return` skill to complete the request. Free-form Omega
 channel output is never parsed into authority.
+
+## Responsible-adult inference routing
+
+The bridge owns one inference selection for the current browser/server session.
+Its default order is:
+
+1. Sponsored ASI Cloud / `minimax/minimax-m3`, when configured;
+2. OpenRouter / `z-ai/glm-5.2`;
+3. the first other configured OmegaLLM lane;
+4. Off, if no conversational provider is available.
+
+The adult panel may switch among configured ASI Cloud, Anthropic, OpenAI,
+OpenRouter, ASI:One, and Off without restarting Omega. Non-sponsored lanes may
+use a bounded provider-supported model id; sponsored ASI Cloud is intentionally
+locked to its sponsored MiniMax model.
+
+This control does not grant StickerBook world authority. It only determines
+which already-configured inference endpoint receives the next bounded OmegaLLM
+request. The child cannot set it through conversation, and OmegaLLM cannot
+change it itself.
+
+The panel is currently an **audience control, not authenticated parental
+security**. A person with direct access to the local browser/devtools can call
+the loopback adult endpoint. That is acceptable for the current local research
+profile, but paid-provider protection for a deployed child account would need a
+separate authenticated adult boundary.
 
 ## Voice-first path
 
