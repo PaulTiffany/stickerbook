@@ -87,10 +87,11 @@ INFERENCE_PRESETS = {
 
 _ALLOWED_GOAL_FIELDS = frozenset({
     "subject", "intent", "behavior", "target", "facing", "scale",
-    "demonstration",
+    "demonstration", "label", "pattern",
 })
 _ALLOWED_INTENTS = frozenset({
     "control", "animate", "move", "move-and-animate", "bind-demonstration",
+    "remember-pattern", "perform-pattern",
 })
 
 
@@ -270,6 +271,31 @@ def clean_goal(raw):
     if intent not in _ALLOWED_INTENTS:
         raise ValueError("invalid goal intent")
 
+    if intent in ("remember-pattern", "perform-pattern"):
+        if set(raw) - {"subject", "intent", "label", "pattern"}:
+            raise ValueError("invalid pattern goal fields")
+        goal = {"subject": subject, "intent": intent}
+        label = raw.get("label")
+        if label is not None:
+            # Match the host's valid_label bound and canonical whitespace.
+            if not isinstance(label, str) or not 0 < len(label.strip()) <= 48 \
+                    or any(ch in ":\r\n\t" for ch in label):
+                raise ValueError("invalid pattern label")
+            goal["label"] = " ".join(label.split())
+        reference = raw.get("pattern")
+        if reference is not None:
+            if not isinstance(reference, str) or not reference \
+                    or len(reference) > 64 or ":" in reference:
+                raise ValueError("invalid pattern reference")
+            goal["pattern"] = reference
+        if intent == "remember-pattern" and "label" not in goal:
+            raise ValueError("missing pattern label")
+        if intent == "perform-pattern" and not ({"label", "pattern"} & goal.keys()):
+            raise ValueError("missing pattern reference")
+        return goal
+    if {"label", "pattern"} & raw.keys():
+        raise ValueError("pattern fields require pattern intent")
+
     if intent == "bind-demonstration":
         if set(raw) != {"subject", "intent", "demonstration"}:
             raise ValueError("invalid demonstration goal fields")
@@ -361,10 +387,12 @@ claims that an action succeeded.
 Return exactly one JSON object and no other text:
 {"reply":"...", "goal": optional-object}
 
-If no page action is clearly requested, omit goal. If a goal is appropriate,
+If no page direction, demonstration binding, or pattern-memory request is
+clearly expressed, omit goal. If a goal is appropriate,
 use only these fields:
 - subject: exact sticker instance id visible in scene
-- intent: control | animate | move | move-and-animate | bind-demonstration
+- intent: control | animate | move | move-and-animate | bind-demonstration |
+          remember-pattern | perform-pattern
 - behavior: optional short desired behavior/clip word
 - target: optional {"kind":"sticker","id":"..."} or
           {"kind":"point","x":0..1,"y":0..1}
@@ -379,6 +407,19 @@ current page-path event from `scene.interaction`. Use the utterance, scene,
 and factual sourceEvent relationships; do not simply pick the newest signal.
 The host retains path geometry. You do not receive its trajectory samples.
 Binding records a reference only; it does not move or teach a sticker.
+
+For "Remember that as your happy dance", use remember-pattern with subject
+and label. The host resolves "that" from actual recent governed actions; you
+must never supply steps, action keys, historical selections, or trajectories.
+For "Do your happy dance", use perform-pattern with subject and label (or a
+known pattern id in pattern). The host resolves the existing memory and Jev
+chooses among fresh legal actions. Never invent a pattern id. Pattern intents
+may contain only subject, intent, label, and pattern. A label has 1..48 trimmed
+characters and no colon, newline, carriage return, or tab. A pattern id has
+1..64 characters and no colon. Remember requires label; perform requires label
+or pattern. Do not claim remembering or performance succeeded before the host
+reports it. Page paths and sticker-drag trajectories are not learned movement
+patterns; do not promise to remember their geometry through these intents.
 
 The scene may include a `child_help` object. Treat that object as the
 authoritative child-facing documentation for questions such as "how do I play?",

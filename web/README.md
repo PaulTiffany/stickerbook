@@ -467,6 +467,14 @@ field. It does not call OmegaJev, store a movement, or mutate the world.
 Retained trajectory samples stay in the host log, outside the OmegaLLM scene
 and goal.
 
+The real OmegaLLM provider now admits the existing `remember-pattern` and
+`perform-pattern` language contract. It emits only subject and bounded
+label/pattern references; the host constructs memory from governed history,
+and Jev performs through current legal choices. Provider-to-host tests use a
+fake inference transport, so this is mechanical verification, not live
+OpenShell proof. Bounded voice clarification is the next tranche, before
+trajectory coordinate frames or motor work.
+
 ```bash
 cd web
 python -m unittest discover -s tests
