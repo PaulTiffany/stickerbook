@@ -515,14 +515,18 @@ class Kernel:
         if why:
             return self._reject(command, why)
         self.revision += 1
-        # Direct human manipulation interrupts autonomous motion. A moved
+        # Direct pointer manipulation interrupts autonomous motion. A moved
         # sticker is set down still and must be explicitly animated again.
-        # Agent movement does not silently rewrite a separately chosen
-        # animation state.
+        # A Jev-selected move may still execute under the child's authority
+        # (the child originated the goal), but selected_by records that this
+        # was controller motion rather than a hand drag, so its separately
+        # chosen clip is preserved.
         asset = self.assets.get(sticker.asset)
+        direct_human_manipulation = (
+            p.kind in (HUMAN, OPERATOR) and command.selected_by is None)
         animation = (
             (asset.rest_animation if asset else "none")
-            if p.kind in (HUMAN, OPERATOR)
+            if direct_human_manipulation
             else sticker.animation
         )
         self._stickers[sticker.id] = StickerInstance(
