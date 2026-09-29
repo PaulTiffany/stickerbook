@@ -99,6 +99,17 @@ fi
 # Cleanly replace only StickerBook-owned runtime processes/sandboxes.
 bash "$ROOT/runtime/stop.sh" --quiet || true
 
+# From this point onward, any failed boot tears down everything this attempt
+# started. Do not leave a half-started agent sandbox behind when a later health
+# check or bridge bind fails.
+cleanup_failed_boot() {
+  code=$?
+  trap - ERR
+  bash "$ROOT/runtime/stop.sh" --quiet || true
+  return "$code"
+}
+trap cleanup_failed_boot ERR
+
 echo "Starting bounded OmegaLLM..."
 bash "$ROOT/openshell/run-omega-llm-service.sh"
 echo "Starting bounded OmegaJev..."
@@ -136,6 +147,7 @@ if not caps.get("conversational_agent") or not caps.get("jev_controller"):
     raise SystemExit(1)
 PY
   then
+    trap - ERR
     echo "StickerBook READY: http://127.0.0.1:8756/"
     echo "Voice is available from the adult-controlled push-to-talk toggle."
     exit 0
