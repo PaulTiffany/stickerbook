@@ -131,7 +131,9 @@ background reference remain distinct.
 - drag a placed sticker: move it;
 - drag a placed sticker downward across the hotbar's top edge and release: remove it from the page;
 - while the library is open, drag a hotbar sticker back into the library: remove it from the working sheet;
-- double-tap: toggle the definition's declared mechanical animation.
+- double-tap: request animation for that sticker; a connected OmegaJev loop
+  chooses from the sticker's declared clips, otherwise the deterministic
+  mechanical toggle is used.
 
 Hovering a placed sticker never changes its transform or visual position. The
 white die-cut border plus the grab cursor are the hover affordances; exact
@@ -154,8 +156,10 @@ rest clip, so the physical sticker itself does not shift under the pointer. The
 drag preserves the exact point where the child grabbed it: beginning a drag
 never teleports the sticker's center underneath the pointer. Once the move is
 accepted, the authoritative clip is the definition's rest clip. A rest clip
-may itself contain subtle non-locomotive frame animation; double-tap/click
-toggles between that rest clip and the definition's first active behavior.
+may itself contain subtle non-locomotive frame animation. Without OmegaJev,
+double-tap/click toggles between that rest clip and the definition's first
+active behavior. With OmegaJev connected, the same gesture supplies a one-turn
+animation-only choice surface instead.
 
 ## Adult / developer controls
 
@@ -181,25 +185,34 @@ The developer receipts panel opened with `?dev=1` has its own **×** control.
 Closing it removes the `dev` query flag from the current URL and returns to
 the normal child title surface without requiring a manual reload.
 
-## Conversational / creator seams
+## Dual Omega / creator seams
 
-The browser has three non-authoritative creation/language seams:
+The child-facing agent architecture has two separate Omega loops:
 
-- `/api/agent/converse` returns language;
+- **OmegaLLM** receives voice/text/deictic context and may return language plus
+  one bounded semantic goal.
+- **OmegaJev** receives that goal with fresh governed scene state and chooses
+  one key at a time from a finite host-generated action surface.
+
+`/api/agent/converse` is therefore not a command endpoint. OmegaLLM cannot
+supply coordinates as executable arguments or invoke the kernel. If it attaches
+a goal, the host validates the goal, constructs bounded Jev choices, and applies
+only a Jev-selected host key through `Kernel.propose_key()`.
+
+The child may also reach OmegaJev without OmegaLLM by double-clicking/tapping a
+sticker. That creates a one-turn animation-only goal; Jev may choose only one
+declared clip key or NOOP.
+
+Creation remains separate:
+
 - `/api/creator/draft` returns proposed asset/page draft metadata;
 - `/api/creator/page-image` accepts a validated raw image upload and, only
   when an operator-enabled local image gateway is present, returns horizontal
   and portrait page-image draft metadata.
 
-None is a kernel command path. The conversational/creator runtime receives the
-fixed browser principal and a JSON scene view, not the kernel object. The
-page-image gateway receives image bytes and edit instructions, but no
-StickerBook principal, kernel object, or world-mutation capability. Machine
-actions still belong on the legal-choice / Jev / kernel path.
-
-The shipped `agent_runtime.py` and page-image runtime are disabled/inert by
-default. Public GitHub Pages ships neither Python runtime nor provider
-credential.
+Creator/media seams receive no kernel object and cannot install themselves.
+The shipped OmegaLLM and OmegaJev runtime adapters are inert by default. Public
+GitHub Pages ships neither Python runtime nor provider credential.
 
 ## Governed localhost path
 
@@ -221,6 +234,17 @@ pointer gesture
 The browser is trusted to report pointer input and which sticker was grabbed.
 It is not trusted to choose identity, bypass ownership, establish success, or
 mutate authoritative state.
+
+Assisted play uses the parallel bounded path:
+
+```text
+child language -> OmegaLLM goal -> OmegaJev finite choice -> Kernel.propose_key
+child double-click ----------------^  (animation-only for one turn)
+```
+
+OmegaJev movement is expressed as ephemeral local N/NE/E/SE/S/SW/W/NW steps.
+After each selected step StickerBook re-observes authoritative state and builds
+a fresh table; OmegaLLM does not precompile a movement sequence.
 
 Add `?dev=1` for revision, acting principal, last verdict, and receipt stream.
 
@@ -282,9 +306,10 @@ Positions are page-relative fractions. Sticker scale and horizontal facing are
 separate authoritative world transforms. Scale is currently bounded to
 0.90–1.10; facing is left/right and renders by mirroring the same sticker
 package around its center. Pixels remain presentation and input detail, never
-authority. Position bounds still govern
-the sticker center; footprint-safe agent locomotion is a separate host-action
-generation problem to solve before live Jev movement.
+authority. Position bounds still govern the sticker center. The Jev substrate
+now generates bounded local movement candidates for that center; full
+die-cut-footprint containment remains a separate refinement before treating
+edge navigation as visually complete.
 
 ## Tests
 
