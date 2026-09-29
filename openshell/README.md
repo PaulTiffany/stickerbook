@@ -19,117 +19,175 @@ which sticker action is legal.
 
 ## Pin
 
-StickerBook is pinned to the stable OpenShell release:
+StickerBook is pinned to:
 
-- release: `v0.1.2`
-- commit: `6648bd0c290efbc41ba131ee9831ee45cd431f94`
-- release date: 2026-09-28
+- OpenShell release `v0.1.2`
+- commit `6648bd0c290efbc41ba131ee9831ee45cd431f94`
+- release date 2026-09-28
 
-The pin lives in `PIN.env`. Do not replace it with `main`, `dev`,
-`latest`, or another moving alias.
-
-The installer is fetched by immutable commit and is told to install the exact
-release tag:
+The pin lives in `PIN.env`. The installer is fetched by immutable commit and
+is instructed to install that exact release:
 
 ```bash
 bash openshell/install-pinned.sh
 ```
 
-OpenShell documents Windows with WSL2 as experimental. StickerBook's tested host
-already uses Windows 11 + WSL2 Ubuntu + Docker Desktop, so the integration is
-kept explicitly local and inspectable rather than treated as a production
-deployment claim.
+The normal StickerBook launcher performs this check itself. Manual installation
+is therefore an operator/debug path rather than a normal child-facing startup
+step.
 
 ## Two sandboxes, not one ambient agent
 
-The architecture reserves separate policies and provider identities for:
+The powered architecture uses separate sandbox identities:
 
-- `OmegaLLM`: child language -> bounded semantic goal
-- `OmegaJev`: bounded world view + finite action table -> typed action key
+- **OmegaLLM**: child language -> reply + optional bounded semantic goal
+- **OmegaJev**: fresh bounded world view + finite host action table -> one key
 
-They must not share an ambient writable filesystem, an authority object, or a
-general Internet connection merely because they cooperate on one turn.
+They do not share an authority object, repository mount, writable source tree,
+provider instance, or general Internet connection.
 
-The policy files are:
+Base policies:
 
 - `policies/omega-llm.yaml`
 - `policies/omega-jev.yaml`
 
-Both base policies contain **no network allow rule**. OpenRouter access is added
-only by the matching OpenShell provider profile, which restricts the destination
-to `openrouter.ai:443` and the workload binary to SWI-Prolog.
-
-The provider profiles are:
+Both contain `network_policies: {}`. OpenRouter access is contributed only by
+the matching provider profile:
 
 - `providers/openrouter-omega-llm.yaml`
 - `providers/openrouter-omega-jev.yaml`
 
-The real OpenRouter secret remains at the OpenShell boundary. A sandbox sees
-only the OpenShell provider placeholder and can use it only through the
-policy-approved provider route.
+The profiles allow only `openrouter.ai:443` and bind that egress to the
+kernel-resolved SWI executable
+`/usr/lib/swipl/bin/x86_64-linux/swipl`. The boot launcher independently
+checks `readlink -f` in both built images and refuses to start if the identity
+differs.
 
-## OmegaJev runnable slice
+The real OpenRouter credential remains at the OpenShell provider boundary. A
+sandbox receives only OpenShell's placeholder.
 
-The first live slice is OmegaJev, because StickerBook already has a bounded Jev
-provider experiment and authority-kernel coupling.
+## The live service seam
 
-Build the existing experiment image first, then run:
+Both roles remain actual Omega loops. StickerBook adds one narrow Omega
+communication channel, `runtime/omega/stickerbookrpc.py`, plus one fixed
+zero-argument skill, `sb-return`.
 
-```bash
-bash openshell/run-omega-jev.sh
+```text
+host bridge --loopback HTTP--> stickerbookrpc channel
+                                |
+                                v
+                           normal Omega loop
+                                |
+                    role-specific bounded provider
+                                |
+                                v
+                            (sb-return)
+                                |
+host bridge <--bounded JSON-----+
 ```
 
-The script:
+The channel never parses free-form Omega output into authority. A provider may
+stage one bounded JSON response; Omega can only execute `sb-return` in the
+service role.
 
-1. builds `stickerbook-omega-jev:openshell` from
-   `jev/Dockerfile.openshell`;
-2. lints/imports the StickerBook-specific OpenRouter provider profile;
-3. creates an OpenShell provider from the host's `OPENROUTER_API_KEY`;
-4. creates the Jev sandbox with `policies/omega-jev.yaml`;
-5. starts Omega with `jevTransport=openshell`.
+OmegaLLM's image contains no StickerBook authority kernel and no Jev provider.
+OmegaJev's live RPC mode receives the host action-description table and maps
+every offered key to the same fixed executable literal `sb-return`. The
+selected key remains data, is returned to the host, checked again against the
+current table, and is then separately judged by the kernel.
 
-The OpenShell image has a non-root `USER 65534:65534` and a separate
-entrypoint. It does not start the older nginx credential gateway. The existing
-Docker gateway path remains in the repository as a previously verified
-experiment and fallback test path; the OpenShell transport is an additional
-deployment mode, not a rewrite of the Jev decision semantics.
+The host forwards are bound only to:
+
+- `127.0.0.1:8761` — OmegaLLM
+- `127.0.0.1:8762` — OmegaJev
+
+The browser talks to `web/bridge.py`, not directly to those ports.
+
+## Normal start and stop
+
+The intended operator path is at the repository root:
+
+- **`Start StickerBook.cmd`**
+- **`Stop StickerBook.cmd`**
+
+The Windows start wrapper enters WSL and runs `runtime/start.sh`. That script
+verifies Docker/OpenShell, prepares the exact pinned Omega baseline if needed,
+builds current role images, checks canonical SWI identity, creates or reuses
+the two role-specific OpenShell providers, starts/health-checks both sandboxes,
+then starts the authority bridge with explicit loopback runtime URLs.
+
+On first provider creation only, the launcher may prompt for
+`OPENROUTER_API_KEY` with hidden input. It does not save the secret in the
+repository or runtime state.
+
+For direct operator/debug use, the role launchers are:
+
+```bash
+bash openshell/run-omega-llm-service.sh
+bash openshell/run-omega-jev-service.sh
+```
+
+The older `run-omega-jev.sh` remains the original standalone OpenShell Jev
+slice and is not the browser service launcher.
+
+Shutdown is external to the agents: the bridge process is stopped, local
+forwards are stopped, and both named sandboxes are deleted. Neither Omega loop
+must cooperate.
+
+See `runtime/README.md` for the full lifecycle.
+
+## Voice-first relationship
+
+OpenShell does not add a voice agent. Browser/device STT converts speech to the
+same text conversation request used by accessibility chat. OmegaLLM replies
+through that one seam, and browser/device TTS may speak the returned text.
+
+Voice I/O has no world-mutation authority. An OmegaLLM goal must still pass
+host validation -> OmegaJev finite selection -> kernel authorization.
 
 ## Current proof boundary
 
-Implemented in this branch:
+**IMPLEMENTED + CI/mechanically checked, NOT YET LIVE-HOST VERIFIED.**
+
+Implemented in the branch:
 
 - immutable OpenShell release/commit pin;
-- separate OmegaLLM and OmegaJev policies;
-- separate provider profiles;
-- non-root OmegaJev OpenShell image;
-- explicit `jevTransport=openshell` transport;
-- provider-placeholder credential use;
+- separate no-network base policies and provider identities;
+- canonical SWI executable binding in both provider profiles;
+- non-root OmegaLLM and OmegaJev OpenShell images;
+- explicit OpenShell provider-placeholder transports;
+- real Omega RPC channel + fixed `sb-return` skill;
+- loopback-only host runtime adapters;
+- OmegaJev browser-service mode over finite host-owned choices;
+- bounded OmegaLLM conversational provider;
+- one-command Windows/WSL start, stop and status lifecycle;
+- browser voice/text regression contract;
 - static CI contract checks in `openshell/verify.py`.
 
-Not yet established:
+Still requiring a real local deployment proof:
 
-- a live OmegaLLM process behind `web/agent_runtime.py`;
-- a live OmegaJev process behind `web/jev_runtime.py`;
-- OpenShell-enforced inter-process messaging between those two live loops;
-- end-to-end browser -> OmegaLLM -> OmegaJev -> kernel tests;
-- runtime proof that the exact SWI-Prolog canonical executable path in the
-  built image matches the provider binary allowlist.
+- OpenShell v0.1.2 startup on the actual WSL2/Docker Desktop host;
+- successful OpenRouter call through each role-specific provider;
+- observed canonical SWI identity in the running sandbox;
+- denial of unrelated destinations such as GitHub and PyPI;
+- confirmation that only the provider placeholder, not the real secret, is
+  visible to the workload;
+- end-to-end child voice/text -> OmegaLLM -> OmegaJev -> kernel receipt;
+- independent Stop StickerBook teardown.
 
-That last check matters because OpenShell matches the kernel-resolved executable
-path, not merely a symlink name. Before treating the provider policy as
-verified, inspect the built sandbox with `readlink -f $(command -v swipl)`
-and tighten the profile to that canonical path if necessary.
+Static artifacts do not inherit the **VERIFIED** status of the older
+split-container OmegaJev gateway experiment.
 
 ## Operator rules
 
-OpenShell policy is operator-owned. The agent gets no repository-write,
-policy-write, shell, browser-automation, plugin-installation, or arbitrary
-network authority from this integration.
+OpenShell policy is operator-owned.
 
-Do not enable agent-driven policy auto-approval. A proposed policy expansion is
-still only a proposal. Human/operator authorization remains outside both Omega
-loops.
+- no agent-driven policy auto-approval;
+- no read-write StickerBook repository mount;
+- no Docker socket inside an agent sandbox;
+- no policy/provider/orchestration mutation from either Omega loop;
+- no repository credential in play;
+- `--approval-mode manual` on service creation.
 
-Do not mount the StickerBook repository read-write into either live agent
-sandbox. Runtime state belongs in the explicitly writable memory/temp paths,
-and world mutation still occurs only through the host authority kernel.
+A proposed policy expansion is still only a proposal. **Capability is not
+authority.**
