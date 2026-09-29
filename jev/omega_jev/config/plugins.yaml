@@ -17,8 +17,18 @@
   loader: metta
   location: "{REPO}/plugins/jevskills"
 
-# Offline console channel. No network, no tokens.
+# Fixed zero-argument RPC return skill for live StickerBook service mode.
+- name: stickerbookrpc-skill
+  loader: metta
+  location: "{REPO}/plugins/stickerbookrpc"
+
+# Offline console channel for the legacy experiment. No network, no tokens.
 - name: jevconsole
+  loader: python
+  location: "{REPO}/channels"
+
+# Loopback RPC channel used only when explicitly selected at runtime.
+- name: stickerbookrpc
   loader: python
   location: "{REPO}/channels"
 
