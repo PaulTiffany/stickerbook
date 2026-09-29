@@ -109,7 +109,23 @@ The color convention acted as visible provenance. A user did not have to
 inspect an agent prompt or hidden policy file to understand that a human mark
 and an agent mark occupied different authority classes.
 
-### 2.1 R0-R4: build the smallest real trust boundary first
+### 2.1 Co-development provenance
+
+Chalked's README also records an unusual authorship/process detail: the
+deliverables were drafted and the agent layer was built through OmegaClaw on
+MiniMax inference, with human-completed edits at the tool's break-points.
+
+That matters to the lineage because Chalked was not only a demo about authority
+between humans and agents; it was itself produced through a constrained
+human-agent workflow. The sprint brief records concrete tool limitations,
+permission edges, readback requirements, and points at which the agent was
+expected to stop and return control to Paul.
+
+This is an early form of the later StickerBook rule that a model can contribute
+work inside a bounded surface without acquiring authority over the boundary
+itself.
+
+### 2.2 R0-R4: build the smallest real trust boundary first
 
 CHALKED_ARCH_SPEC.md and SPRINT_BRIEF.md described a staged architecture:
 
@@ -135,7 +151,7 @@ StickerBook keeps the same distinction:
 - art and browser behavior do not silently become authorization;
 - new capability is introduced only with a named boundary and proof status.
 
-### 2.2 Human-authored enforcement outside the agent
+### 2.3 Human-authored enforcement outside the agent
 
 The Chalked sprint brief explicitly treated server-side security-critical
 enforcement as a human-controlled break-point rather than something to leave
@@ -151,7 +167,7 @@ StickerBook generalizes the Chalked lesson from a whiteboard rule into typed
 principals, ownership, action tables, revisions, budgets, and receipts in the
 core authority kernel.
 
-### 2.3 Readback and "success is not proof"
+### 2.4 Readback and "success is not proof"
 
 Chalked also records a practical lesson from working through constrained agent
 tools: a tool reporting success was not treated as proof that the intended
@@ -164,7 +180,7 @@ That discipline survives in StickerBook as a broader provenance rule:
 - an inference reply is not proof that a sticker moved;
 - authoritative state plus a receipt are the evidence of the governed result.
 
-### 2.4 What StickerBook inherits — and what it does not
+### 2.5 What StickerBook inherits — and what it does not
 
 StickerBook inherits from Chalked:
 
@@ -337,6 +353,12 @@ During September 2026, Paul Tiffany participated in BGI Commons community calls
 and discussions around Omega, hosted-agent systems, and possible HyperSprint
 work.
 
+One discussion concerned a hosted "free machine" / persistent-agent framing in
+which the infrastructure owner and the user directing the agent could be
+different parties. Tiffany's concern was that "inspectability" for the machine
+owner is not automatically inspectability or control for the user who may be
+treated as responsible for directing the system.
+
 A recurring question was not merely "can the agent do this?" but:
 
 > **If the platform controls the hosted machine while the user directs the
@@ -345,6 +367,8 @@ A recurring question was not merely "can the agent do this?" but:
 
 Related questions raised in those discussions included:
 
+- whether a hosted "free machine" gives the directing user meaningful
+  observability or mainly gives the infrastructure owner inspectability;
 - who can inspect the live machine and at what layer;
 - whether inspectability belongs to the infrastructure owner, the directing
   user, or both;
