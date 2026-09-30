@@ -400,6 +400,9 @@ class MotionPlayer:
                 kwargs = {'goal':dict(a.goal),'scene':scene,'actions':descriptions,
                           'turn':a.turns % DECISION_HORIZON + 1,'max_turns':DECISION_HORIZON}
                 view={'goal':kwargs['goal'],'scene':scene,'turn':kwargs['turn'],'max_turns':kwargs['max_turns']}
+                if len(json.dumps(view,sort_keys=True)) > 4000:
+                    # Learned forms take precedence over generic starting priors.
+                    scene.pop('starting_behavior', None)
                 while len(json.dumps(view,sort_keys=True)) > 4000 and scene['known_patterns']:
                     scene['known_patterns'].pop()
                 if len(json.dumps(view,sort_keys=True)) > 4000:

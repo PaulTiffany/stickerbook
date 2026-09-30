@@ -249,12 +249,15 @@ class Bridge:
         """
         scene = self.state()
         scene.pop('visualAssets', None)
+        from starting_behavior import starting_behavior
         if self.motion_player:
             # Semantic goals address existing subjects. Keep their clip declarations
             # and the library names, rather than sending every unused definition.
             present = {s['definition'] for s in scene['stickers']}
             scene['stickerLibrary'] = [d['id'] for d in scene['definitions']]
             scene['definitions'] = [d for d in scene['definitions'] if d['id'] in present]
+            for definition in scene['definitions']:
+                definition['startingBehavior'] = starting_behavior(definition['id'], definition['animations'])
             scene['motorSurface'] = {
                 'continuousPlay': True,
                 'behaviorMeaning': 'Preserve the child desired movement style (such as swoop, circle near a target, or land) in the existing short behavior field. Visual clips and locomotion are separate vocabulary.',

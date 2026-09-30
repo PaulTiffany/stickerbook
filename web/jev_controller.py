@@ -263,6 +263,7 @@ class JevController:
                pattern_context=None) -> dict:
         subject = self.kernel.sticker(goal["subject"])
         definition = self.kernel.assets.get(subject.asset)
+        from starting_behavior import starting_behavior
 
         def describe(sticker):
             if sticker is None:
@@ -319,6 +320,7 @@ class JevController:
             "principal": actor,
             "goal": dict(goal),
             "subject": describe(subject),
+            "starting_behavior": starting_behavior(subject.asset, definition.animations if definition else ()),
             "target": target_state,
             "available_actions": sorted(table),
             "known_patterns": known_patterns,

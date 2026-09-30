@@ -354,6 +354,9 @@ class JevProvider(providers.LLMProvider):
                 str(view['goal'].get('behavior', 'improvise'))[:400], subject.get('definition'))
             view['scene'] = json.loads(json.dumps(view['scene']))
             view['scene']['omega_memory'] = recalled
+            if len(json.dumps(view, sort_keys=True)) > 4000:
+                # Generic starting tendencies never displace child-taught memory.
+                view['scene'].pop('starting_behavior', None)
             while len(json.dumps(view, sort_keys=True)) > 4000 and view['scene'].get('known_patterns'):
                 view['scene']['known_patterns'].pop()
             while len(json.dumps(view, sort_keys=True)) > 4000 and recalled:
