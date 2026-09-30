@@ -43,7 +43,7 @@ style reference. `people_01_pose_01` failed twice, with HTTP 400 recorded on
 retry. Other cameo outputs were rejected during visual review. Use verified
 portrait references and dedicated human reference sheets for their next pass.
 
-Retained IDs: anders-sandberg, aubrey-de-grey, ben-goertzel, david-eagleman, david-orban, david-pearce, eliezer-yudkowsky, fm-2030, giulio-prisco, hans-moravec, k-eric-drexler, martine-rothblatt, max-more, natasha-vita-more, nick-bostrom, paul-tiffany, ray-kurzweil, robert-ettinger, vernor-vinge.
+Retained IDs: anders-sandberg, aubrey-de-grey, ben-goertzel, david-eagleman, david-orban, david-pearce, eliezer-yudkowsky, fm-2030, giulio-prisco, hans-moravec, k-eric-drexler, martine-rothblatt, max-more, natasha-vita-more, nick-bostrom, ray-kurzweil, robert-ettinger, vernor-vinge.
 
 All six backgrounds, landscape/portrait variants, cover art, and nine legacy
 single-file sticker SVGs are unchanged. Backgrounds are separately inventoried
@@ -80,6 +80,4 @@ to `rest`, open hands to `explain`, thinking/notebook to `chalkboard`, and wavin
 to the legacy `poster` frame. Clip names and timings are unchanged; the supplied
 poses do not depict a literal chalkboard or poster. Crops retain source alpha
 and a common scale. Rejected generated Paul crops are archived in
-`attempts/paul-tiffany_rejected_crops/`. Paul is now replaced; the retained-ID
-list above reflects the earlier generation review. The other 18 cameos remain
-original. All 304 live image URLs were reverified; no additional inference cost.
+`attempts/paul-tiffany_rejected_crops/`. The other 18 cameos remain original. All 304 live image URLs were reverified; no additional inference cost.
