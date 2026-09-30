@@ -256,3 +256,29 @@ class PageBody(unittest.TestCase):
    result=b.converse({'text':'Try'})
    self.assertEqual(result['jev']['error'],'missing-jev-subject');self.assertFalse(b.motion_player.activities)
   finally:b.motion_player.close()
+
+ def test_land_at_a_visual_target_is_not_the_land_in_place_shortcut(self):
+  llm=FakeAgentRuntime()
+  goal={'subject':'butterfly-1','intent':'move-and-animate','behavior':'land',
+        'target':{'kind':'point','x':.3,'y':.2}}
+  llm.converse=lambda **_: {'ok':True,'reply':'Toward the roof.','goal':goal}
+  b=bridge.Bridge(agent_runtime=llm,jev_runtime=Chooser(),continuous_motion=True,motion_threaded=False)
+  try:
+   result=b.converse({'text':'Land on top of the barn.'})
+   self.assertEqual(result['jev']['result'],'playing')
+   self.assertEqual(b.motion_player.activities['butterfly-1'].goal,goal)
+   self.assertEqual(b.kernel.sticker('butterfly-1').animation,'rest')
+  finally:b.motion_player.close()
+
+ def test_recent_steering_is_bounded_motor_evidence_not_executable_history(self):
+  b=bridge.Bridge(jev_runtime=Chooser(),continuous_motion=True,motion_threaded=False)
+  now=[100.0];p=b.motion_player;p.clock=lambda:now[0]
+  try:
+   b.animate({'sticker':'butterfly-1','command_id':'tap'})
+   for _ in range(20):
+    now[0]+=.25;p.observe();p.pump()
+   context=p.activities['butterfly-1'].describe()['recentSteeringHeadings']
+   self.assertEqual(len(context),6)
+   self.assertTrue(all(type(h) is int and 0<=h<16 for h in context))
+   self.assertNotIn('MOVE:',json.dumps(context))
+  finally:p.close()

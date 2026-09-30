@@ -51,6 +51,7 @@ from jev_controller import JevController, OMEGA_LLM_ID  # noqa: E402
 from jev_runtime import DisabledJevRuntime, jev_runtime_from_env  # noqa: E402
 from motion_player import MotionPlayer, SerializedJevRuntime  # noqa: E402
 from page_assets import supported_upload  # noqa: E402
+from visual_context import clean_visual, MAX_VISUAL_BODY  # noqa: E402
 from page_image_runtime import (  # noqa: E402
     DisabledPageImageRuntime, page_image_runtime_from_env,
 )
@@ -408,6 +409,16 @@ class Bridge:
             input_mode=body.get("input_mode"))
         pending = self.pending_reference
         scene = self._conversation_scene(episode)
+        try:
+            visual = clean_visual(body.get('visual'), page=self.page_id,
+                                  revision=scene['revision'])
+        except ValueError as exc:
+            return self._bad_request(str(exc))
+        if visual:
+            scene['visual'] = visual
+            # Legacy procedural feature points do not describe raster artwork.
+            # Let vision ground scenery; keep kernel sticker facts separately.
+            scene['picture'] = {**scene['picture'], 'features': []}
         if pending is not None:
             scene["pendingReference"] = pending.describe()
 
@@ -452,6 +463,8 @@ class Bridge:
 
         payload = {"ok": True, "reply": reply.strip(),
                    "interaction": episode.describe()}
+        if visual:
+            payload['observation'] = {'imageUsed': result.get('image_used') is True}
         # A valid linguistic response consumes the carry even if its goal is
         # refused. All runtime/invalid-response exits above preserve it.
         self.pending_reference = None
@@ -484,7 +497,9 @@ class Bridge:
                         payload['jev'] = {'ok': False, 'error': 'jev-runtime-unavailable'}
                     elif self.motion_player.child_versions.get(goal.get('subject'),0) != motor_versions.get(goal.get('subject'),0):
                         payload['jev'] = {'ok': False, 'error': 'human-superseded'}
-                    elif str(goal.get('behavior','')).strip().lower() in {'stop', 'rest', 'land', 'landed', 'still'}:
+                    elif (str(goal.get('behavior','')).strip().lower() == 'stop' or
+                          ('target' not in goal and str(goal.get('behavior','')).strip().lower()
+                           in {'rest', 'land', 'landed', 'still'})):
                         # Settling is a child direction, not a canned locomotion path.
                         self.motion_player.stop(goal.get('subject'), 'child-interrupted')
                         payload['jev'] = self.jev_controller.run_goal(goal,
@@ -1424,7 +1439,8 @@ def make_handler(bridge: Bridge, quiet: bool = False):
                 length = int(self.headers.get("Content-Length") or 0)
             except ValueError:
                 return self._send(400, {"ok": False, "error": "bad length"})
-            if length > MAX_BODY_BYTES:
+            limit = MAX_VISUAL_BODY if path == '/api/agent/converse' else MAX_BODY_BYTES
+            if length > limit:
                 return self._send(413, {"ok": False, "error": "body too large"})
             raw = self.rfile.read(length) if length else b""
             try:

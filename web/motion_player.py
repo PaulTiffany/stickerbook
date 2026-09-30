@@ -51,6 +51,7 @@ class Activity:
     turns: int = 0
     sequence: int = 0
     delta: dict = field(default_factory=lambda: {'dx': 0.0, 'dy': 0.0})
+    headings: deque = field(default_factory=lambda: deque(maxlen=6))
     relative: str | None = None
     next_tick: float = 0.0
     next_decision: float = 0.0
@@ -65,6 +66,7 @@ class Activity:
                 'speed': SPEEDS[self.speed], 'lastDelta': dict(self.delta),
                 'moving': self.remaining > 0, 'remainingTicks': self.remaining,
                 'recentTurns': min(self.turns, DECISION_HORIZON),
+                'recentSteeringHeadings': list(self.headings),
                 'steering': self.relative or 'heading'}
 
 
@@ -325,6 +327,7 @@ class MotionPlayer:
                             self._submit(a, 'FACE:%s:%s' % (a.subject,steer.facing.upper()))
                         if a.subject in self.activities and steer.heading is not None:
                             a.heading, a.speed, a.relative = steer.heading, steer.speed, steer.relative
+                            a.headings.append(a.heading)
                             a.remaining = CONTINUATION_TICKS
                             a.next_tick = max(a.next_tick, self.clock())
                         a.turns += 1
@@ -372,7 +375,7 @@ class MotionPlayer:
                     'stepsOmitted':max(0,len(p['steps'])-2)} for p in scene['known_patterns']]
                 scene['motion'] = {**a.describe(), 'targetContext':self._target_context(a), 'tickSeconds':MOTOR_TICK_SECONDS,
                     'continuationTicks':CONTINUATION_TICKS,
-                    'contract':'Choose an offered steering/pose intent. Coordinates are host-owned. The child invites continuous play until they interrupt or leave. STOP/NOOP ends this short continuation, never grants movement. Use curved steering and pose together when appropriate. Each decision controls at most six ticks. A new finite decision is required to continue.'}
+                    'contract':'Choose an offered steering/pose intent; coordinates are host-owned. Free play is exploration, not a straight march: vary heading, curves, speed, and pose as you choose. Child directions and known taught patterns shape play. With a target, honor the requested relation: around/circle calls for AROUND steering, not repeated approach. STOP/NOOP pauses. Each choice permits at most six ticks; continuing needs a new choice. Child interruption cancels.'}
                 kwargs = {'goal':dict(a.goal),'scene':scene,'actions':descriptions,
                           'turn':a.turns % DECISION_HORIZON + 1,'max_turns':DECISION_HORIZON}
                 view={'goal':kwargs['goal'],'scene':scene,'turn':kwargs['turn'],'max_turns':kwargs['max_turns']}

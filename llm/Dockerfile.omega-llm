@@ -7,6 +7,7 @@
 FROM omega-jev:baseline
 
 COPY llm/omega_llm/providers/stickerbook_llm.py /PeTTa/repos/Omega/providers/stickerbook_llm.py
+COPY web/visual_context.py /PeTTa/repos/Omega/visual_context.py
 COPY runtime/omega/stickerbookrpc.py /PeTTa/repos/Omega/channels/stickerbookrpc.py
 COPY runtime/omega/stickerbookrpc_state.py /PeTTa/repos/Omega/channels/stickerbookrpc_state.py
 RUN mkdir -p /PeTTa/repos/Omega/plugins/stickerbookrpc

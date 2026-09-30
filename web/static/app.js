@@ -3316,6 +3316,74 @@ function setVoiceOrbState(name) {
   if (voiceOrbState) voiceOrbState.textContent = name || "ready";
 }
 
+async function captureVisualContext() {
+  // Observational pixels only. Render accepted endpoints, never tween frames.
+  if (world.name === "public mechanical" || !state) return null;
+  const snapshot = state;
+  const metrics = activePageMetrics();
+  const clone = svg.cloneNode(true);
+  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  clone.setAttribute("width", metrics.width);
+  clone.setAttribute("height", metrics.height);
+  for (const id of ["reference-layer", "placement-layer"]) {
+    const node = clone.querySelector("#" + id);
+    if (node) node.remove();
+  }
+  for (const sticker of snapshot.stickers) {
+    const node = Array.from(clone.querySelectorAll(".sticker")).find(n => n.dataset.id === sticker.id);
+    if (!node) continue;
+    const scale = Number.isFinite(sticker.scale) ? sticker.scale : 1;
+    node.setAttribute("transform", "translate(" + sticker.x * metrics.width + " " +
+      sticker.y * metrics.height + ") scale(" + (sticker.facing === "left" ? -scale : scale) + " " + scale + ")");
+  }
+  // Inline same-origin artwork so SVG rasterization cannot fetch remote URLs.
+  const resources = new Map();
+  for (const node of clone.querySelectorAll("image")) {
+    const href = node.getAttribute("href") || node.getAttributeNS("http://www.w3.org/1999/xlink", "href");
+    if (!href) continue;
+    if (!resources.has(href)) {
+      resources.set(href, (async () => {
+        if (href.startsWith("data:image/")) return href;
+        const url = new URL(href, location.href);
+        if (url.origin !== location.origin) throw new Error("nonlocal-artwork");
+        const response = await fetch(url.href, {signal: AbortSignal.timeout(5000)});
+        if (!response.ok) throw new Error("artwork-unavailable");
+        const blob = await response.blob();
+        if (blob.size > 8 * 1024 * 1024) throw new Error("artwork-too-large");
+        return await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      })());
+    }
+    node.setAttribute("href", await resources.get(href));
+    node.removeAttributeNS("http://www.w3.org/1999/xlink", "href");
+  }
+  const objectURL = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(clone)], {type: "image/svg+xml"}));
+  try {
+    const image = new Image();
+    await new Promise((resolve, reject) => { image.onload = resolve; image.onerror = reject; image.src = objectURL; });
+    const canvas = document.createElement("canvas");
+    const ratio = Math.min(1, 1024 / Math.max(metrics.width, metrics.height));
+    canvas.width = Math.max(1, Math.round(metrics.width * ratio));
+    canvas.height = Math.max(1, Math.round(metrics.height * ratio));
+    const context = canvas.getContext("2d");
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    for (const quality of [.8, .6, .4]) {
+      const jpeg = canvas.toDataURL("image/jpeg", quality);
+      if (jpeg.length <= 180000) return {page: snapshot.page.id, revision: snapshot.revision,
+        width: canvas.width, height: canvas.height, image: jpeg};
+    }
+    throw new Error("visual-context-too-large");
+  } finally {
+    URL.revokeObjectURL(objectURL);
+  }
+}
+
 async function converseWithStickerBook(text, aloud, mirrorToAccessibility = false) {
   const clean = String(text || "").trim();
   if (!clean) return null;
@@ -3351,6 +3419,11 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
     const body = { text: clean, input_mode: aloud ? "voice" : "text" };
     if (reference) body.reference = reference;
     const epoch = motionEpoch;
+    if (!stub) {
+      try { body.visual = await captureVisualContext(); }
+      catch (_) { if (DEV) dev.verdict.textContent = "Visual context unavailable; asking with structured state."; }
+      if (epoch !== motionEpoch) return null;
+    }
     const payload = await observePoweredRequest(() => world.converse(body));
     if (epoch !== motionEpoch) return null;
 
