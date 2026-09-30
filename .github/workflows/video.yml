@@ -1,0 +1,31 @@
+name: StickerBook video contract
+on:
+  pull_request:
+    paths: ['video/**', 'assets/video/**', '.github/workflows/video.yml']
+  push:
+    branches: [main]
+    paths: ['video/**', 'assets/video/**', '.github/workflows/video.yml']
+permissions:
+  contents: read
+jobs:
+  video:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install offline renderer dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg libcairo2
+          python -m pip install -r video/requirements.txt
+      - name: Check reproducibility inputs and actual proof contracts
+        run: |
+          python -m compileall -q video
+          python -c "import sys; sys.path.insert(0, 'video'); import verify; verify.check_sources(); print('Video sources and proof contracts passed')"
+      - name: Export and decode a bounded proof clip
+        run: |
+          python video/render.py --from 91.74 --to 93.96 --output video/output/ci-proof.mp4
+          ffmpeg -v error -i video/output/ci-proof.mp4 -f null -
+          python -c "import json,subprocess; p=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_format','-of','json','video/output/ci-proof.mp4'])); assert abs(float(p['format']['duration'])-2.22)<0.00002"

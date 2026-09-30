@@ -1,0 +1,1310 @@
+{
+  "python": "3.13.4",
+  "ffmpeg": "ffmpeg version 8.0-full_build-www.gyan.dev Copyright (c) 2000-2025 the FFmpeg developers",
+  "files": [
+    {
+      "path": "assets/video/audio/im-upping-my-phop.wav",
+      "sha256": "84d01de39859c3eea0b0055f7e28459273a8c3c16bea88df4d38d505907cebc9"
+    },
+    {
+      "path": "video/data/audio.json",
+      "sha256": "e7effa8225454682a9c888d0b5d28a2378d71817842e6a0929a6e7180784b715"
+    },
+    {
+      "path": "video/data/lyrics.json",
+      "sha256": "b05ee7805686bfa9c7ddf060d8b8adca3b996ff7b85798881166e0b0bca5f1b6"
+    },
+    {
+      "path": "video/data/proof.json",
+      "sha256": "b14e0dbda38fcd83f4463173a85e7fe67f42dd08b999de5e43afb92e2b6e4335"
+    },
+    {
+      "path": "video/data/timeline.json",
+      "sha256": "2066e658b70fb891e9bbba05d9361c737bae731368e99709f02d285ae65173f5"
+    },
+    {
+      "path": "video/input/Docker-svgrepo-com.svg",
+      "sha256": "00c4f3aa63cf4ec23bd0ffca5e09804ae89b61550954934aea9b74ac4c1bdf69"
+    },
+    {
+      "path": "video/input/fonts/Fredoka-OFL.txt",
+      "sha256": "9bbd4f5f107895d5a213579b73821fadd05105241cf4360e86050199fcfd6034"
+    },
+    {
+      "path": "video/input/fonts/Fredoka.ttf",
+      "sha256": "2ba02e68b152868aef9ba28e24b3648c7d457fe6f25c761f2c2c53fb61a73fc8"
+    },
+    {
+      "path": "video/input/fonts/JetBrainsMono-OFL.txt",
+      "sha256": "b2fe5e8987594e9ffd1d2ca52a2f5d73eb8335243893c5d6254b5ad69269591d"
+    },
+    {
+      "path": "video/input/fonts/JetBrainsMono.ttf",
+      "sha256": "48715a42ec242c21e9f02692891e147d022299a52e48d5e413e1a942193ffeda"
+    },
+    {
+      "path": "video/input/jev.png",
+      "sha256": "fcb8f554778c45ff62b97ca05df643588b39c8c66913736b7fe3485cedd96180"
+    },
+    {
+      "path": "video/input/omegagit.png",
+      "sha256": "fbef891f728ed0af9eb47088599f34650a382c265a2112cebebc33032f8cc8ff"
+    },
+    {
+      "path": "video/input/omegagitstarred.png",
+      "sha256": "2781209af43245eed5e2639321ac2345af98fbde2daf903aa7f3ad0934af8a45"
+    },
+    {
+      "path": "video/lyrics.txt",
+      "sha256": "d51b2da0abc7a2dc3622f606367b065077ad6c089706452824f22a6027a511d9"
+    },
+    {
+      "path": "web/static/assets/cover.svg",
+      "sha256": "b3dde63a489424a2ac7724eb8e1a44afbb2a543f4858eec2dddb43a406444164"
+    },
+    {
+      "path": "web/static/assets/manifest.json",
+      "sha256": "0b01635936b3ae83976fe0429e276e615a1cdefeb54241281a66c450ca584bfe"
+    },
+    {
+      "path": "web/static/assets/pages/beach.svg",
+      "sha256": "4e1cbaa675629942f70fd8a4cf55df54871f09529202f9e9202c8ef3c7166f1d"
+    },
+    {
+      "path": "web/static/assets/pages/farm.svg",
+      "sha256": "29353d5cbb3e5816db7bcfbc03730dad5953ac3d40a0fda0fa944d803a6507bd"
+    },
+    {
+      "path": "web/static/assets/pages/playground.svg",
+      "sha256": "35b42a1cc0fb177d21af2fa6e78f086b006d1d13542738f2a22f78b929a695e7"
+    },
+    {
+      "path": "web/static/assets/pages/school.svg",
+      "sha256": "86e3aa3e007758923f279999d9493548355a0ba76ce27a365e1d79ad9877ad86"
+    },
+    {
+      "path": "web/static/assets/pages/space.svg",
+      "sha256": "97ee2ac66b319fe7475f15448de4b9ea8d90961416e48682e9899bf0a337d7c2"
+    },
+    {
+      "path": "web/static/assets/pages/theater.svg",
+      "sha256": "9f6d9e89bb7371307c8832fe76866a35b0f28700cd1aa4da32884fe4b38a890f"
+    },
+    {
+      "path": "web/static/assets/stickers/alien/float.svg",
+      "sha256": "1be22d23acde59cdbebee491a26ef048de3345a841cea42bc6694bdd29f7d421"
+    },
+    {
+      "path": "web/static/assets/stickers/alien/hop.svg",
+      "sha256": "629b3a2314b019db660754ca349002eaa98668d7b1d8748dcc3dd7f6cf30d59c"
+    },
+    {
+      "path": "web/static/assets/stickers/alien/rest.svg",
+      "sha256": "ab0dd2d6630a68176632f8a8badc5e12bfe64f0585213530b20d86708ded0a5c"
+    },
+    {
+      "path": "web/static/assets/stickers/alien/wave.svg",
+      "sha256": "2089e9979aaa9dcfddecb3515ccdef7c10ca4c1532b11108a1026692bc930b21"
+    },
+    {
+      "path": "web/static/assets/stickers/anders-sandberg/present.svg",
+      "sha256": "a94a40d83f47cb0884a4bbb48766e3bda819201bed5fba5f6d0b9ca298061ea9"
+    },
+    {
+      "path": "web/static/assets/stickers/anders-sandberg/rest.svg",
+      "sha256": "917e5cc1155468a24b40bf006da0ff6e8d2314b79cf6a6fe0c408ec69f0bc4e9"
+    },
+    {
+      "path": "web/static/assets/stickers/anders-sandberg/think.svg",
+      "sha256": "4cd8091a9e4395dfbc78db9e06c1d1f6875272ac0e5a55d4dd57545076e6d7fe"
+    },
+    {
+      "path": "web/static/assets/stickers/anders-sandberg/wave.svg",
+      "sha256": "c43d441598ab58cc830c7c85486b71c9d34717a36f2364b139ae691121ce3157"
+    },
+    {
+      "path": "web/static/assets/stickers/asteroid/rest.svg",
+      "sha256": "8eb8782e73136b6a7cd23d2a011454bf3df6a22323450a3964aa193495c43faa"
+    },
+    {
+      "path": "web/static/assets/stickers/asteroid/spark.svg",
+      "sha256": "bea0d3bbe5a1c9f74fbb4a6921bd59a5a348de58913f9f4252c007dd45ae0bd6"
+    },
+    {
+      "path": "web/static/assets/stickers/asteroid/spin-a.svg",
+      "sha256": "e6d680e08cc9789eb38fbf21011aa6e64646e2d6adf00552533f2d584b094f3a"
+    },
+    {
+      "path": "web/static/assets/stickers/asteroid/spin-b.svg",
+      "sha256": "af101cf70b6636109cec1f71f3ac3172737198e2077b0f02e50039bd31f75e85"
+    },
+    {
+      "path": "web/static/assets/stickers/astronaut/float-left.svg",
+      "sha256": "25d470e89415024b8b8c71c06dc56ebbd673e2d7c698e06cc10db02185ca1478"
+    },
+    {
+      "path": "web/static/assets/stickers/astronaut/float-right.svg",
+      "sha256": "c184218c49a199d9a21604416888f1eafd529fd233ec69faba921147c05f1306"
+    },
+    {
+      "path": "web/static/assets/stickers/astronaut/rest.svg",
+      "sha256": "024fa023518bc4259d0a91b67f4e40ad1e0ca11dabf2d82b47468b0a45d4fc90"
+    },
+    {
+      "path": "web/static/assets/stickers/astronaut/wave.svg",
+      "sha256": "49cacbbefd3dc9be825ba5d9d7ccb257bbf740d371050837e4057a22c513ac4d"
+    },
+    {
+      "path": "web/static/assets/stickers/aubrey-de-grey/explain.svg",
+      "sha256": "14d99f08ca33d21caaa397d4d306e48d64c4440baf13285923a550a0d39e13ab"
+    },
+    {
+      "path": "web/static/assets/stickers/aubrey-de-grey/rest.svg",
+      "sha256": "0c47f5fcb3168f7b5c233a735d4fb3262685b68ff92a159dd5ae5813505da974"
+    },
+    {
+      "path": "web/static/assets/stickers/aubrey-de-grey/think.svg",
+      "sha256": "2de401dc78c88577bf3a11fa6ac28f728fcd9b74f0ababd85737d9a3c1c7e493"
+    },
+    {
+      "path": "web/static/assets/stickers/aubrey-de-grey/wave.svg",
+      "sha256": "8fa9c560a1a70869c4afee3d17e407283eee2daa9642dec18d11d2983e436515"
+    },
+    {
+      "path": "web/static/assets/stickers/ball/bounce.svg",
+      "sha256": "f4d3a61782cb7f655de9874e799410de4b94d5026e60aebf5f557e1befb62b8f"
+    },
+    {
+      "path": "web/static/assets/stickers/ball/rest.svg",
+      "sha256": "02da8595b7ccb63ec72b24a84dd4ec3ada5fe57afd8740dc0237ac87b8b0a1da"
+    },
+    {
+      "path": "web/static/assets/stickers/ball/roll-a.svg",
+      "sha256": "aa60b79d84fdd6b01422038c4203d103590ad6cfb3764bd20990aad9eaf5ec13"
+    },
+    {
+      "path": "web/static/assets/stickers/ball/roll-b.svg",
+      "sha256": "a02f59defbbac2ddca50a80a22e190fef3a4e11871807aa21f07cb1144c6280b"
+    },
+    {
+      "path": "web/static/assets/stickers/balloon/rest.svg",
+      "sha256": "2435c571398fda4e49c8e43be7081e018fac180c0fc01bc37c842ecc311e9cb7"
+    },
+    {
+      "path": "web/static/assets/stickers/balloon/rise.svg",
+      "sha256": "79972300ba1d02ea83381cc6121a22dd96abb732f530c158262d9c641ab0fb74"
+    },
+    {
+      "path": "web/static/assets/stickers/balloon/sway-left.svg",
+      "sha256": "1ef228ee617f0f4e6dc8b889798f4dbd6791868180b4810f45eb532cc7d9f712"
+    },
+    {
+      "path": "web/static/assets/stickers/balloon/sway-right.svg",
+      "sha256": "4ce8fe104fb63b32d7fa3e1d55959b7974e662412cb275e3ce8b99ccee5ba1fa"
+    },
+    {
+      "path": "web/static/assets/stickers/bee/buzz.svg",
+      "sha256": "eca682df7459ed2ba01b3032c5a9276dfe1a211c000b0f112283233e1cd81bf8"
+    },
+    {
+      "path": "web/static/assets/stickers/bee/rest.svg",
+      "sha256": "11673c021fe6f03fcafbabb571d5d1d33206ad70f250b5df285fce87da4a5e93"
+    },
+    {
+      "path": "web/static/assets/stickers/bee/wings-down.svg",
+      "sha256": "722a9b8da809c874676a45a8374241c8688e95c8cf8951bfe33cb14fbc253d1d"
+    },
+    {
+      "path": "web/static/assets/stickers/bee/wings-up.svg",
+      "sha256": "6fea3630c2a4b0817f1ccb9614aac33dfca41514f3e21b5700cdaa6e41f0f25f"
+    },
+    {
+      "path": "web/static/assets/stickers/ben-goertzel/celebrate.svg",
+      "sha256": "6f1c9cf4eb825e715599b3b1609417fa5a9ad0ae88a89532943b21b3c9b3c5d9"
+    },
+    {
+      "path": "web/static/assets/stickers/ben-goertzel/gesture.svg",
+      "sha256": "6cc303f1c672f01da659eeecf65e9e605bcbd4c9f8c3c33c417faa65fdc0d419"
+    },
+    {
+      "path": "web/static/assets/stickers/ben-goertzel/rest.svg",
+      "sha256": "965f9ebb8c3e1786c1dd6c164a573fd96baced09e9009aa5cf08aaa84120238e"
+    },
+    {
+      "path": "web/static/assets/stickers/ben-goertzel/think.svg",
+      "sha256": "192c2cf0887697d37a1d06144ccdfb8f9ba04375a071c422950333b40005acab"
+    },
+    {
+      "path": "web/static/assets/stickers/bird/alert.svg",
+      "sha256": "6ca6330521e810dc1663901d27e3fe7f02bf37e44ec496243d931ab9888c4935"
+    },
+    {
+      "path": "web/static/assets/stickers/bird/flight-down.svg",
+      "sha256": "c546779903afbd563ada8f57605c83142ed17effc4fedaaa75b1cfa2da33e893"
+    },
+    {
+      "path": "web/static/assets/stickers/bird/flight-up.svg",
+      "sha256": "523437916b5e7d8de34b2153c8c7e1e46a6e94c85c05401876931e496c8867d6"
+    },
+    {
+      "path": "web/static/assets/stickers/bird/rest.svg",
+      "sha256": "4a1ac71061b7927732231910afca73386bf15dd839d9c6d3a7ce8c13e3b604fd"
+    },
+    {
+      "path": "web/static/assets/stickers/butterfly/land.svg",
+      "sha256": "9179503807fc330f9ca0424848d8a3f6210db0aef1550182648e3e8a4d65cfe6"
+    },
+    {
+      "path": "web/static/assets/stickers/butterfly/rest.svg",
+      "sha256": "27a8bc868c51a9b36d1c59fc9ff2cf9c98229ed184865a8560faa463c52b90b1"
+    },
+    {
+      "path": "web/static/assets/stickers/butterfly/wings-down.svg",
+      "sha256": "5ec39ca67923b0f280e45a60b0e50347829282ec91be64fefe12a55faf8fe586"
+    },
+    {
+      "path": "web/static/assets/stickers/butterfly/wings-up.svg",
+      "sha256": "4bd8a79b31ddd34134a04819028a32c5fef28f95362ec73d9cc911e4f8e18d80"
+    },
+    {
+      "path": "web/static/assets/stickers/cat/pounce.svg",
+      "sha256": "ba1b5de0fbf94d524296a29c968fd0af9964f977f197c9b0f0bf710f59f247d6"
+    },
+    {
+      "path": "web/static/assets/stickers/cat/rest.svg",
+      "sha256": "2f5081b7ee1b5a8c3a39041be8358bb7e2367a1dfb2f8f26d896e1c4be205036"
+    },
+    {
+      "path": "web/static/assets/stickers/cat/stretch.svg",
+      "sha256": "3fb040b6b20b74b2386cbc1305fc7b4a4e983da0006b2b1c7a307c415356d259"
+    },
+    {
+      "path": "web/static/assets/stickers/cat/walk.svg",
+      "sha256": "40b2e567175966b4293fc3ffb13d18d2f25d7fb3aa8389148df23fb67e31268e"
+    },
+    {
+      "path": "web/static/assets/stickers/cloud/puff-left.svg",
+      "sha256": "4ac8a1ebb00fc20cd2fcde0518868b7f48029610011d07acf1c1453f7787268c"
+    },
+    {
+      "path": "web/static/assets/stickers/cloud/puff-right.svg",
+      "sha256": "568fe7c6303f970ecd9e61133e279e37ed157c8a495b39d0675a50d25097cfca"
+    },
+    {
+      "path": "web/static/assets/stickers/cloud/rest.svg",
+      "sha256": "78469471d5d20e0ce0213255820d257cc925051a7e92fe7c5f52566ebdde1985"
+    },
+    {
+      "path": "web/static/assets/stickers/cloud/stretch.svg",
+      "sha256": "aa6751c9a38e1ed7c08f6d599175f80cacf16a4ae30dbc9d170ba92e79d953ff"
+    },
+    {
+      "path": "web/static/assets/stickers/comet/glow.svg",
+      "sha256": "27cf545d3955d569b27db9b08ce090542e20c35bd9d03d879bbe970bf47f7753"
+    },
+    {
+      "path": "web/static/assets/stickers/comet/rest.svg",
+      "sha256": "bb770ba297709c3a4b299cf75e8c8a9e463fc88022de7ba313686eb3f6867b19"
+    },
+    {
+      "path": "web/static/assets/stickers/comet/spark.svg",
+      "sha256": "ebdc5474b18ca20712a5a3840a08b90fbc8dcc49563fa505989c0465492615dd"
+    },
+    {
+      "path": "web/static/assets/stickers/comet/swoop.svg",
+      "sha256": "ee1781f52f2cb74d6101df2909538dbab25c7c4beda5c653dc884e816485ad71"
+    },
+    {
+      "path": "web/static/assets/stickers/cow/chew.svg",
+      "sha256": "c6c0c579502b9098ee757fc5068898683ae5daaccabf070d3dec5c342915a030"
+    },
+    {
+      "path": "web/static/assets/stickers/cow/look.svg",
+      "sha256": "7afc076aad1858f6e3f7936ceff7dd9a75a078b7971313fe1494eb3c843e73f1"
+    },
+    {
+      "path": "web/static/assets/stickers/cow/rest.svg",
+      "sha256": "6deb1a8f80a9bbe60961bf48a5bcf1e36993dbf225aabb9e84c3fad469dee954"
+    },
+    {
+      "path": "web/static/assets/stickers/cow/step.svg",
+      "sha256": "4e9ba6e2925002a0e53fb1b3dcab1249e94806b46bf2c2b582ec7a4c6ffcfc03"
+    },
+    {
+      "path": "web/static/assets/stickers/crab/claw-up.svg",
+      "sha256": "48e7d23d569f649c4ce0949ed1868de0a1d880f02a8895d6369e6d2dac4f00bd"
+    },
+    {
+      "path": "web/static/assets/stickers/crab/rest.svg",
+      "sha256": "6f884796366fdbc25473dc54f12692068fe1e123c5bf27c81a1798a360bcf4eb"
+    },
+    {
+      "path": "web/static/assets/stickers/crab/step-a.svg",
+      "sha256": "7845fc701917aa02a8733fdad54e330b6daa177313bf7d9cc9ff17d95d2c8216"
+    },
+    {
+      "path": "web/static/assets/stickers/crab/step-b.svg",
+      "sha256": "980da2168fea622fe774fbb205ff1d03c96a31464a36affeee320dfe55e84d3c"
+    },
+    {
+      "path": "web/static/assets/stickers/david-eagleman/explain.svg",
+      "sha256": "b448fd8fb1ef21b2f00e2d12ede20938f5ad94055dca45479da64df3510154d3"
+    },
+    {
+      "path": "web/static/assets/stickers/david-eagleman/present.svg",
+      "sha256": "5199b12b4cae4a20787f48895712276d36e7bb1f4f06c2c15dce8b01baaaa80e"
+    },
+    {
+      "path": "web/static/assets/stickers/david-eagleman/rest.svg",
+      "sha256": "ee309451939b00f97c56153289f9b25581d130375a3c21c3315d9d759f8aea4f"
+    },
+    {
+      "path": "web/static/assets/stickers/david-eagleman/think.svg",
+      "sha256": "8ace1c4cbd3949193478c6b2c87751486bf832cd567e4e14bb036c0f2eba5658"
+    },
+    {
+      "path": "web/static/assets/stickers/david-orban/explain.svg",
+      "sha256": "06c736eb60d0c980fb43e1fad9f24bd6d3c054161e9033afd3382da4eb0dcda6"
+    },
+    {
+      "path": "web/static/assets/stickers/david-orban/point.svg",
+      "sha256": "9ee85b4032d01b30ecad8f8c1eac09b832b35472c4083c9e530d6e0d85edc089"
+    },
+    {
+      "path": "web/static/assets/stickers/david-orban/rest.svg",
+      "sha256": "2bfa015d31d135b45a442e97af35b80c29cc351fe2dc351650bcc658ef19f2d3"
+    },
+    {
+      "path": "web/static/assets/stickers/david-orban/wave.svg",
+      "sha256": "18ab3b17c81afcde0f1c071d2fe997d5459a5f0119754ec11c881961408b4839"
+    },
+    {
+      "path": "web/static/assets/stickers/david-pearce/gesture.svg",
+      "sha256": "788cc85fa423139cec74fa13a90406cd367a0eedc31e030ae3c0e735613a3483"
+    },
+    {
+      "path": "web/static/assets/stickers/david-pearce/present.svg",
+      "sha256": "36ad66f740d16a5bcb2f015837249173ba62377c8c68dde35a31c0e7f062f16b"
+    },
+    {
+      "path": "web/static/assets/stickers/david-pearce/rest.svg",
+      "sha256": "98d22ddb838efcaa4a03293c20dd0f9c90339b1d4d740f81adc3795a528eaaa1"
+    },
+    {
+      "path": "web/static/assets/stickers/david-pearce/think.svg",
+      "sha256": "3152ac3c8b35146e9ae006ecf841978dc023cd4032ec76b348ca38fb3d6c669f"
+    },
+    {
+      "path": "web/static/assets/stickers/dolphin/leap.svg",
+      "sha256": "0f8689d2ed3b2fadb9c5d2138ac6d862f8564fe72c95be11b5395f2ce4e9c023"
+    },
+    {
+      "path": "web/static/assets/stickers/dolphin/rest.svg",
+      "sha256": "464a957ade9b359317ab6453ab33683b4a24cbe71b8090c515663691b8a2a01f"
+    },
+    {
+      "path": "web/static/assets/stickers/dolphin/swim-down.svg",
+      "sha256": "b60894eb9977ee6b5b48ccf603736a0c7b90066a23e3269ce68a404850affa4a"
+    },
+    {
+      "path": "web/static/assets/stickers/dolphin/swim-up.svg",
+      "sha256": "779fe7de2abe0b0becc243a725dca8dd302842418534ce9c7dcef59dc7b6f044"
+    },
+    {
+      "path": "web/static/assets/stickers/duck/dive.svg",
+      "sha256": "1b5c9d3b1d8e00f50564c1b4c7b075aaf882091261ff724fe01e8c54ef9bdb76"
+    },
+    {
+      "path": "web/static/assets/stickers/duck/paddle-a.svg",
+      "sha256": "797d81b2abda5d3c5235d6b51dfc28f744adea7da9f38f4b5a00dc1fcb736a5d"
+    },
+    {
+      "path": "web/static/assets/stickers/duck/paddle-b.svg",
+      "sha256": "f4c6a7dd5e38c3270fd547f22a91efe613716776b92e689bd0739cb65a88f546"
+    },
+    {
+      "path": "web/static/assets/stickers/duck/rest.svg",
+      "sha256": "67d8bd6a1ef3ae36939930426ab9af6500c7abcf1c369907fa0dd5d6653a0b75"
+    },
+    {
+      "path": "web/static/assets/stickers/eliezer-yudkowsky/explain.svg",
+      "sha256": "52a30bc72967acde769523b8b4dcdd4e4abc156a55e957bbb44d7bf291acd464"
+    },
+    {
+      "path": "web/static/assets/stickers/eliezer-yudkowsky/present.svg",
+      "sha256": "1fe4a570fb1606373fb0af0d12b4a71f1984445abcf7e5439e775fd5b1f96b96"
+    },
+    {
+      "path": "web/static/assets/stickers/eliezer-yudkowsky/rest.svg",
+      "sha256": "609823f1214ea1828301d9f1c1f370d75c143964798eab652183ecf6abd9ed34"
+    },
+    {
+      "path": "web/static/assets/stickers/eliezer-yudkowsky/think.svg",
+      "sha256": "96fb31b5a8118957b2e3195bfdcd10beba49bb4be56f46f803e91b62bcb2a8a4"
+    },
+    {
+      "path": "web/static/assets/stickers/fish/dive.svg",
+      "sha256": "20b21aea1611d4d4de8124b51b0fdc2d5fd7fb7f5976628ddf1f075bb9e2db7e"
+    },
+    {
+      "path": "web/static/assets/stickers/fish/rest.svg",
+      "sha256": "86d964da158b82262b7f167fd1ca7449bc176c16ac92bb085ca4ed697ff8f7eb"
+    },
+    {
+      "path": "web/static/assets/stickers/fish/swim-a.svg",
+      "sha256": "7f7edce2d92587b4925b1e5462c2c532c287e2fc0a3492710da78a3044a009f7"
+    },
+    {
+      "path": "web/static/assets/stickers/fish/swim-b.svg",
+      "sha256": "a18b44c635703cca87a4c3a1a58293a883c5db8cb9aa12addbd451ae71255268"
+    },
+    {
+      "path": "web/static/assets/stickers/flower/bloom.svg",
+      "sha256": "4795a21e4c88fe25e7e0859116f4cf301141210f916e28a4f911822dbac02e19"
+    },
+    {
+      "path": "web/static/assets/stickers/flower/rest.svg",
+      "sha256": "c7cf030679f4ecaae0f36be579d2404823aa278992d8a15cc275532e05a9a141"
+    },
+    {
+      "path": "web/static/assets/stickers/flower/sway-left.svg",
+      "sha256": "aaa08575f9b66f787a23b0f5153f7c773531d0e42981b8cd8136ca0dbe0b7f24"
+    },
+    {
+      "path": "web/static/assets/stickers/flower/sway-right.svg",
+      "sha256": "e9a123f09487ba28aba63fc3467f3cb424405aa622b0a3f9413ccad0e159719a"
+    },
+    {
+      "path": "web/static/assets/stickers/fm-2030/present.svg",
+      "sha256": "d5b93b2ba9cafa499ba57f6395428c8fad3db66f70d708dc47ce315ed2bb59b3"
+    },
+    {
+      "path": "web/static/assets/stickers/fm-2030/rest.svg",
+      "sha256": "0c5e52861aaba61daf0dc443b2eda9c8805061e5b94ba138cbdc2f572695f919"
+    },
+    {
+      "path": "web/static/assets/stickers/fm-2030/think.svg",
+      "sha256": "b0348f914e8a9393a5539894640f11dff0ca58618c0b52bd6d659c60f4eec464"
+    },
+    {
+      "path": "web/static/assets/stickers/fm-2030/wave.svg",
+      "sha256": "62e9d45c28b8b03093a882f63f9046eb6b7c61dce799346c7fe32ac89152af72"
+    },
+    {
+      "path": "web/static/assets/stickers/frisbee/rest.svg",
+      "sha256": "76609c43fdf7732b8ddc5a409ff99ea9f420770016636285bba9721828c4e18e"
+    },
+    {
+      "path": "web/static/assets/stickers/frisbee/spin-a.svg",
+      "sha256": "a97b25af2ff593e420433fb92450911fac52136d024b6e986473e7428004cd53"
+    },
+    {
+      "path": "web/static/assets/stickers/frisbee/spin-b.svg",
+      "sha256": "40b162d788cae137f53133d12c004329a57e29408568d43691396dd6dd0170e5"
+    },
+    {
+      "path": "web/static/assets/stickers/frisbee/tilt.svg",
+      "sha256": "2f7c34742578b64bf3554b6324c6bf501dcfe3c240d6f3588524a1fbe72cbc39"
+    },
+    {
+      "path": "web/static/assets/stickers/frog/crouch.svg",
+      "sha256": "1e7d803a4156a77a8191ef643575f42101dc922fa163e4c9f2f6b21967596927"
+    },
+    {
+      "path": "web/static/assets/stickers/frog/hop.svg",
+      "sha256": "5a8bc49b926895ffeb15c2cbaf6784f67f92e2caeeaba168b2ad9147d4413580"
+    },
+    {
+      "path": "web/static/assets/stickers/frog/land.svg",
+      "sha256": "c8674b1dd17e90bb04233848e747138daaa474fbd5962dfe45f7fbab4f0b2fec"
+    },
+    {
+      "path": "web/static/assets/stickers/frog/rest.svg",
+      "sha256": "418c31ab02831e30a055e49f0bad2369203f1908be6c627b7e09ced7b327c990"
+    },
+    {
+      "path": "web/static/assets/stickers/giulio-prisco/book.svg",
+      "sha256": "42fd9e05e8c10a9bb965414a7877b57e86a7e7a3ec45fa7ad56d0654785e0171"
+    },
+    {
+      "path": "web/static/assets/stickers/giulio-prisco/cosmic.svg",
+      "sha256": "67d167f62857e02bbcf28f87edc18cf91be382aafebd82aa498d0d857202a3bd"
+    },
+    {
+      "path": "web/static/assets/stickers/giulio-prisco/rest.svg",
+      "sha256": "73c3632333a8d6f9b4be9ab82dac67feb095dbc5577881c944c89b09b0f57366"
+    },
+    {
+      "path": "web/static/assets/stickers/giulio-prisco/think.svg",
+      "sha256": "ce617c3d039d5b5f322bf626f52071ae3141d1c8fdfcbf2c5043c798e26051a1"
+    },
+    {
+      "path": "web/static/assets/stickers/goat/hop.svg",
+      "sha256": "5dac31653222e01c8a5febadb293675ba8b358a24fc5643ccdd5246f40096d40"
+    },
+    {
+      "path": "web/static/assets/stickers/goat/rest.svg",
+      "sha256": "cc4423f1d14825bd7eac17e937c7826faff0c904a9a76020ed665c222c93ec16"
+    },
+    {
+      "path": "web/static/assets/stickers/goat/step-a.svg",
+      "sha256": "b07eecb4c454730a987702f55a163dd7982164a3f5f129f5a23d206939daa000"
+    },
+    {
+      "path": "web/static/assets/stickers/goat/step-b.svg",
+      "sha256": "9e89cc221e82d63c48e2957670a6d48ed880845894f7c2f109e493e62f27444d"
+    },
+    {
+      "path": "web/static/assets/stickers/hans-moravec/explain.svg",
+      "sha256": "e3ad21b821f3d165db781e2da43bc973092ddd7e88e9b281873b7bb25947a83f"
+    },
+    {
+      "path": "web/static/assets/stickers/hans-moravec/present.svg",
+      "sha256": "85feed4c4a438033f34778cc85eaa179b7eea1145b6712e439f8453c208ed746"
+    },
+    {
+      "path": "web/static/assets/stickers/hans-moravec/rest.svg",
+      "sha256": "3fd74b9ffc97091c27fbce9e3257af18960203090dac24ed28484be56e6f1fd0"
+    },
+    {
+      "path": "web/static/assets/stickers/hans-moravec/think.svg",
+      "sha256": "9ea50f1433180335a71b49e46154c6eacccab97841d206058237a68cc1df7da6"
+    },
+    {
+      "path": "web/static/assets/stickers/hay-bale/rest.svg",
+      "sha256": "cf5d43c7103ed21118fe77fbeb9b60225c55cafdff582848b921dcee76a6bb8a"
+    },
+    {
+      "path": "web/static/assets/stickers/hay-bale/tilt-left.svg",
+      "sha256": "3adf55f384bdc689468d331e62bb07ca5e4299ba23cdf573a00e3338a97fcb6e"
+    },
+    {
+      "path": "web/static/assets/stickers/hay-bale/tilt-right.svg",
+      "sha256": "8ed36544efc4d44c75c6f557d75106d74321c474dcfcf984a03433b4c8d79b87"
+    },
+    {
+      "path": "web/static/assets/stickers/hay-bale/tumble.svg",
+      "sha256": "34d611986a99cae11f4b21e7cff09db55c8e3022d883f15c59a4b56aa8ff584e"
+    },
+    {
+      "path": "web/static/assets/stickers/hen/flap.svg",
+      "sha256": "c3dc2154f63f4cd2faedb221eee0789db8a64e04dd470f8aadb1ba6fbcda64e3"
+    },
+    {
+      "path": "web/static/assets/stickers/hen/look.svg",
+      "sha256": "77198f93b30fdefde14f2df3c120d492502ed3aebd4ffbe6c4fd3f7112e45351"
+    },
+    {
+      "path": "web/static/assets/stickers/hen/peck.svg",
+      "sha256": "063cfe29a7d217560e4ae6e9faff91a4836ba16a3c3e1bcb67179fae350dac2e"
+    },
+    {
+      "path": "web/static/assets/stickers/hen/rest.svg",
+      "sha256": "65cba1aa73ff8bc31ec87ce597586e14c381c91470c183847dc0a95c53ef100f"
+    },
+    {
+      "path": "web/static/assets/stickers/horse/look.svg",
+      "sha256": "c519b4b2b1d4b95ebfc4e2422fb561f6482050f9d8e32fe396280f3ff522d301"
+    },
+    {
+      "path": "web/static/assets/stickers/horse/rest.svg",
+      "sha256": "c0824f456354223257ebfc988bbc7aa357c683c5cf455da71fbda5ca4ba9da19"
+    },
+    {
+      "path": "web/static/assets/stickers/horse/step-a.svg",
+      "sha256": "46bc75cd0c40e4626370cffe0c0ec6feb34597ac8bb6c30cb866ec8df1bb75b2"
+    },
+    {
+      "path": "web/static/assets/stickers/horse/step-b.svg",
+      "sha256": "a223d14391671b01401534ff6d677dc4f4ec6b6cb4bd549b2c35c4ef9d3fabe2"
+    },
+    {
+      "path": "web/static/assets/stickers/hula-hoop/rest.svg",
+      "sha256": "f283af1e2b9761aaa021f0462401acaca0401548481a9fdbad6bd316d75dc08d"
+    },
+    {
+      "path": "web/static/assets/stickers/hula-hoop/spin.svg",
+      "sha256": "0806ecbb33084301bde72ea48f94484e7c19d45eba69a53ee14bc4733e0b474f"
+    },
+    {
+      "path": "web/static/assets/stickers/hula-hoop/tilt-left.svg",
+      "sha256": "5e35e51bfca04e42e1fec3cfa05569a3c0d1fd1d6528045b0136583e960222d9"
+    },
+    {
+      "path": "web/static/assets/stickers/hula-hoop/tilt-right.svg",
+      "sha256": "4a8992d86cc8b2583c1398aa3cb5614a2149e249353ab1d45af058fbea885d68"
+    },
+    {
+      "path": "web/static/assets/stickers/jellyfish/drift.svg",
+      "sha256": "98eb15cfdf8714b1367c9fd839e6d64f349a4bbca6881f36353a501f2138fd72"
+    },
+    {
+      "path": "web/static/assets/stickers/jellyfish/pulse.svg",
+      "sha256": "160cd4f0eacf0bd4e798cfc2bfccecd152b0522a89d1f857af4fcf105aea0275"
+    },
+    {
+      "path": "web/static/assets/stickers/jellyfish/rest.svg",
+      "sha256": "7fbbb5ae7af683bfc4f6d130faf069f9e53c8e21415054395741117971b02056"
+    },
+    {
+      "path": "web/static/assets/stickers/jellyfish/squish.svg",
+      "sha256": "620b540237dfde3571bde1c5121310788d44cb72b4c97e578a4559ad627ad2e7"
+    },
+    {
+      "path": "web/static/assets/stickers/jump-rope/rest.svg",
+      "sha256": "c8a855cd093856670034fa8cd7421b5dc42de8ddfc300977999cbc85b27b8e3c"
+    },
+    {
+      "path": "web/static/assets/stickers/jump-rope/spin.svg",
+      "sha256": "35404b0940f17240e9140ef4479ed0e990ca3c0e909455cc1e509dda80b63ab2"
+    },
+    {
+      "path": "web/static/assets/stickers/jump-rope/swing-left.svg",
+      "sha256": "04bcf2ce5e9d1239d7ac59bd0b5957d81392ea268c98d981d726771cd8668edd"
+    },
+    {
+      "path": "web/static/assets/stickers/jump-rope/swing-right.svg",
+      "sha256": "a9b8e855246e7658a2030bec4983095784cf426b24e08d4b08341143ecfd5205"
+    },
+    {
+      "path": "web/static/assets/stickers/k-eric-drexler/explain.svg",
+      "sha256": "7f11192303a378148d9312611a64939f2e6be9d744e9d80c76cc9abf186b7424"
+    },
+    {
+      "path": "web/static/assets/stickers/k-eric-drexler/point.svg",
+      "sha256": "71eb6bf1f72bf3113582b1012fdb3281cbda9a99a1aec946915054a4314dd6e8"
+    },
+    {
+      "path": "web/static/assets/stickers/k-eric-drexler/rest.svg",
+      "sha256": "b62e452ee5196f1527704617876672885fc360d2de465a721d5d762dadb65c3c"
+    },
+    {
+      "path": "web/static/assets/stickers/k-eric-drexler/think.svg",
+      "sha256": "bd8ff549d138233fea04cd04bab65ce95ca61b801ba73628f298f1b3993ab9cc"
+    },
+    {
+      "path": "web/static/assets/stickers/kite/dive.svg",
+      "sha256": "dc45b646f2049b11994c2dde9b258e6c4b4862c9b60ad438cbfa0812bd5fc223"
+    },
+    {
+      "path": "web/static/assets/stickers/kite/rest.svg",
+      "sha256": "6d53d88f7520f30924222f0a056bfcaef8ba3c17a40029977fa72de09b5a29f6"
+    },
+    {
+      "path": "web/static/assets/stickers/kite/sway-left.svg",
+      "sha256": "4f2b853805188a061ed0a1ab1648e34b058ca3b71e358f388f0dca78119d4492"
+    },
+    {
+      "path": "web/static/assets/stickers/kite/sway-right.svg",
+      "sha256": "a8029558b66d4ad0938031ff17729cd1e5dfa19001ace7f1e1eb5d89e79865eb"
+    },
+    {
+      "path": "web/static/assets/stickers/martine-rothblatt/celebrate.svg",
+      "sha256": "94f1602db9d7298fc383eb7b11ee914468b9005b29ddd45eb99aa671d869ac80"
+    },
+    {
+      "path": "web/static/assets/stickers/martine-rothblatt/present.svg",
+      "sha256": "a526631a2e3054ef6fa9792f1818ab249d10c86a4c44fbc3c611b32ba80822d5"
+    },
+    {
+      "path": "web/static/assets/stickers/martine-rothblatt/rest.svg",
+      "sha256": "802a7f4937e2ac4b7f4806f47967bcabc781e0fd3f1f9ec228f8b442b941329a"
+    },
+    {
+      "path": "web/static/assets/stickers/martine-rothblatt/wave.svg",
+      "sha256": "df59296e44e7b2d33d72ca4703225f8e4f49600bb8a63cc1d58b6ad58ba90430"
+    },
+    {
+      "path": "web/static/assets/stickers/max-more/present.svg",
+      "sha256": "cdc9a2799698d0a07346bd3851d3ca74d3a5312369e7b8d8255b5a473e232fa4"
+    },
+    {
+      "path": "web/static/assets/stickers/max-more/rest.svg",
+      "sha256": "6835f5ee5bbd6f49a322392526884f213476e78d1dce1f1a3bf32bbf324bfbc4"
+    },
+    {
+      "path": "web/static/assets/stickers/max-more/think.svg",
+      "sha256": "55a7a8831029cf80c8e0e7d2674b50717e4a2af99517716438a4a19f61a702f0"
+    },
+    {
+      "path": "web/static/assets/stickers/max-more/wave.svg",
+      "sha256": "387a33995195a25bd74a5968edb38cf66524d81c4bcd8696552d8eb2e7245fa0"
+    },
+    {
+      "path": "web/static/assets/stickers/moon/glow.svg",
+      "sha256": "19165920a886a87389175153d80ba5553866634a33fc7a98031505061e1a3dd4"
+    },
+    {
+      "path": "web/static/assets/stickers/moon/rest.svg",
+      "sha256": "9c9cd9b2e94e555e71213398218920768be797997036686c36f28072e19e22ed"
+    },
+    {
+      "path": "web/static/assets/stickers/moon/tilt.svg",
+      "sha256": "738471fbdba7ef59f197aae72ef0f9dd44283b7e0427b31110358adf7824da78"
+    },
+    {
+      "path": "web/static/assets/stickers/moon/wink.svg",
+      "sha256": "f082f3d8f4d0a62b92bcdf43075d63c137d9487a1b4409f4a5599982dede9ac3"
+    },
+    {
+      "path": "web/static/assets/stickers/natasha-vita-more/present.svg",
+      "sha256": "4b26b44604f0ba2511ce1c7a0fd832b92ce243a42738c8f1ff1b681d3262c97d"
+    },
+    {
+      "path": "web/static/assets/stickers/natasha-vita-more/rest.svg",
+      "sha256": "48676882af01eed40815a5fb27b9c142653efa92d18883c50d3d070cbd22c364"
+    },
+    {
+      "path": "web/static/assets/stickers/natasha-vita-more/think.svg",
+      "sha256": "8978c4900e532a9422d8cd7404560596d6891861707bc2a0726034fcf5f711ef"
+    },
+    {
+      "path": "web/static/assets/stickers/natasha-vita-more/wave.svg",
+      "sha256": "22d4fc78335e3e7d9494a1ebda265fc8e531a2c7db38e9450387810c2ded4e88"
+    },
+    {
+      "path": "web/static/assets/stickers/nick-bostrom/explain.svg",
+      "sha256": "ff762f9a228862a88f55098509576ca373abe40d5186858984623da474a6154b"
+    },
+    {
+      "path": "web/static/assets/stickers/nick-bostrom/present.svg",
+      "sha256": "7b7d8acb1136f3f08dd771b7c6b2a7a7b8aeca81f59f6ca4cc1adc0b2c1cd05b"
+    },
+    {
+      "path": "web/static/assets/stickers/nick-bostrom/rest.svg",
+      "sha256": "bad4c9bb63a44c2e52682939733f9e73752d21c373d5fc7b1cb5d3561dd9d701"
+    },
+    {
+      "path": "web/static/assets/stickers/nick-bostrom/think.svg",
+      "sha256": "bbfa57f87baaf4c452896ffadb9a6dac384bdd24f90639fd19ae8dc6e2622682"
+    },
+    {
+      "path": "web/static/assets/stickers/octopus/rest.svg",
+      "sha256": "97d98f7cbf1219f7dc525095324f2506541985ba68642ad459d1f58fe6a96f12"
+    },
+    {
+      "path": "web/static/assets/stickers/octopus/squish.svg",
+      "sha256": "fef97222968abd33701e53532a05d6f7373f0778d8872fd80951c3c209fb6134"
+    },
+    {
+      "path": "web/static/assets/stickers/octopus/swim.svg",
+      "sha256": "895361c7aab20e678c7f9d19f3d849b6e981d3af3c92a07f84c43a69f67144e1"
+    },
+    {
+      "path": "web/static/assets/stickers/octopus/wave.svg",
+      "sha256": "351565cc3528a32d68dd124995f881e4117890f9a5797d0cd4667db42b435592"
+    },
+    {
+      "path": "web/static/assets/stickers/paul-tiffany/chalkboard.svg",
+      "sha256": "8de8819578c17023f4d13d6b1d300de8a08ea84af1f17d9f78a4753dcbe2368a"
+    },
+    {
+      "path": "web/static/assets/stickers/paul-tiffany/explain.svg",
+      "sha256": "b2e93becce7118b21ddd3130c1036d9ca994674ec01bfaf72221dd6870522958"
+    },
+    {
+      "path": "web/static/assets/stickers/paul-tiffany/poster.svg",
+      "sha256": "640b4714ee283925932b68b9bf67e57e53b63674bf3c13d6dfd1bbb85f23c43c"
+    },
+    {
+      "path": "web/static/assets/stickers/paul-tiffany/rest.svg",
+      "sha256": "fe224314314f263b9e44390fa0d90244cf37201cd78e90200475601fd2293dfb"
+    },
+    {
+      "path": "web/static/assets/stickers/pelican/beak-open.svg",
+      "sha256": "61b04ba4d355761501eeb7c41da71787ebe9e77a13382a75e52be3f3f1d8a35b"
+    },
+    {
+      "path": "web/static/assets/stickers/pelican/glide.svg",
+      "sha256": "e872cb6d8c7797e628ee3e77b877d89418ffa7b7a73ac80b851fb406e4bb27da"
+    },
+    {
+      "path": "web/static/assets/stickers/pelican/rest.svg",
+      "sha256": "0dff81c7c41ce5fa2b797740e16d89dedd54bd8f431460648adf2b1c6b33f788"
+    },
+    {
+      "path": "web/static/assets/stickers/pelican/wings-up.svg",
+      "sha256": "75959f99f0c8fb6d350b30014b9d99730e2a11277811659f004d1276fd0f98b6"
+    },
+    {
+      "path": "web/static/assets/stickers/pig/rest.svg",
+      "sha256": "92b7fa706321ff14eb03078e6f11f069fd967f6cf47c77cd9a8068843ee0b397"
+    },
+    {
+      "path": "web/static/assets/stickers/pig/sit.svg",
+      "sha256": "ae8d89aba585bb9d755702aa1141a48023067872363268171c74375e54041407"
+    },
+    {
+      "path": "web/static/assets/stickers/pig/sniff.svg",
+      "sha256": "b885a73849aa22ad5641a810c98b2c39bd2b1120f028374bb299f03dec299048"
+    },
+    {
+      "path": "web/static/assets/stickers/pig/step.svg",
+      "sha256": "1dbffe04e3c64f12a6fe8e07dc2adf1576ac426cc56ef34a87a9ac02d0c81d5f"
+    },
+    {
+      "path": "web/static/assets/stickers/pinwheel/rest.svg",
+      "sha256": "6ce587c60654e6130e54351757ee894063aa206647cd009dc68cf2183d119c18"
+    },
+    {
+      "path": "web/static/assets/stickers/pinwheel/spin.svg",
+      "sha256": "f0bc43b418abbb33bb4ca365de93e4b822fbfa41d7374a2b86b90cb7ab5e8c21"
+    },
+    {
+      "path": "web/static/assets/stickers/pinwheel/turn.svg",
+      "sha256": "d115bac6a5de6edd5b0f4186423e4e9ea350a538d51f7728e715fb68730d3044"
+    },
+    {
+      "path": "web/static/assets/stickers/pinwheel/wind.svg",
+      "sha256": "e7269ca7ae27e21c3b88a33713afbb6b97e4df434660215188144a1ba3a7f0fa"
+    },
+    {
+      "path": "web/static/assets/stickers/planet/glow.svg",
+      "sha256": "1ce253886515e2a08d89196d491e167cf2b5b5df7d88e1420b1b7c84794da8c7"
+    },
+    {
+      "path": "web/static/assets/stickers/planet/rest.svg",
+      "sha256": "79975bd6cf83bb94f2c299f19c308c52029fa3a0381547a4bf4e93b09994b38e"
+    },
+    {
+      "path": "web/static/assets/stickers/planet/spin-a.svg",
+      "sha256": "25e41868c16f62cecf8e84bff9fc4163dfa4a745f08d218da24be5d2e6884631"
+    },
+    {
+      "path": "web/static/assets/stickers/planet/spin-b.svg",
+      "sha256": "708936883e6fac6f419cfed9dd49570d5083afd7919d6f742149426b2765f28f"
+    },
+    {
+      "path": "web/static/assets/stickers/puppy/bark.svg",
+      "sha256": "f7fa6ebcd92f8b63e7fab8b7e927d75d02f1af10f32dc8c47971472ac9230548"
+    },
+    {
+      "path": "web/static/assets/stickers/puppy/rest.svg",
+      "sha256": "07df37a4af86e7dbdbf8439332c578f6447b89a8c393a5e00fa3038391669123"
+    },
+    {
+      "path": "web/static/assets/stickers/puppy/trot.svg",
+      "sha256": "6e86cacb577b0106fc383a77ff4b6545e5b9dbb14d088f1d23a9dda3f945eacc"
+    },
+    {
+      "path": "web/static/assets/stickers/puppy/wag.svg",
+      "sha256": "93b4119ce8a0ae2b5aabb7262f9debcef66175bd7b2cd3d7806fec818908fb03"
+    },
+    {
+      "path": "web/static/assets/stickers/rabbit/hop.svg",
+      "sha256": "06525e152741628fa3f7fa919b152b7f0c58829f59596f9b7e81343c09cc9599"
+    },
+    {
+      "path": "web/static/assets/stickers/rabbit/rest.svg",
+      "sha256": "c6f58c3b88c3f20589f60c6bed3c6615c0a0a66a3376f287727a6e18cd87a650"
+    },
+    {
+      "path": "web/static/assets/stickers/rabbit/sit.svg",
+      "sha256": "c81b8e5b88eeb9f2d2c4c14a8dcd69b98bb34bb738fe0d8f7b6cee148394ab77"
+    },
+    {
+      "path": "web/static/assets/stickers/rabbit/sniff.svg",
+      "sha256": "989897a6cc9ef01514ce7d960395e161c62cb00f4ee8142607d0faf54bdb66a8"
+    },
+    {
+      "path": "web/static/assets/stickers/ray-kurzweil/point.svg",
+      "sha256": "ab74f300379b1ede895260b4c69ab105b1bd460acb0b400fa3be4c192f000526"
+    },
+    {
+      "path": "web/static/assets/stickers/ray-kurzweil/present.svg",
+      "sha256": "6506cb31d939c47c5d097e0c26bb1b645883e084bce2c21a1f9a0de3ba1e6d9c"
+    },
+    {
+      "path": "web/static/assets/stickers/ray-kurzweil/rest.svg",
+      "sha256": "90de192eccd59a776b8a8da7b7120e4d38f6e98d4d62d77f38d52a813c912a75"
+    },
+    {
+      "path": "web/static/assets/stickers/ray-kurzweil/think.svg",
+      "sha256": "90de192eccd59a776b8a8da7b7120e4d38f6e98d4d62d77f38d52a813c912a75"
+    },
+    {
+      "path": "web/static/assets/stickers/robert-ettinger/point.svg",
+      "sha256": "2e2a9eed9d0f82a8379143819a044c73862d17ef271cc1214e6c7ea31a146ae6"
+    },
+    {
+      "path": "web/static/assets/stickers/robert-ettinger/present.svg",
+      "sha256": "d9dfa550dded9b84a4f603901fe4bc766b72fcbe6cf80d78cf838b0afb44165a"
+    },
+    {
+      "path": "web/static/assets/stickers/robert-ettinger/rest.svg",
+      "sha256": "c6ff22c691a1c0451e151aead535231301205b2be7ebe1ce1db3186054090983"
+    },
+    {
+      "path": "web/static/assets/stickers/robert-ettinger/think.svg",
+      "sha256": "496da2b38ebca13252504117d1d6d4e3fb32c197c1a97385bc0f403acef346fd"
+    },
+    {
+      "path": "web/static/assets/stickers/robot/beep.svg",
+      "sha256": "b664930ec2a3a85cf8c7d210872ef6f238fa3c82af8e2eb2b3421ff95c45f4b9"
+    },
+    {
+      "path": "web/static/assets/stickers/robot/rest.svg",
+      "sha256": "8a18b76c144ef8d47ba513cded2e8e8d67e3c891122a0cd13877700572977e18"
+    },
+    {
+      "path": "web/static/assets/stickers/robot/roll.svg",
+      "sha256": "6743258faa0bd05b30ea8fb983ad5eeacecf14cde1dc3b5e12f8fd344c60eede"
+    },
+    {
+      "path": "web/static/assets/stickers/robot/wave.svg",
+      "sha256": "4ff4ce64d9ab8121a0ddd25fe9217b553a43c347ccf6cf76c1ec722f51106c40"
+    },
+    {
+      "path": "web/static/assets/stickers/rocket/flame-a.svg",
+      "sha256": "a85f382e4d422905f5260a2eb569d431e5b15688d2dd9d31d87d45b01416f358"
+    },
+    {
+      "path": "web/static/assets/stickers/rocket/flame-b.svg",
+      "sha256": "90ef30ca25198ac32971847a90c7002fe8f66189cbb057098da9e64dd6a85d1c"
+    },
+    {
+      "path": "web/static/assets/stickers/rocket/launch.svg",
+      "sha256": "148f891d89c022cf659d2d7e29fb797f77ef5a672ef856baf0843bbeb292d351"
+    },
+    {
+      "path": "web/static/assets/stickers/rocket/rest.svg",
+      "sha256": "6b231d8cd8e94b67a7e20f5e835ee9bdb6d6e6b9e0ef10e31fec101dfca7e891"
+    },
+    {
+      "path": "web/static/assets/stickers/rooster/crow.svg",
+      "sha256": "5640f57257729b674a3d80a81bfc0a13521cb8bd8755bd8aa3e7a07f6ead0b26"
+    },
+    {
+      "path": "web/static/assets/stickers/rooster/flap.svg",
+      "sha256": "9689d0bb27c3569e339c3bfd3838f62c2029316bc3f0ff293621a61c959925ee"
+    },
+    {
+      "path": "web/static/assets/stickers/rooster/rest.svg",
+      "sha256": "4d867d4b22a5b97c2db99dcd6baa7f8dc09e240a500cc521936c530df3b5b86b"
+    },
+    {
+      "path": "web/static/assets/stickers/rooster/step.svg",
+      "sha256": "4b293f99beab63cf12ac0d22b73043b6be67e81c4e47804e0930531e4a5d9953"
+    },
+    {
+      "path": "web/static/assets/stickers/rover/rest.svg",
+      "sha256": "af3cb0bf4861847fb38910d37bfaf844abe5bd05cb2d57b3bd2715674e9992a6"
+    },
+    {
+      "path": "web/static/assets/stickers/rover/roll-a.svg",
+      "sha256": "14e016ef5a5c88178f3fd69517e0b5522c9ddb7502d45b17906d59a90a891811"
+    },
+    {
+      "path": "web/static/assets/stickers/rover/roll-b.svg",
+      "sha256": "6044a4cd894b4f0339ea856bd1a12be509a624997150e7e236a7673a3492cde7"
+    },
+    {
+      "path": "web/static/assets/stickers/rover/scan.svg",
+      "sha256": "b8f4f58aded4b56f489155efb9aeca15a276ed3c21a584ca76170153d4f3511f"
+    },
+    {
+      "path": "web/static/assets/stickers/sandcastle/flag.svg",
+      "sha256": "f7d26c7eed0833d50db9eaf9e488e68e83c5b95c08efe431716b313f1e6f68a1"
+    },
+    {
+      "path": "web/static/assets/stickers/sandcastle/rest.svg",
+      "sha256": "66fb72f600f452d7a56c3d9c4e2a58694e0da25cf098f1f6134933fa43b87db7"
+    },
+    {
+      "path": "web/static/assets/stickers/sandcastle/sparkle.svg",
+      "sha256": "d8a0af1f44c46861d42f0d1ccbb278eb523b34a8ff49bd7330a3b63600925236"
+    },
+    {
+      "path": "web/static/assets/stickers/sandcastle/splash.svg",
+      "sha256": "aeabbf2a26ae5b088f31ac0d800a291881cf194fb0aa576ec5cb2433c2b72469"
+    },
+    {
+      "path": "web/static/assets/stickers/satellite/panel-left.svg",
+      "sha256": "48ea859492c2ebc579448c39102bf356b1ffa4e05d0839480ea13064cd6ac4dc"
+    },
+    {
+      "path": "web/static/assets/stickers/satellite/panel-right.svg",
+      "sha256": "b42d636255e8ad3ca7651bb1ca07d4d3c415e2a426a42524f611a0d1cf38300d"
+    },
+    {
+      "path": "web/static/assets/stickers/satellite/rest.svg",
+      "sha256": "21d531ff2580a1547d98327724193d4da5d69a1497acd1bc875d00fbbc076e3b"
+    },
+    {
+      "path": "web/static/assets/stickers/satellite/signal.svg",
+      "sha256": "2f7106702b123e97b3f589911078c8b12e4f2510740d5b2ebde4fb70c33cab1f"
+    },
+    {
+      "path": "web/static/assets/stickers/scarecrow/rest.svg",
+      "sha256": "e3846cf3df702457ae38b6b4d684fc63b33417653ef6ca5e0f4bcca355ea88f8"
+    },
+    {
+      "path": "web/static/assets/stickers/scarecrow/sway-left.svg",
+      "sha256": "a3b4e1355aa16e0b00a74bf80c875bf2521dfd924446c1efc83d63d58a547a04"
+    },
+    {
+      "path": "web/static/assets/stickers/scarecrow/sway-right.svg",
+      "sha256": "f11fa1b7f429d8fabb51e7a67cbdd6bcac546ef8db0a28b2680860457f86a767"
+    },
+    {
+      "path": "web/static/assets/stickers/scarecrow/wave.svg",
+      "sha256": "217f82db088bf2878441a03923c8d913a02a164e272e42e0d13297429aba169b"
+    },
+    {
+      "path": "web/static/assets/stickers/scooter/lean.svg",
+      "sha256": "bebc8c762bd0bc70ed0d7f918848a70c958d52933eaede56b2e5a7a564e9b1be"
+    },
+    {
+      "path": "web/static/assets/stickers/scooter/rest.svg",
+      "sha256": "9c40f62e08e2a25ace507db54216e4ff63e365ce632e99772787186b51a78ce8"
+    },
+    {
+      "path": "web/static/assets/stickers/scooter/roll-a.svg",
+      "sha256": "e52b52d52a8fc862d1cf953022e40e2d2fe0b81e33c3edfa59dd860ee2de64de"
+    },
+    {
+      "path": "web/static/assets/stickers/scooter/roll-b.svg",
+      "sha256": "ce47fc6402e5d988813ec5bf52d7bf2455c335e7859eeb8f0d2b4a0dfe101c45"
+    },
+    {
+      "path": "web/static/assets/stickers/seagull/glide.svg",
+      "sha256": "8c65ee98ce2494b58d54182a1c6cf13abc5734496786526910b6fd1fb7947883"
+    },
+    {
+      "path": "web/static/assets/stickers/seagull/rest.svg",
+      "sha256": "89c905f12581f111bac3f54c707dff4344bfec9ec341104fecc03190da29d6bf"
+    },
+    {
+      "path": "web/static/assets/stickers/seagull/wings-down.svg",
+      "sha256": "22200f50bef25be515d164016a8675f758925e6c1f11f34abda35be44f1f9517"
+    },
+    {
+      "path": "web/static/assets/stickers/seagull/wings-up.svg",
+      "sha256": "bcf5319b56f63be01ad329cafaae40c8163ce5c2076c94939532f0cdc6261061"
+    },
+    {
+      "path": "web/static/assets/stickers/sheep/look.svg",
+      "sha256": "439be831929d9113b9e31f03f3237a39792428f58bb76b5853090fbed225f03a"
+    },
+    {
+      "path": "web/static/assets/stickers/sheep/rest.svg",
+      "sha256": "f8c4b9e28d5048cb186b1f16b92f89a02a5e15146ce6fd14b2363c06a14e3b11"
+    },
+    {
+      "path": "web/static/assets/stickers/sheep/step-a.svg",
+      "sha256": "85618c682c59adad2391c52ee099eead88d6212b6c32286d2ad4dae995164489"
+    },
+    {
+      "path": "web/static/assets/stickers/sheep/step-b.svg",
+      "sha256": "2cb0af85b053225d5a366b7cafbfcf285499e1f1c1c693306c28288cc4491a06"
+    },
+    {
+      "path": "web/static/assets/stickers/shell/open.svg",
+      "sha256": "46f0742daa04929d1a5264ef123978aeba32d53b1e62a571f20060c68409f466"
+    },
+    {
+      "path": "web/static/assets/stickers/shell/rest.svg",
+      "sha256": "527549a2ce819c361231051a92b7b425e012b5b600f9064fde8e578d4c1b88f2"
+    },
+    {
+      "path": "web/static/assets/stickers/shell/tilt-left.svg",
+      "sha256": "3024922945bb7cf857722a2177009412680d4da01f057113d895e8e658bfb198"
+    },
+    {
+      "path": "web/static/assets/stickers/shell/tilt-right.svg",
+      "sha256": "39f16ce8ab9fbb7213f2e0fd5b89fdce4261b9c8263ddb2d3152e8d6e683a1a0"
+    },
+    {
+      "path": "web/static/assets/stickers/skateboard/rest.svg",
+      "sha256": "a8a0f7760eb4fd33015a04fb0616228a6d53b029d11a3906224c1c2f63692e0a"
+    },
+    {
+      "path": "web/static/assets/stickers/skateboard/roll-a.svg",
+      "sha256": "c669aba87f695e95d9d0108bdbe2d2ce07f5e8e03789fc02533ae1fa6794cec3"
+    },
+    {
+      "path": "web/static/assets/stickers/skateboard/roll-b.svg",
+      "sha256": "4d1a5364f4788a5e11f91a3b0b83930bffcdb2f57062febf076d7f3ba53189d9"
+    },
+    {
+      "path": "web/static/assets/stickers/skateboard/tilt.svg",
+      "sha256": "02136a0ff2d3d051585f85693c27c9ae359a7300dd736e9a511df3d080c68255"
+    },
+    {
+      "path": "web/static/assets/stickers/space-station/beacon.svg",
+      "sha256": "e529fdfdbfdfcfbc06631f3a082e902b74932449b3377f46ee8470a1aeb97fc8"
+    },
+    {
+      "path": "web/static/assets/stickers/space-station/panel-left.svg",
+      "sha256": "d332dc73dcb084ab9940ebe86cd86772b6a2a77b40c9279bb4a0be6254d78202"
+    },
+    {
+      "path": "web/static/assets/stickers/space-station/panel-right.svg",
+      "sha256": "aeb97686af9821b8d9fc7a884e1c81995bfb6746c2e0d20d0cbcf421c99be3ef"
+    },
+    {
+      "path": "web/static/assets/stickers/space-station/rest.svg",
+      "sha256": "de0a85925a3ed14b96da292f4c10b424e5147686d6157d62550124ae73b2589f"
+    },
+    {
+      "path": "web/static/assets/stickers/starfish/rest.svg",
+      "sha256": "7983c19947deb399378ac99e1d67afb27b5742cda1c754ea016304e0698fdd7d"
+    },
+    {
+      "path": "web/static/assets/stickers/starfish/stretch.svg",
+      "sha256": "59f0f344eabccb66cf47a5da0208a41627d81556d8a5ff819a45c6ed28edaf34"
+    },
+    {
+      "path": "web/static/assets/stickers/starfish/wiggle-left.svg",
+      "sha256": "1555489b09eefa5483760d96146fe8f2b5c9364b3721cdce4fbc5aaed87e792d"
+    },
+    {
+      "path": "web/static/assets/stickers/starfish/wiggle-right.svg",
+      "sha256": "b738b88893befc1438a2f0749486491bfbb911a14cda9f8fe98b00df0baa3aa1"
+    },
+    {
+      "path": "web/static/assets/stickers/surfboard/rest.svg",
+      "sha256": "4a0329a5ec6d2b5f5521f4b9de690067637a62191e4ab13333347743d4b8d9d5"
+    },
+    {
+      "path": "web/static/assets/stickers/surfboard/ride.svg",
+      "sha256": "0a593066ab0652f6834fe3a43cd1015c83293ef37a3985b150989216646cd5e0"
+    },
+    {
+      "path": "web/static/assets/stickers/surfboard/tilt-left.svg",
+      "sha256": "1e7325496cd240b03462d30958ddef1e6a55dd99e445b0e27b4ca2e5d748686a"
+    },
+    {
+      "path": "web/static/assets/stickers/surfboard/tilt-right.svg",
+      "sha256": "4a6a2a230b586ab8ff98923003df1b483c4f4b4d23cfd59c6320326769c88bfe"
+    },
+    {
+      "path": "web/static/assets/stickers/teddy-bear/bounce.svg",
+      "sha256": "bfd90d07b7181b42b6b05471419c4c42e6ad0ba85e58064009c57eaab6519bd5"
+    },
+    {
+      "path": "web/static/assets/stickers/teddy-bear/hug.svg",
+      "sha256": "297962d2a256234fbe51c7af7c7fa11c438e470d57c400cd05a90d504dc7bc4e"
+    },
+    {
+      "path": "web/static/assets/stickers/teddy-bear/rest.svg",
+      "sha256": "a5c86f39f14fbadf5ba72e86125f8f46becdc941d7bf700b48d5db6aea40c63d"
+    },
+    {
+      "path": "web/static/assets/stickers/teddy-bear/wave.svg",
+      "sha256": "c45ccc9f13a7bb863c29c585700ddb18bf9d8371b4581f2e7d1be94f14c7dcad"
+    },
+    {
+      "path": "web/static/assets/stickers/toy-airplane/bank-left.svg",
+      "sha256": "f64fb5b3d20ca7e049c6830c1ebae4516dbab53c289de70596ac4ffb42a7e78e"
+    },
+    {
+      "path": "web/static/assets/stickers/toy-airplane/bank-right.svg",
+      "sha256": "c0f71a85abbbd6bb969de16fb2b1e835e0ae79a676ceeeefb42123354499bd57"
+    },
+    {
+      "path": "web/static/assets/stickers/toy-airplane/rest.svg",
+      "sha256": "517a96d4d62ef7e0a6641510f4383c37d2926e3bf754fd8cf8e9a112a420bf0d"
+    },
+    {
+      "path": "web/static/assets/stickers/toy-airplane/zoom.svg",
+      "sha256": "327e30448f349a4ecc71fde445f55296fb1074e0914bbde082a83b87487eed10"
+    },
+    {
+      "path": "web/static/assets/stickers/tractor/bounce.svg",
+      "sha256": "b0cd4094965d34d99b5a7cef1657d323c1759c7521ed649b478911136bce2a78"
+    },
+    {
+      "path": "web/static/assets/stickers/tractor/rest.svg",
+      "sha256": "e54663cf1c2c217d38dd58eaaf0caff70d6ed65c95ef69f02600290e5d2dd3e1"
+    },
+    {
+      "path": "web/static/assets/stickers/tractor/wheel-a.svg",
+      "sha256": "8d2121d4f689f570697224712fe5b988fbb595c3c02b5610fd3fea9afe171c1c"
+    },
+    {
+      "path": "web/static/assets/stickers/tractor/wheel-b.svg",
+      "sha256": "abb23cf5ba552aeba675f4e256bd1d3d76020120e9ab2b81f1fb7eaa0fc4f187"
+    },
+    {
+      "path": "web/static/assets/stickers/turtle/paddle-a.svg",
+      "sha256": "6529dc83e16213f09938fe60cdac4b57ad88a939c4ae9b7d171fb03bf90a8a9a"
+    },
+    {
+      "path": "web/static/assets/stickers/turtle/paddle-b.svg",
+      "sha256": "202f5330752d3a783ce8171f0fd84fa7d520f7583abe1aa574ffe8b6d19ec10a"
+    },
+    {
+      "path": "web/static/assets/stickers/turtle/rest.svg",
+      "sha256": "543d2cd1d1cee9746707223f8a7671abf282badd749c31856235d9ee486741b9"
+    },
+    {
+      "path": "web/static/assets/stickers/turtle/tuck.svg",
+      "sha256": "39cc53d9191a840775ea4220c5f1b04c99fd88ca2dcec5444da26048bed8b216"
+    },
+    {
+      "path": "web/static/assets/stickers/ufo/beam.svg",
+      "sha256": "4fad1a01d95f22268bd017231c48accd9160a86b6f0b6e0013f6db9f53558dd3"
+    },
+    {
+      "path": "web/static/assets/stickers/ufo/rest.svg",
+      "sha256": "0ccc1c31d2e6567e426ae5e3ce7a88a37db12bf2e7d4bd8366a1b8775b166f64"
+    },
+    {
+      "path": "web/static/assets/stickers/ufo/tilt-left.svg",
+      "sha256": "02556c35b28b30f873a5b3e95cf2123a589128615250d3059c4056ed447155bf"
+    },
+    {
+      "path": "web/static/assets/stickers/ufo/tilt-right.svg",
+      "sha256": "afd2a87ccf805dd292d2ea6763df0caa15182559c578ac4c95dae45e8016e559"
+    },
+    {
+      "path": "web/static/assets/stickers/umbrella/blown.svg",
+      "sha256": "bae3b6769bb4ee5d16cced6c08b46c747e69b51e9c28c6a6de2198b4c172e65d"
+    },
+    {
+      "path": "web/static/assets/stickers/umbrella/rest.svg",
+      "sha256": "35a5e6675b9f37c66b892e692ef99d98e2cacf260f327d24bfe7f9fd37b7a04a"
+    },
+    {
+      "path": "web/static/assets/stickers/umbrella/sway-left.svg",
+      "sha256": "5473422514bf3ed0fe4da8ec7d86b40495c4524b2431abf00f43f2a716d9fb64"
+    },
+    {
+      "path": "web/static/assets/stickers/umbrella/sway-right.svg",
+      "sha256": "691468a03a4c3c6e4a33a8890af4e1a5b4ed09bbd425708d341dc4dd12e13c89"
+    },
+    {
+      "path": "web/static/assets/stickers/vernor-vinge/present.svg",
+      "sha256": "b64ec2a8aaff4356c7edfe26d3a1f160b4aaedb989881c228e5f69b6d097b883"
+    },
+    {
+      "path": "web/static/assets/stickers/vernor-vinge/rest.svg",
+      "sha256": "8e86b3a61ed9110b3526c4910860f73400b54ed6b92e13b7e7c84b71ecbc38a1"
+    },
+    {
+      "path": "web/static/assets/stickers/vernor-vinge/think.svg",
+      "sha256": "58489bb9cb18380bd252846a149b6511ba3c99238e32a5708c81810085301fb8"
+    },
+    {
+      "path": "web/static/assets/stickers/vernor-vinge/wave.svg",
+      "sha256": "9981be870c3df81ccb850688e34a5e78b14807055bf505af12552fc3a4eed0cc"
+    },
+    {
+      "path": "web/static/assets/stickers/yo-yo/drop.svg",
+      "sha256": "2b8d44cf6820cd33d08362d71ce6849d30d28bb425acd02290731e3f5b3d6b94"
+    },
+    {
+      "path": "web/static/assets/stickers/yo-yo/rest.svg",
+      "sha256": "c6cc1ba431deff29e60673f89c8daecc3d1fe7ee8e2000bbe85771fb0de77a39"
+    },
+    {
+      "path": "web/static/assets/stickers/yo-yo/return.svg",
+      "sha256": "f4b7383849078bdb0e0dc53a9f330126a50f12f569d075e3911831409cde1100"
+    },
+    {
+      "path": "web/static/assets/stickers/yo-yo/spin.svg",
+      "sha256": "c40fba92ff4a5d7d3381981d74f805cb2880b5fe27d4586c83d9998ffaff794e"
+    }
+  ]
+}

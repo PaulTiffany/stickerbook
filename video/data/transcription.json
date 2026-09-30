@@ -1,0 +1,3513 @@
+[
+  {
+    "start": 0.5600000000000023,
+    "end": 6.6,
+    "text": " Open the book. Pick a world. Pick a world. Pick a sticker. Make it move.",
+    "words": [
+      {
+        "text": " Open",
+        "start": 0.5600000000000023,
+        "end": 1.0
+      },
+      {
+        "text": " the",
+        "start": 1.0,
+        "end": 1.28
+      },
+      {
+        "text": " book.",
+        "start": 1.28,
+        "end": 1.84
+      },
+      {
+        "text": " Pick",
+        "start": 1.88,
+        "end": 2.32
+      },
+      {
+        "text": " a",
+        "start": 2.32,
+        "end": 2.46
+      },
+      {
+        "text": " world.",
+        "start": 2.46,
+        "end": 2.78
+      },
+      {
+        "text": " Pick",
+        "start": 3.06,
+        "end": 3.46
+      },
+      {
+        "text": " a",
+        "start": 3.46,
+        "end": 3.62
+      },
+      {
+        "text": " world.",
+        "start": 3.62,
+        "end": 3.92
+      },
+      {
+        "text": " Pick",
+        "start": 4.58,
+        "end": 4.62
+      },
+      {
+        "text": " a",
+        "start": 4.62,
+        "end": 4.78
+      },
+      {
+        "text": " sticker.",
+        "start": 4.78,
+        "end": 5.06
+      },
+      {
+        "text": " Make",
+        "start": 5.26,
+        "end": 5.54
+      },
+      {
+        "text": " it",
+        "start": 5.54,
+        "end": 5.78
+      },
+      {
+        "text": " move.",
+        "start": 5.78,
+        "end": 6.6
+      }
+    ]
+  },
+  {
+    "start": 10.080000000000002,
+    "end": 14.96,
+    "text": " There's a frog by the water and a bird in the sky. There's a kid with finger going, what if it could fly?",
+    "words": [
+      {
+        "text": " There's",
+        "start": 10.080000000000002,
+        "end": 10.52
+      },
+      {
+        "text": " a",
+        "start": 10.52,
+        "end": 10.62
+      },
+      {
+        "text": " frog",
+        "start": 10.62,
+        "end": 10.82
+      },
+      {
+        "text": " by",
+        "start": 10.82,
+        "end": 11.06
+      },
+      {
+        "text": " the",
+        "start": 11.06,
+        "end": 11.2
+      },
+      {
+        "text": " water",
+        "start": 11.2,
+        "end": 11.42
+      },
+      {
+        "text": " and",
+        "start": 11.42,
+        "end": 11.68
+      },
+      {
+        "text": " a",
+        "start": 11.68,
+        "end": 11.8
+      },
+      {
+        "text": " bird",
+        "start": 11.8,
+        "end": 11.92
+      },
+      {
+        "text": " in",
+        "start": 11.92,
+        "end": 12.1
+      },
+      {
+        "text": " the",
+        "start": 12.1,
+        "end": 12.22
+      },
+      {
+        "text": " sky.",
+        "start": 12.22,
+        "end": 12.48
+      },
+      {
+        "text": " There's",
+        "start": 12.7,
+        "end": 12.86
+      },
+      {
+        "text": " a",
+        "start": 12.86,
+        "end": 13.0
+      },
+      {
+        "text": " kid",
+        "start": 13.0,
+        "end": 13.08
+      },
+      {
+        "text": " with",
+        "start": 13.08,
+        "end": 13.22
+      },
+      {
+        "text": " finger",
+        "start": 13.22,
+        "end": 13.44
+      },
+      {
+        "text": " going,",
+        "start": 13.44,
+        "end": 13.76
+      },
+      {
+        "text": " what",
+        "start": 13.76,
+        "end": 14.0
+      },
+      {
+        "text": " if",
+        "start": 14.0,
+        "end": 14.42
+      },
+      {
+        "text": " it",
+        "start": 14.42,
+        "end": 14.54
+      },
+      {
+        "text": " could",
+        "start": 14.54,
+        "end": 14.68
+      },
+      {
+        "text": " fly?",
+        "start": 14.68,
+        "end": 14.96
+      }
+    ]
+  },
+  {
+    "start": 15.06,
+    "end": 19.66,
+    "text": " Put a cloud on the farm, put a fish in the school. Apparently reality has drag and drop rules.",
+    "words": [
+      {
+        "text": " Put",
+        "start": 15.06,
+        "end": 15.14
+      },
+      {
+        "text": " a",
+        "start": 15.14,
+        "end": 15.28
+      },
+      {
+        "text": " cloud",
+        "start": 15.28,
+        "end": 15.54
+      },
+      {
+        "text": " on",
+        "start": 15.54,
+        "end": 15.74
+      },
+      {
+        "text": " the",
+        "start": 15.74,
+        "end": 15.84
+      },
+      {
+        "text": " farm,",
+        "start": 15.84,
+        "end": 16.12
+      },
+      {
+        "text": " put",
+        "start": 16.24,
+        "end": 16.34
+      },
+      {
+        "text": " a",
+        "start": 16.34,
+        "end": 16.44
+      },
+      {
+        "text": " fish",
+        "start": 16.44,
+        "end": 16.6
+      },
+      {
+        "text": " in",
+        "start": 16.6,
+        "end": 16.76
+      },
+      {
+        "text": " the",
+        "start": 16.76,
+        "end": 16.86
+      },
+      {
+        "text": " school.",
+        "start": 16.86,
+        "end": 17.12
+      },
+      {
+        "text": " Apparently",
+        "start": 17.3,
+        "end": 17.64
+      },
+      {
+        "text": " reality",
+        "start": 17.64,
+        "end": 18.1
+      },
+      {
+        "text": " has",
+        "start": 18.1,
+        "end": 18.74
+      },
+      {
+        "text": " drag",
+        "start": 18.74,
+        "end": 18.96
+      },
+      {
+        "text": " and",
+        "start": 18.96,
+        "end": 19.08
+      },
+      {
+        "text": " drop",
+        "start": 19.08,
+        "end": 19.26
+      },
+      {
+        "text": " rules.",
+        "start": 19.26,
+        "end": 19.66
+      }
+    ]
+  },
+  {
+    "start": 19.98,
+    "end": 24.32,
+    "text": " Ray brought a curve and it ran off the page. Aubrey wants to engineer the damage written into age.",
+    "words": [
+      {
+        "text": " Ray",
+        "start": 19.98,
+        "end": 19.98
+      },
+      {
+        "text": " brought",
+        "start": 19.98,
+        "end": 20.38
+      },
+      {
+        "text": " a",
+        "start": 20.38,
+        "end": 20.56
+      },
+      {
+        "text": " curve",
+        "start": 20.56,
+        "end": 20.8
+      },
+      {
+        "text": " and",
+        "start": 20.8,
+        "end": 21.02
+      },
+      {
+        "text": " it",
+        "start": 21.02,
+        "end": 21.12
+      },
+      {
+        "text": " ran",
+        "start": 21.12,
+        "end": 21.26
+      },
+      {
+        "text": " off",
+        "start": 21.26,
+        "end": 21.4
+      },
+      {
+        "text": " the",
+        "start": 21.4,
+        "end": 21.54
+      },
+      {
+        "text": " page.",
+        "start": 21.54,
+        "end": 21.9
+      },
+      {
+        "text": " Aubrey",
+        "start": 22.14,
+        "end": 22.26
+      },
+      {
+        "text": " wants",
+        "start": 22.26,
+        "end": 22.42
+      },
+      {
+        "text": " to",
+        "start": 22.42,
+        "end": 22.58
+      },
+      {
+        "text": " engineer",
+        "start": 22.58,
+        "end": 22.92
+      },
+      {
+        "text": " the",
+        "start": 22.92,
+        "end": 23.14
+      },
+      {
+        "text": " damage",
+        "start": 23.14,
+        "end": 23.38
+      },
+      {
+        "text": " written",
+        "start": 23.38,
+        "end": 23.7
+      },
+      {
+        "text": " into",
+        "start": 23.7,
+        "end": 23.98
+      },
+      {
+        "text": " age.",
+        "start": 23.98,
+        "end": 24.32
+      }
+    ]
+  },
+  {
+    "start": 24.52,
+    "end": 28.9,
+    "text": " We engineer the agent so it stays inside his page. Everybody brought tomorrow, the kid just wants to stay.",
+    "words": [
+      {
+        "text": " We",
+        "start": 24.52,
+        "end": 24.62
+      },
+      {
+        "text": " engineer",
+        "start": 24.62,
+        "end": 24.9
+      },
+      {
+        "text": " the",
+        "start": 24.9,
+        "end": 25.22
+      },
+      {
+        "text": " agent",
+        "start": 25.22,
+        "end": 25.42
+      },
+      {
+        "text": " so",
+        "start": 25.42,
+        "end": 25.62
+      },
+      {
+        "text": " it",
+        "start": 25.62,
+        "end": 25.74
+      },
+      {
+        "text": " stays",
+        "start": 25.74,
+        "end": 25.92
+      },
+      {
+        "text": " inside",
+        "start": 25.92,
+        "end": 26.22
+      },
+      {
+        "text": " his",
+        "start": 26.22,
+        "end": 26.36
+      },
+      {
+        "text": " page.",
+        "start": 26.36,
+        "end": 26.62
+      },
+      {
+        "text": " Everybody",
+        "start": 26.78,
+        "end": 27.1
+      },
+      {
+        "text": " brought",
+        "start": 27.1,
+        "end": 27.36
+      },
+      {
+        "text": " tomorrow,",
+        "start": 27.36,
+        "end": 27.74
+      },
+      {
+        "text": " the",
+        "start": 28.02,
+        "end": 28.12
+      },
+      {
+        "text": " kid",
+        "start": 28.12,
+        "end": 28.24
+      },
+      {
+        "text": " just",
+        "start": 28.24,
+        "end": 28.4
+      },
+      {
+        "text": " wants",
+        "start": 28.4,
+        "end": 28.54
+      },
+      {
+        "text": " to",
+        "start": 28.54,
+        "end": 28.68
+      },
+      {
+        "text": " stay.",
+        "start": 28.68,
+        "end": 28.9
+      }
+    ]
+  },
+  {
+    "start": 28.9,
+    "end": 32.900000000000006,
+    "text": " David brought the third derivative. We brought anime. Both can make a quiet system suddenly accelerate.",
+    "words": [
+      {
+        "text": " David",
+        "start": 28.9,
+        "end": 29.2
+      },
+      {
+        "text": " brought",
+        "start": 29.2,
+        "end": 29.4
+      },
+      {
+        "text": " the",
+        "start": 29.4,
+        "end": 29.56
+      },
+      {
+        "text": " third",
+        "start": 29.56,
+        "end": 29.72
+      },
+      {
+        "text": " derivative.",
+        "start": 29.72,
+        "end": 30.16
+      },
+      {
+        "text": " We",
+        "start": 30.4,
+        "end": 30.42
+      },
+      {
+        "text": " brought",
+        "start": 30.42,
+        "end": 30.64
+      },
+      {
+        "text": " anime.",
+        "start": 30.64,
+        "end": 31.02
+      },
+      {
+        "text": " Both",
+        "start": 31.38,
+        "end": 31.42
+      },
+      {
+        "text": " can",
+        "start": 31.42,
+        "end": 31.6
+      },
+      {
+        "text": " make",
+        "start": 31.6,
+        "end": 31.74
+      },
+      {
+        "text": " a",
+        "start": 31.74,
+        "end": 31.9
+      },
+      {
+        "text": " quiet",
+        "start": 31.9,
+        "end": 32.06
+      },
+      {
+        "text": " system",
+        "start": 32.06,
+        "end": 32.4
+      },
+      {
+        "text": " suddenly",
+        "start": 32.4,
+        "end": 32.86
+      },
+      {
+        "text": " accelerate.",
+        "start": 32.86,
+        "end": 33.1
+      }
+    ]
+  },
+  {
+    "start": 33.68,
+    "end": 38.24,
+    "text": " Everybody brought a theory of the future on the spot. The kid just points and says, make the frog hop.",
+    "words": [
+      {
+        "text": " Everybody",
+        "start": 33.68,
+        "end": 34.08
+      },
+      {
+        "text": " brought",
+        "start": 34.08,
+        "end": 34.38
+      },
+      {
+        "text": " a",
+        "start": 34.38,
+        "end": 34.5
+      },
+      {
+        "text": " theory",
+        "start": 34.5,
+        "end": 34.76
+      },
+      {
+        "text": " of",
+        "start": 34.76,
+        "end": 34.96
+      },
+      {
+        "text": " the",
+        "start": 34.96,
+        "end": 35.08
+      },
+      {
+        "text": " future",
+        "start": 35.08,
+        "end": 35.26
+      },
+      {
+        "text": " on",
+        "start": 35.26,
+        "end": 35.52
+      },
+      {
+        "text": " the",
+        "start": 35.52,
+        "end": 35.64
+      },
+      {
+        "text": " spot.",
+        "start": 35.64,
+        "end": 35.9
+      },
+      {
+        "text": " The",
+        "start": 36.16,
+        "end": 36.3
+      },
+      {
+        "text": " kid",
+        "start": 36.3,
+        "end": 36.44
+      },
+      {
+        "text": " just",
+        "start": 36.44,
+        "end": 36.78
+      },
+      {
+        "text": " points",
+        "start": 36.78,
+        "end": 36.98
+      },
+      {
+        "text": " and",
+        "start": 36.98,
+        "end": 37.16
+      },
+      {
+        "text": " says,",
+        "start": 37.16,
+        "end": 37.34
+      },
+      {
+        "text": " make",
+        "start": 37.46,
+        "end": 37.56
+      },
+      {
+        "text": " the",
+        "start": 37.56,
+        "end": 37.72
+      },
+      {
+        "text": " frog",
+        "start": 37.72,
+        "end": 37.96
+      },
+      {
+        "text": " hop.",
+        "start": 37.96,
+        "end": 38.24
+      }
+    ]
+  },
+  {
+    "start": 38.34,
+    "end": 46.94,
+    "text": " You don't need a future finish. You don't need the final proof. Give imagination boundaries and give imagination rule.",
+    "words": [
+      {
+        "text": " You",
+        "start": 38.34,
+        "end": 38.46
+      },
+      {
+        "text": " don't",
+        "start": 38.46,
+        "end": 38.64
+      },
+      {
+        "text": " need",
+        "start": 38.64,
+        "end": 38.92
+      },
+      {
+        "text": " a",
+        "start": 38.92,
+        "end": 39.06
+      },
+      {
+        "text": " future",
+        "start": 39.06,
+        "end": 39.36
+      },
+      {
+        "text": " finish.",
+        "start": 39.36,
+        "end": 40.18
+      },
+      {
+        "text": " You",
+        "start": 40.52,
+        "end": 40.76
+      },
+      {
+        "text": " don't",
+        "start": 40.76,
+        "end": 40.92
+      },
+      {
+        "text": " need",
+        "start": 40.92,
+        "end": 41.3
+      },
+      {
+        "text": " the",
+        "start": 41.3,
+        "end": 41.48
+      },
+      {
+        "text": " final",
+        "start": 41.48,
+        "end": 41.86
+      },
+      {
+        "text": " proof.",
+        "start": 41.86,
+        "end": 42.24
+      },
+      {
+        "text": " Give",
+        "start": 42.58,
+        "end": 42.82
+      },
+      {
+        "text": " imagination",
+        "start": 42.82,
+        "end": 43.62
+      },
+      {
+        "text": " boundaries",
+        "start": 43.62,
+        "end": 44.92
+      },
+      {
+        "text": " and",
+        "start": 44.92,
+        "end": 45.28
+      },
+      {
+        "text": " give",
+        "start": 45.28,
+        "end": 45.44
+      },
+      {
+        "text": " imagination",
+        "start": 45.44,
+        "end": 46.22
+      },
+      {
+        "text": " rule.",
+        "start": 46.22,
+        "end": 46.94
+      }
+    ]
+  },
+  {
+    "start": 47.22,
+    "end": 52.16,
+    "text": " I'm upping my P-hop while they're measuring P-doom stickers on the table. Transhuman's in the room.",
+    "words": [
+      {
+        "text": " I'm",
+        "start": 47.22,
+        "end": 47.38
+      },
+      {
+        "text": " upping",
+        "start": 47.38,
+        "end": 47.6
+      },
+      {
+        "text": " my",
+        "start": 47.6,
+        "end": 47.84
+      },
+      {
+        "text": " P",
+        "start": 47.84,
+        "end": 48.14
+      },
+      {
+        "text": "-hop",
+        "start": 48.14,
+        "end": 48.44
+      },
+      {
+        "text": " while",
+        "start": 48.44,
+        "end": 48.9
+      },
+      {
+        "text": " they're",
+        "start": 48.9,
+        "end": 49.4
+      },
+      {
+        "text": " measuring",
+        "start": 49.4,
+        "end": 49.42
+      },
+      {
+        "text": " P",
+        "start": 49.42,
+        "end": 49.62
+      },
+      {
+        "text": "-doom",
+        "start": 49.62,
+        "end": 49.94
+      },
+      {
+        "text": " stickers",
+        "start": 49.94,
+        "end": 50.28
+      },
+      {
+        "text": " on",
+        "start": 50.28,
+        "end": 50.68
+      },
+      {
+        "text": " the",
+        "start": 50.68,
+        "end": 50.8
+      },
+      {
+        "text": " table.",
+        "start": 50.8,
+        "end": 51.02
+      },
+      {
+        "text": " Transhuman's",
+        "start": 51.38,
+        "end": 51.74
+      },
+      {
+        "text": " in",
+        "start": 51.74,
+        "end": 51.86
+      },
+      {
+        "text": " the",
+        "start": 51.86,
+        "end": 51.98
+      },
+      {
+        "text": " room.",
+        "start": 51.98,
+        "end": 52.16
+      }
+    ]
+  },
+  {
+    "start": 52.34,
+    "end": 57.02,
+    "text": " Make the frog hop. Make the bird fly. Give Eagleman another little sense to try.",
+    "words": [
+      {
+        "text": " Make",
+        "start": 52.34,
+        "end": 52.38
+      },
+      {
+        "text": " the",
+        "start": 52.38,
+        "end": 52.54
+      },
+      {
+        "text": " frog",
+        "start": 52.54,
+        "end": 52.82
+      },
+      {
+        "text": " hop.",
+        "start": 52.82,
+        "end": 53.14
+      },
+      {
+        "text": " Make",
+        "start": 53.32,
+        "end": 53.46
+      },
+      {
+        "text": " the",
+        "start": 53.46,
+        "end": 53.72
+      },
+      {
+        "text": " bird",
+        "start": 53.72,
+        "end": 53.92
+      },
+      {
+        "text": " fly.",
+        "start": 53.92,
+        "end": 54.28
+      },
+      {
+        "text": " Give",
+        "start": 54.58,
+        "end": 54.88
+      },
+      {
+        "text": " Eagleman",
+        "start": 54.88,
+        "end": 55.32
+      },
+      {
+        "text": " another",
+        "start": 55.32,
+        "end": 55.64
+      },
+      {
+        "text": " little",
+        "start": 55.64,
+        "end": 55.94
+      },
+      {
+        "text": " sense",
+        "start": 55.94,
+        "end": 56.22
+      },
+      {
+        "text": " to",
+        "start": 56.22,
+        "end": 56.54
+      },
+      {
+        "text": " try.",
+        "start": 56.54,
+        "end": 57.02
+      }
+    ]
+  },
+  {
+    "start": 57.02,
+    "end": 61.56,
+    "text": " Say a tap and teach it. Let the small world bloom. P-hop going up while P-doom goes down.",
+    "words": [
+      {
+        "text": " Say",
+        "start": 57.02,
+        "end": 57.36
+      },
+      {
+        "text": " a",
+        "start": 57.36,
+        "end": 57.5
+      },
+      {
+        "text": " tap",
+        "start": 57.5,
+        "end": 57.64
+      },
+      {
+        "text": " and",
+        "start": 57.64,
+        "end": 57.78
+      },
+      {
+        "text": " teach",
+        "start": 57.78,
+        "end": 57.94
+      },
+      {
+        "text": " it.",
+        "start": 57.94,
+        "end": 58.08
+      },
+      {
+        "text": " Let",
+        "start": 58.18,
+        "end": 58.2
+      },
+      {
+        "text": " the",
+        "start": 58.2,
+        "end": 58.34
+      },
+      {
+        "text": " small",
+        "start": 58.34,
+        "end": 58.58
+      },
+      {
+        "text": " world",
+        "start": 58.58,
+        "end": 58.86
+      },
+      {
+        "text": " bloom.",
+        "start": 58.86,
+        "end": 59.26
+      },
+      {
+        "text": " P",
+        "start": 59.48,
+        "end": 59.56
+      },
+      {
+        "text": "-hop",
+        "start": 59.56,
+        "end": 59.78
+      },
+      {
+        "text": " going",
+        "start": 59.78,
+        "end": 60.08
+      },
+      {
+        "text": " up",
+        "start": 60.08,
+        "end": 60.34
+      },
+      {
+        "text": " while",
+        "start": 60.34,
+        "end": 60.54
+      },
+      {
+        "text": " P",
+        "start": 60.54,
+        "end": 60.68
+      },
+      {
+        "text": "-doom",
+        "start": 60.68,
+        "end": 60.9
+      },
+      {
+        "text": " goes",
+        "start": 60.9,
+        "end": 61.24
+      },
+      {
+        "text": " down.",
+        "start": 61.24,
+        "end": 61.56
+      }
+    ]
+  },
+  {
+    "start": 61.74,
+    "end": 66.16,
+    "text": " Kurzweil on the playground. Aubrey at the beach. Eagleman is asking what the nervous system can read.",
+    "words": [
+      {
+        "text": " Kurzweil",
+        "start": 61.74,
+        "end": 62.12
+      },
+      {
+        "text": " on",
+        "start": 62.12,
+        "end": 62.32
+      },
+      {
+        "text": " the",
+        "start": 62.32,
+        "end": 62.44
+      },
+      {
+        "text": " playground.",
+        "start": 62.44,
+        "end": 62.9
+      },
+      {
+        "text": " Aubrey",
+        "start": 63.16,
+        "end": 63.3
+      },
+      {
+        "text": " at",
+        "start": 63.3,
+        "end": 63.46
+      },
+      {
+        "text": " the",
+        "start": 63.46,
+        "end": 63.58
+      },
+      {
+        "text": " beach.",
+        "start": 63.58,
+        "end": 63.84
+      },
+      {
+        "text": " Eagleman",
+        "start": 63.94,
+        "end": 64.32
+      },
+      {
+        "text": " is",
+        "start": 64.32,
+        "end": 64.5
+      },
+      {
+        "text": " asking",
+        "start": 64.5,
+        "end": 64.68
+      },
+      {
+        "text": " what",
+        "start": 64.68,
+        "end": 64.9
+      },
+      {
+        "text": " the",
+        "start": 64.9,
+        "end": 65.04
+      },
+      {
+        "text": " nervous",
+        "start": 65.04,
+        "end": 65.24
+      },
+      {
+        "text": " system",
+        "start": 65.24,
+        "end": 65.58
+      },
+      {
+        "text": " can",
+        "start": 65.58,
+        "end": 65.86
+      },
+      {
+        "text": " read.",
+        "start": 65.86,
+        "end": 66.16
+      }
+    ]
+  },
+  {
+    "start": 66.52,
+    "end": 71.44,
+    "text": " Natasha in the theater. Ben is out in space. Max says every boundary is an invitation to explore.",
+    "words": [
+      {
+        "text": " Natasha",
+        "start": 66.52,
+        "end": 66.58
+      },
+      {
+        "text": " in",
+        "start": 66.58,
+        "end": 66.94
+      },
+      {
+        "text": " the",
+        "start": 66.94,
+        "end": 67.06
+      },
+      {
+        "text": " theater.",
+        "start": 67.06,
+        "end": 67.38
+      },
+      {
+        "text": " Ben",
+        "start": 67.68,
+        "end": 67.7
+      },
+      {
+        "text": " is",
+        "start": 67.7,
+        "end": 67.96
+      },
+      {
+        "text": " out",
+        "start": 67.96,
+        "end": 68.1
+      },
+      {
+        "text": " in",
+        "start": 68.1,
+        "end": 68.2
+      },
+      {
+        "text": " space.",
+        "start": 68.2,
+        "end": 68.4
+      },
+      {
+        "text": " Max",
+        "start": 68.66,
+        "end": 68.7
+      },
+      {
+        "text": " says",
+        "start": 68.7,
+        "end": 69.08
+      },
+      {
+        "text": " every",
+        "start": 69.08,
+        "end": 69.38
+      },
+      {
+        "text": " boundary",
+        "start": 69.38,
+        "end": 69.6
+      },
+      {
+        "text": " is",
+        "start": 69.6,
+        "end": 69.88
+      },
+      {
+        "text": " an",
+        "start": 69.88,
+        "end": 70.02
+      },
+      {
+        "text": " invitation",
+        "start": 70.02,
+        "end": 70.38
+      },
+      {
+        "text": " to",
+        "start": 70.38,
+        "end": 70.84
+      },
+      {
+        "text": " explore.",
+        "start": 70.84,
+        "end": 71.44
+      }
+    ]
+  },
+  {
+    "start": 72.78,
+    "end": 75.46,
+    "text": " So every little world comes with a clearly marked door.",
+    "words": [
+      {
+        "text": " So",
+        "start": 72.78,
+        "end": 72.9
+      },
+      {
+        "text": " every",
+        "start": 72.9,
+        "end": 73.14
+      },
+      {
+        "text": " little",
+        "start": 73.14,
+        "end": 73.38
+      },
+      {
+        "text": " world",
+        "start": 73.38,
+        "end": 73.68
+      },
+      {
+        "text": " comes",
+        "start": 73.68,
+        "end": 73.96
+      },
+      {
+        "text": " with",
+        "start": 73.96,
+        "end": 74.28
+      },
+      {
+        "text": " a",
+        "start": 74.28,
+        "end": 74.58
+      },
+      {
+        "text": " clearly",
+        "start": 74.58,
+        "end": 74.82
+      },
+      {
+        "text": " marked",
+        "start": 74.82,
+        "end": 75.14
+      },
+      {
+        "text": " door.",
+        "start": 75.14,
+        "end": 75.46
+      }
+    ]
+  },
+  {
+    "start": 75.68,
+    "end": 80.0,
+    "text": " Omega gets the poetry. Jeff gets the final key. Ben can dream and hypergraph. The host checks what can be.",
+    "words": [
+      {
+        "text": " Omega",
+        "start": 75.68,
+        "end": 75.96
+      },
+      {
+        "text": " gets",
+        "start": 75.96,
+        "end": 76.18
+      },
+      {
+        "text": " the",
+        "start": 76.18,
+        "end": 76.36
+      },
+      {
+        "text": " poetry.",
+        "start": 76.36,
+        "end": 76.62
+      },
+      {
+        "text": " Jeff",
+        "start": 76.88,
+        "end": 76.9
+      },
+      {
+        "text": " gets",
+        "start": 76.9,
+        "end": 77.04
+      },
+      {
+        "text": " the",
+        "start": 77.04,
+        "end": 77.22
+      },
+      {
+        "text": " final",
+        "start": 77.22,
+        "end": 77.46
+      },
+      {
+        "text": " key.",
+        "start": 77.46,
+        "end": 77.68
+      },
+      {
+        "text": " Ben",
+        "start": 77.92,
+        "end": 77.96
+      },
+      {
+        "text": " can",
+        "start": 77.96,
+        "end": 78.08
+      },
+      {
+        "text": " dream",
+        "start": 78.08,
+        "end": 78.24
+      },
+      {
+        "text": " and",
+        "start": 78.24,
+        "end": 78.42
+      },
+      {
+        "text": " hypergraph.",
+        "start": 78.42,
+        "end": 78.8
+      },
+      {
+        "text": " The",
+        "start": 78.9,
+        "end": 78.98
+      },
+      {
+        "text": " host",
+        "start": 78.98,
+        "end": 79.12
+      },
+      {
+        "text": " checks",
+        "start": 79.12,
+        "end": 79.44
+      },
+      {
+        "text": " what",
+        "start": 79.44,
+        "end": 79.64
+      },
+      {
+        "text": " can",
+        "start": 79.64,
+        "end": 79.82
+      },
+      {
+        "text": " be.",
+        "start": 79.82,
+        "end": 80.0
+      }
+    ]
+  },
+  {
+    "start": 80.22,
+    "end": 84.68,
+    "text": " The model says a paragraph. Jeff only needs the move. Compress a cloud of language to a thing the host can prove.",
+    "words": [
+      {
+        "text": " The",
+        "start": 80.22,
+        "end": 80.4
+      },
+      {
+        "text": " model",
+        "start": 80.4,
+        "end": 80.62
+      },
+      {
+        "text": " says",
+        "start": 80.62,
+        "end": 80.82
+      },
+      {
+        "text": " a",
+        "start": 80.82,
+        "end": 81.0
+      },
+      {
+        "text": " paragraph.",
+        "start": 81.0,
+        "end": 81.3
+      },
+      {
+        "text": " Jeff",
+        "start": 81.54,
+        "end": 81.56
+      },
+      {
+        "text": " only",
+        "start": 81.56,
+        "end": 81.76
+      },
+      {
+        "text": " needs",
+        "start": 81.76,
+        "end": 82.0
+      },
+      {
+        "text": " the",
+        "start": 82.0,
+        "end": 82.14
+      },
+      {
+        "text": " move.",
+        "start": 82.14,
+        "end": 82.36
+      },
+      {
+        "text": " Compress",
+        "start": 82.74,
+        "end": 82.84
+      },
+      {
+        "text": " a",
+        "start": 82.84,
+        "end": 83.02
+      },
+      {
+        "text": " cloud",
+        "start": 83.02,
+        "end": 83.16
+      },
+      {
+        "text": " of",
+        "start": 83.16,
+        "end": 83.32
+      },
+      {
+        "text": " language",
+        "start": 83.32,
+        "end": 83.54
+      },
+      {
+        "text": " to",
+        "start": 83.54,
+        "end": 83.72
+      },
+      {
+        "text": " a",
+        "start": 83.72,
+        "end": 83.86
+      },
+      {
+        "text": " thing",
+        "start": 83.86,
+        "end": 84.0
+      },
+      {
+        "text": " the",
+        "start": 84.0,
+        "end": 84.14
+      },
+      {
+        "text": " host",
+        "start": 84.14,
+        "end": 84.28
+      },
+      {
+        "text": " can",
+        "start": 84.28,
+        "end": 84.44
+      },
+      {
+        "text": " prove.",
+        "start": 84.44,
+        "end": 84.68
+      }
+    ]
+  },
+  {
+    "start": 84.68,
+    "end": 89.24,
+    "text": " Agency aliens were choices so we made the choices tight. Dream as far as language goes. The action stays prescribed.",
+    "words": [
+      {
+        "text": " Agency",
+        "start": 84.68,
+        "end": 85.1
+      },
+      {
+        "text": " aliens",
+        "start": 85.1,
+        "end": 85.46
+      },
+      {
+        "text": " were",
+        "start": 85.46,
+        "end": 85.6
+      },
+      {
+        "text": " choices",
+        "start": 85.6,
+        "end": 85.8
+      },
+      {
+        "text": " so",
+        "start": 85.8,
+        "end": 86.04
+      },
+      {
+        "text": " we",
+        "start": 86.04,
+        "end": 86.18
+      },
+      {
+        "text": " made",
+        "start": 86.18,
+        "end": 86.32
+      },
+      {
+        "text": " the",
+        "start": 86.32,
+        "end": 86.46
+      },
+      {
+        "text": " choices",
+        "start": 86.46,
+        "end": 86.66
+      },
+      {
+        "text": " tight.",
+        "start": 86.66,
+        "end": 86.98
+      },
+      {
+        "text": " Dream",
+        "start": 87.04,
+        "end": 87.2
+      },
+      {
+        "text": " as",
+        "start": 87.2,
+        "end": 87.34
+      },
+      {
+        "text": " far",
+        "start": 87.34,
+        "end": 87.5
+      },
+      {
+        "text": " as",
+        "start": 87.5,
+        "end": 87.68
+      },
+      {
+        "text": " language",
+        "start": 87.68,
+        "end": 87.8
+      },
+      {
+        "text": " goes.",
+        "start": 87.8,
+        "end": 88.18
+      },
+      {
+        "text": " The",
+        "start": 88.26,
+        "end": 88.36
+      },
+      {
+        "text": " action",
+        "start": 88.36,
+        "end": 88.68
+      },
+      {
+        "text": " stays",
+        "start": 88.68,
+        "end": 88.92
+      },
+      {
+        "text": " prescribed.",
+        "start": 88.92,
+        "end": 89.24
+      }
+    ]
+  },
+  {
+    "start": 89.42,
+    "end": 93.96,
+    "text": " Sometimes language tells it. Sometimes fingers make the call. Double tap goes straight to Jeff. No LLM at all.",
+    "words": [
+      {
+        "text": " Sometimes",
+        "start": 89.42,
+        "end": 89.6
+      },
+      {
+        "text": " language",
+        "start": 89.6,
+        "end": 89.88
+      },
+      {
+        "text": " tells",
+        "start": 89.88,
+        "end": 90.08
+      },
+      {
+        "text": " it.",
+        "start": 90.08,
+        "end": 90.26
+      },
+      {
+        "text": " Sometimes",
+        "start": 90.28,
+        "end": 90.44
+      },
+      {
+        "text": " fingers",
+        "start": 90.44,
+        "end": 90.72
+      },
+      {
+        "text": " make",
+        "start": 90.72,
+        "end": 91.0
+      },
+      {
+        "text": " the",
+        "start": 91.0,
+        "end": 91.26
+      },
+      {
+        "text": " call.",
+        "start": 91.26,
+        "end": 91.6
+      },
+      {
+        "text": " Double",
+        "start": 91.74,
+        "end": 91.92
+      },
+      {
+        "text": " tap",
+        "start": 91.92,
+        "end": 92.08
+      },
+      {
+        "text": " goes",
+        "start": 92.08,
+        "end": 92.24
+      },
+      {
+        "text": " straight",
+        "start": 92.24,
+        "end": 92.4
+      },
+      {
+        "text": " to",
+        "start": 92.4,
+        "end": 92.54
+      },
+      {
+        "text": " Jeff.",
+        "start": 92.54,
+        "end": 92.66
+      },
+      {
+        "text": " No",
+        "start": 92.86,
+        "end": 92.86
+      },
+      {
+        "text": " LLM",
+        "start": 92.86,
+        "end": 93.36
+      },
+      {
+        "text": " at",
+        "start": 93.36,
+        "end": 93.7
+      },
+      {
+        "text": " all.",
+        "start": 93.7,
+        "end": 93.96
+      }
+    ]
+  },
+  {
+    "start": 94.0,
+    "end": 98.5,
+    "text": " Three taps caught at ease with three small moves became a track. Teach the frog a pattern. Jeff can bring the pattern back.",
+    "words": [
+      {
+        "text": " Three",
+        "start": 94.0,
+        "end": 94.18
+      },
+      {
+        "text": " taps",
+        "start": 94.18,
+        "end": 94.48
+      },
+      {
+        "text": " caught",
+        "start": 94.48,
+        "end": 94.74
+      },
+      {
+        "text": " at",
+        "start": 94.74,
+        "end": 94.88
+      },
+      {
+        "text": " ease",
+        "start": 94.88,
+        "end": 94.98
+      },
+      {
+        "text": " with",
+        "start": 94.98,
+        "end": 95.12
+      },
+      {
+        "text": " three",
+        "start": 95.12,
+        "end": 95.26
+      },
+      {
+        "text": " small",
+        "start": 95.26,
+        "end": 95.42
+      },
+      {
+        "text": " moves",
+        "start": 95.42,
+        "end": 95.56
+      },
+      {
+        "text": " became",
+        "start": 95.56,
+        "end": 95.84
+      },
+      {
+        "text": " a",
+        "start": 95.84,
+        "end": 96.0
+      },
+      {
+        "text": " track.",
+        "start": 96.0,
+        "end": 96.18
+      },
+      {
+        "text": " Teach",
+        "start": 96.36,
+        "end": 96.42
+      },
+      {
+        "text": " the",
+        "start": 96.42,
+        "end": 96.58
+      },
+      {
+        "text": " frog",
+        "start": 96.58,
+        "end": 96.74
+      },
+      {
+        "text": " a",
+        "start": 96.74,
+        "end": 96.9
+      },
+      {
+        "text": " pattern.",
+        "start": 96.9,
+        "end": 97.08
+      },
+      {
+        "text": " Jeff",
+        "start": 97.22,
+        "end": 97.3
+      },
+      {
+        "text": " can",
+        "start": 97.3,
+        "end": 97.44
+      },
+      {
+        "text": " bring",
+        "start": 97.44,
+        "end": 97.58
+      },
+      {
+        "text": " the",
+        "start": 97.58,
+        "end": 97.74
+      },
+      {
+        "text": " pattern",
+        "start": 97.74,
+        "end": 98.16
+      },
+      {
+        "text": " back.",
+        "start": 98.16,
+        "end": 98.5
+      }
+    ]
+  },
+  {
+    "start": 98.66,
+    "end": 103.22,
+    "text": " Memory makes suggestions. It can never take command. The model gets the sandbox. The child still gets the hand.",
+    "words": [
+      {
+        "text": " Memory",
+        "start": 98.66,
+        "end": 98.94
+      },
+      {
+        "text": " makes",
+        "start": 98.94,
+        "end": 99.3
+      },
+      {
+        "text": " suggestions.",
+        "start": 99.3,
+        "end": 99.66
+      },
+      {
+        "text": " It",
+        "start": 99.86,
+        "end": 99.92
+      },
+      {
+        "text": " can",
+        "start": 99.92,
+        "end": 100.04
+      },
+      {
+        "text": " never",
+        "start": 100.04,
+        "end": 100.28
+      },
+      {
+        "text": " take",
+        "start": 100.28,
+        "end": 100.48
+      },
+      {
+        "text": " command.",
+        "start": 100.48,
+        "end": 100.84
+      },
+      {
+        "text": " The",
+        "start": 101.12,
+        "end": 101.2
+      },
+      {
+        "text": " model",
+        "start": 101.2,
+        "end": 101.4
+      },
+      {
+        "text": " gets",
+        "start": 101.4,
+        "end": 101.62
+      },
+      {
+        "text": " the",
+        "start": 101.62,
+        "end": 101.78
+      },
+      {
+        "text": " sandbox.",
+        "start": 101.78,
+        "end": 102.04
+      },
+      {
+        "text": " The",
+        "start": 102.38,
+        "end": 102.38
+      },
+      {
+        "text": " child",
+        "start": 102.38,
+        "end": 102.48
+      },
+      {
+        "text": " still",
+        "start": 102.48,
+        "end": 102.62
+      },
+      {
+        "text": " gets",
+        "start": 102.62,
+        "end": 102.76
+      },
+      {
+        "text": " the",
+        "start": 102.76,
+        "end": 102.96
+      },
+      {
+        "text": " hand.",
+        "start": 102.96,
+        "end": 103.22
+      }
+    ]
+  },
+  {
+    "start": 103.54,
+    "end": 111.82,
+    "text": " Teach it don't infrone it. Let it learn the groove. A pattern can't remember. The child still picks the move.",
+    "words": [
+      {
+        "text": " Teach",
+        "start": 103.54,
+        "end": 103.66
+      },
+      {
+        "text": " it",
+        "start": 103.66,
+        "end": 103.92
+      },
+      {
+        "text": " don't",
+        "start": 103.92,
+        "end": 104.28
+      },
+      {
+        "text": " infrone",
+        "start": 104.28,
+        "end": 104.84
+      },
+      {
+        "text": " it.",
+        "start": 104.84,
+        "end": 105.38
+      },
+      {
+        "text": " Let",
+        "start": 105.6,
+        "end": 106.0
+      },
+      {
+        "text": " it",
+        "start": 106.0,
+        "end": 106.2
+      },
+      {
+        "text": " learn",
+        "start": 106.2,
+        "end": 106.62
+      },
+      {
+        "text": " the",
+        "start": 106.62,
+        "end": 106.86
+      },
+      {
+        "text": " groove.",
+        "start": 106.86,
+        "end": 107.44
+      },
+      {
+        "text": " A",
+        "start": 108.0,
+        "end": 108.08
+      },
+      {
+        "text": " pattern",
+        "start": 108.08,
+        "end": 108.42
+      },
+      {
+        "text": " can't",
+        "start": 108.42,
+        "end": 108.88
+      },
+      {
+        "text": " remember.",
+        "start": 108.88,
+        "end": 109.68
+      },
+      {
+        "text": " The",
+        "start": 110.18,
+        "end": 110.32
+      },
+      {
+        "text": " child",
+        "start": 110.32,
+        "end": 110.62
+      },
+      {
+        "text": " still",
+        "start": 110.62,
+        "end": 110.88
+      },
+      {
+        "text": " picks",
+        "start": 110.88,
+        "end": 111.18
+      },
+      {
+        "text": " the",
+        "start": 111.18,
+        "end": 111.46
+      },
+      {
+        "text": " move.",
+        "start": 111.46,
+        "end": 111.82
+      }
+    ]
+  },
+  {
+    "start": 111.82,
+    "end": 118.98,
+    "text": " I'm up in my p-hop while they're measuring p-doom. Safety scissors ready. Give the weird a little room. Make the frog hop. Make the bird fly.",
+    "words": [
+      {
+        "text": " I'm",
+        "start": 111.82,
+        "end": 112.2
+      },
+      {
+        "text": " up",
+        "start": 112.2,
+        "end": 112.3
+      },
+      {
+        "text": " in",
+        "start": 112.3,
+        "end": 112.44
+      },
+      {
+        "text": " my",
+        "start": 112.44,
+        "end": 112.7
+      },
+      {
+        "text": " p",
+        "start": 112.7,
+        "end": 112.96
+      },
+      {
+        "text": "-hop",
+        "start": 112.96,
+        "end": 113.26
+      },
+      {
+        "text": " while",
+        "start": 113.26,
+        "end": 113.72
+      },
+      {
+        "text": " they're",
+        "start": 113.72,
+        "end": 113.92
+      },
+      {
+        "text": " measuring",
+        "start": 113.92,
+        "end": 114.26
+      },
+      {
+        "text": " p",
+        "start": 114.26,
+        "end": 114.44
+      },
+      {
+        "text": "-doom.",
+        "start": 114.44,
+        "end": 114.78
+      },
+      {
+        "text": " Safety",
+        "start": 114.88,
+        "end": 115.18
+      },
+      {
+        "text": " scissors",
+        "start": 115.18,
+        "end": 115.52
+      },
+      {
+        "text": " ready.",
+        "start": 115.52,
+        "end": 115.8
+      },
+      {
+        "text": " Give",
+        "start": 115.9,
+        "end": 116.0
+      },
+      {
+        "text": " the",
+        "start": 116.0,
+        "end": 116.18
+      },
+      {
+        "text": " weird",
+        "start": 116.18,
+        "end": 116.32
+      },
+      {
+        "text": " a",
+        "start": 116.32,
+        "end": 116.48
+      },
+      {
+        "text": " little",
+        "start": 116.48,
+        "end": 116.68
+      },
+      {
+        "text": " room.",
+        "start": 116.68,
+        "end": 116.98
+      },
+      {
+        "text": " Make",
+        "start": 117.06,
+        "end": 117.16
+      },
+      {
+        "text": " the",
+        "start": 117.16,
+        "end": 117.32
+      },
+      {
+        "text": " frog",
+        "start": 117.32,
+        "end": 117.6
+      },
+      {
+        "text": " hop.",
+        "start": 117.6,
+        "end": 117.86
+      },
+      {
+        "text": " Make",
+        "start": 118.02,
+        "end": 118.2
+      },
+      {
+        "text": " the",
+        "start": 118.2,
+        "end": 118.46
+      },
+      {
+        "text": " bird",
+        "start": 118.46,
+        "end": 118.68
+      },
+      {
+        "text": " fly.",
+        "start": 118.68,
+        "end": 118.98
+      }
+    ]
+  },
+  {
+    "start": 119.26,
+    "end": 126.18,
+    "text": " Touch can move it directly. Omega takes the cry. Say a tap and teach it. Let the small world bloom. P-hop going up. While p-doom goes down.",
+    "words": [
+      {
+        "text": " Touch",
+        "start": 119.26,
+        "end": 119.26
+      },
+      {
+        "text": " can",
+        "start": 119.26,
+        "end": 119.52
+      },
+      {
+        "text": " move",
+        "start": 119.52,
+        "end": 119.78
+      },
+      {
+        "text": " it",
+        "start": 119.78,
+        "end": 119.92
+      },
+      {
+        "text": " directly.",
+        "start": 119.92,
+        "end": 120.44
+      },
+      {
+        "text": " Omega",
+        "start": 120.74,
+        "end": 120.88
+      },
+      {
+        "text": " takes",
+        "start": 120.88,
+        "end": 121.16
+      },
+      {
+        "text": " the",
+        "start": 121.16,
+        "end": 121.34
+      },
+      {
+        "text": " cry.",
+        "start": 121.34,
+        "end": 121.7
+      },
+      {
+        "text": " Say",
+        "start": 121.88,
+        "end": 122.08
+      },
+      {
+        "text": " a",
+        "start": 122.08,
+        "end": 122.2
+      },
+      {
+        "text": " tap",
+        "start": 122.2,
+        "end": 122.36
+      },
+      {
+        "text": " and",
+        "start": 122.36,
+        "end": 122.48
+      },
+      {
+        "text": " teach",
+        "start": 122.48,
+        "end": 122.64
+      },
+      {
+        "text": " it.",
+        "start": 122.64,
+        "end": 122.76
+      },
+      {
+        "text": " Let",
+        "start": 122.84,
+        "end": 122.88
+      },
+      {
+        "text": " the",
+        "start": 122.88,
+        "end": 123.02
+      },
+      {
+        "text": " small",
+        "start": 123.02,
+        "end": 123.26
+      },
+      {
+        "text": " world",
+        "start": 123.26,
+        "end": 123.52
+      },
+      {
+        "text": " bloom.",
+        "start": 123.52,
+        "end": 123.9
+      },
+      {
+        "text": " P",
+        "start": 124.14,
+        "end": 124.26
+      },
+      {
+        "text": "-hop",
+        "start": 124.26,
+        "end": 124.44
+      },
+      {
+        "text": " going",
+        "start": 124.44,
+        "end": 124.76
+      },
+      {
+        "text": " up.",
+        "start": 124.76,
+        "end": 125.0
+      },
+      {
+        "text": " While",
+        "start": 125.1,
+        "end": 125.2
+      },
+      {
+        "text": " p",
+        "start": 125.2,
+        "end": 125.34
+      },
+      {
+        "text": "-doom",
+        "start": 125.34,
+        "end": 125.56
+      },
+      {
+        "text": " goes",
+        "start": 125.56,
+        "end": 125.86
+      },
+      {
+        "text": " down.",
+        "start": 125.86,
+        "end": 126.18
+      }
+    ]
+  },
+  {
+    "start": 126.36,
+    "end": 131.52,
+    "text": " If anybody builds it everybody might die. But in a sticker sandbox a child can make them fly. It leaves a wreck.",
+    "words": [
+      {
+        "text": " If",
+        "start": 126.36,
+        "end": 126.52
+      },
+      {
+        "text": " anybody",
+        "start": 126.52,
+        "end": 126.92
+      },
+      {
+        "text": " builds",
+        "start": 126.92,
+        "end": 127.22
+      },
+      {
+        "text": " it",
+        "start": 127.22,
+        "end": 127.4
+      },
+      {
+        "text": " everybody",
+        "start": 127.4,
+        "end": 127.68
+      },
+      {
+        "text": " might",
+        "start": 127.68,
+        "end": 128.12
+      },
+      {
+        "text": " die.",
+        "start": 128.12,
+        "end": 128.58
+      },
+      {
+        "text": " But",
+        "start": 128.7,
+        "end": 128.78
+      },
+      {
+        "text": " in",
+        "start": 128.78,
+        "end": 128.94
+      },
+      {
+        "text": " a",
+        "start": 128.94,
+        "end": 129.06
+      },
+      {
+        "text": " sticker",
+        "start": 129.06,
+        "end": 129.22
+      },
+      {
+        "text": " sandbox",
+        "start": 129.22,
+        "end": 129.62
+      },
+      {
+        "text": " a",
+        "start": 129.62,
+        "end": 129.82
+      },
+      {
+        "text": " child",
+        "start": 129.82,
+        "end": 129.96
+      },
+      {
+        "text": " can",
+        "start": 129.96,
+        "end": 130.2
+      },
+      {
+        "text": " make",
+        "start": 130.2,
+        "end": 130.36
+      },
+      {
+        "text": " them",
+        "start": 130.36,
+        "end": 130.5
+      },
+      {
+        "text": " fly.",
+        "start": 130.5,
+        "end": 130.8
+      },
+      {
+        "text": " It",
+        "start": 131.0,
+        "end": 131.1
+      },
+      {
+        "text": " leaves",
+        "start": 131.1,
+        "end": 131.24
+      },
+      {
+        "text": " a",
+        "start": 131.24,
+        "end": 131.4
+      },
+      {
+        "text": " wreck.",
+        "start": 131.4,
+        "end": 131.52
+      }
+    ]
+  },
+  {
+    "start": 131.54,
+    "end": 135.3,
+    "text": " What happens when it learns to leave the box? Open shell says first of all we actually have a box.",
+    "words": [
+      {
+        "text": " What",
+        "start": 131.54,
+        "end": 131.66
+      },
+      {
+        "text": " happens",
+        "start": 131.66,
+        "end": 131.88
+      },
+      {
+        "text": " when",
+        "start": 131.88,
+        "end": 132.08
+      },
+      {
+        "text": " it",
+        "start": 132.08,
+        "end": 132.22
+      },
+      {
+        "text": " learns",
+        "start": 132.22,
+        "end": 132.38
+      },
+      {
+        "text": " to",
+        "start": 132.38,
+        "end": 132.5
+      },
+      {
+        "text": " leave",
+        "start": 132.5,
+        "end": 132.64
+      },
+      {
+        "text": " the",
+        "start": 132.64,
+        "end": 132.96
+      },
+      {
+        "text": " box?",
+        "start": 132.96,
+        "end": 132.98
+      },
+      {
+        "text": " Open",
+        "start": 133.34,
+        "end": 133.34
+      },
+      {
+        "text": " shell",
+        "start": 133.34,
+        "end": 133.54
+      },
+      {
+        "text": " says",
+        "start": 133.54,
+        "end": 133.86
+      },
+      {
+        "text": " first",
+        "start": 133.86,
+        "end": 134.06
+      },
+      {
+        "text": " of",
+        "start": 134.06,
+        "end": 134.24
+      },
+      {
+        "text": " all",
+        "start": 134.24,
+        "end": 134.38
+      },
+      {
+        "text": " we",
+        "start": 134.38,
+        "end": 134.5
+      },
+      {
+        "text": " actually",
+        "start": 134.5,
+        "end": 134.74
+      },
+      {
+        "text": " have",
+        "start": 134.74,
+        "end": 134.96
+      },
+      {
+        "text": " a",
+        "start": 134.96,
+        "end": 135.08
+      },
+      {
+        "text": " box.",
+        "start": 135.08,
+        "end": 135.3
+      }
+    ]
+  },
+  {
+    "start": 135.3,
+    "end": 140.24,
+    "text": " Every frog deserves a pond. Every process gets a shell. Free don't work much better when you know the boundary way.",
+    "words": [
+      {
+        "text": " Every",
+        "start": 135.3,
+        "end": 135.58
+      },
+      {
+        "text": " frog",
+        "start": 135.58,
+        "end": 135.76
+      },
+      {
+        "text": " deserves",
+        "start": 135.76,
+        "end": 136.02
+      },
+      {
+        "text": " a",
+        "start": 136.02,
+        "end": 136.24
+      },
+      {
+        "text": " pond.",
+        "start": 136.24,
+        "end": 136.48
+      },
+      {
+        "text": " Every",
+        "start": 136.62,
+        "end": 136.76
+      },
+      {
+        "text": " process",
+        "start": 136.76,
+        "end": 136.98
+      },
+      {
+        "text": " gets",
+        "start": 136.98,
+        "end": 137.2
+      },
+      {
+        "text": " a",
+        "start": 137.2,
+        "end": 137.36
+      },
+      {
+        "text": " shell.",
+        "start": 137.36,
+        "end": 137.64
+      },
+      {
+        "text": " Free",
+        "start": 137.74,
+        "end": 137.78
+      },
+      {
+        "text": " don't",
+        "start": 137.78,
+        "end": 137.92
+      },
+      {
+        "text": " work",
+        "start": 137.92,
+        "end": 138.06
+      },
+      {
+        "text": " much",
+        "start": 138.06,
+        "end": 138.32
+      },
+      {
+        "text": " better",
+        "start": 138.32,
+        "end": 138.7
+      },
+      {
+        "text": " when",
+        "start": 138.7,
+        "end": 138.9
+      },
+      {
+        "text": " you",
+        "start": 138.9,
+        "end": 139.04
+      },
+      {
+        "text": " know",
+        "start": 139.04,
+        "end": 139.2
+      },
+      {
+        "text": " the",
+        "start": 139.2,
+        "end": 139.34
+      },
+      {
+        "text": " boundary",
+        "start": 139.34,
+        "end": 139.66
+      },
+      {
+        "text": " way.",
+        "start": 139.66,
+        "end": 140.24
+      }
+    ]
+  },
+  {
+    "start": 141.76,
+    "end": 148.96,
+    "text": " I'm up in my p-hop while they're measuring p-doom. Farm and beach and playground. Everybody make room. School to space. The theater every page its own.",
+    "words": [
+      {
+        "text": " I'm",
+        "start": 141.76,
+        "end": 141.94
+      },
+      {
+        "text": " up",
+        "start": 141.94,
+        "end": 142.06
+      },
+      {
+        "text": " in",
+        "start": 142.06,
+        "end": 142.2
+      },
+      {
+        "text": " my",
+        "start": 142.2,
+        "end": 142.42
+      },
+      {
+        "text": " p",
+        "start": 142.42,
+        "end": 142.7
+      },
+      {
+        "text": "-hop",
+        "start": 142.7,
+        "end": 143.0
+      },
+      {
+        "text": " while",
+        "start": 143.0,
+        "end": 143.44
+      },
+      {
+        "text": " they're",
+        "start": 143.44,
+        "end": 143.6
+      },
+      {
+        "text": " measuring",
+        "start": 143.6,
+        "end": 144.0
+      },
+      {
+        "text": " p",
+        "start": 144.0,
+        "end": 144.16
+      },
+      {
+        "text": "-doom.",
+        "start": 144.16,
+        "end": 144.46
+      },
+      {
+        "text": " Farm",
+        "start": 144.7,
+        "end": 144.86
+      },
+      {
+        "text": " and",
+        "start": 144.86,
+        "end": 145.04
+      },
+      {
+        "text": " beach",
+        "start": 145.04,
+        "end": 145.16
+      },
+      {
+        "text": " and",
+        "start": 145.16,
+        "end": 145.3
+      },
+      {
+        "text": " playground.",
+        "start": 145.3,
+        "end": 145.48
+      },
+      {
+        "text": " Everybody",
+        "start": 145.74,
+        "end": 145.94
+      },
+      {
+        "text": " make",
+        "start": 145.94,
+        "end": 146.36
+      },
+      {
+        "text": " room.",
+        "start": 146.36,
+        "end": 146.72
+      },
+      {
+        "text": " School",
+        "start": 146.98,
+        "end": 147.1
+      },
+      {
+        "text": " to",
+        "start": 147.1,
+        "end": 147.26
+      },
+      {
+        "text": " space.",
+        "start": 147.26,
+        "end": 147.4
+      },
+      {
+        "text": " The",
+        "start": 147.4,
+        "end": 147.58
+      },
+      {
+        "text": " theater",
+        "start": 147.58,
+        "end": 147.84
+      },
+      {
+        "text": " every",
+        "start": 147.84,
+        "end": 148.1
+      },
+      {
+        "text": " page",
+        "start": 148.1,
+        "end": 148.44
+      },
+      {
+        "text": " its",
+        "start": 148.44,
+        "end": 148.66
+      },
+      {
+        "text": " own.",
+        "start": 148.66,
+        "end": 148.96
+      }
+    ]
+  },
+  {
+    "start": 149.04,
+    "end": 153.44,
+    "text": " Six mobos can share the stickers without sharing what they've known. A delayed reply from farm. Can't wander into space.",
+    "words": [
+      {
+        "text": " Six",
+        "start": 149.04,
+        "end": 149.12
+      },
+      {
+        "text": " mobos",
+        "start": 149.12,
+        "end": 149.4
+      },
+      {
+        "text": " can",
+        "start": 149.4,
+        "end": 149.54
+      },
+      {
+        "text": " share",
+        "start": 149.54,
+        "end": 149.7
+      },
+      {
+        "text": " the",
+        "start": 149.7,
+        "end": 149.82
+      },
+      {
+        "text": " stickers",
+        "start": 149.82,
+        "end": 150.08
+      },
+      {
+        "text": " without",
+        "start": 150.08,
+        "end": 150.38
+      },
+      {
+        "text": " sharing",
+        "start": 150.38,
+        "end": 150.64
+      },
+      {
+        "text": " what",
+        "start": 150.64,
+        "end": 150.82
+      },
+      {
+        "text": " they've",
+        "start": 150.82,
+        "end": 151.04
+      },
+      {
+        "text": " known.",
+        "start": 151.04,
+        "end": 151.24
+      },
+      {
+        "text": " A",
+        "start": 151.38,
+        "end": 151.44
+      },
+      {
+        "text": " delayed",
+        "start": 151.44,
+        "end": 151.68
+      },
+      {
+        "text": " reply",
+        "start": 151.68,
+        "end": 151.9
+      },
+      {
+        "text": " from",
+        "start": 151.9,
+        "end": 152.1
+      },
+      {
+        "text": " farm.",
+        "start": 152.1,
+        "end": 152.26
+      },
+      {
+        "text": " Can't",
+        "start": 152.32,
+        "end": 152.4
+      },
+      {
+        "text": " wander",
+        "start": 152.4,
+        "end": 152.64
+      },
+      {
+        "text": " into",
+        "start": 152.64,
+        "end": 153.02
+      },
+      {
+        "text": " space.",
+        "start": 153.02,
+        "end": 153.44
+      }
+    ]
+  },
+  {
+    "start": 153.6,
+    "end": 157.92,
+    "text": " Human's matrons in the flesh. Response says know their place. Someone's dream of leaving bodies. Substrates earth and home.",
+    "words": [
+      {
+        "text": " Human's",
+        "start": 153.6,
+        "end": 153.86
+      },
+      {
+        "text": " matrons",
+        "start": 153.86,
+        "end": 154.08
+      },
+      {
+        "text": " in",
+        "start": 154.08,
+        "end": 154.26
+      },
+      {
+        "text": " the",
+        "start": 154.26,
+        "end": 154.36
+      },
+      {
+        "text": " flesh.",
+        "start": 154.36,
+        "end": 154.58
+      },
+      {
+        "text": " Response",
+        "start": 154.74,
+        "end": 154.92
+      },
+      {
+        "text": " says",
+        "start": 154.92,
+        "end": 155.2
+      },
+      {
+        "text": " know",
+        "start": 155.2,
+        "end": 155.36
+      },
+      {
+        "text": " their",
+        "start": 155.36,
+        "end": 155.5
+      },
+      {
+        "text": " place.",
+        "start": 155.5,
+        "end": 155.72
+      },
+      {
+        "text": " Someone's",
+        "start": 155.9,
+        "end": 156.08
+      },
+      {
+        "text": " dream",
+        "start": 156.08,
+        "end": 156.24
+      },
+      {
+        "text": " of",
+        "start": 156.24,
+        "end": 156.36
+      },
+      {
+        "text": " leaving",
+        "start": 156.36,
+        "end": 156.58
+      },
+      {
+        "text": " bodies.",
+        "start": 156.58,
+        "end": 156.86
+      },
+      {
+        "text": " Substrates",
+        "start": 157.0,
+        "end": 157.3
+      },
+      {
+        "text": " earth",
+        "start": 157.3,
+        "end": 157.54
+      },
+      {
+        "text": " and",
+        "start": 157.54,
+        "end": 157.76
+      },
+      {
+        "text": " home.",
+        "start": 157.76,
+        "end": 157.92
+      }
+    ]
+  },
+  {
+    "start": 158.06,
+    "end": 164.76,
+    "text": " Our powered agent stays on local host. It doesn't need to roam. Ray can talk tomorrow. All brick buys us time. Natasha says the human form is our story design.",
+    "words": [
+      {
+        "text": " Our",
+        "start": 158.06,
+        "end": 158.06
+      },
+      {
+        "text": " powered",
+        "start": 158.06,
+        "end": 158.36
+      },
+      {
+        "text": " agent",
+        "start": 158.36,
+        "end": 158.54
+      },
+      {
+        "text": " stays",
+        "start": 158.54,
+        "end": 158.76
+      },
+      {
+        "text": " on",
+        "start": 158.76,
+        "end": 158.92
+      },
+      {
+        "text": " local",
+        "start": 158.92,
+        "end": 159.14
+      },
+      {
+        "text": " host.",
+        "start": 159.14,
+        "end": 159.3
+      },
+      {
+        "text": " It",
+        "start": 159.42,
+        "end": 159.48
+      },
+      {
+        "text": " doesn't",
+        "start": 159.48,
+        "end": 159.74
+      },
+      {
+        "text": " need",
+        "start": 159.74,
+        "end": 159.9
+      },
+      {
+        "text": " to",
+        "start": 159.9,
+        "end": 160.06
+      },
+      {
+        "text": " roam.",
+        "start": 160.06,
+        "end": 160.32
+      },
+      {
+        "text": " Ray",
+        "start": 160.66,
+        "end": 160.66
+      },
+      {
+        "text": " can",
+        "start": 160.66,
+        "end": 160.86
+      },
+      {
+        "text": " talk",
+        "start": 160.86,
+        "end": 161.02
+      },
+      {
+        "text": " tomorrow.",
+        "start": 161.02,
+        "end": 161.36
+      },
+      {
+        "text": " All",
+        "start": 161.48,
+        "end": 161.6
+      },
+      {
+        "text": " brick",
+        "start": 161.6,
+        "end": 161.74
+      },
+      {
+        "text": " buys",
+        "start": 161.74,
+        "end": 161.96
+      },
+      {
+        "text": " us",
+        "start": 161.96,
+        "end": 162.26
+      },
+      {
+        "text": " time.",
+        "start": 162.26,
+        "end": 162.5
+      },
+      {
+        "text": " Natasha",
+        "start": 162.72,
+        "end": 162.72
+      },
+      {
+        "text": " says",
+        "start": 162.72,
+        "end": 162.96
+      },
+      {
+        "text": " the",
+        "start": 162.96,
+        "end": 163.14
+      },
+      {
+        "text": " human",
+        "start": 163.14,
+        "end": 163.34
+      },
+      {
+        "text": " form",
+        "start": 163.34,
+        "end": 163.58
+      },
+      {
+        "text": " is",
+        "start": 163.58,
+        "end": 163.76
+      },
+      {
+        "text": " our",
+        "start": 163.76,
+        "end": 163.88
+      },
+      {
+        "text": " story",
+        "start": 163.88,
+        "end": 164.12
+      },
+      {
+        "text": " design.",
+        "start": 164.12,
+        "end": 164.76
+      }
+    ]
+  },
+  {
+    "start": 164.76,
+    "end": 170.04,
+    "text": " They can bring the AGI. Eagleman brings the strain. David brings the joke that says acceleration itself can change.",
+    "words": [
+      {
+        "text": " They",
+        "start": 164.76,
+        "end": 165.0
+      },
+      {
+        "text": " can",
+        "start": 165.0,
+        "end": 165.1
+      },
+      {
+        "text": " bring",
+        "start": 165.1,
+        "end": 165.24
+      },
+      {
+        "text": " the",
+        "start": 165.24,
+        "end": 165.44
+      },
+      {
+        "text": " AGI.",
+        "start": 165.44,
+        "end": 165.94
+      },
+      {
+        "text": " Eagleman",
+        "start": 166.06,
+        "end": 166.44
+      },
+      {
+        "text": " brings",
+        "start": 166.44,
+        "end": 166.68
+      },
+      {
+        "text": " the",
+        "start": 166.68,
+        "end": 166.8
+      },
+      {
+        "text": " strain.",
+        "start": 166.8,
+        "end": 167.06
+      },
+      {
+        "text": " David",
+        "start": 167.32,
+        "end": 167.32
+      },
+      {
+        "text": " brings",
+        "start": 167.32,
+        "end": 167.52
+      },
+      {
+        "text": " the",
+        "start": 167.52,
+        "end": 167.7
+      },
+      {
+        "text": " joke",
+        "start": 167.7,
+        "end": 167.8
+      },
+      {
+        "text": " that",
+        "start": 167.8,
+        "end": 167.94
+      },
+      {
+        "text": " says",
+        "start": 167.94,
+        "end": 168.1
+      },
+      {
+        "text": " acceleration",
+        "start": 168.1,
+        "end": 168.56
+      },
+      {
+        "text": " itself",
+        "start": 168.56,
+        "end": 169.24
+      },
+      {
+        "text": " can",
+        "start": 169.24,
+        "end": 169.56
+      },
+      {
+        "text": " change.",
+        "start": 169.56,
+        "end": 170.04
+      }
+    ]
+  },
+  {
+    "start": 170.34,
+    "end": 176.42,
+    "text": " Nobody here knows how the century will move. So start with something small enough to know what it can do.",
+    "words": [
+      {
+        "text": " Nobody",
+        "start": 170.34,
+        "end": 170.38
+      },
+      {
+        "text": " here",
+        "start": 170.38,
+        "end": 170.92
+      },
+      {
+        "text": " knows",
+        "start": 170.92,
+        "end": 171.38
+      },
+      {
+        "text": " how",
+        "start": 171.38,
+        "end": 171.74
+      },
+      {
+        "text": " the",
+        "start": 171.74,
+        "end": 171.88
+      },
+      {
+        "text": " century",
+        "start": 171.88,
+        "end": 172.16
+      },
+      {
+        "text": " will",
+        "start": 172.16,
+        "end": 172.46
+      },
+      {
+        "text": " move.",
+        "start": 172.46,
+        "end": 172.6
+      },
+      {
+        "text": " So",
+        "start": 172.62,
+        "end": 172.72
+      },
+      {
+        "text": " start",
+        "start": 172.72,
+        "end": 172.88
+      },
+      {
+        "text": " with",
+        "start": 172.88,
+        "end": 173.02
+      },
+      {
+        "text": " something",
+        "start": 173.02,
+        "end": 173.2
+      },
+      {
+        "text": " small",
+        "start": 173.2,
+        "end": 173.5
+      },
+      {
+        "text": " enough",
+        "start": 173.5,
+        "end": 173.82
+      },
+      {
+        "text": " to",
+        "start": 173.82,
+        "end": 174.14
+      },
+      {
+        "text": " know",
+        "start": 174.14,
+        "end": 174.56
+      },
+      {
+        "text": " what",
+        "start": 174.56,
+        "end": 175.18
+      },
+      {
+        "text": " it",
+        "start": 175.18,
+        "end": 175.62
+      },
+      {
+        "text": " can",
+        "start": 175.62,
+        "end": 176.04
+      },
+      {
+        "text": " do.",
+        "start": 176.04,
+        "end": 176.42
+      }
+    ]
+  },
+  {
+    "start": 176.48,
+    "end": 178.4,
+    "text": " Make the frog hop. Let the whole book play.",
+    "words": [
+      {
+        "text": " Make",
+        "start": 176.48,
+        "end": 176.56
+      },
+      {
+        "text": " the",
+        "start": 176.56,
+        "end": 176.7
+      },
+      {
+        "text": " frog",
+        "start": 176.7,
+        "end": 176.96
+      },
+      {
+        "text": " hop.",
+        "start": 176.96,
+        "end": 177.22
+      },
+      {
+        "text": " Let",
+        "start": 177.36,
+        "end": 177.4
+      },
+      {
+        "text": " the",
+        "start": 177.4,
+        "end": 177.54
+      },
+      {
+        "text": " whole",
+        "start": 177.54,
+        "end": 177.8
+      },
+      {
+        "text": " book",
+        "start": 177.8,
+        "end": 178.0
+      },
+      {
+        "text": " play.",
+        "start": 178.0,
+        "end": 178.4
+      }
+    ]
+  }
+]

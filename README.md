@@ -1,5 +1,9 @@
 # StickerBook
 
+[![Watch the StickerBook music video: I'm Upping My P(HOP)](https://img.youtube.com/vi/vpu4tmhyj04/hqdefault.jpg)](https://youtu.be/vpu4tmhyj04)
+
+**[Watch "I'm Upping My P(HOP)" on YouTube](https://youtu.be/vpu4tmhyj04)** - a three-minute StickerBook music video featuring the six worlds, upgraded stickers, and real powered-runtime proof.
+
 StickerBook is an interactive scene system, building on AlphaClaw and Chalked,
 where users and agents manipulate persistent sticker objects with animation,
 state, and behavior. It uses Omega as the agent runtime, Jev for typed
