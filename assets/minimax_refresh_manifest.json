@@ -2,7 +2,7 @@
   "version": 1,
   "source_manifest": "web/static/assets/manifest.json",
   "source_manifest_backup": "assets/_backup_pre_minimax_refresh/web/static/assets/manifest.json",
-  "status": "replacement-complete-with-skips",
+  "status": "replacement-complete",
   "stickers": 76,
   "sprite_files": 304,
   "backgrounds": {
@@ -11834,30 +11834,29 @@
       "original_path": "web/static/assets/stickers/fm-2030/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/fm-2030/rest.svg",
       "original_sha256": "468ab7354924bd9f984caa01b70cdea97544e668c4bb75418305eac84e54bba8",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/fm-2030_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/fm-2030/rest.png",
-      "sheet_id": "people_03_pose_01",
+      "sheet_id": "fm-2030_builtin_portraits",
       "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: rest; Robert Ettinger (robert-ettinger), pose: rest; Hans Moravec (hans-moravec), pose: rest; Vernor Vinge (vernor-vinge), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of FM-2030: exactly FOUR separate portraits of the SAME person. Reference 1 supplies this person's actual facial likeness, hairstyle, and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white sticker-cut border, child-friendly and colorful. Use the same simple dark blazer and shirt from the identity reference in all four poses, same head size, face, clothing and rendering across cells. Chest/waist-up framing. Exact cell order: TOP LEFT calm neutral friendly expression; TOP RIGHT friendly wave; BOTTOM LEFT open-palm presentation gesture; BOTTOM RIGHT thoughtful hand near chin. Four equal-size quadrants with generous genuinely transparent gutters, no overlap, and every complete sticker fully inside its own cell. No borders or grid, no labels or text, no background/scenery or extra people/animals. Transparent PNG alpha, not a painted transparency checkerboard. The goal is a recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         52,
         30,
         467,
         493
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "58cb0aea19ad1fecca6263dde19c26a887a1085cf81052cec027909263e5d85b"
     },
     {
       "asset": "robert-ettinger",
@@ -11866,30 +11865,29 @@
       "original_path": "web/static/assets/stickers/robert-ettinger/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/robert-ettinger/rest.svg",
       "original_sha256": "2cd6121c783cc969a52d3bae291a38e5e200ede9e9503c46122ac76d55a5c396",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/robert-ettinger_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/robert-ettinger/rest.png",
-      "sheet_id": "people_03_pose_01",
-      "cell": 1,
+      "sheet_id": "robert-ettinger_builtin_portraits",
+      "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: rest; Robert Ettinger (robert-ettinger), pose: rest; Hans Moravec (hans-moravec), pose: rest; Vernor Vinge (vernor-vinge), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Robert Ettinger: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve the professor portrait's receding dark hair, glasses, clean-shaven smiling face, dark suit and tie. The historical source is low-resolution: use it for actual identity, not a generic elderly bearded man. No blackboard. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT relaxed friendly neutral expression; TOP RIGHT open-palm presentation; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT pointing with index finger. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         57,
         28,
         499,
         493
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "89723b3a3b2a5e6c81750c23a6f2f6c015808a19b8bf36e40cc1a82ac78a50ce"
     },
     {
       "asset": "hans-moravec",
@@ -11898,30 +11896,29 @@
       "original_path": "web/static/assets/stickers/hans-moravec/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/hans-moravec/rest.svg",
       "original_sha256": "8ee26c69b103f78cfd616f1fc698eed2371698f475a55c48c305b75130c657da",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/hans-moravec_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/hans-moravec/rest.png",
-      "sheet_id": "people_03_pose_01",
-      "cell": 2,
+      "sheet_id": "hans-moravec_builtin_portraits",
+      "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: rest; Robert Ettinger (robert-ettinger), pose: rest; Hans Moravec (hans-moravec), pose: rest; Vernor Vinge (vernor-vinge), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Hans Moravec: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve his short tousled hair and clean-shaven face without glasses; use a simple cardigan and checked shirt. Do not include the robot in the reference. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT calm neutral friendly expression; TOP RIGHT explaining with an open hand; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT open-palm presentation. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         46,
         64,
         485,
         527
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "395d7003efaf58128979d7a35f140fdf27c1da1adbf2bbb690bb27e59f6a775d"
     },
     {
       "asset": "vernor-vinge",
@@ -11930,30 +11927,29 @@
       "original_path": "web/static/assets/stickers/vernor-vinge/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/vernor-vinge/rest.svg",
       "original_sha256": "b21e12d46dc85c1b2b8df49adb0d485bf53a778f2cf77ea26487360b44e5f9e1",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/vernor-vinge_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/vernor-vinge/rest.png",
-      "sheet_id": "people_03_pose_01",
-      "cell": 3,
+      "sheet_id": "vernor-vinge_builtin_portraits",
+      "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: rest; Robert Ettinger (robert-ettinger), pose: rest; Hans Moravec (hans-moravec), pose: rest; Vernor Vinge (vernor-vinge), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Vernor Vinge: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve his bald head, sparse gray side hair, large wire glasses and thin gray mustache, no full beard; same dark blazer and open-neck light shirt. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT relaxed friendly neutral expression; TOP RIGHT friendly wave; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT open-palm presentation. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         52,
         60,
         529,
         526
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "6ad010c6f2ffb412713fc2e6a26b57662f7ed180c46a7d65bf900795efee541c"
     },
     {
       "asset": "fm-2030",
@@ -11962,30 +11958,29 @@
       "original_path": "web/static/assets/stickers/fm-2030/wave.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/fm-2030/wave.svg",
       "original_sha256": "a6b17a738509cf0af01dc07906d6bb3aa1a3cda3bc3eda7aff9e94e53d30f039",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/fm-2030_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/fm-2030/wave.png",
-      "sheet_id": "people_03_pose_02",
-      "cell": 0,
+      "sheet_id": "fm-2030_builtin_portraits",
+      "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: wave; Robert Ettinger (robert-ettinger), pose: present; Hans Moravec (hans-moravec), pose: explain; Vernor Vinge (vernor-vinge), pose: wave No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of FM-2030: exactly FOUR separate portraits of the SAME person. Reference 1 supplies this person's actual facial likeness, hairstyle, and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white sticker-cut border, child-friendly and colorful. Use the same simple dark blazer and shirt from the identity reference in all four poses, same head size, face, clothing and rendering across cells. Chest/waist-up framing. Exact cell order: TOP LEFT calm neutral friendly expression; TOP RIGHT friendly wave; BOTTOM LEFT open-palm presentation gesture; BOTTOM RIGHT thoughtful hand near chin. Four equal-size quadrants with generous genuinely transparent gutters, no overlap, and every complete sticker fully inside its own cell. No borders or grid, no labels or text, no background/scenery or extra people/animals. Transparent PNG alpha, not a painted transparency checkerboard. The goal is a recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         52,
         30,
         467,
         493
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "5e9e53ed3631c08e0c774455a1e337665c98af64c39f2ca93a9f5c66d63a5c7c"
     },
     {
       "asset": "robert-ettinger",
@@ -11994,30 +11989,29 @@
       "original_path": "web/static/assets/stickers/robert-ettinger/present.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/robert-ettinger/present.svg",
       "original_sha256": "af39644d433d4626f8326d71112ec33602b9f201cb96199bf9629a6136c05431",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/robert-ettinger_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/robert-ettinger/present.png",
-      "sheet_id": "people_03_pose_02",
+      "sheet_id": "robert-ettinger_builtin_portraits",
       "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: wave; Robert Ettinger (robert-ettinger), pose: present; Hans Moravec (hans-moravec), pose: explain; Vernor Vinge (vernor-vinge), pose: wave No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Robert Ettinger: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve the professor portrait's receding dark hair, glasses, clean-shaven smiling face, dark suit and tie. The historical source is low-resolution: use it for actual identity, not a generic elderly bearded man. No blackboard. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT relaxed friendly neutral expression; TOP RIGHT open-palm presentation; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT pointing with index finger. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         57,
         28,
         499,
         493
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "9d9034fab5dea05701f44f718859709e8c9c6ce6e9016b134e36449fd401fd26"
     },
     {
       "asset": "hans-moravec",
@@ -12026,30 +12020,29 @@
       "original_path": "web/static/assets/stickers/hans-moravec/explain.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/hans-moravec/explain.svg",
       "original_sha256": "c5e230fab557d643553dd11612d9515d0d6720748f3839878f81e29d7f31939c",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/hans-moravec_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/hans-moravec/explain.png",
-      "sheet_id": "people_03_pose_02",
-      "cell": 2,
+      "sheet_id": "hans-moravec_builtin_portraits",
+      "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: wave; Robert Ettinger (robert-ettinger), pose: present; Hans Moravec (hans-moravec), pose: explain; Vernor Vinge (vernor-vinge), pose: wave No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Hans Moravec: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve his short tousled hair and clean-shaven face without glasses; use a simple cardigan and checked shirt. Do not include the robot in the reference. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT calm neutral friendly expression; TOP RIGHT explaining with an open hand; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT open-palm presentation. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         46,
         64,
         485,
         527
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "10b632f1f08e70693d3ddbac8d7bafbca5686e94f7d76f524396ea39ecd571d7"
     },
     {
       "asset": "vernor-vinge",
@@ -12058,30 +12051,29 @@
       "original_path": "web/static/assets/stickers/vernor-vinge/wave.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/vernor-vinge/wave.svg",
       "original_sha256": "69b93914b4805262051e8478741682a61ae8f9819efe8036fe77712f97006a78",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/vernor-vinge_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/vernor-vinge/wave.png",
-      "sheet_id": "people_03_pose_02",
-      "cell": 3,
+      "sheet_id": "vernor-vinge_builtin_portraits",
+      "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: wave; Robert Ettinger (robert-ettinger), pose: present; Hans Moravec (hans-moravec), pose: explain; Vernor Vinge (vernor-vinge), pose: wave No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Vernor Vinge: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve his bald head, sparse gray side hair, large wire glasses and thin gray mustache, no full beard; same dark blazer and open-neck light shirt. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT relaxed friendly neutral expression; TOP RIGHT friendly wave; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT open-palm presentation. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         52,
         60,
         529,
         526
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "bb50985ad865fd963472300cd7b71fa7e944c718ce3c7e03a9d3a38b8fe1d39b"
     },
     {
       "asset": "fm-2030",
@@ -12090,30 +12082,29 @@
       "original_path": "web/static/assets/stickers/fm-2030/present.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/fm-2030/present.svg",
       "original_sha256": "4a0035fdf10828f286eaa353f55dc9a5e7aa92006932e9c78b90c10819224795",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/fm-2030_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/fm-2030/present.png",
-      "sheet_id": "people_03_pose_03",
-      "cell": 0,
+      "sheet_id": "fm-2030_builtin_portraits",
+      "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: present; Robert Ettinger (robert-ettinger), pose: think; Hans Moravec (hans-moravec), pose: think; Vernor Vinge (vernor-vinge), pose: think No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of FM-2030: exactly FOUR separate portraits of the SAME person. Reference 1 supplies this person's actual facial likeness, hairstyle, and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white sticker-cut border, child-friendly and colorful. Use the same simple dark blazer and shirt from the identity reference in all four poses, same head size, face, clothing and rendering across cells. Chest/waist-up framing. Exact cell order: TOP LEFT calm neutral friendly expression; TOP RIGHT friendly wave; BOTTOM LEFT open-palm presentation gesture; BOTTOM RIGHT thoughtful hand near chin. Four equal-size quadrants with generous genuinely transparent gutters, no overlap, and every complete sticker fully inside its own cell. No borders or grid, no labels or text, no background/scenery or extra people/animals. Transparent PNG alpha, not a painted transparency checkerboard. The goal is a recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         52,
         30,
         467,
         493
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "837aa2cd1047dc5059620d9a8211d660fbc998df1fde7efb1383b70128df2a28"
     },
     {
       "asset": "robert-ettinger",
@@ -12122,30 +12113,29 @@
       "original_path": "web/static/assets/stickers/robert-ettinger/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/robert-ettinger/think.svg",
       "original_sha256": "2af86ad779cb9d8e4826bb5125ac2ffaeea53cb714d6dc400e51fe82377261f8",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/robert-ettinger_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/robert-ettinger/think.png",
-      "sheet_id": "people_03_pose_03",
-      "cell": 1,
+      "sheet_id": "robert-ettinger_builtin_portraits",
+      "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: present; Robert Ettinger (robert-ettinger), pose: think; Hans Moravec (hans-moravec), pose: think; Vernor Vinge (vernor-vinge), pose: think No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Robert Ettinger: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve the professor portrait's receding dark hair, glasses, clean-shaven smiling face, dark suit and tie. The historical source is low-resolution: use it for actual identity, not a generic elderly bearded man. No blackboard. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT relaxed friendly neutral expression; TOP RIGHT open-palm presentation; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT pointing with index finger. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         57,
         28,
         499,
         493
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "0d921524d6c783179e6e3c22b9e9e2bda1b2ff757f38443b8dcc928f4322e942"
     },
     {
       "asset": "hans-moravec",
@@ -12154,30 +12144,29 @@
       "original_path": "web/static/assets/stickers/hans-moravec/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/hans-moravec/think.svg",
       "original_sha256": "0bef7797a0bac23279d00f7cc1e1ad3c6aa71c7ba35c6a2f7dd6e17f80f847f9",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/hans-moravec_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/hans-moravec/think.png",
-      "sheet_id": "people_03_pose_03",
+      "sheet_id": "hans-moravec_builtin_portraits",
       "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: present; Robert Ettinger (robert-ettinger), pose: think; Hans Moravec (hans-moravec), pose: think; Vernor Vinge (vernor-vinge), pose: think No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Hans Moravec: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve his short tousled hair and clean-shaven face without glasses; use a simple cardigan and checked shirt. Do not include the robot in the reference. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT calm neutral friendly expression; TOP RIGHT explaining with an open hand; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT open-palm presentation. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         46,
         64,
         485,
         527
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "58be46f28f7853bfa3807f347bbb7c640af50d8de2f791bf64121034292c41eb"
     },
     {
       "asset": "vernor-vinge",
@@ -12186,30 +12175,29 @@
       "original_path": "web/static/assets/stickers/vernor-vinge/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/vernor-vinge/think.svg",
       "original_sha256": "23be7900ea6cd0d0fdec7f4b3ef0b3a93f84b123c029d5228f3df13aea1e00bb",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/vernor-vinge_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/vernor-vinge/think.png",
-      "sheet_id": "people_03_pose_03",
-      "cell": 3,
+      "sheet_id": "vernor-vinge_builtin_portraits",
+      "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: present; Robert Ettinger (robert-ettinger), pose: think; Hans Moravec (hans-moravec), pose: think; Vernor Vinge (vernor-vinge), pose: think No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Vernor Vinge: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve his bald head, sparse gray side hair, large wire glasses and thin gray mustache, no full beard; same dark blazer and open-neck light shirt. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT relaxed friendly neutral expression; TOP RIGHT friendly wave; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT open-palm presentation. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         52,
         60,
         529,
         526
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "62a52c1726c617932fd5202073956ecea7aa009d553a535db9734b152f378f28"
     },
     {
       "asset": "fm-2030",
@@ -12218,30 +12206,29 @@
       "original_path": "web/static/assets/stickers/fm-2030/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/fm-2030/think.svg",
       "original_sha256": "2f97d4603f05bce8b0af4c647919a5d418f7e18274a03611ca9ba458b5f101e2",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/fm-2030_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/fm-2030/think.png",
-      "sheet_id": "people_03_pose_04",
-      "cell": 0,
+      "sheet_id": "fm-2030_builtin_portraits",
+      "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: think; Robert Ettinger (robert-ettinger), pose: point; Hans Moravec (hans-moravec), pose: present; Vernor Vinge (vernor-vinge), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of FM-2030: exactly FOUR separate portraits of the SAME person. Reference 1 supplies this person's actual facial likeness, hairstyle, and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white sticker-cut border, child-friendly and colorful. Use the same simple dark blazer and shirt from the identity reference in all four poses, same head size, face, clothing and rendering across cells. Chest/waist-up framing. Exact cell order: TOP LEFT calm neutral friendly expression; TOP RIGHT friendly wave; BOTTOM LEFT open-palm presentation gesture; BOTTOM RIGHT thoughtful hand near chin. Four equal-size quadrants with generous genuinely transparent gutters, no overlap, and every complete sticker fully inside its own cell. No borders or grid, no labels or text, no background/scenery or extra people/animals. Transparent PNG alpha, not a painted transparency checkerboard. The goal is a recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         52,
         30,
         467,
         493
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "eb5ecae3efc684adac984359f5f9e0c962456ce8cb4d1cbc67538b41c360001f"
     },
     {
       "asset": "robert-ettinger",
@@ -12250,30 +12237,29 @@
       "original_path": "web/static/assets/stickers/robert-ettinger/point.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/robert-ettinger/point.svg",
       "original_sha256": "ce38ba2a9f477677cb7a017af334d8858131081ca1a871a2571913cd322f20c4",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/robert-ettinger_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/robert-ettinger/point.png",
-      "sheet_id": "people_03_pose_04",
-      "cell": 1,
+      "sheet_id": "robert-ettinger_builtin_portraits",
+      "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: think; Robert Ettinger (robert-ettinger), pose: point; Hans Moravec (hans-moravec), pose: present; Vernor Vinge (vernor-vinge), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Robert Ettinger: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve the professor portrait's receding dark hair, glasses, clean-shaven smiling face, dark suit and tie. The historical source is low-resolution: use it for actual identity, not a generic elderly bearded man. No blackboard. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT relaxed friendly neutral expression; TOP RIGHT open-palm presentation; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT pointing with index finger. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         57,
         28,
         499,
         493
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "b9309f63ce4bc151bdf15858fb5e0632b0fe7c23668a86b404e2bf1146349ff4"
     },
     {
       "asset": "hans-moravec",
@@ -12282,30 +12268,29 @@
       "original_path": "web/static/assets/stickers/hans-moravec/present.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/hans-moravec/present.svg",
       "original_sha256": "53dd31cb7f164d25a3e39be4dfccc887e984969c36f45edab84637a9c0375789",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/hans-moravec_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/hans-moravec/present.png",
-      "sheet_id": "people_03_pose_04",
-      "cell": 2,
+      "sheet_id": "hans-moravec_builtin_portraits",
+      "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: think; Robert Ettinger (robert-ettinger), pose: point; Hans Moravec (hans-moravec), pose: present; Vernor Vinge (vernor-vinge), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Hans Moravec: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve his short tousled hair and clean-shaven face without glasses; use a simple cardigan and checked shirt. Do not include the robot in the reference. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT calm neutral friendly expression; TOP RIGHT explaining with an open hand; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT open-palm presentation. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         46,
         64,
         485,
         527
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "cc0b69a28f6f16f2f5a360927eac7e5cb0e70208f0985b0168f3bd5e891e0d59"
     },
     {
       "asset": "vernor-vinge",
@@ -12314,30 +12299,29 @@
       "original_path": "web/static/assets/stickers/vernor-vinge/present.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/vernor-vinge/present.svg",
       "original_sha256": "bee99809c655b62e6f2fa49bfed8ab60bcb76b8a143cb60be0a3ce3d619f4c0d",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_03_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/vernor-vinge_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/vernor-vinge/present.png",
-      "sheet_id": "people_03_pose_04",
+      "sheet_id": "vernor-vinge_builtin_portraits",
       "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: FM-2030 (fm-2030), pose: think; Robert Ettinger (robert-ettinger), pose: point; Hans Moravec (hans-moravec), pose: present; Vernor Vinge (vernor-vinge), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Vernor Vinge: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve his bald head, sparse gray side hair, large wire glasses and thin gray mustache, no full beard; same dark blazer and open-neck light shirt. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT relaxed friendly neutral expression; TOP RIGHT friendly wave; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT open-palm presentation. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         52,
         60,
         529,
         526
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "cc7d33cfff6843f96cc2d506c51bae67fad16cf74181e0ad730eb12052b68d7a"
     },
     {
       "asset": "k-eric-drexler",
@@ -12346,30 +12330,29 @@
       "original_path": "web/static/assets/stickers/k-eric-drexler/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/k-eric-drexler/rest.svg",
       "original_sha256": "1c6d34f0b803068fbd93ec3d4a3c44d89094c4f32d7db939c89caea98e74f9a1",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/k-eric-drexler_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/k-eric-drexler/rest.png",
-      "sheet_id": "people_04_pose_01",
+      "sheet_id": "k-eric-drexler_builtin_portraits",
       "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: rest; Anders Sandberg (anders-sandberg), pose: rest; David Pearce (david-pearce), pose: rest; Martine Rothblatt (martine-rothblatt), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of K. Eric Drexler: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve his gray hair, thin metal glasses, gray mustache and beard; keep the light blue shirt. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT calm neutral friendly expression; TOP RIGHT explaining gesture; BOTTOM LEFT pointing with index finger; BOTTOM RIGHT thoughtful hand near chin. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         48,
         32,
         461,
         495
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "c3952003ccf86d0bfbbec2f33ef5e5ab5878c7f18b89ada8b191dd0efdcfb5b3"
     },
     {
       "asset": "anders-sandberg",
@@ -12378,30 +12361,29 @@
       "original_path": "web/static/assets/stickers/anders-sandberg/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/anders-sandberg/rest.svg",
       "original_sha256": "21a46450032d3da8724982f051df514d4eaf954c8946ddf04cdcf5ed58547f22",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/anders-sandberg_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/anders-sandberg/rest.png",
-      "sheet_id": "people_04_pose_01",
-      "cell": 1,
+      "sheet_id": "anders-sandberg_builtin_portraits",
+      "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: rest; Anders Sandberg (anders-sandberg), pose: rest; David Pearce (david-pearce), pose: rest; Martine Rothblatt (martine-rothblatt), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create a production-ready 2x2 sticker portrait sprite sheet of Anders Sandberg, the SAME person in all FOUR cells. Reference 1 is the identity/likeness source: preserve his face shape, brown side-parted hair, glasses, and friendly expression. Reference 2 is ONLY the sticker illustration style reference, not the identity. Polished warm semi-realistic editorial cartoon portrait illustrations for a child-friendly StickerBook, clean outlines, white die-cut sticker borders, readable face, chest/waist-up portraits. Same dark blazer and light shirt, same head size and coherent rendering across all four. Exact cells in reading order: TOP LEFT neutral relaxed friendly smile, hands resting; TOP RIGHT friendly wave with one open hand; BOTTOM LEFT open-palm presentation gesture; BOTTOM RIGHT thoughtful hand resting near chin. Four distinct separate stickers, each fully contained in its own equal-size cell with generous transparent margins and a wide transparent gutter between rows/columns. No overlap or clipping, no grid lines, labels, embedded text, scenery, background, extra people, or animal subjects. Truly transparent PNG background. Preserve likeness rather than making a generic man.",
       "crop_union_bounds": [
         63,
         33,
         524,
         494
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "6962a36e2183e18af498ae76801ecc1acdeb25eb0681dfe51e49626382438427"
     },
     {
       "asset": "david-pearce",
@@ -12410,30 +12392,29 @@
       "original_path": "web/static/assets/stickers/david-pearce/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/david-pearce/rest.svg",
       "original_sha256": "c4865ed5e66b140dba0766bb9edca9183e991914184c216b30c8649aa4f5c41a",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/david-pearce_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/david-pearce/rest.png",
-      "sheet_id": "people_04_pose_01",
-      "cell": 2,
+      "sheet_id": "david-pearce_builtin_portraits",
+      "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: rest; Anders Sandberg (anders-sandberg), pose: rest; David Pearce (david-pearce), pose: rest; Martine Rothblatt (martine-rothblatt), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of David Pearce: exactly FOUR separate portraits of the SAME person. Reference 1 supplies this person's actual facial likeness, hairstyle, and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white sticker-cut border, child-friendly and colorful. Use the same simple dark blazer and shirt from the identity reference in all four poses, same head size, face, clothing and rendering across cells. Chest/waist-up framing. Exact cell order: TOP LEFT calm neutral smile, hands relaxed; TOP RIGHT one-handed explaining gesture; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT open-palm presentation gesture. Four equal-size quadrants with generous genuinely transparent gutters, no overlap, and every complete sticker fully inside its own cell. No borders or grid, no labels or text, no background/scenery or extra people/animals. Transparent PNG alpha, not a painted transparency checkerboard. The goal is a recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         27,
         70,
         475,
         536
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "b73d50d6a2eddf2f988327c7f669f056c1dab2a4fb890c153b123f3c06208139"
     },
     {
       "asset": "martine-rothblatt",
@@ -12442,30 +12423,29 @@
       "original_path": "web/static/assets/stickers/martine-rothblatt/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/martine-rothblatt/rest.svg",
       "original_sha256": "030c274b20870f2b1ea95e8dc5cfaed8cb2f8399d9b141c6c2a88cabdefd1052",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/martine-rothblatt_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/martine-rothblatt/rest.png",
-      "sheet_id": "people_04_pose_01",
-      "cell": 3,
+      "sheet_id": "martine-rothblatt_builtin_portraits",
+      "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: rest; Anders Sandberg (anders-sandberg), pose: rest; David Pearce (david-pearce), pose: rest; Martine Rothblatt (martine-rothblatt), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Martine Rothblatt: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve her mature facial features and pulled-back graying hair, no glasses; keep the dark blazer. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT calm neutral friendly expression; TOP RIGHT friendly wave; BOTTOM LEFT open-palm presentation; BOTTOM RIGHT cheerful celebration with both hands gently raised. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         72,
         68,
         530,
         523
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "dca1771f314afb3b9c51eec9a257414085cb0b82697866e244efc1d0abe0a384"
     },
     {
       "asset": "k-eric-drexler",
@@ -12474,30 +12454,29 @@
       "original_path": "web/static/assets/stickers/k-eric-drexler/explain.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/k-eric-drexler/explain.svg",
       "original_sha256": "97cf71d38d98e99150e2db7c857059d296d397e90fce2ab8258ec9ef25e3ac2f",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/k-eric-drexler_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/k-eric-drexler/explain.png",
-      "sheet_id": "people_04_pose_02",
-      "cell": 0,
+      "sheet_id": "k-eric-drexler_builtin_portraits",
+      "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: explain; Anders Sandberg (anders-sandberg), pose: wave; David Pearce (david-pearce), pose: gesture; Martine Rothblatt (martine-rothblatt), pose: wave No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of K. Eric Drexler: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve his gray hair, thin metal glasses, gray mustache and beard; keep the light blue shirt. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT calm neutral friendly expression; TOP RIGHT explaining gesture; BOTTOM LEFT pointing with index finger; BOTTOM RIGHT thoughtful hand near chin. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         48,
         32,
         461,
         495
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "0ab4bd097efad3036c2447935f8236a5e463663f3f33a7fd83f78eb1596faef7"
     },
     {
       "asset": "anders-sandberg",
@@ -12506,30 +12485,29 @@
       "original_path": "web/static/assets/stickers/anders-sandberg/wave.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/anders-sandberg/wave.svg",
       "original_sha256": "443b028f523dd3106ac4ad7560da9ed657a655b4ecfa894e21edfbd50a2ba43e",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/anders-sandberg_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/anders-sandberg/wave.png",
-      "sheet_id": "people_04_pose_02",
+      "sheet_id": "anders-sandberg_builtin_portraits",
       "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: explain; Anders Sandberg (anders-sandberg), pose: wave; David Pearce (david-pearce), pose: gesture; Martine Rothblatt (martine-rothblatt), pose: wave No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create a production-ready 2x2 sticker portrait sprite sheet of Anders Sandberg, the SAME person in all FOUR cells. Reference 1 is the identity/likeness source: preserve his face shape, brown side-parted hair, glasses, and friendly expression. Reference 2 is ONLY the sticker illustration style reference, not the identity. Polished warm semi-realistic editorial cartoon portrait illustrations for a child-friendly StickerBook, clean outlines, white die-cut sticker borders, readable face, chest/waist-up portraits. Same dark blazer and light shirt, same head size and coherent rendering across all four. Exact cells in reading order: TOP LEFT neutral relaxed friendly smile, hands resting; TOP RIGHT friendly wave with one open hand; BOTTOM LEFT open-palm presentation gesture; BOTTOM RIGHT thoughtful hand resting near chin. Four distinct separate stickers, each fully contained in its own equal-size cell with generous transparent margins and a wide transparent gutter between rows/columns. No overlap or clipping, no grid lines, labels, embedded text, scenery, background, extra people, or animal subjects. Truly transparent PNG background. Preserve likeness rather than making a generic man.",
       "crop_union_bounds": [
         63,
         33,
         524,
         494
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "e7b7c4627aa795865ee5584e2f08a443c3812ee9c06c0699a81c7da98b49f8ca"
     },
     {
       "asset": "david-pearce",
@@ -12538,30 +12516,29 @@
       "original_path": "web/static/assets/stickers/david-pearce/gesture.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/david-pearce/gesture.svg",
       "original_sha256": "3ec4c5d03c0847b5d9d5a243d3bbc80c4fe47d3ce749a9accf57dced37725ee5",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/david-pearce_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/david-pearce/gesture.png",
-      "sheet_id": "people_04_pose_02",
-      "cell": 2,
+      "sheet_id": "david-pearce_builtin_portraits",
+      "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: explain; Anders Sandberg (anders-sandberg), pose: wave; David Pearce (david-pearce), pose: gesture; Martine Rothblatt (martine-rothblatt), pose: wave No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of David Pearce: exactly FOUR separate portraits of the SAME person. Reference 1 supplies this person's actual facial likeness, hairstyle, and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white sticker-cut border, child-friendly and colorful. Use the same simple dark blazer and shirt from the identity reference in all four poses, same head size, face, clothing and rendering across cells. Chest/waist-up framing. Exact cell order: TOP LEFT calm neutral smile, hands relaxed; TOP RIGHT one-handed explaining gesture; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT open-palm presentation gesture. Four equal-size quadrants with generous genuinely transparent gutters, no overlap, and every complete sticker fully inside its own cell. No borders or grid, no labels or text, no background/scenery or extra people/animals. Transparent PNG alpha, not a painted transparency checkerboard. The goal is a recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         27,
         70,
         475,
         536
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "9f0c8924e3753fd701c6e3b55c1e84d6f2ae1d391084dfad32aeac3a7092931b"
     },
     {
       "asset": "martine-rothblatt",
@@ -12570,30 +12547,29 @@
       "original_path": "web/static/assets/stickers/martine-rothblatt/wave.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/martine-rothblatt/wave.svg",
       "original_sha256": "f0f1476932ecfc38a07dec5281dfee6e5b425ee42e3efdda9a2fb876bcc0d079",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/martine-rothblatt_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/martine-rothblatt/wave.png",
-      "sheet_id": "people_04_pose_02",
-      "cell": 3,
+      "sheet_id": "martine-rothblatt_builtin_portraits",
+      "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: explain; Anders Sandberg (anders-sandberg), pose: wave; David Pearce (david-pearce), pose: gesture; Martine Rothblatt (martine-rothblatt), pose: wave No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Martine Rothblatt: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve her mature facial features and pulled-back graying hair, no glasses; keep the dark blazer. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT calm neutral friendly expression; TOP RIGHT friendly wave; BOTTOM LEFT open-palm presentation; BOTTOM RIGHT cheerful celebration with both hands gently raised. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         72,
         68,
         530,
         523
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "5114960352e58cacdfecd08af2adf0e2bfae84404ed6533d2252dcb7a258f55b"
     },
     {
       "asset": "k-eric-drexler",
@@ -12602,30 +12578,29 @@
       "original_path": "web/static/assets/stickers/k-eric-drexler/point.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/k-eric-drexler/point.svg",
       "original_sha256": "5ed76f90345755ffafce024dc14d78d46f46596a2ec9b3f7643950f759c207ff",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/k-eric-drexler_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/k-eric-drexler/point.png",
-      "sheet_id": "people_04_pose_03",
-      "cell": 0,
+      "sheet_id": "k-eric-drexler_builtin_portraits",
+      "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: point; Anders Sandberg (anders-sandberg), pose: present; David Pearce (david-pearce), pose: think; Martine Rothblatt (martine-rothblatt), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of K. Eric Drexler: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve his gray hair, thin metal glasses, gray mustache and beard; keep the light blue shirt. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT calm neutral friendly expression; TOP RIGHT explaining gesture; BOTTOM LEFT pointing with index finger; BOTTOM RIGHT thoughtful hand near chin. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         48,
         32,
         461,
         495
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "c944d0b0b9377139cdf39d466b62ed4905783b091217326b6248db3dbb58e49c"
     },
     {
       "asset": "anders-sandberg",
@@ -12634,30 +12609,29 @@
       "original_path": "web/static/assets/stickers/anders-sandberg/present.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/anders-sandberg/present.svg",
       "original_sha256": "7c39782622f3611f7123bebc3295bfedc923066da9c84ea61adcaa13f1db01a0",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/anders-sandberg_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/anders-sandberg/present.png",
-      "sheet_id": "people_04_pose_03",
-      "cell": 1,
+      "sheet_id": "anders-sandberg_builtin_portraits",
+      "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: point; Anders Sandberg (anders-sandberg), pose: present; David Pearce (david-pearce), pose: think; Martine Rothblatt (martine-rothblatt), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create a production-ready 2x2 sticker portrait sprite sheet of Anders Sandberg, the SAME person in all FOUR cells. Reference 1 is the identity/likeness source: preserve his face shape, brown side-parted hair, glasses, and friendly expression. Reference 2 is ONLY the sticker illustration style reference, not the identity. Polished warm semi-realistic editorial cartoon portrait illustrations for a child-friendly StickerBook, clean outlines, white die-cut sticker borders, readable face, chest/waist-up portraits. Same dark blazer and light shirt, same head size and coherent rendering across all four. Exact cells in reading order: TOP LEFT neutral relaxed friendly smile, hands resting; TOP RIGHT friendly wave with one open hand; BOTTOM LEFT open-palm presentation gesture; BOTTOM RIGHT thoughtful hand resting near chin. Four distinct separate stickers, each fully contained in its own equal-size cell with generous transparent margins and a wide transparent gutter between rows/columns. No overlap or clipping, no grid lines, labels, embedded text, scenery, background, extra people, or animal subjects. Truly transparent PNG background. Preserve likeness rather than making a generic man.",
       "crop_union_bounds": [
         63,
         33,
         524,
         494
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "41a41969b7ea385807ae8b281796af0c3cdfe7612a76d94e83f6cf63e12cc9d7"
     },
     {
       "asset": "david-pearce",
@@ -12666,30 +12640,29 @@
       "original_path": "web/static/assets/stickers/david-pearce/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/david-pearce/think.svg",
       "original_sha256": "4ee2d814f4d1eb8955138f38e00e22d3049fc198166f1b1d9400724533981c38",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/david-pearce_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/david-pearce/think.png",
-      "sheet_id": "people_04_pose_03",
+      "sheet_id": "david-pearce_builtin_portraits",
       "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: point; Anders Sandberg (anders-sandberg), pose: present; David Pearce (david-pearce), pose: think; Martine Rothblatt (martine-rothblatt), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of David Pearce: exactly FOUR separate portraits of the SAME person. Reference 1 supplies this person's actual facial likeness, hairstyle, and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white sticker-cut border, child-friendly and colorful. Use the same simple dark blazer and shirt from the identity reference in all four poses, same head size, face, clothing and rendering across cells. Chest/waist-up framing. Exact cell order: TOP LEFT calm neutral smile, hands relaxed; TOP RIGHT one-handed explaining gesture; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT open-palm presentation gesture. Four equal-size quadrants with generous genuinely transparent gutters, no overlap, and every complete sticker fully inside its own cell. No borders or grid, no labels or text, no background/scenery or extra people/animals. Transparent PNG alpha, not a painted transparency checkerboard. The goal is a recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         27,
         70,
         475,
         536
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "308ab1f1334bc96d28c0d803323cab745f7a558f61d1dee182c02d62f1ee45e3"
     },
     {
       "asset": "martine-rothblatt",
@@ -12698,30 +12671,29 @@
       "original_path": "web/static/assets/stickers/martine-rothblatt/present.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/martine-rothblatt/present.svg",
       "original_sha256": "90b58828d6c094572ee4d23ed167165b509abc55ae41ec2d67aeef16d26d0bca",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/martine-rothblatt_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/martine-rothblatt/present.png",
-      "sheet_id": "people_04_pose_03",
-      "cell": 3,
+      "sheet_id": "martine-rothblatt_builtin_portraits",
+      "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: point; Anders Sandberg (anders-sandberg), pose: present; David Pearce (david-pearce), pose: think; Martine Rothblatt (martine-rothblatt), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Martine Rothblatt: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve her mature facial features and pulled-back graying hair, no glasses; keep the dark blazer. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT calm neutral friendly expression; TOP RIGHT friendly wave; BOTTOM LEFT open-palm presentation; BOTTOM RIGHT cheerful celebration with both hands gently raised. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         72,
         68,
         530,
         523
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "f48d4380fc28e6e05c594afd6d5d005e1bd5f8e34c0775079203b6d98e3b12ff"
     },
     {
       "asset": "k-eric-drexler",
@@ -12730,30 +12702,29 @@
       "original_path": "web/static/assets/stickers/k-eric-drexler/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/k-eric-drexler/think.svg",
       "original_sha256": "be6e5c2c8fcb3c5269bebe2e125e287bfdf5e47ee52734e9ea14e568196cd84c",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/k-eric-drexler_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/k-eric-drexler/think.png",
-      "sheet_id": "people_04_pose_04",
-      "cell": 0,
+      "sheet_id": "k-eric-drexler_builtin_portraits",
+      "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: think; Anders Sandberg (anders-sandberg), pose: think; David Pearce (david-pearce), pose: present; Martine Rothblatt (martine-rothblatt), pose: celebrate No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of K. Eric Drexler: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve his gray hair, thin metal glasses, gray mustache and beard; keep the light blue shirt. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT calm neutral friendly expression; TOP RIGHT explaining gesture; BOTTOM LEFT pointing with index finger; BOTTOM RIGHT thoughtful hand near chin. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         48,
         32,
         461,
         495
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "1b6bdbe8ee5ece85f11f2b748a4d92f36898113cc5e1800ebdeb3141bac023de"
     },
     {
       "asset": "anders-sandberg",
@@ -12762,30 +12733,29 @@
       "original_path": "web/static/assets/stickers/anders-sandberg/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/anders-sandberg/think.svg",
       "original_sha256": "261031b017a6bbbf479053515e4ef6a11794776635de11911e39951e2d137b5e",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/anders-sandberg_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/anders-sandberg/think.png",
-      "sheet_id": "people_04_pose_04",
-      "cell": 1,
+      "sheet_id": "anders-sandberg_builtin_portraits",
+      "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: think; Anders Sandberg (anders-sandberg), pose: think; David Pearce (david-pearce), pose: present; Martine Rothblatt (martine-rothblatt), pose: celebrate No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create a production-ready 2x2 sticker portrait sprite sheet of Anders Sandberg, the SAME person in all FOUR cells. Reference 1 is the identity/likeness source: preserve his face shape, brown side-parted hair, glasses, and friendly expression. Reference 2 is ONLY the sticker illustration style reference, not the identity. Polished warm semi-realistic editorial cartoon portrait illustrations for a child-friendly StickerBook, clean outlines, white die-cut sticker borders, readable face, chest/waist-up portraits. Same dark blazer and light shirt, same head size and coherent rendering across all four. Exact cells in reading order: TOP LEFT neutral relaxed friendly smile, hands resting; TOP RIGHT friendly wave with one open hand; BOTTOM LEFT open-palm presentation gesture; BOTTOM RIGHT thoughtful hand resting near chin. Four distinct separate stickers, each fully contained in its own equal-size cell with generous transparent margins and a wide transparent gutter between rows/columns. No overlap or clipping, no grid lines, labels, embedded text, scenery, background, extra people, or animal subjects. Truly transparent PNG background. Preserve likeness rather than making a generic man.",
       "crop_union_bounds": [
         63,
         33,
         524,
         494
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "91635304af3115614db3b544c9392dd930adc81898caa235488c06a5f079c346"
     },
     {
       "asset": "david-pearce",
@@ -12794,30 +12764,29 @@
       "original_path": "web/static/assets/stickers/david-pearce/present.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/david-pearce/present.svg",
       "original_sha256": "7965d168e885ed61dd9162e898808f57f2d4346bc2114b5c99e00e04b6fde28f",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/david-pearce_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/david-pearce/present.png",
-      "sheet_id": "people_04_pose_04",
-      "cell": 2,
+      "sheet_id": "david-pearce_builtin_portraits",
+      "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: think; Anders Sandberg (anders-sandberg), pose: think; David Pearce (david-pearce), pose: present; Martine Rothblatt (martine-rothblatt), pose: celebrate No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of David Pearce: exactly FOUR separate portraits of the SAME person. Reference 1 supplies this person's actual facial likeness, hairstyle, and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white sticker-cut border, child-friendly and colorful. Use the same simple dark blazer and shirt from the identity reference in all four poses, same head size, face, clothing and rendering across cells. Chest/waist-up framing. Exact cell order: TOP LEFT calm neutral smile, hands relaxed; TOP RIGHT one-handed explaining gesture; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT open-palm presentation gesture. Four equal-size quadrants with generous genuinely transparent gutters, no overlap, and every complete sticker fully inside its own cell. No borders or grid, no labels or text, no background/scenery or extra people/animals. Transparent PNG alpha, not a painted transparency checkerboard. The goal is a recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         27,
         70,
         475,
         536
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "e9f0d6659a2349b0e16701139fcfe6b44e75afa505a27f62c629608048cc643b"
     },
     {
       "asset": "martine-rothblatt",
@@ -12826,30 +12795,29 @@
       "original_path": "web/static/assets/stickers/martine-rothblatt/celebrate.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/martine-rothblatt/celebrate.svg",
       "original_sha256": "4a8971b6958fa197939cc07cfa84c977162bc6503d6b9488d6cc7539c851ec1a",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_04_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/martine-rothblatt_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/martine-rothblatt/celebrate.png",
-      "sheet_id": "people_04_pose_04",
+      "sheet_id": "martine-rothblatt_builtin_portraits",
       "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: K. Eric Drexler (k-eric-drexler), pose: think; Anders Sandberg (anders-sandberg), pose: think; David Pearce (david-pearce), pose: present; Martine Rothblatt (martine-rothblatt), pose: celebrate No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Martine Rothblatt: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve her mature facial features and pulled-back graying hair, no glasses; keep the dark blazer. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT calm neutral friendly expression; TOP RIGHT friendly wave; BOTTOM LEFT open-palm presentation; BOTTOM RIGHT cheerful celebration with both hands gently raised. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         72,
         68,
         530,
         523
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "8192e963088027919ae882fc0c85ae6606c540076815cc6067da6595585ffe99"
     },
     {
       "asset": "giulio-prisco",
@@ -12858,30 +12826,29 @@
       "original_path": "web/static/assets/stickers/giulio-prisco/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/giulio-prisco/rest.svg",
       "original_sha256": "c092a70259abab67bb69b919fd41147ce05ad70805405796f002c1eac2f358d1",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_05_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/giulio-prisco_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/giulio-prisco/rest.png",
-      "sheet_id": "people_05_pose_01",
+      "sheet_id": "giulio-prisco_builtin_portraits",
       "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Giulio Prisco (giulio-prisco), pose: rest; David Orban (david-orban), pose: rest; Paul Tiffany (paul-tiffany), pose: rest; leave unused cells blank. No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Giulio Prisco: exactly FOUR separate portraits of the SAME person. Reference 1 supplies this person's actual facial likeness, hairstyle, and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white sticker-cut border, child-friendly and colorful. Use the same simple dark blazer and shirt from the identity reference in all four poses, same head size, face, clothing and rendering across cells. Chest/waist-up framing. Exact cell order: TOP LEFT calm neutral smile; TOP RIGHT looking upward with a gentle open-hand gesture of cosmic wonder and three tiny decorative stars close to the hand; BOTTOM LEFT holding a plain closed book with no lettering; BOTTOM RIGHT thoughtful hand near chin. Four equal-size quadrants with generous genuinely transparent gutters, no overlap, and every complete sticker fully inside its own cell. No borders or grid, no labels or text, no background/scenery or extra people/animals. Transparent PNG alpha, not a painted transparency checkerboard. The goal is a recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         48,
         12,
         509,
         481
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "25354556c065d7e2e245ac7c3101d1ab587877022fa8ab766209ae1b9116df1a"
     },
     {
       "asset": "david-orban",
@@ -12946,30 +12913,29 @@
       "original_path": "web/static/assets/stickers/giulio-prisco/cosmic.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/giulio-prisco/cosmic.svg",
       "original_sha256": "6e23c5daca4a705bf23480005e85a403dca853a72eced64e1f4e097e34f7e20c",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_05_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/giulio-prisco_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/giulio-prisco/cosmic.png",
-      "sheet_id": "people_05_pose_02",
-      "cell": 0,
+      "sheet_id": "giulio-prisco_builtin_portraits",
+      "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Giulio Prisco (giulio-prisco), pose: cosmic; David Orban (david-orban), pose: explain; Paul Tiffany (paul-tiffany), pose: explain; leave unused cells blank. No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Giulio Prisco: exactly FOUR separate portraits of the SAME person. Reference 1 supplies this person's actual facial likeness, hairstyle, and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white sticker-cut border, child-friendly and colorful. Use the same simple dark blazer and shirt from the identity reference in all four poses, same head size, face, clothing and rendering across cells. Chest/waist-up framing. Exact cell order: TOP LEFT calm neutral smile; TOP RIGHT looking upward with a gentle open-hand gesture of cosmic wonder and three tiny decorative stars close to the hand; BOTTOM LEFT holding a plain closed book with no lettering; BOTTOM RIGHT thoughtful hand near chin. Four equal-size quadrants with generous genuinely transparent gutters, no overlap, and every complete sticker fully inside its own cell. No borders or grid, no labels or text, no background/scenery or extra people/animals. Transparent PNG alpha, not a painted transparency checkerboard. The goal is a recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         48,
         12,
         509,
         481
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "ce81c13abd6280c22781c502d96fe230b97f1a1a7ac1a4509d3210b026509741"
     },
     {
       "asset": "david-orban",
@@ -13034,30 +13000,29 @@
       "original_path": "web/static/assets/stickers/giulio-prisco/book.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/giulio-prisco/book.svg",
       "original_sha256": "92593855e7c704bc37716d17dfb7f427fcaa509c917aa707b8b212302529f9fe",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_05_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/giulio-prisco_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/giulio-prisco/book.png",
-      "sheet_id": "people_05_pose_03",
-      "cell": 0,
+      "sheet_id": "giulio-prisco_builtin_portraits",
+      "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Giulio Prisco (giulio-prisco), pose: book; David Orban (david-orban), pose: point; Paul Tiffany (paul-tiffany), pose: chalkboard; leave unused cells blank. No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Giulio Prisco: exactly FOUR separate portraits of the SAME person. Reference 1 supplies this person's actual facial likeness, hairstyle, and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white sticker-cut border, child-friendly and colorful. Use the same simple dark blazer and shirt from the identity reference in all four poses, same head size, face, clothing and rendering across cells. Chest/waist-up framing. Exact cell order: TOP LEFT calm neutral smile; TOP RIGHT looking upward with a gentle open-hand gesture of cosmic wonder and three tiny decorative stars close to the hand; BOTTOM LEFT holding a plain closed book with no lettering; BOTTOM RIGHT thoughtful hand near chin. Four equal-size quadrants with generous genuinely transparent gutters, no overlap, and every complete sticker fully inside its own cell. No borders or grid, no labels or text, no background/scenery or extra people/animals. Transparent PNG alpha, not a painted transparency checkerboard. The goal is a recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         48,
         12,
         509,
         481
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "3ab6041fb03caa5dc22cca1939bc7e54c876116b899559e48d7d4b95f5bc1a1c"
     },
     {
       "asset": "david-orban",
@@ -13122,30 +13087,29 @@
       "original_path": "web/static/assets/stickers/giulio-prisco/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/giulio-prisco/think.svg",
       "original_sha256": "78284984ed9fe7f4c225ef15e020ea87268048b617417cd69a33eefed67cf4aa",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_05_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/giulio-prisco_builtin_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/giulio-prisco/think.png",
-      "sheet_id": "people_05_pose_04",
-      "cell": 0,
+      "sheet_id": "giulio-prisco_builtin_portraits",
+      "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Giulio Prisco (giulio-prisco), pose: think; David Orban (david-orban), pose: wave; Paul Tiffany (paul-tiffany), pose: poster; leave unused cells blank. No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "Referenced built-in generation, visually reviewed. Existing pose names/clips retained; source alpha and a shared four-pose scale preserved. Historical reference resolution limits exact likeness.",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Giulio Prisco: exactly FOUR separate portraits of the SAME person. Reference 1 supplies this person's actual facial likeness, hairstyle, and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white sticker-cut border, child-friendly and colorful. Use the same simple dark blazer and shirt from the identity reference in all four poses, same head size, face, clothing and rendering across cells. Chest/waist-up framing. Exact cell order: TOP LEFT calm neutral smile; TOP RIGHT looking upward with a gentle open-hand gesture of cosmic wonder and three tiny decorative stars close to the hand; BOTTOM LEFT holding a plain closed book with no lettering; BOTTOM RIGHT thoughtful hand near chin. Four equal-size quadrants with generous genuinely transparent gutters, no overlap, and every complete sticker fully inside its own cell. No borders or grid, no labels or text, no background/scenery or extra people/animals. Transparent PNG alpha, not a painted transparency checkerboard. The goal is a recognizable consistent likeness, not a generic substituted person.",
       "crop_union_bounds": [
         48,
         12,
         509,
         481
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "068b2885af14ae1168974054ff5018501a4a55de71c3bc548d6dc6cc2f1978b2"
     },
     {
       "asset": "david-orban",
@@ -13205,19 +13169,9 @@
     }
   ],
   "summary": {
-    "replaced_stickers": 67,
-    "replaced_pose_files": 268,
-    "retained_stickers": [
-      "anders-sandberg",
-      "david-pearce",
-      "fm-2030",
-      "giulio-prisco",
-      "hans-moravec",
-      "k-eric-drexler",
-      "martine-rothblatt",
-      "robert-ettinger",
-      "vernor-vinge"
-    ],
+    "replaced_stickers": 76,
+    "replaced_pose_files": 304,
+    "retained_stickers": [],
     "reported_generation_cost_usd": 1.86151,
     "successful_sheet_generations_including_refinements": 124,
     "tests": {
@@ -13229,7 +13183,9 @@
     "browser_manual_interaction_test": "not performed",
     "active_interface": "Original SVG paths/viewBoxes with embedded 256px transparent PNGs",
     "backgrounds_changed": false,
-    "runtime_code_changed": false
+    "runtime_code_changed": false,
+    "builtin_generated_sheet_count": 9,
+    "builtin_generation_cost_usd": null
   },
   "supplied_sheets": [
     {
@@ -13358,6 +13314,233 @@
       "cell_to_pose": {
         "rest": 0,
         "explain": 1,
+        "think": 2,
+        "present": 3
+      }
+    }
+  ],
+  "builtin_generated_sheets": [
+    {
+      "id": "anders-sandberg_builtin_portraits",
+      "asset": "anders-sandberg",
+      "path": "assets/_generated_minimax_refresh/sheets/anders-sandberg_builtin_portraits.png",
+      "sha256": "7507f854ff7ceb8d8e10893a9de32b2b98dfbe36b5c839cbf506e94f074cf9ad",
+      "prompt": "Create a production-ready 2x2 sticker portrait sprite sheet of Anders Sandberg, the SAME person in all FOUR cells. Reference 1 is the identity/likeness source: preserve his face shape, brown side-parted hair, glasses, and friendly expression. Reference 2 is ONLY the sticker illustration style reference, not the identity. Polished warm semi-realistic editorial cartoon portrait illustrations for a child-friendly StickerBook, clean outlines, white die-cut sticker borders, readable face, chest/waist-up portraits. Same dark blazer and light shirt, same head size and coherent rendering across all four. Exact cells in reading order: TOP LEFT neutral relaxed friendly smile, hands resting; TOP RIGHT friendly wave with one open hand; BOTTOM LEFT open-palm presentation gesture; BOTTOM RIGHT thoughtful hand resting near chin. Four distinct separate stickers, each fully contained in its own equal-size cell with generous transparent margins and a wide transparent gutter between rows/columns. No overlap or clipping, no grid lines, labels, embedded text, scenery, background, extra people, or animal subjects. Truly transparent PNG background. Preserve likeness rather than making a generic man.",
+      "generation_settings": {
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
+      },
+      "identity_reference": {
+        "page": "https://en.wikipedia.org/wiki/Anders_Sandberg",
+        "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/50/Anders_Sandberg_FHI.jpg/1280px-Anders_Sandberg_FHI.jpg?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=thumbnail"
+      },
+      "style_reference": "assets/_generated_minimax_refresh/sheets/david-orban_user_portraits.png",
+      "cell_to_pose": {
+        "rest": 0,
+        "wave": 1,
+        "present": 2,
+        "think": 3
+      }
+    },
+    {
+      "id": "david-pearce_builtin_portraits",
+      "asset": "david-pearce",
+      "path": "assets/_generated_minimax_refresh/sheets/david-pearce_builtin_portraits.png",
+      "sha256": "bb68215e575a6f437773a433485f1d3ecb16f5a66669a5c86b219c28c2270ae3",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of David Pearce: exactly FOUR separate portraits of the SAME person. Reference 1 supplies this person's actual facial likeness, hairstyle, and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white sticker-cut border, child-friendly and colorful. Use the same simple dark blazer and shirt from the identity reference in all four poses, same head size, face, clothing and rendering across cells. Chest/waist-up framing. Exact cell order: TOP LEFT calm neutral smile, hands relaxed; TOP RIGHT one-handed explaining gesture; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT open-palm presentation gesture. Four equal-size quadrants with generous genuinely transparent gutters, no overlap, and every complete sticker fully inside its own cell. No borders or grid, no labels or text, no background/scenery or extra people/animals. Transparent PNG alpha, not a painted transparency checkerboard. The goal is a recognizable consistent likeness, not a generic substituted person.",
+      "generation_settings": {
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
+      },
+      "identity_reference": {
+        "page": "https://en.wikipedia.org/wiki/David_Pearce_(philosopher)",
+        "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e4/David_Pearce_%28transhumanist%29%2C_September_2013.jpg/960px-David_Pearce_%28transhumanist%29%2C_September_2013.jpg?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=thumbnail"
+      },
+      "style_reference": "assets/_generated_minimax_refresh/sheets/david-orban_user_portraits.png",
+      "cell_to_pose": {
+        "rest": 0,
+        "gesture": 1,
+        "think": 2,
+        "present": 3
+      }
+    },
+    {
+      "id": "fm-2030_builtin_portraits",
+      "asset": "fm-2030",
+      "path": "assets/_generated_minimax_refresh/sheets/fm-2030_builtin_portraits.png",
+      "sha256": "28ba5641b80dd84503a2e33ca3d36fbcaabfc93e4bc0b8f8721642240694fe5c",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of FM-2030: exactly FOUR separate portraits of the SAME person. Reference 1 supplies this person's actual facial likeness, hairstyle, and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white sticker-cut border, child-friendly and colorful. Use the same simple dark blazer and shirt from the identity reference in all four poses, same head size, face, clothing and rendering across cells. Chest/waist-up framing. Exact cell order: TOP LEFT calm neutral friendly expression; TOP RIGHT friendly wave; BOTTOM LEFT open-palm presentation gesture; BOTTOM RIGHT thoughtful hand near chin. Four equal-size quadrants with generous genuinely transparent gutters, no overlap, and every complete sticker fully inside its own cell. No borders or grid, no labels or text, no background/scenery or extra people/animals. Transparent PNG alpha, not a painted transparency checkerboard. The goal is a recognizable consistent likeness, not a generic substituted person.",
+      "generation_settings": {
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
+      },
+      "identity_reference": {
+        "page": "https://en.wikipedia.org/wiki/FM-2030",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/53/FM2030.jpg?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=thumbnail_unscaled"
+      },
+      "style_reference": "assets/_generated_minimax_refresh/sheets/david-orban_user_portraits.png",
+      "cell_to_pose": {
+        "rest": 0,
+        "wave": 1,
+        "present": 2,
+        "think": 3
+      }
+    },
+    {
+      "id": "giulio-prisco_builtin_portraits",
+      "asset": "giulio-prisco",
+      "path": "assets/_generated_minimax_refresh/sheets/giulio-prisco_builtin_portraits.png",
+      "sha256": "bcc9ceaa750e442df783022153c9a4b0b4bd8198774e186524546f2932aeeaec",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Giulio Prisco: exactly FOUR separate portraits of the SAME person. Reference 1 supplies this person's actual facial likeness, hairstyle, and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white sticker-cut border, child-friendly and colorful. Use the same simple dark blazer and shirt from the identity reference in all four poses, same head size, face, clothing and rendering across cells. Chest/waist-up framing. Exact cell order: TOP LEFT calm neutral smile; TOP RIGHT looking upward with a gentle open-hand gesture of cosmic wonder and three tiny decorative stars close to the hand; BOTTOM LEFT holding a plain closed book with no lettering; BOTTOM RIGHT thoughtful hand near chin. Four equal-size quadrants with generous genuinely transparent gutters, no overlap, and every complete sticker fully inside its own cell. No borders or grid, no labels or text, no background/scenery or extra people/animals. Transparent PNG alpha, not a painted transparency checkerboard. The goal is a recognizable consistent likeness, not a generic substituted person.",
+      "generation_settings": {
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
+      },
+      "identity_reference": {
+        "page": "https://en.wikipedia.org/wiki/Giulio_Prisco",
+        "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f3/Giulio_Prisco.jpg/960px-Giulio_Prisco.jpg?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=thumbnail"
+      },
+      "style_reference": "assets/_generated_minimax_refresh/sheets/david-orban_user_portraits.png",
+      "cell_to_pose": {
+        "rest": 0,
+        "cosmic": 1,
+        "book": 2,
+        "think": 3
+      }
+    },
+    {
+      "id": "hans-moravec_builtin_portraits",
+      "asset": "hans-moravec",
+      "path": "assets/_generated_minimax_refresh/sheets/hans-moravec_builtin_portraits.png",
+      "sha256": "3277982f1c6c6c37510a1b5bd09183123107e231f54ae6a500f8f512761ef753",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Hans Moravec: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve his short tousled hair and clean-shaven face without glasses; use a simple cardigan and checked shirt. Do not include the robot in the reference. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT calm neutral friendly expression; TOP RIGHT explaining with an open hand; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT open-palm presentation. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
+      "generation_settings": {
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
+      },
+      "identity_reference": {
+        "page": "https://frc.ri.cmu.edu/~hpm/",
+        "image_url": "https://frc.ri.cmu.edu/~hpm/project.archive/Image.Archive/hpm.portraits/hpm-1995/HPM1995-small.jpg"
+      },
+      "style_reference": "assets/_generated_minimax_refresh/sheets/david-orban_user_portraits.png",
+      "cell_to_pose": {
+        "rest": 0,
+        "explain": 1,
+        "think": 2,
+        "present": 3
+      }
+    },
+    {
+      "id": "k-eric-drexler_builtin_portraits",
+      "asset": "k-eric-drexler",
+      "path": "assets/_generated_minimax_refresh/sheets/k-eric-drexler_builtin_portraits.png",
+      "sha256": "cb0bbe49ac2d05c3019dbc0a4db0ec122f319115464ac28c88e252bc60c95d2f",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of K. Eric Drexler: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve his gray hair, thin metal glasses, gray mustache and beard; keep the light blue shirt. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT calm neutral friendly expression; TOP RIGHT explaining gesture; BOTTOM LEFT pointing with index finger; BOTTOM RIGHT thoughtful hand near chin. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
+      "generation_settings": {
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
+      },
+      "identity_reference": {
+        "page": "https://en.wikipedia.org/wiki/K._Eric_Drexler",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Drexler763x1000.jpg?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=thumbnail_unscaled"
+      },
+      "style_reference": "assets/_generated_minimax_refresh/sheets/david-orban_user_portraits.png",
+      "cell_to_pose": {
+        "rest": 0,
+        "explain": 1,
+        "point": 2,
+        "think": 3
+      }
+    },
+    {
+      "id": "martine-rothblatt_builtin_portraits",
+      "asset": "martine-rothblatt",
+      "path": "assets/_generated_minimax_refresh/sheets/martine-rothblatt_builtin_portraits.png",
+      "sha256": "dfb196ec931ab4eeff85ab06f04e673fa64e156158b782879ae37638e6e733a7",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Martine Rothblatt: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve her mature facial features and pulled-back graying hair, no glasses; keep the dark blazer. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT calm neutral friendly expression; TOP RIGHT friendly wave; BOTTOM LEFT open-palm presentation; BOTTOM RIGHT cheerful celebration with both hands gently raised. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
+      "generation_settings": {
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
+      },
+      "identity_reference": {
+        "page": "https://en.wikipedia.org/wiki/Martine_Rothblatt",
+        "image_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/Martine_Rothblatt_Mar24_%28cropped%29.jpg/960px-Martine_Rothblatt_Mar24_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=thumbnail"
+      },
+      "style_reference": "assets/_generated_minimax_refresh/sheets/david-orban_user_portraits.png",
+      "cell_to_pose": {
+        "rest": 0,
+        "wave": 1,
+        "present": 2,
+        "celebrate": 3
+      }
+    },
+    {
+      "id": "robert-ettinger_builtin_portraits",
+      "asset": "robert-ettinger",
+      "path": "assets/_generated_minimax_refresh/sheets/robert-ettinger_builtin_portraits.png",
+      "sha256": "683326f9d4d6566c1ea8d0fe55ad2955fc7519368b0704d9bc50b04ec6f56176",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Robert Ettinger: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve the professor portrait's receding dark hair, glasses, clean-shaven smiling face, dark suit and tie. The historical source is low-resolution: use it for actual identity, not a generic elderly bearded man. No blackboard. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT relaxed friendly neutral expression; TOP RIGHT open-palm presentation; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT pointing with index finger. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
+      "generation_settings": {
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
+      },
+      "identity_reference": {
+        "page": "https://www.immortalistsociety.org/robert_ettinger_bio.htm",
+        "image_url": "https://www.immortalistsociety.org/images/Bobasprofessor.JPG"
+      },
+      "style_reference": "assets/_generated_minimax_refresh/sheets/david-orban_user_portraits.png",
+      "cell_to_pose": {
+        "rest": 0,
+        "present": 1,
+        "think": 2,
+        "point": 3
+      }
+    },
+    {
+      "id": "vernor-vinge_builtin_portraits",
+      "asset": "vernor-vinge",
+      "path": "assets/_generated_minimax_refresh/sheets/vernor-vinge_builtin_portraits.png",
+      "sha256": "90874a99d7c9237cb33f605ee432f6b86048f944ce7ae7c258028351ad563002",
+      "prompt": "Create ONE polished 2x2 sticker portrait sprite sheet of Vernor Vinge: exactly FOUR separate portraits of the SAME person. Reference 1 supplies the actual facial likeness, hairstyle and facial features; preserve them faithfully in every cell. Reference 2 is ONLY the StickerBook die-cut portrait illustration STYLE, never its person. Preserve his bald head, sparse gray side hair, large wire glasses and thin gray mustache, no full beard; same dark blazer and open-neck light shirt. Warm semi-realistic editorial cartoon portrait illustration, clean linework, readable face, white die-cut border, child-friendly. Same head size, face, clothing and rendering across all four chest/waist-up poses. Exact reading-order cells: TOP LEFT relaxed friendly neutral expression; TOP RIGHT friendly wave; BOTTOM LEFT thoughtful hand near chin; BOTTOM RIGHT open-palm presentation. Four equal-size quadrants with wide truly transparent gutters, no overlap, every complete sticker fully inside its cell. No text, labels, grid, background, scenery, extra people or animals. Transparent PNG alpha, not a checkerboard. Recognizable consistent likeness, not a generic substituted person.",
+      "generation_settings": {
+        "provider": "built-in image_gen",
+        "model": "not exposed by tool",
+        "transparent_background": true,
+        "layout": "2x2 four poses of one person",
+        "reported_cost_usd": null
+      },
+      "identity_reference": {
+        "page": "https://en.wikipedia.org/wiki/Vernor_Vinge",
+        "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7d/Vernor_Vinge_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=thumbnail_unscaled"
+      },
+      "style_reference": "assets/_generated_minimax_refresh/sheets/david-orban_user_portraits.png",
+      "cell_to_pose": {
+        "rest": 0,
+        "wave": 1,
         "think": 2,
         "present": 3
       }
