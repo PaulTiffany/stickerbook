@@ -2,7 +2,7 @@
 
 Branch: `feat/minimax-sprite-refresh` (historical working name).
 
-Refreshed **58 stickers / 232 pose files** using OpenRouter and supplied artwork.
+Refreshed **67 stickers / 268 pose files** using OpenRouter and supplied artwork.
 The generated assets used **OpenRouter GPT Image 2**,
 low quality setting, 1024px 2x2 sheets. Reported API usage cost including
 consistency refinements: **$1.86151**. Failed calls supplied no usage cost.
@@ -37,13 +37,13 @@ including rejected cameos: those rejected images are **not active**.
 
 ## Retained originals and failures
 
-The other **18 cameo stickers / 72 poses** remain original. Generated sets did not
+The other **9 cameo stickers / 36 poses** remain original. Generated sets did not
 reliably preserve identity across poses; some even copied animals from the
 style reference. `people_01_pose_01` failed twice, with HTTP 400 recorded on
 retry. Other cameo outputs were rejected during visual review. Use verified
 portrait references and dedicated human reference sheets for their next pass.
 
-Retained IDs: anders-sandberg, aubrey-de-grey, ben-goertzel, david-eagleman, david-orban, david-pearce, eliezer-yudkowsky, fm-2030, giulio-prisco, hans-moravec, k-eric-drexler, martine-rothblatt, max-more, natasha-vita-more, nick-bostrom, ray-kurzweil, robert-ettinger, vernor-vinge.
+Retained IDs: anders-sandberg, david-pearce, fm-2030, giulio-prisco, hans-moravec, k-eric-drexler, martine-rothblatt, robert-ettinger, vernor-vinge.
 
 All six backgrounds, landscape/portrait variants, cover art, and nine legacy
 single-file sticker SVGs are unchanged. Backgrounds are separately inventoried
@@ -52,7 +52,7 @@ in the refresh manifest. No background refresh is proposed in this pass.
 ## Validation
 
 - 304 original/backup SHA-256 pairs verified before replacement.
-- 232 installed SVG raster payloads match staged crops and have real alpha.
+- 268 installed SVG raster payloads match staged crops and have real alpha.
 - All 304 active image URLs served successfully by the running local app.
 - Canonical manifest and all clip references remain unchanged.
 - A replaced Butterfly SVG rendered successfully through CairoSVG.
@@ -80,4 +80,26 @@ to `rest`, open hands to `explain`, thinking/notebook to `chalkboard`, and wavin
 to the legacy `poster` frame. Clip names and timings are unchanged; the supplied
 poses do not depict a literal chalkboard or poster. Crops retain source alpha
 and a common scale. Rejected generated Paul crops are archived in
-`attempts/paul-tiffany_rejected_crops/`. The other 18 cameos remain original. All 304 live image URLs were reverified; no additional inference cost.
+`attempts/paul-tiffany_rejected_crops/`. The other 9 cameos remain original. All 304 live image URLs were reverified; no additional inference cost.
+
+## Nine additional supplied cameo sheets
+
+Installed David Orban, Ben Goertzel, Aubrey de Grey, Ray Kurzweil, David Eagleman,
+Nick Bostrom, Max More, Natasha Vita-More, and Eliezer Yudkowsky using the
+user-supplied source PNGs. Source filenames map to canonical existing IDs;
+all clip names, timings, and paths remain unchanged. Ten supplied cameo sheets
+(including Paul) are now staged alongside the generated sheets. Opaque sources
+were isolated using their dark portrait outlines, preserving enclosed light
+clothing; existing alpha was retained on transparent sheets. The supplied
+images have not been regenerated. Original files remain backed up and rejected
+generated crops remain archived.
+
+Ray has no thinking portrait in the supplied sheet: the calm cell is reused
+for his legacy think frame. His celebration portrait is staged as
+cropped/ray-kurzweil/celebration-unused.png, with no new executable clip.
+Aubrey rest uses the calm open-palms pose; Nick rest uses his open-palms pose.
+Ben think uses his raised-finger idea pose. Full mappings are in the manifest.
+
+Visual review: review/supplied-cameos.png. Validation confirms 268 installed
+raster payloads, 36 retained original poses, and all 304 live image URLs.
+Additional inference cost: zero.

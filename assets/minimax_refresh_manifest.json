@@ -10962,24 +10962,20 @@
       "original_path": "web/static/assets/stickers/ben-goertzel/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/ben-goertzel/rest.svg",
       "original_sha256": "9eb927e9152a3e2164f7a0829f1477d064c8aa03ce6b4aca8d51818d1d5a6bb1",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/ben-goertzel_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/ben-goertzel/rest.png",
-      "sheet_id": "people_01_pose_01",
+      "sheet_id": "ben-goertzel_user_portraits",
       "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: rest; Aubrey de Grey (aubrey-de-grey), pose: rest; Ray Kurzweil (ray-kurzweil), pose: rest; David Eagleman (david-eagleman), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
-      "generation_status": "generation-failed"
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
+      "generation_status": "generation-failed",
+      "output_sha256": "3dd6dceed2691e122b3639b3d7c779d145ecc17174353b67fdaf9ddec05c8119"
     },
     {
       "asset": "aubrey-de-grey",
@@ -10988,24 +10984,20 @@
       "original_path": "web/static/assets/stickers/aubrey-de-grey/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/aubrey-de-grey/rest.svg",
       "original_sha256": "d610695e9503450c7912e851c1cf858e20381ad6abb5705697ac8a1bc834979c",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/aubrey-de-grey_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/aubrey-de-grey/rest.png",
-      "sheet_id": "people_01_pose_01",
-      "cell": 1,
+      "sheet_id": "aubrey-de-grey_user_portraits",
+      "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: rest; Aubrey de Grey (aubrey-de-grey), pose: rest; Ray Kurzweil (ray-kurzweil), pose: rest; David Eagleman (david-eagleman), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
-      "generation_status": "generation-failed"
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
+      "generation_status": "generation-failed",
+      "output_sha256": "52a13673099e58e765129d18f3822e8f62f4b66219d031a720993a2d9da9fb8b"
     },
     {
       "asset": "ray-kurzweil",
@@ -11014,24 +11006,20 @@
       "original_path": "web/static/assets/stickers/ray-kurzweil/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/ray-kurzweil/rest.svg",
       "original_sha256": "fe1231fca542fd0511e9e8127bc494572805d4cc365dfcc4bd797bbfcc4052c2",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/ray-kurzweil_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/ray-kurzweil/rest.png",
-      "sheet_id": "people_01_pose_01",
-      "cell": 2,
+      "sheet_id": "ray-kurzweil_user_portraits",
+      "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: rest; Aubrey de Grey (aubrey-de-grey), pose: rest; Ray Kurzweil (ray-kurzweil), pose: rest; David Eagleman (david-eagleman), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
-      "generation_status": "generation-failed"
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines. No thinking portrait supplied: think uses calm cell 0; celebration cell 3 staged separately.",
+      "prompt": null,
+      "generation_status": "generation-failed",
+      "output_sha256": "8c673f52db5020ad91d0035f56f3d2a7e95395e7451049b7b3c474becfd7e9fe"
     },
     {
       "asset": "david-eagleman",
@@ -11040,24 +11028,20 @@
       "original_path": "web/static/assets/stickers/david-eagleman/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/david-eagleman/rest.svg",
       "original_sha256": "36584b0eaddc429fd1f44a40e95a327cd2df353adcd7c8e9dbe0be3316d645c7",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/david-eagleman_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/david-eagleman/rest.png",
-      "sheet_id": "people_01_pose_01",
-      "cell": 3,
+      "sheet_id": "david-eagleman_user_portraits",
+      "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: rest; Aubrey de Grey (aubrey-de-grey), pose: rest; Ray Kurzweil (ray-kurzweil), pose: rest; David Eagleman (david-eagleman), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
-      "generation_status": "generation-failed"
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
+      "generation_status": "generation-failed",
+      "output_sha256": "60ef5dfddb129f48681a8b865709809c1297b282495afdec2fe50b0d0970caf4"
     },
     {
       "asset": "ben-goertzel",
@@ -11066,30 +11050,26 @@
       "original_path": "web/static/assets/stickers/ben-goertzel/gesture.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/ben-goertzel/gesture.svg",
       "original_sha256": "6a85b9bc7d02faa87573a00504892ce727438eefdc72420ca6b0be7c0a36e85a",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/ben-goertzel_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/ben-goertzel/gesture.png",
-      "sheet_id": "people_01_pose_02",
-      "cell": 0,
+      "sheet_id": "ben-goertzel_user_portraits",
+      "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: gesture; Aubrey de Grey (aubrey-de-grey), pose: wave; Ray Kurzweil (ray-kurzweil), pose: present; David Eagleman (david-eagleman), pose: explain No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         32,
         23,
         483,
         496
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "4a2bd49bfe250e4c61927d90374e391618e71ad81cd2b0a68fa01c1a900f3984"
     },
     {
       "asset": "aubrey-de-grey",
@@ -11098,30 +11078,26 @@
       "original_path": "web/static/assets/stickers/aubrey-de-grey/wave.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/aubrey-de-grey/wave.svg",
       "original_sha256": "ec7951e306d1d48e1008b294d1d6e015b57f9e34792dc4ac7894576205c986ed",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/aubrey-de-grey_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/aubrey-de-grey/wave.png",
-      "sheet_id": "people_01_pose_02",
-      "cell": 1,
+      "sheet_id": "aubrey-de-grey_user_portraits",
+      "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: gesture; Aubrey de Grey (aubrey-de-grey), pose: wave; Ray Kurzweil (ray-kurzweil), pose: present; David Eagleman (david-eagleman), pose: explain No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         75,
         16,
         527,
         493
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "1ac2ca41f7f601961d62afaef60c1bc9a19f872c7a93825eb67d86bd47da90de"
     },
     {
       "asset": "ray-kurzweil",
@@ -11130,30 +11106,26 @@
       "original_path": "web/static/assets/stickers/ray-kurzweil/present.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/ray-kurzweil/present.svg",
       "original_sha256": "3e45df708cd712a4c61c5dcdf83224435ff3a0d86583cd4a055247132460ca61",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/ray-kurzweil_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/ray-kurzweil/present.png",
-      "sheet_id": "people_01_pose_02",
-      "cell": 2,
+      "sheet_id": "ray-kurzweil_user_portraits",
+      "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: gesture; Aubrey de Grey (aubrey-de-grey), pose: wave; Ray Kurzweil (ray-kurzweil), pose: present; David Eagleman (david-eagleman), pose: explain No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines. No thinking portrait supplied: think uses calm cell 0; celebration cell 3 staged separately.",
+      "prompt": null,
       "crop_union_bounds": [
         26,
         67,
         427,
         539
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "73f2589ea6422b928222ef25f940a07fd87bf0f6ff30cfbfbab906f2602f5c3a"
     },
     {
       "asset": "david-eagleman",
@@ -11162,30 +11134,26 @@
       "original_path": "web/static/assets/stickers/david-eagleman/explain.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/david-eagleman/explain.svg",
       "original_sha256": "83d05da7658b8f68c2b920a331a487047d021e7c83fd6d26ff928362e2b39396",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/david-eagleman_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/david-eagleman/explain.png",
-      "sheet_id": "people_01_pose_02",
-      "cell": 3,
+      "sheet_id": "david-eagleman_user_portraits",
+      "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: gesture; Aubrey de Grey (aubrey-de-grey), pose: wave; Ray Kurzweil (ray-kurzweil), pose: present; David Eagleman (david-eagleman), pose: explain No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         59,
         65,
         528,
         538
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "f5a1e9a4b9a22ef9c730c7e32a4ed14581d8fa3f5f3db43b7b32a376c2c16f3f"
     },
     {
       "asset": "ben-goertzel",
@@ -11194,30 +11162,26 @@
       "original_path": "web/static/assets/stickers/ben-goertzel/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/ben-goertzel/think.svg",
       "original_sha256": "b1b09fba63703dd79fa910b52727a00619d2457922bb4d1ccabb85c1db200e9a",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/ben-goertzel_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/ben-goertzel/think.png",
-      "sheet_id": "people_01_pose_03",
-      "cell": 0,
+      "sheet_id": "ben-goertzel_user_portraits",
+      "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: think; Aubrey de Grey (aubrey-de-grey), pose: explain; Ray Kurzweil (ray-kurzweil), pose: point; David Eagleman (david-eagleman), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         32,
         23,
         483,
         496
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "f3c73a4cd8e3493df191a11e87ef6dffecdd561d9762a8e6bf38c69aa190a214"
     },
     {
       "asset": "aubrey-de-grey",
@@ -11226,30 +11190,26 @@
       "original_path": "web/static/assets/stickers/aubrey-de-grey/explain.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/aubrey-de-grey/explain.svg",
       "original_sha256": "0abc02278a78e83ddefe53422d29806c661758901697771a741b8bcb90dbeed1",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/aubrey-de-grey_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/aubrey-de-grey/explain.png",
-      "sheet_id": "people_01_pose_03",
+      "sheet_id": "aubrey-de-grey_user_portraits",
       "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: think; Aubrey de Grey (aubrey-de-grey), pose: explain; Ray Kurzweil (ray-kurzweil), pose: point; David Eagleman (david-eagleman), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         75,
         16,
         527,
         493
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "46ca9b9aaa22f58380fcfad4eec056be72b80aa4671e72828f0484d41353a458"
     },
     {
       "asset": "ray-kurzweil",
@@ -11258,30 +11218,26 @@
       "original_path": "web/static/assets/stickers/ray-kurzweil/point.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/ray-kurzweil/point.svg",
       "original_sha256": "016d0d6b804509e29725967ca670a28f67c78bfcfef536a6d7c8ff6e9e6e401f",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/ray-kurzweil_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/ray-kurzweil/point.png",
-      "sheet_id": "people_01_pose_03",
+      "sheet_id": "ray-kurzweil_user_portraits",
       "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: think; Aubrey de Grey (aubrey-de-grey), pose: explain; Ray Kurzweil (ray-kurzweil), pose: point; David Eagleman (david-eagleman), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines. No thinking portrait supplied: think uses calm cell 0; celebration cell 3 staged separately.",
+      "prompt": null,
       "crop_union_bounds": [
         26,
         67,
         427,
         539
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "28fe9624b7b26bc1aaf7dd49830effaf0a2971da07acc9e9ee69e69de3ef7be9"
     },
     {
       "asset": "david-eagleman",
@@ -11290,30 +11246,26 @@
       "original_path": "web/static/assets/stickers/david-eagleman/present.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/david-eagleman/present.svg",
       "original_sha256": "a86797ed025158d7ad1571a3c74b17e0d85a70474ede558abb2e6ad0b2481738",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/david-eagleman_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/david-eagleman/present.png",
-      "sheet_id": "people_01_pose_03",
+      "sheet_id": "david-eagleman_user_portraits",
       "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: think; Aubrey de Grey (aubrey-de-grey), pose: explain; Ray Kurzweil (ray-kurzweil), pose: point; David Eagleman (david-eagleman), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         59,
         65,
         528,
         538
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "de0b3f93b2c0bfeb3dd2d1ca38a21899b11379c42df413ec9c850a3197c1476a"
     },
     {
       "asset": "ben-goertzel",
@@ -11322,30 +11274,26 @@
       "original_path": "web/static/assets/stickers/ben-goertzel/celebrate.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/ben-goertzel/celebrate.svg",
       "original_sha256": "15d300450bca622b3bd9735daeaa0b2598694764fd043cc896afc059b54a9650",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/ben-goertzel_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/ben-goertzel/celebrate.png",
-      "sheet_id": "people_01_pose_04",
-      "cell": 0,
+      "sheet_id": "ben-goertzel_user_portraits",
+      "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: celebrate; Aubrey de Grey (aubrey-de-grey), pose: think; Ray Kurzweil (ray-kurzweil), pose: think; David Eagleman (david-eagleman), pose: think No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         32,
         23,
         483,
         496
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "b37998d402ef8169fb48d87f3d7d07b309b5d944325fb79094d474642f7af1f2"
     },
     {
       "asset": "aubrey-de-grey",
@@ -11354,30 +11302,26 @@
       "original_path": "web/static/assets/stickers/aubrey-de-grey/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/aubrey-de-grey/think.svg",
       "original_sha256": "df0b3fc389ec689d4a31edd41e1d64032469df4021019ee23834e4b391167381",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/aubrey-de-grey_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/aubrey-de-grey/think.png",
-      "sheet_id": "people_01_pose_04",
-      "cell": 1,
+      "sheet_id": "aubrey-de-grey_user_portraits",
+      "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: celebrate; Aubrey de Grey (aubrey-de-grey), pose: think; Ray Kurzweil (ray-kurzweil), pose: think; David Eagleman (david-eagleman), pose: think No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         75,
         16,
         527,
         493
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "1765c9fb883be3255586f13c89d890fe4b13359e103ff8a5e5e7d2b2d2a1b87f"
     },
     {
       "asset": "ray-kurzweil",
@@ -11386,30 +11330,26 @@
       "original_path": "web/static/assets/stickers/ray-kurzweil/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/ray-kurzweil/think.svg",
       "original_sha256": "323d8e4ee5b0e72b0646516b4a94b864d9a2284fecea1a236b32cc188ee12bd9",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/ray-kurzweil_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/ray-kurzweil/think.png",
-      "sheet_id": "people_01_pose_04",
-      "cell": 2,
+      "sheet_id": "ray-kurzweil_user_portraits",
+      "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: celebrate; Aubrey de Grey (aubrey-de-grey), pose: think; Ray Kurzweil (ray-kurzweil), pose: think; David Eagleman (david-eagleman), pose: think No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines. No thinking portrait supplied: think uses calm cell 0; celebration cell 3 staged separately.",
+      "prompt": null,
       "crop_union_bounds": [
         26,
         67,
         427,
         539
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "8c673f52db5020ad91d0035f56f3d2a7e95395e7451049b7b3c474becfd7e9fe"
     },
     {
       "asset": "david-eagleman",
@@ -11418,30 +11358,26 @@
       "original_path": "web/static/assets/stickers/david-eagleman/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/david-eagleman/think.svg",
       "original_sha256": "618fdc14af3e43677966f45847de2b52db2052b36ea45914b87a4343c09757a4",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_01_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/david-eagleman_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/david-eagleman/think.png",
-      "sheet_id": "people_01_pose_04",
-      "cell": 3,
+      "sheet_id": "david-eagleman_user_portraits",
+      "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Ben Goertzel (ben-goertzel), pose: celebrate; Aubrey de Grey (aubrey-de-grey), pose: think; Ray Kurzweil (ray-kurzweil), pose: think; David Eagleman (david-eagleman), pose: think No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         59,
         65,
         528,
         538
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "25f9b0f484bb9bc8222edf27940d2f8e8a2aee8decc28b98d09cbea93affa50d"
     },
     {
       "asset": "nick-bostrom",
@@ -11450,30 +11386,26 @@
       "original_path": "web/static/assets/stickers/nick-bostrom/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/nick-bostrom/rest.svg",
       "original_sha256": "0a2ae0e7f1aef371eb3b2485115fa2c4686c04b82edc657df1b6d2d4219732cb",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/nick-bostrom_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/nick-bostrom/rest.png",
-      "sheet_id": "people_02_pose_01",
-      "cell": 0,
+      "sheet_id": "nick-bostrom_user_portraits",
+      "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: rest; Max More (max-more), pose: rest; Natasha Vita-More (natasha-vita-more), pose: rest; Eliezer Yudkowsky (eliezer-yudkowsky), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         44,
         24,
         491,
         509
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "50bc2cd75b2b59a01c9f3d82e7b7a6e48b4f238424422992051ee69569b637c3"
     },
     {
       "asset": "max-more",
@@ -11482,30 +11414,26 @@
       "original_path": "web/static/assets/stickers/max-more/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/max-more/rest.svg",
       "original_sha256": "494c6b1f553f70d9d01ffcef1aaba9be25806af9171d0c144f237492fa90016c",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/max-more_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/max-more/rest.png",
-      "sheet_id": "people_02_pose_01",
-      "cell": 1,
+      "sheet_id": "max-more_user_portraits",
+      "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: rest; Max More (max-more), pose: rest; Natasha Vita-More (natasha-vita-more), pose: rest; Eliezer Yudkowsky (eliezer-yudkowsky), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         48,
         16,
         536,
         502
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "88020ce5a2eae605d5cf3014d27235eeea751aa73fdefd8cbb07d2169c72e201"
     },
     {
       "asset": "natasha-vita-more",
@@ -11514,30 +11442,26 @@
       "original_path": "web/static/assets/stickers/natasha-vita-more/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/natasha-vita-more/rest.svg",
       "original_sha256": "8ecded8e17f54baf227d7e5c4d09b6f24575c375666ae23f9da2973f4e12cfc3",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/natasha-vita-more_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/natasha-vita-more/rest.png",
-      "sheet_id": "people_02_pose_01",
-      "cell": 2,
+      "sheet_id": "natasha-vita-more_user_portraits",
+      "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: rest; Max More (max-more), pose: rest; Natasha Vita-More (natasha-vita-more), pose: rest; Eliezer Yudkowsky (eliezer-yudkowsky), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         60,
         57,
         486,
         544
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "3750b513327909b812683bdb1aa9bfee276c1049b34dd0dfff58c6ab8ff48bb8"
     },
     {
       "asset": "eliezer-yudkowsky",
@@ -11546,30 +11470,26 @@
       "original_path": "web/static/assets/stickers/eliezer-yudkowsky/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/eliezer-yudkowsky/rest.svg",
       "original_sha256": "1109097639faae3a0b137f21c1b173396c9cd286fcf1024f39a14ceac9554ad4",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/eliezer-yudkowsky_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/eliezer-yudkowsky/rest.png",
-      "sheet_id": "people_02_pose_01",
-      "cell": 3,
+      "sheet_id": "eliezer-yudkowsky_user_portraits",
+      "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: rest; Max More (max-more), pose: rest; Natasha Vita-More (natasha-vita-more), pose: rest; Eliezer Yudkowsky (eliezer-yudkowsky), pose: rest No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         55,
         55,
         534,
         535
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "f9fb00061a87f79e0e180d22880240f87f313fcd228993a5d6904a1b4298a15c"
     },
     {
       "asset": "nick-bostrom",
@@ -11578,30 +11498,26 @@
       "original_path": "web/static/assets/stickers/nick-bostrom/explain.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/nick-bostrom/explain.svg",
       "original_sha256": "03afddfd5079e2a66bbe515dbf2f5fd16d8b07da337dadb60086518e7c4f127e",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/nick-bostrom_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/nick-bostrom/explain.png",
-      "sheet_id": "people_02_pose_02",
-      "cell": 0,
+      "sheet_id": "nick-bostrom_user_portraits",
+      "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: explain; Max More (max-more), pose: wave; Natasha Vita-More (natasha-vita-more), pose: wave; Eliezer Yudkowsky (eliezer-yudkowsky), pose: explain No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         44,
         24,
         491,
         509
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "09ff7301511aae13ebd4139924bd684e070982c8a0c07c601962e1245cd8a73b"
     },
     {
       "asset": "max-more",
@@ -11610,30 +11526,26 @@
       "original_path": "web/static/assets/stickers/max-more/wave.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/max-more/wave.svg",
       "original_sha256": "4b6e4e3caf95a7f750e2b68c9174f932635125d4be339daacdacd1efa3206856",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/max-more_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/max-more/wave.png",
-      "sheet_id": "people_02_pose_02",
+      "sheet_id": "max-more_user_portraits",
       "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: explain; Max More (max-more), pose: wave; Natasha Vita-More (natasha-vita-more), pose: wave; Eliezer Yudkowsky (eliezer-yudkowsky), pose: explain No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         48,
         16,
         536,
         502
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "24443983c067aa6783dea44a68b9e5d8b11c0a6cf408378d67a55fdc2459d7b1"
     },
     {
       "asset": "natasha-vita-more",
@@ -11642,30 +11554,26 @@
       "original_path": "web/static/assets/stickers/natasha-vita-more/wave.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/natasha-vita-more/wave.svg",
       "original_sha256": "28ace3fc66b2ee29431cd8c20f3aebb305ec5fa77ca4684fe4a7dea3e89bdf22",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/natasha-vita-more_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/natasha-vita-more/wave.png",
-      "sheet_id": "people_02_pose_02",
-      "cell": 2,
+      "sheet_id": "natasha-vita-more_user_portraits",
+      "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: explain; Max More (max-more), pose: wave; Natasha Vita-More (natasha-vita-more), pose: wave; Eliezer Yudkowsky (eliezer-yudkowsky), pose: explain No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         60,
         57,
         486,
         544
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "9915d5f6e672c6b874d9681dc82550edeaa0ea8b930c4594430345c301193231"
     },
     {
       "asset": "eliezer-yudkowsky",
@@ -11674,30 +11582,26 @@
       "original_path": "web/static/assets/stickers/eliezer-yudkowsky/explain.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/eliezer-yudkowsky/explain.svg",
       "original_sha256": "572dacba2565a680eae513e6103569002e2521696165e453b2640e60d793a52c",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/eliezer-yudkowsky_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/eliezer-yudkowsky/explain.png",
-      "sheet_id": "people_02_pose_02",
-      "cell": 3,
+      "sheet_id": "eliezer-yudkowsky_user_portraits",
+      "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: explain; Max More (max-more), pose: wave; Natasha Vita-More (natasha-vita-more), pose: wave; Eliezer Yudkowsky (eliezer-yudkowsky), pose: explain No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         55,
         55,
         534,
         535
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "0d22320db3fd5c11ec1a2f2721008466e689b43d95d9c4f178ce8502eaa7a129"
     },
     {
       "asset": "nick-bostrom",
@@ -11706,30 +11610,26 @@
       "original_path": "web/static/assets/stickers/nick-bostrom/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/nick-bostrom/think.svg",
       "original_sha256": "e893f0dd1bce005524960791f1026b3ea69a7ec9c51aed6382717acfaaf8476c",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/nick-bostrom_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/nick-bostrom/think.png",
-      "sheet_id": "people_02_pose_03",
+      "sheet_id": "nick-bostrom_user_portraits",
       "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: think; Max More (max-more), pose: present; Natasha Vita-More (natasha-vita-more), pose: present; Eliezer Yudkowsky (eliezer-yudkowsky), pose: think No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         44,
         24,
         491,
         509
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "bd3681186e81ae369d4b11a98b996568543e2fbe615088e14cee7b2c38683f30"
     },
     {
       "asset": "max-more",
@@ -11738,30 +11638,26 @@
       "original_path": "web/static/assets/stickers/max-more/present.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/max-more/present.svg",
       "original_sha256": "bf9566026508ac956556dc76bb6a8ec0a98ea497f1de505cb903a0714ee95696",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/max-more_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/max-more/present.png",
-      "sheet_id": "people_02_pose_03",
-      "cell": 1,
+      "sheet_id": "max-more_user_portraits",
+      "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: think; Max More (max-more), pose: present; Natasha Vita-More (natasha-vita-more), pose: present; Eliezer Yudkowsky (eliezer-yudkowsky), pose: think No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         48,
         16,
         536,
         502
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "99309c93c3834b1af61a900432c1186f1b646ff5852ed3a6ea57bc19710d4876"
     },
     {
       "asset": "natasha-vita-more",
@@ -11770,30 +11666,26 @@
       "original_path": "web/static/assets/stickers/natasha-vita-more/present.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/natasha-vita-more/present.svg",
       "original_sha256": "46de0fe52c977080cf833614cca033439602ecc02e736cd20aa9dafb56205193",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/natasha-vita-more_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/natasha-vita-more/present.png",
-      "sheet_id": "people_02_pose_03",
+      "sheet_id": "natasha-vita-more_user_portraits",
       "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: think; Max More (max-more), pose: present; Natasha Vita-More (natasha-vita-more), pose: present; Eliezer Yudkowsky (eliezer-yudkowsky), pose: think No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         60,
         57,
         486,
         544
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "a2b04b933f5379558b5ef829238e9c40ea17fb27b62bd05994462e353d7fd704"
     },
     {
       "asset": "eliezer-yudkowsky",
@@ -11802,30 +11694,26 @@
       "original_path": "web/static/assets/stickers/eliezer-yudkowsky/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/eliezer-yudkowsky/think.svg",
       "original_sha256": "ef98761e24370a3a019a4d9c0bab50082461744ea8f17d4dfb4f906dc71cee4f",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/eliezer-yudkowsky_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/eliezer-yudkowsky/think.png",
-      "sheet_id": "people_02_pose_03",
-      "cell": 3,
+      "sheet_id": "eliezer-yudkowsky_user_portraits",
+      "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: think; Max More (max-more), pose: present; Natasha Vita-More (natasha-vita-more), pose: present; Eliezer Yudkowsky (eliezer-yudkowsky), pose: think No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         55,
         55,
         534,
         535
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "91f3213815ffb0ee4d5dc9aa98029189aa26dcd5cc3bfce27a1ca4bce8e41034"
     },
     {
       "asset": "nick-bostrom",
@@ -11834,30 +11722,26 @@
       "original_path": "web/static/assets/stickers/nick-bostrom/present.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/nick-bostrom/present.svg",
       "original_sha256": "1a62e6b39a7c970f34a4f383dcfcd5e51b275b963bbf240f164d1bcf842da24c",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/nick-bostrom_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/nick-bostrom/present.png",
-      "sheet_id": "people_02_pose_04",
-      "cell": 0,
+      "sheet_id": "nick-bostrom_user_portraits",
+      "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: present; Max More (max-more), pose: think; Natasha Vita-More (natasha-vita-more), pose: think; Eliezer Yudkowsky (eliezer-yudkowsky), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         44,
         24,
         491,
         509
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "557c1b21f5c389ede47c1e2a51a21ee4ac881b9c2e684ada3abd503a1f910ecc"
     },
     {
       "asset": "max-more",
@@ -11866,30 +11750,26 @@
       "original_path": "web/static/assets/stickers/max-more/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/max-more/think.svg",
       "original_sha256": "7b74391b91193f898ea14563d39e4f52998fc05c86b0ce8c0fb1ae0610b36eb2",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/max-more_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/max-more/think.png",
-      "sheet_id": "people_02_pose_04",
-      "cell": 1,
+      "sheet_id": "max-more_user_portraits",
+      "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: present; Max More (max-more), pose: think; Natasha Vita-More (natasha-vita-more), pose: think; Eliezer Yudkowsky (eliezer-yudkowsky), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         48,
         16,
         536,
         502
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "bdcbfb0bf2cc8652a76894bed02d26a4eaa30e6cfe63aa7ee57408de2ec594fa"
     },
     {
       "asset": "natasha-vita-more",
@@ -11898,30 +11778,26 @@
       "original_path": "web/static/assets/stickers/natasha-vita-more/think.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/natasha-vita-more/think.svg",
       "original_sha256": "1e157f941bee92b9702ffe010c28d9439165ff7539af82b25272bdb50dbbc0fa",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/natasha-vita-more_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/natasha-vita-more/think.png",
-      "sheet_id": "people_02_pose_04",
-      "cell": 2,
+      "sheet_id": "natasha-vita-more_user_portraits",
+      "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: present; Max More (max-more), pose: think; Natasha Vita-More (natasha-vita-more), pose: think; Eliezer Yudkowsky (eliezer-yudkowsky), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         60,
         57,
         486,
         544
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "9fcb12d1a52fbdb54889ad60aa405bdef4dbb60ad141c5841f839806aa82b56e"
     },
     {
       "asset": "eliezer-yudkowsky",
@@ -11930,30 +11806,26 @@
       "original_path": "web/static/assets/stickers/eliezer-yudkowsky/present.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/eliezer-yudkowsky/present.svg",
       "original_sha256": "a9c762d9466374fa4e1b3062ca3e6201c892ebf77112eb6499c38062f45970b5",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_02_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/eliezer-yudkowsky_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/eliezer-yudkowsky/present.png",
-      "sheet_id": "people_02_pose_04",
+      "sheet_id": "eliezer-yudkowsky_user_portraits",
       "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Nick Bostrom (nick-bostrom), pose: present; Max More (max-more), pose: think; Natasha Vita-More (natasha-vita-more), pose: think; Eliezer Yudkowsky (eliezer-yudkowsky), pose: present No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         55,
         55,
         534,
         535
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "ab0f596647d08675e7967a8e416f5e81a96119d1423228889c518f18ac28372d"
     },
     {
       "asset": "fm-2030",
@@ -13018,30 +12890,26 @@
       "original_path": "web/static/assets/stickers/david-orban/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/david-orban/rest.svg",
       "original_sha256": "05a1c10eac3607295be074adb67b67d93df5b426629e9877fb5d1ca168ed710c",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_05_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/david-orban_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/david-orban/rest.png",
-      "sheet_id": "people_05_pose_01",
-      "cell": 1,
+      "sheet_id": "david-orban_user_portraits",
+      "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Giulio Prisco (giulio-prisco), pose: rest; David Orban (david-orban), pose: rest; Paul Tiffany (paul-tiffany), pose: rest; leave unused cells blank. No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         54,
         27,
         541,
         514
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "5fe3615af7392ec3d699af859dd31d6f1bfbe5641874287e88d7796490189b1e"
     },
     {
       "asset": "paul-tiffany",
@@ -13110,30 +12978,26 @@
       "original_path": "web/static/assets/stickers/david-orban/explain.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/david-orban/explain.svg",
       "original_sha256": "9181b5961faceb8fd77a2d146d99725c6f20f9793b02c6b8763aae2160d6cb86",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_05_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/david-orban_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/david-orban/explain.png",
-      "sheet_id": "people_05_pose_02",
+      "sheet_id": "david-orban_user_portraits",
       "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Giulio Prisco (giulio-prisco), pose: cosmic; David Orban (david-orban), pose: explain; Paul Tiffany (paul-tiffany), pose: explain; leave unused cells blank. No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         54,
         27,
         541,
         514
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "8fb0785b74cf40647da145e51851f6e3c6fadcd96197eec51a566fde2cff5616"
     },
     {
       "asset": "paul-tiffany",
@@ -13202,30 +13066,26 @@
       "original_path": "web/static/assets/stickers/david-orban/point.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/david-orban/point.svg",
       "original_sha256": "cd2c1da95bbe5f68dc8b584e7c0a0f64d5bf993d9cf9cf1a2071bea611003107",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_05_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/david-orban_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/david-orban/point.png",
-      "sheet_id": "people_05_pose_03",
-      "cell": 1,
+      "sheet_id": "david-orban_user_portraits",
+      "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Giulio Prisco (giulio-prisco), pose: book; David Orban (david-orban), pose: point; Paul Tiffany (paul-tiffany), pose: chalkboard; leave unused cells blank. No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         54,
         27,
         541,
         514
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "b85f2a16528fed3aa73ace571c73fb34bb68686bf1a710a095f18d7d28a19b7f"
     },
     {
       "asset": "paul-tiffany",
@@ -13294,30 +13154,26 @@
       "original_path": "web/static/assets/stickers/david-orban/wave.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/david-orban/wave.svg",
       "original_sha256": "eeff75e5dba0606e8cfc7e7c20ce0200980f6357c62462cd5bc4fcb07ad94124",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_05_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/david-orban_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/david-orban/wave.png",
-      "sheet_id": "people_05_pose_04",
-      "cell": 1,
+      "sheet_id": "david-orban_user_portraits",
+      "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Giulio Prisco (giulio-prisco), pose: think; David Orban (david-orban), pose: wave; Paul Tiffany (paul-tiffany), pose: poster; leave unused cells blank. No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied portraits; existing frame names/clips retained. Source alpha preserved or opaque background isolated using portrait outlines.",
+      "prompt": null,
       "crop_union_bounds": [
         54,
         27,
         541,
         514
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "172e3830928b944a50df705f7ec1eded6244851dde9e6b4c9bef3152d826f29d"
     },
     {
       "asset": "paul-tiffany",
@@ -13349,25 +13205,16 @@
     }
   ],
   "summary": {
-    "replaced_stickers": 58,
-    "replaced_pose_files": 232,
+    "replaced_stickers": 67,
+    "replaced_pose_files": 268,
     "retained_stickers": [
       "anders-sandberg",
-      "aubrey-de-grey",
-      "ben-goertzel",
-      "david-eagleman",
-      "david-orban",
       "david-pearce",
-      "eliezer-yudkowsky",
       "fm-2030",
       "giulio-prisco",
       "hans-moravec",
       "k-eric-drexler",
       "martine-rothblatt",
-      "max-more",
-      "natasha-vita-more",
-      "nick-bostrom",
-      "ray-kurzweil",
       "robert-ettinger",
       "vernor-vinge"
     ],
@@ -13396,6 +13243,123 @@
         "explain": 1,
         "chalkboard": 2,
         "poster": 3
+      }
+    },
+    {
+      "id": "david-orban_user_portraits",
+      "path": "assets/_generated_minimax_refresh/sheets/david-orban_user_portraits.png",
+      "source_filename": "DavidOrban.png",
+      "source_sha256": "3d78bd35378aea610864f13bd79d180829aa14b83c6fad596ea8bb663a34d047",
+      "provenance": "User-supplied cameo artwork; no new inference",
+      "cell_to_pose": {
+        "rest": 0,
+        "explain": 1,
+        "point": 2,
+        "wave": 3
+      }
+    },
+    {
+      "id": "ben-goertzel_user_portraits",
+      "path": "assets/_generated_minimax_refresh/sheets/ben-goertzel_user_portraits.png",
+      "source_filename": "BenGoertzel.png",
+      "source_sha256": "47a211680318f806e87ce3221102b6d72932edb6c58dd3a67a09293a91bb0f91",
+      "provenance": "User-supplied cameo artwork; no new inference",
+      "cell_to_pose": {
+        "rest": 0,
+        "gesture": 1,
+        "think": 2,
+        "celebrate": 3
+      }
+    },
+    {
+      "id": "aubrey-de-grey_user_portraits",
+      "path": "assets/_generated_minimax_refresh/sheets/aubrey-de-grey_user_portraits.png",
+      "source_filename": "AubreyDeGray.png",
+      "source_sha256": "2176b5b29e390a64350b56c04695abd30fa89e5619083d03b0e8ccd170193555",
+      "provenance": "User-supplied cameo artwork; no new inference",
+      "cell_to_pose": {
+        "rest": 3,
+        "wave": 0,
+        "explain": 1,
+        "think": 2
+      }
+    },
+    {
+      "id": "ray-kurzweil_user_portraits",
+      "path": "assets/_generated_minimax_refresh/sheets/ray-kurzweil_user_portraits.png",
+      "source_filename": "RayKurzweil.png",
+      "source_sha256": "184c9c74554159dd87754786846d93eea36b56d1322c2597845f3ebd487fcdd5",
+      "provenance": "User-supplied cameo artwork; no new inference",
+      "cell_to_pose": {
+        "rest": 0,
+        "present": 1,
+        "point": 2,
+        "think": 0
+      }
+    },
+    {
+      "id": "david-eagleman_user_portraits",
+      "path": "assets/_generated_minimax_refresh/sheets/david-eagleman_user_portraits.png",
+      "source_filename": "DavidEagleman.png",
+      "source_sha256": "1b55933dc154e2d7585968a0c23b8ba9db5aab64ed11ab4f5fe77d80afb068a3",
+      "provenance": "User-supplied cameo artwork; no new inference",
+      "cell_to_pose": {
+        "rest": 0,
+        "explain": 1,
+        "present": 3,
+        "think": 2
+      }
+    },
+    {
+      "id": "nick-bostrom_user_portraits",
+      "path": "assets/_generated_minimax_refresh/sheets/nick-bostrom_user_portraits.png",
+      "source_filename": "NicholasBostrom.png",
+      "source_sha256": "f8506d5a592ebcddfa66c7b98f4ebebc792f29bd767a28360a4f8936700a89e0",
+      "provenance": "User-supplied cameo artwork; no new inference",
+      "cell_to_pose": {
+        "rest": 2,
+        "explain": 1,
+        "think": 0,
+        "present": 3
+      }
+    },
+    {
+      "id": "max-more_user_portraits",
+      "path": "assets/_generated_minimax_refresh/sheets/max-more_user_portraits.png",
+      "source_filename": "MaxMore.png",
+      "source_sha256": "9856a95a9468970d379d7e6921a69815f7daed7094f9661a75ba605bcb118d69",
+      "provenance": "User-supplied cameo artwork; no new inference",
+      "cell_to_pose": {
+        "rest": 0,
+        "wave": 1,
+        "present": 2,
+        "think": 3
+      }
+    },
+    {
+      "id": "natasha-vita-more_user_portraits",
+      "path": "assets/_generated_minimax_refresh/sheets/natasha-vita-more_user_portraits.png",
+      "source_filename": "NatashaVitaMore.png",
+      "source_sha256": "71f8913f303f005782b14400b207683071494b9bf8957dae7b89147e631be72f",
+      "provenance": "User-supplied cameo artwork; no new inference",
+      "cell_to_pose": {
+        "rest": 0,
+        "wave": 1,
+        "present": 2,
+        "think": 3
+      }
+    },
+    {
+      "id": "eliezer-yudkowsky_user_portraits",
+      "path": "assets/_generated_minimax_refresh/sheets/eliezer-yudkowsky_user_portraits.png",
+      "source_filename": "EliezerYudkowsky.png",
+      "source_sha256": "68f9da4a140569f39955df0baa0dc0589d9c0b2e21ed5f65b2585430ee3f57fd",
+      "provenance": "User-supplied cameo artwork; no new inference",
+      "cell_to_pose": {
+        "rest": 0,
+        "explain": 1,
+        "think": 2,
+        "present": 3
       }
     }
   ]
