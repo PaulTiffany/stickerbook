@@ -76,7 +76,7 @@ class HelpContentCase(unittest.TestCase):
     def test_adult_guide_explains_parent_relevant_boundaries(self):
         adult = json.dumps(help_content.full_help()["adult"]).lower()
         for phrase in (
-            "voice is off",
+            "voice is available by default",
             "omega",
             "authority kernel",
             "public github pages",

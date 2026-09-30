@@ -167,13 +167,16 @@ only.
 
 Normal child-facing play has no persistent chat panel.
 
-When a conversational runtime is connected, a responsible adult can enable
-voice for the current browser session. Only then does a small push-to-talk
-microphone appear on the active page.
+When a conversational runtime is connected and browser speech recognition is
+available, a small push-to-talk microphone appears on the active page by default.
+The responsible-adult panel can disable it for the current browser session.
 
 The browser's speech-recognition implementation may use a browser/device speech
-service. StickerBook therefore does not silently enable it. The responsible
-adult panel states this explicitly.
+service. Recognition starts only after a microphone tap and normal browser
+permission; page loading never starts recording. The adult panel explains this.
+A visible status distinguishes listening, waiting for OmegaLLM, and speaking.
+Text requests show the same thinking status. Page exit clears pending presentation
+and suppresses late replies, without canceling or retrying host mutations.
 
 The recognized text is sent to the local conversational endpoint. A returned
 reply may be spoken with the browser's speech-synthesis facility.

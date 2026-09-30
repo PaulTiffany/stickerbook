@@ -26,7 +26,7 @@ class VoiceContractCase(unittest.TestCase):
         self.assertIn('fetch("/api/agent/converse"', app)
         self.assertIn("window.speechSynthesis.speak(utterance);", app)
 
-    def test_voice_is_adult_enabled_and_requires_conversational_runtime(self):
+    def test_voice_defaults_on_but_requires_conversational_runtime_and_browser_support(self):
         app = (ROOT / "web/static/app.js").read_text(encoding="utf-8")
         html = (ROOT / "web/static/index.html").read_text(encoding="utf-8")
         self.assertIn('id="voice-enable"', html)
@@ -34,6 +34,8 @@ class VoiceContractCase(unittest.TestCase):
         self.assertIn("voiceEnable.disabled = !connected || !SpeechRecognitionCtor", app)
         self.assertIn("connected &&", app)
         self.assertIn("voiceEnabled &&", app)
+        self.assertIn("let voiceEnabled = true;", app)
+        self.assertNotIn('    voiceEnabled = false;', app)
 
     def test_voice_has_no_dedicated_mutation_endpoint(self):
         app = (ROOT / "web/static/app.js").read_text(encoding="utf-8")

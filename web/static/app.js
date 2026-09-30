@@ -68,6 +68,7 @@ const adultGuideSummary = document.getElementById("adult-guide-summary");
 const adultGuideSections = document.getElementById("adult-guide-sections");
 const voiceOrb = document.getElementById("voice-orb");
 const voiceOrbState = document.getElementById("voice-orb-state");
+const conversationStatus = document.getElementById("conversation-status");
 const voiceEnable = document.getElementById("voice-enable");
 const agentAdultControls = document.getElementById("agent-adult-controls");
 const voicePrivacyNote = document.getElementById("voice-privacy-note");
@@ -107,10 +108,12 @@ let bookCache = null;
 let pagePreviewUrl = null;
 let pageUploadDraft = null;
 let stickerPreviewUrl = null;
-let voiceEnabled = false;
+let voiceEnabled = true;
 let textChatEnabled = false;
 let voiceRecognition = null;
 let voiceBusy = false;
+let conversationPending = false;
+let conversationSerial = 0;
 let adultInference = null;
 
 const nextId = (kind) => "ui-" + kind + "-" + Date.now() + "-" + (++seq);
@@ -1587,6 +1590,7 @@ function cancelStickerTween(visual) {
 function cancelVisualMotion() {
   stopPageStateWatch();
   motionEpoch += 1;
+  cancelConversationPresentation();
   for (const visual of stickerVisuals.values()) cancelStickerTween(visual);
 }
 
@@ -3270,6 +3274,18 @@ function conversationCapabilities() {
   return state && state.capabilities || {};
 }
 
+function cancelConversationPresentation() {
+  conversationSerial += 1;
+  conversationPending = false;
+  voiceBusy = false;
+  const recognition = voiceRecognition;
+  voiceRecognition = null;
+  if (recognition) { try { recognition.abort(); } catch (_) {} }
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  setVoiceOrbState("ready");
+  if (conversationStatus) conversationStatus.hidden = true;
+}
+
 function speechRecognitionConstructor() {
   return window.SpeechRecognition || window.webkitSpeechRecognition || null;
 }
@@ -3289,11 +3305,6 @@ function updateConversationControls() {
   // public build so the accessibility UI itself is testable as a clear stub.
   agentAdultControls.hidden = false;
 
-  if (!connected) {
-    voiceEnabled = false;
-    if (voiceEnable) voiceEnable.checked = false;
-  }
-
   if (!textAvailable) {
     textChatEnabled = false;
     if (textChatEnable) textChatEnable.checked = false;
@@ -3301,6 +3312,7 @@ function updateConversationControls() {
 
   if (voiceEnable) {
     voiceEnable.disabled = !connected || !SpeechRecognitionCtor;
+    voiceEnable.checked = Boolean(connected && SpeechRecognitionCtor && voiceEnabled);
   }
 
   if (textChatEnable) {
@@ -3308,7 +3320,7 @@ function updateConversationControls() {
   }
 
   if (accessibilityChatInput) accessibilityChatInput.disabled = !textAvailable;
-  if (accessibilityChatSend) accessibilityChatSend.disabled = !textAvailable;
+  if (accessibilityChatSend) accessibilityChatSend.disabled = !textAvailable || voiceBusy;
 
   if (voicePrivacyNote) {
     voicePrivacyNote.textContent = stub
@@ -3326,6 +3338,7 @@ function updateConversationControls() {
     SpeechRecognitionCtor &&
     onPlaySurface
   );
+  if (conversationStatus) conversationStatus.hidden = !(conversationPending && onPlaySurface);
 
   if (accessibilityChat) {
     accessibilityChat.hidden = !(
@@ -3357,9 +3370,12 @@ function appendAccessibilityChatLine(speaker, text) {
 
 function setVoiceOrbState(name) {
   if (!voiceOrb) return;
-  voiceOrb.classList.remove("listening", "speaking", "error");
+  voiceOrb.classList.remove("listening", "thinking", "speaking", "error");
   if (name && name !== "ready") voiceOrb.classList.add(name);
   if (voiceOrbState) voiceOrbState.textContent = name || "ready";
+  voiceOrb.setAttribute("aria-label", name === "thinking" ? "StickerBook is thinking" :
+    name === "listening" ? "Listening to you" : name === "speaking" ? "StickerBook is speaking" : "Talk to StickerBook");
+  voiceOrb.setAttribute("aria-busy", String(name === "thinking"));
 }
 
 async function captureVisualContext() {
@@ -3432,7 +3448,7 @@ async function captureVisualContext() {
 
 async function converseWithStickerBook(text, aloud, mirrorToAccessibility = false) {
   const clean = String(text || "").trim();
-  if (!clean) return null;
+  if (!clean || voiceBusy) return null;
 
   if (mirrorToAccessibility) {
     appendAccessibilityChatLine("You", clean);
@@ -3450,7 +3466,11 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
   }
 
   voiceBusy = true;
-  if (aloud) setVoiceOrbState("speaking");
+  const turn = ++conversationSerial;
+  let speakingReply = false;
+  conversationPending = !stub;
+  if (!stub) setVoiceOrbState("thinking");
+  updateConversationControls();
 
   const referenceSerial = deicticReferenceSerial;
   const pendingReference = pendingDeicticReference;
@@ -3504,16 +3524,22 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
     }
     speak(reply);
 
-    if (aloud && reply && "speechSynthesis" in window) {
+    if (aloud && voiceEnabled && reply && "speechSynthesis" in window) {
+      speakingReply = true;
+      setVoiceOrbState("speaking");
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(reply);
       utterance.onend = () => {
+        if (turn !== conversationSerial) return;
         voiceBusy = false;
         setVoiceOrbState("ready");
+        updateConversationControls();
       };
       utterance.onerror = () => {
+        if (turn !== conversationSerial) return;
         voiceBusy = false;
         setVoiceOrbState("error");
+        updateConversationControls();
       };
       window.speechSynthesis.speak(utterance);
     } else {
@@ -3524,6 +3550,8 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
     return reply;
   } catch (error) {
     console.error(error);
+    if (turn !== conversationSerial) return null;
+    speakingReply = false;
     voiceBusy = false;
     if (mirrorToAccessibility) {
       appendAccessibilityChatLine(
@@ -3534,6 +3562,12 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
     if (aloud) setVoiceOrbState("error");
     return null;
   } finally {
+    if (turn === conversationSerial) {
+      conversationPending = false;
+      if (!speakingReply) voiceBusy = false;
+      if (voiceOrb.classList.contains("thinking")) setVoiceOrbState("ready");
+      updateConversationControls();
+    }
     if (reference && referenceSerial === deicticReferenceSerial) {
       clearDeicticReference(true);
     }
@@ -3560,10 +3594,12 @@ function startVoiceConversation() {
   if (navigator.language) recognition.lang = navigator.language;
 
   recognition.onstart = () => {
+    if (voiceRecognition !== recognition) return;
     setVoiceOrbState("listening");
   };
 
   recognition.onresult = (event) => {
+    if (voiceRecognition !== recognition || !voiceEnabled) return;
     const result = event.results && event.results[0];
     const transcript = result && result[0] && result[0].transcript;
     if (transcript) {
@@ -3572,11 +3608,13 @@ function startVoiceConversation() {
   };
 
   recognition.onerror = () => {
+    if (voiceRecognition !== recognition) return;
     voiceBusy = false;
     setVoiceOrbState("error");
   };
 
   recognition.onend = () => {
+    if (voiceRecognition !== recognition) return;
     voiceRecognition = null;
     if (!voiceBusy && !voiceOrb.classList.contains("error")) {
       setVoiceOrbState("ready");
@@ -3683,6 +3721,15 @@ inferenceApply.addEventListener("click", applyInferenceSelection);
 
 voiceEnable.addEventListener("change", () => {
   voiceEnabled = voiceEnable.checked;
+  if (!voiceEnabled) {
+    const recognition = voiceRecognition;
+    voiceRecognition = null;
+    if (recognition) { try { recognition.abort(); } catch (_) {} }
+    if (!conversationPending) {
+      voiceBusy = false;
+      setVoiceOrbState("ready");
+    }
+  }
   if (!voiceEnabled && "speechSynthesis" in window) {
     window.speechSynthesis.cancel();
   }
@@ -3717,6 +3764,7 @@ accessibilityChatClose.addEventListener("click", () => {
 });
 
 accessibilityChatSend.addEventListener("click", () => {
+  if (voiceBusy) return;
   const text = accessibilityChatInput.value;
   if (!text.trim()) return;
   accessibilityChatInput.value = "";
