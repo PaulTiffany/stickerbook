@@ -1,0 +1,5012 @@
+{
+  "kind": "actual-live-runtime-evidence",
+  "captured_utc": "2026-09-30T08:33:50Z",
+  "architecture": "Isolated host BookBridge worlds -> existing loopback Omega containers -> ordinary kernel receipts",
+  "presentation": "Reconstructed from accepted receipts; not screen capture; original inference latency is time-compressed in the music edit",
+  "proofs": [
+    {
+      "id": "double-tap",
+      "page": "farm",
+      "subject": "butterfly-1",
+      "invitation": {
+        "ok": true,
+        "jev": {
+          "ok": true,
+          "goal": {
+            "subject": "butterfly-1",
+            "intent": "control",
+            "behavior": "improvise"
+          },
+          "activity": {
+            "subject": "butterfly-1",
+            "goal": {
+              "subject": "butterfly-1",
+              "intent": "control",
+              "behavior": "improvise"
+            },
+            "heading": 0,
+            "headingCount": 16,
+            "speed": 0.055,
+            "lastDelta": {
+              "dx": 0.0,
+              "dy": 0.0
+            },
+            "moving": false,
+            "remainingTicks": 0,
+            "recentTurns": 0,
+            "recentSteeringHeadings": [],
+            "steering": "heading",
+            "curveDegreesPerTick": 0.0
+          },
+          "result": "playing"
+        },
+        "state": {
+          "revision": 3,
+          "principal": "human:kid",
+          "page": {
+            "id": "farm",
+            "name": "The Farm"
+          },
+          "stickers": [
+            {
+              "id": "butterfly-1",
+              "definition": "butterfly",
+              "x": 0.38,
+              "y": 0.45,
+              "scale": 1.0,
+              "facing": "right",
+              "owner": "human:kid",
+              "mine": true,
+              "animation": "rest",
+              "revision": 3
+            },
+            {
+              "id": "cow-1",
+              "definition": "cow",
+              "x": 0.24,
+              "y": 0.86,
+              "scale": 1.0,
+              "facing": "right",
+              "owner": "human:kid",
+              "mine": true,
+              "animation": "rest",
+              "revision": 1
+            }
+          ],
+          "motion": [
+            {
+              "subject": "butterfly-1",
+              "goal": {
+                "subject": "butterfly-1",
+                "intent": "control",
+                "behavior": "improvise"
+              },
+              "heading": 0,
+              "headingCount": 16,
+              "speed": 0.055,
+              "lastDelta": {
+                "dx": 0.0,
+                "dy": 0.0
+              },
+              "moving": false,
+              "remainingTicks": 0,
+              "recentTurns": 0,
+              "recentSteeringHeadings": [],
+              "steering": "heading",
+              "curveDegreesPerTick": 0.0
+            }
+          ],
+          "capabilities": {
+            "creator_agent": true,
+            "conversational_agent": true,
+            "jev_controller": true,
+            "page_image_creator": false,
+            "conversation_acknowledgement": true
+          }
+        }
+      },
+      "snapshots": [
+        {
+          "elapsed": 0.023,
+          "state": {
+            "revision": 3,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.38,
+                "y": 0.45,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 3
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 0,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.0,
+                  "dy": 0.0
+                },
+                "moving": false,
+                "remainingTicks": 0,
+                "recentTurns": 0,
+                "recentSteeringHeadings": [],
+                "steering": "heading",
+                "curveDegreesPerTick": 0.0
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 0.507,
+          "state": {
+            "revision": 5,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.393684,
+                "y": 0.448652,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 5
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 15.75,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.013684,
+                  "dy": -0.001348
+                },
+                "moving": true,
+                "remainingTicks": 5,
+                "recentTurns": 1,
+                "recentSteeringHeadings": [
+                  0
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 0.749,
+          "state": {
+            "revision": 6,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.40717,
+                "y": 0.44597,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 6
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 15.5,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.013486,
+                  "dy": -0.002682
+                },
+                "moving": true,
+                "remainingTicks": 4,
+                "recentTurns": 1,
+                "recentSteeringHeadings": [
+                  0
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 0.991,
+          "state": {
+            "revision": 7,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.420328,
+                "y": 0.441979,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 7
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 15.25,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.013158,
+                  "dy": -0.003991
+                },
+                "moving": true,
+                "remainingTicks": 3,
+                "recentTurns": 1,
+                "recentSteeringHeadings": [
+                  0
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 1.353,
+          "state": {
+            "revision": 8,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.433031,
+                "y": 0.436717,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 8
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 15.0,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.012703,
+                  "dy": -0.005262
+                },
+                "moving": true,
+                "remainingTicks": 5,
+                "recentTurns": 2,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 1.594,
+          "state": {
+            "revision": 9,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.445157,
+                "y": 0.430235,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 9
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 14.75,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.012126,
+                  "dy": -0.006482
+                },
+                "moving": true,
+                "remainingTicks": 4,
+                "recentTurns": 2,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 1.836,
+          "state": {
+            "revision": 10,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.45659,
+                "y": 0.422596,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 10
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 14.5,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.011433,
+                  "dy": -0.007639
+                },
+                "moving": true,
+                "remainingTicks": 3,
+                "recentTurns": 2,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 2.077,
+          "state": {
+            "revision": 11,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.467219,
+                "y": 0.413873,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 11
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 14.25,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.010629,
+                  "dy": -0.008723
+                },
+                "moving": true,
+                "remainingTicks": 5,
+                "recentTurns": 3,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25,
+                  14.5
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 2.318,
+          "state": {
+            "revision": 12,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.476942,
+                "y": 0.40415,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 12
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 14.0,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.009723,
+                  "dy": -0.009723
+                },
+                "moving": true,
+                "remainingTicks": 4,
+                "recentTurns": 3,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25,
+                  14.5
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 2.681,
+          "state": {
+            "revision": 13,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.485665,
+                "y": 0.393521,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 13
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 13.75,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.008723,
+                  "dy": -0.010629
+                },
+                "moving": true,
+                "remainingTicks": 3,
+                "recentTurns": 3,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25,
+                  14.5
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 2.923,
+          "state": {
+            "revision": 14,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.493304,
+                "y": 0.382088,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 14
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 13.5,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.007639,
+                  "dy": -0.011433
+                },
+                "moving": true,
+                "remainingTicks": 5,
+                "recentTurns": 4,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25,
+                  14.5,
+                  13.75
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 3.165,
+          "state": {
+            "revision": 15,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.499786,
+                "y": 0.369962,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 15
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 13.25,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.006482,
+                  "dy": -0.012126
+                },
+                "moving": true,
+                "remainingTicks": 4,
+                "recentTurns": 4,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25,
+                  14.5,
+                  13.75
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 3.408,
+          "state": {
+            "revision": 16,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.505048,
+                "y": 0.357259,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 16
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 13.0,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.005262,
+                  "dy": -0.012703
+                },
+                "moving": true,
+                "remainingTicks": 3,
+                "recentTurns": 4,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25,
+                  14.5,
+                  13.75
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 3.651,
+          "state": {
+            "revision": 17,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.509039,
+                "y": 0.344101,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 17
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 12.75,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.003991,
+                  "dy": -0.013158
+                },
+                "moving": true,
+                "remainingTicks": 5,
+                "recentTurns": 5,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25,
+                  14.5,
+                  13.75,
+                  13.0
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 4.015,
+          "state": {
+            "revision": 18,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.511721,
+                "y": 0.330615,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 18
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 12.5,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.002682,
+                  "dy": -0.013486
+                },
+                "moving": true,
+                "remainingTicks": 4,
+                "recentTurns": 5,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25,
+                  14.5,
+                  13.75,
+                  13.0
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 4.258,
+          "state": {
+            "revision": 19,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.513069,
+                "y": 0.316931,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 19
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 12.25,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.001348,
+                  "dy": -0.013684
+                },
+                "moving": true,
+                "remainingTicks": 3,
+                "recentTurns": 5,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25,
+                  14.5,
+                  13.75,
+                  13.0
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 4.501,
+          "state": {
+            "revision": 20,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.513069,
+                "y": 0.303181,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 20
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 12.0,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": 0.0,
+                  "dy": -0.01375
+                },
+                "moving": true,
+                "remainingTicks": 2,
+                "recentTurns": 5,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25,
+                  14.5,
+                  13.75,
+                  13.0
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 4.744,
+          "state": {
+            "revision": 21,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.511721,
+                "y": 0.289497,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 21
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 11.75,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.001348,
+                  "dy": -0.013684
+                },
+                "moving": true,
+                "remainingTicks": 6,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25,
+                  14.5,
+                  13.75,
+                  13.0,
+                  11.75
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 4.986,
+          "state": {
+            "revision": 22,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.509039,
+                "y": 0.276011,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 22
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 11.5,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.002682,
+                  "dy": -0.013486
+                },
+                "moving": true,
+                "remainingTicks": 5,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25,
+                  14.5,
+                  13.75,
+                  13.0,
+                  11.75
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 5.228,
+          "state": {
+            "revision": 23,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.505048,
+                "y": 0.262853,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 23
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 11.25,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.003991,
+                  "dy": -0.013158
+                },
+                "moving": true,
+                "remainingTicks": 4,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  0,
+                  15.25,
+                  14.5,
+                  13.75,
+                  13.0,
+                  11.75
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 5.591,
+          "state": {
+            "revision": 24,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.499786,
+                "y": 0.25015,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 24
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 11.0,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.005262,
+                  "dy": -0.012703
+                },
+                "moving": true,
+                "remainingTicks": 5,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  15.25,
+                  14.5,
+                  13.75,
+                  13.0,
+                  11.75,
+                  11.25
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 5.833,
+          "state": {
+            "revision": 25,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.493304,
+                "y": 0.238024,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 25
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 10.75,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.006482,
+                  "dy": -0.012126
+                },
+                "moving": true,
+                "remainingTicks": 4,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  15.25,
+                  14.5,
+                  13.75,
+                  13.0,
+                  11.75,
+                  11.25
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 6.077,
+          "state": {
+            "revision": 26,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.485665,
+                "y": 0.226591,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 26
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 10.5,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.007639,
+                  "dy": -0.011433
+                },
+                "moving": true,
+                "remainingTicks": 6,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  14.5,
+                  13.75,
+                  13.0,
+                  11.75,
+                  11.25,
+                  10.5
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 6.319,
+          "state": {
+            "revision": 27,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.476942,
+                "y": 0.215962,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 27
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 10.25,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.008723,
+                  "dy": -0.010629
+                },
+                "moving": true,
+                "remainingTicks": 5,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  14.5,
+                  13.75,
+                  13.0,
+                  11.75,
+                  11.25,
+                  10.5
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 6.562,
+          "state": {
+            "revision": 28,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.467219,
+                "y": 0.206239,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 28
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 10.0,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.009723,
+                  "dy": -0.009723
+                },
+                "moving": true,
+                "remainingTicks": 4,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  14.5,
+                  13.75,
+                  13.0,
+                  11.75,
+                  11.25,
+                  10.5
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 6.927,
+          "state": {
+            "revision": 29,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.45659,
+                "y": 0.197516,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 29
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 9.75,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.010629,
+                  "dy": -0.008723
+                },
+                "moving": true,
+                "remainingTicks": 5,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  13.75,
+                  13.0,
+                  11.75,
+                  11.25,
+                  10.5,
+                  10.0
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 7.17,
+          "state": {
+            "revision": 30,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.445157,
+                "y": 0.189877,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 30
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 9.5,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.011433,
+                  "dy": -0.007639
+                },
+                "moving": true,
+                "remainingTicks": 4,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  13.75,
+                  13.0,
+                  11.75,
+                  11.25,
+                  10.5,
+                  10.0
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 7.413,
+          "state": {
+            "revision": 31,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.433031,
+                "y": 0.183395,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 31
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 9.25,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.012126,
+                  "dy": -0.006482
+                },
+                "moving": true,
+                "remainingTicks": 5,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  13.0,
+                  11.75,
+                  11.25,
+                  10.5,
+                  10.0,
+                  9.5
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 7.656,
+          "state": {
+            "revision": 32,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.420328,
+                "y": 0.178133,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 32
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 9.0,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.012703,
+                  "dy": -0.005262
+                },
+                "moving": true,
+                "remainingTicks": 4,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  13.0,
+                  11.75,
+                  11.25,
+                  10.5,
+                  10.0,
+                  9.5
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 7.899,
+          "state": {
+            "revision": 33,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.40717,
+                "y": 0.174142,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 33
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 8.75,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.013158,
+                  "dy": -0.003991
+                },
+                "moving": true,
+                "remainingTicks": 3,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  13.0,
+                  11.75,
+                  11.25,
+                  10.5,
+                  10.0,
+                  9.5
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 8.263,
+          "state": {
+            "revision": 34,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.393684,
+                "y": 0.17146,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 34
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 8.5,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.013486,
+                  "dy": -0.002682
+                },
+                "moving": true,
+                "remainingTicks": 5,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  11.75,
+                  11.25,
+                  10.5,
+                  10.0,
+                  9.5,
+                  8.75
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 8.505,
+          "state": {
+            "revision": 35,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.38,
+                "y": 0.170112,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 35
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 8.25,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.013684,
+                  "dy": -0.001348
+                },
+                "moving": true,
+                "remainingTicks": 4,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  11.75,
+                  11.25,
+                  10.5,
+                  10.0,
+                  9.5,
+                  8.75
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 8.749,
+          "state": {
+            "revision": 36,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.36625,
+                "y": 0.170112,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 36
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 8.0,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.01375,
+                  "dy": 0.0
+                },
+                "moving": true,
+                "remainingTicks": 5,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  11.25,
+                  10.5,
+                  10.0,
+                  9.5,
+                  8.75,
+                  8.25
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        },
+        {
+          "elapsed": 8.991,
+          "state": {
+            "revision": 37,
+            "principal": "human:kid",
+            "page": {
+              "id": "farm",
+              "name": "The Farm"
+            },
+            "stickers": [
+              {
+                "id": "butterfly-1",
+                "definition": "butterfly",
+                "x": 0.352566,
+                "y": 0.17146,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "flutter",
+                "revision": 37
+              },
+              {
+                "id": "cow-1",
+                "definition": "cow",
+                "x": 0.24,
+                "y": 0.86,
+                "scale": 1.0,
+                "facing": "right",
+                "owner": "human:kid",
+                "mine": true,
+                "animation": "rest",
+                "revision": 1
+              }
+            ],
+            "motion": [
+              {
+                "subject": "butterfly-1",
+                "goal": {
+                  "subject": "butterfly-1",
+                  "intent": "control",
+                  "behavior": "improvise"
+                },
+                "heading": 7.75,
+                "headingCount": 16,
+                "speed": 0.055,
+                "lastDelta": {
+                  "dx": -0.013684,
+                  "dy": 0.001348
+                },
+                "moving": true,
+                "remainingTicks": 4,
+                "recentTurns": 6,
+                "recentSteeringHeadings": [
+                  11.25,
+                  10.5,
+                  10.0,
+                  9.5,
+                  8.75,
+                  8.25
+                ],
+                "steering": "curve-left",
+                "curveDegreesPerTick": -5.625
+              }
+            ],
+            "capabilities": {
+              "creator_agent": true,
+              "conversational_agent": true,
+              "jev_controller": true,
+              "page_image_creator": false,
+              "conversation_acknowledgement": true
+            }
+          }
+        }
+      ],
+      "audit": {
+        "activities": [],
+        "events": [
+          {
+            "kind": "start",
+            "at": 96859.601648,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "goal": {
+              "subject": "butterfly-1",
+              "intent": "control",
+              "behavior": "improvise"
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96860.064697,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.457941,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT+CLIP-flutter"
+          },
+          {
+            "kind": "receipt",
+            "at": 96860.065117,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-1",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "animate-own-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 3,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 4,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.38,
+              "y": 0.45
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96860.065682,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-2",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 4,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 5,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.393684,
+              "y": 0.448652
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96860.318598,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-3",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 5,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 6,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.40717,
+              "y": 0.44597
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96860.574544,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-4",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 6,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 7,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.420328,
+              "y": 0.441979
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96860.785042,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.458273,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96860.8553,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-5",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 7,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 8,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.433031,
+              "y": 0.436717
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96861.105365,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-6",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 8,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 9,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.445157,
+              "y": 0.430235
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96861.362135,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-7",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 9,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 10,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.45659,
+              "y": 0.422596
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96861.522585,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.450587,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96861.637844,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-8",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 10,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 11,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.467219,
+              "y": 0.413873
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96861.917183,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-9",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 11,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 12,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.476942,
+              "y": 0.40415
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96862.176058,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-10",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 12,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 13,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.485665,
+              "y": 0.393521
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96862.417551,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.63345,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96862.45583,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-11",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 13,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 14,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.493304,
+              "y": 0.382088
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96862.719179,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-12",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 14,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 15,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.499786,
+              "y": 0.369962
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96862.981874,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-13",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 15,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 16,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.505048,
+              "y": 0.357259
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96863.243996,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.566003,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96863.244669,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-14",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 16,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 17,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.509039,
+              "y": 0.344101
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96863.501356,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-15",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 17,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 18,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.511721,
+              "y": 0.330615
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96863.768296,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-16",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 18,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 19,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.513069,
+              "y": 0.316931
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96864.046621,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-17",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 19,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 20,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.513069,
+              "y": 0.303181
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96864.300298,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-18",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 20,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 21,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.511721,
+              "y": 0.289497
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96864.319046,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.808354,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96864.559355,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-19",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 21,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 22,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.509039,
+              "y": 0.276011
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96864.814439,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-20",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 22,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 23,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.505048,
+              "y": 0.262853
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96865.036701,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.426834,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96865.072283,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-21",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 23,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 24,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.499786,
+              "y": 0.25015
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96865.361715,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-22",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 24,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 25,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.493304,
+              "y": 0.238024
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96865.628757,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-23",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 25,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 26,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.485665,
+              "y": 0.226591
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96865.670833,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.348545,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96865.881282,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-24",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 26,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 27,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.476942,
+              "y": 0.215962
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96866.15768,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-25",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 27,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 28,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.467219,
+              "y": 0.206239
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96866.267869,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.311681,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96866.432998,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-26",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 28,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 29,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.45659,
+              "y": 0.197516
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96866.691545,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-27",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 29,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 30,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.445157,
+              "y": 0.189877
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96866.9421,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.406681,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96866.943211,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-28",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 30,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 31,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.433031,
+              "y": 0.183395
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96867.224324,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-29",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 31,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 32,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.420328,
+              "y": 0.178133
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96867.487457,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-30",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 32,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 33,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.40717,
+              "y": 0.174142
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96867.606745,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.375818,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96867.749535,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-31",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 33,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 34,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.393684,
+              "y": 0.17146
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96868.021267,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-32",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 34,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 35,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.38,
+              "y": 0.170112
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96868.208217,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.32334,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96868.302007,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-33",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 35,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 36,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.36625,
+              "y": 0.170112
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96868.554557,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-34",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 36,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 37,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.352566,
+              "y": 0.17146
+            }
+          },
+          {
+            "kind": "stop",
+            "at": 96868.712417,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "reason": "child-grabbed"
+          }
+        ]
+      },
+      "elapsed": 9.114,
+      "translated_by": null,
+      "receipts": [
+        {
+          "commandId": "motor-1-23",
+          "actor": "human:kid",
+          "requestedBy": "human:kid",
+          "translatedBy": null,
+          "selectedBy": "agent:jev-visual-1",
+          "action": "move-sticker",
+          "object": "butterfly-1",
+          "basedOnRevision": 25,
+          "accepted": true,
+          "reason": "ok",
+          "resultRevision": 26,
+          "replayed": false
+        },
+        {
+          "commandId": "motor-1-24",
+          "actor": "human:kid",
+          "requestedBy": "human:kid",
+          "translatedBy": null,
+          "selectedBy": "agent:jev-visual-1",
+          "action": "move-sticker",
+          "object": "butterfly-1",
+          "basedOnRevision": 26,
+          "accepted": true,
+          "reason": "ok",
+          "resultRevision": 27,
+          "replayed": false
+        },
+        {
+          "commandId": "motor-1-25",
+          "actor": "human:kid",
+          "requestedBy": "human:kid",
+          "translatedBy": null,
+          "selectedBy": "agent:jev-visual-1",
+          "action": "move-sticker",
+          "object": "butterfly-1",
+          "basedOnRevision": 27,
+          "accepted": true,
+          "reason": "ok",
+          "resultRevision": 28,
+          "replayed": false
+        },
+        {
+          "commandId": "motor-1-26",
+          "actor": "human:kid",
+          "requestedBy": "human:kid",
+          "translatedBy": null,
+          "selectedBy": "agent:jev-visual-1",
+          "action": "move-sticker",
+          "object": "butterfly-1",
+          "basedOnRevision": 28,
+          "accepted": true,
+          "reason": "ok",
+          "resultRevision": 29,
+          "replayed": false
+        },
+        {
+          "commandId": "motor-1-27",
+          "actor": "human:kid",
+          "requestedBy": "human:kid",
+          "translatedBy": null,
+          "selectedBy": "agent:jev-visual-1",
+          "action": "move-sticker",
+          "object": "butterfly-1",
+          "basedOnRevision": 29,
+          "accepted": true,
+          "reason": "ok",
+          "resultRevision": 30,
+          "replayed": false
+        },
+        {
+          "commandId": "motor-1-28",
+          "actor": "human:kid",
+          "requestedBy": "human:kid",
+          "translatedBy": null,
+          "selectedBy": "agent:jev-visual-1",
+          "action": "move-sticker",
+          "object": "butterfly-1",
+          "basedOnRevision": 30,
+          "accepted": true,
+          "reason": "ok",
+          "resultRevision": 31,
+          "replayed": false
+        },
+        {
+          "commandId": "motor-1-29",
+          "actor": "human:kid",
+          "requestedBy": "human:kid",
+          "translatedBy": null,
+          "selectedBy": "agent:jev-visual-1",
+          "action": "move-sticker",
+          "object": "butterfly-1",
+          "basedOnRevision": 31,
+          "accepted": true,
+          "reason": "ok",
+          "resultRevision": 32,
+          "replayed": false
+        },
+        {
+          "commandId": "motor-1-30",
+          "actor": "human:kid",
+          "requestedBy": "human:kid",
+          "translatedBy": null,
+          "selectedBy": "agent:jev-visual-1",
+          "action": "move-sticker",
+          "object": "butterfly-1",
+          "basedOnRevision": 32,
+          "accepted": true,
+          "reason": "ok",
+          "resultRevision": 33,
+          "replayed": false
+        },
+        {
+          "commandId": "motor-1-31",
+          "actor": "human:kid",
+          "requestedBy": "human:kid",
+          "translatedBy": null,
+          "selectedBy": "agent:jev-visual-1",
+          "action": "move-sticker",
+          "object": "butterfly-1",
+          "basedOnRevision": 33,
+          "accepted": true,
+          "reason": "ok",
+          "resultRevision": 34,
+          "replayed": false
+        },
+        {
+          "commandId": "motor-1-32",
+          "actor": "human:kid",
+          "requestedBy": "human:kid",
+          "translatedBy": null,
+          "selectedBy": "agent:jev-visual-1",
+          "action": "move-sticker",
+          "object": "butterfly-1",
+          "basedOnRevision": 34,
+          "accepted": true,
+          "reason": "ok",
+          "resultRevision": 35,
+          "replayed": false
+        },
+        {
+          "commandId": "motor-1-33",
+          "actor": "human:kid",
+          "requestedBy": "human:kid",
+          "translatedBy": null,
+          "selectedBy": "agent:jev-visual-1",
+          "action": "move-sticker",
+          "object": "butterfly-1",
+          "basedOnRevision": 35,
+          "accepted": true,
+          "reason": "ok",
+          "resultRevision": 36,
+          "replayed": false
+        },
+        {
+          "commandId": "motor-1-34",
+          "actor": "human:kid",
+          "requestedBy": "human:kid",
+          "translatedBy": null,
+          "selectedBy": "agent:jev-visual-1",
+          "action": "move-sticker",
+          "object": "butterfly-1",
+          "basedOnRevision": 36,
+          "accepted": true,
+          "reason": "ok",
+          "resultRevision": 37,
+          "replayed": false
+        }
+      ]
+    },
+    {
+      "id": "human-hand",
+      "hold": {
+        "ok": true,
+        "state": {
+          "revision": 37,
+          "principal": "human:kid",
+          "page": {
+            "id": "farm",
+            "name": "The Farm"
+          },
+          "stickers": [
+            {
+              "id": "butterfly-1",
+              "definition": "butterfly",
+              "x": 0.352566,
+              "y": 0.17146,
+              "scale": 1.0,
+              "facing": "right",
+              "owner": "human:kid",
+              "mine": true,
+              "animation": "flutter",
+              "revision": 37
+            },
+            {
+              "id": "cow-1",
+              "definition": "cow",
+              "x": 0.24,
+              "y": 0.86,
+              "scale": 1.0,
+              "facing": "right",
+              "owner": "human:kid",
+              "mine": true,
+              "animation": "rest",
+              "revision": 1
+            }
+          ],
+          "motion": [],
+          "capabilities": {
+            "creator_agent": true,
+            "conversational_agent": true,
+            "jev_controller": true,
+            "page_image_creator": false,
+            "conversation_acknowledgement": true
+          }
+        }
+      },
+      "move": {
+        "ok": true,
+        "receipt": {
+          "commandId": "video-child-move",
+          "actor": "human:kid",
+          "requestedBy": null,
+          "translatedBy": null,
+          "selectedBy": null,
+          "action": "move-sticker",
+          "object": "butterfly-1",
+          "basedOnRevision": null,
+          "accepted": true,
+          "reason": "ok",
+          "resultRevision": 38,
+          "replayed": false
+        },
+        "state": {
+          "revision": 38,
+          "principal": "human:kid",
+          "page": {
+            "id": "farm",
+            "name": "The Farm"
+          },
+          "stickers": [
+            {
+              "id": "butterfly-1",
+              "definition": "butterfly",
+              "x": 0.68,
+              "y": 0.52,
+              "scale": 1.0,
+              "facing": "right",
+              "owner": "human:kid",
+              "mine": true,
+              "animation": "rest",
+              "revision": 38
+            },
+            {
+              "id": "cow-1",
+              "definition": "cow",
+              "x": 0.24,
+              "y": 0.86,
+              "scale": 1.0,
+              "facing": "right",
+              "owner": "human:kid",
+              "mine": true,
+              "animation": "rest",
+              "revision": 1
+            }
+          ],
+          "motion": [],
+          "capabilities": {
+            "creator_agent": true,
+            "conversational_agent": true,
+            "jev_controller": true,
+            "page_image_creator": false,
+            "conversation_acknowledgement": true
+          }
+        }
+      },
+      "after": {
+        "revision": 38,
+        "principal": "human:kid",
+        "page": {
+          "id": "farm",
+          "name": "The Farm"
+        },
+        "stickers": [
+          {
+            "id": "butterfly-1",
+            "definition": "butterfly",
+            "x": 0.68,
+            "y": 0.52,
+            "scale": 1.0,
+            "facing": "right",
+            "owner": "human:kid",
+            "mine": true,
+            "animation": "rest",
+            "revision": 38
+          },
+          {
+            "id": "cow-1",
+            "definition": "cow",
+            "x": 0.24,
+            "y": 0.86,
+            "scale": 1.0,
+            "facing": "right",
+            "owner": "human:kid",
+            "mine": true,
+            "animation": "rest",
+            "revision": 1
+          }
+        ],
+        "motion": [],
+        "capabilities": {
+          "creator_agent": true,
+          "conversational_agent": true,
+          "jev_controller": true,
+          "page_image_creator": false,
+          "conversation_acknowledgement": true
+        }
+      },
+      "audit": {
+        "activities": [],
+        "events": [
+          {
+            "kind": "start",
+            "at": 96859.601648,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "goal": {
+              "subject": "butterfly-1",
+              "intent": "control",
+              "behavior": "improvise"
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96860.064697,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.457941,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT+CLIP-flutter"
+          },
+          {
+            "kind": "receipt",
+            "at": 96860.065117,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-1",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "animate-own-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 3,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 4,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.38,
+              "y": 0.45
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96860.065682,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-2",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 4,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 5,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.393684,
+              "y": 0.448652
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96860.318598,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-3",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 5,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 6,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.40717,
+              "y": 0.44597
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96860.574544,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-4",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 6,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 7,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.420328,
+              "y": 0.441979
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96860.785042,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.458273,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96860.8553,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-5",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 7,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 8,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.433031,
+              "y": 0.436717
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96861.105365,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-6",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 8,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 9,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.445157,
+              "y": 0.430235
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96861.362135,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-7",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 9,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 10,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.45659,
+              "y": 0.422596
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96861.522585,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.450587,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96861.637844,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-8",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 10,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 11,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.467219,
+              "y": 0.413873
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96861.917183,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-9",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 11,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 12,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.476942,
+              "y": 0.40415
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96862.176058,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-10",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 12,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 13,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.485665,
+              "y": 0.393521
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96862.417551,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.63345,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96862.45583,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-11",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 13,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 14,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.493304,
+              "y": 0.382088
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96862.719179,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-12",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 14,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 15,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.499786,
+              "y": 0.369962
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96862.981874,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-13",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 15,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 16,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.505048,
+              "y": 0.357259
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96863.243996,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.566003,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96863.244669,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-14",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 16,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 17,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.509039,
+              "y": 0.344101
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96863.501356,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-15",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 17,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 18,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.511721,
+              "y": 0.330615
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96863.768296,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-16",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 18,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 19,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.513069,
+              "y": 0.316931
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96864.046621,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-17",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 19,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 20,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.513069,
+              "y": 0.303181
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96864.300298,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-18",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 20,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 21,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.511721,
+              "y": 0.289497
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96864.319046,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.808354,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96864.559355,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-19",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 21,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 22,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.509039,
+              "y": 0.276011
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96864.814439,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-20",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 22,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 23,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.505048,
+              "y": 0.262853
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96865.036701,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.426834,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96865.072283,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-21",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 23,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 24,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.499786,
+              "y": 0.25015
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96865.361715,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-22",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 24,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 25,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.493304,
+              "y": 0.238024
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96865.628757,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-23",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 25,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 26,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.485665,
+              "y": 0.226591
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96865.670833,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.348545,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96865.881282,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-24",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 26,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 27,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.476942,
+              "y": 0.215962
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96866.15768,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-25",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 27,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 28,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.467219,
+              "y": 0.206239
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96866.267869,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.311681,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96866.432998,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-26",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 28,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 29,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.45659,
+              "y": 0.197516
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96866.691545,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-27",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 29,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 30,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.445157,
+              "y": 0.189877
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96866.9421,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.406681,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96866.943211,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-28",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 30,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 31,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.433031,
+              "y": 0.183395
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96867.224324,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-29",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 31,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 32,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.420328,
+              "y": 0.178133
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96867.487457,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-30",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 32,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 33,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.40717,
+              "y": 0.174142
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96867.606745,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.375818,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96867.749535,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-31",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 33,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 34,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.393684,
+              "y": 0.17146
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96868.021267,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-32",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 34,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 35,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.38,
+              "y": 0.170112
+            }
+          },
+          {
+            "kind": "decision",
+            "at": 96868.208217,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "memoryRecallCount": 3,
+            "seconds": 0.32334,
+            "choice": "MOVE:butterfly-1:CURVE-LEFT"
+          },
+          {
+            "kind": "receipt",
+            "at": 96868.302007,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-33",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 35,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 36,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.36625,
+              "y": 0.170112
+            }
+          },
+          {
+            "kind": "receipt",
+            "at": 96868.554557,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "receipt": {
+              "commandId": "motor-1-34",
+              "actor": "human:kid",
+              "requestedBy": "human:kid",
+              "translatedBy": null,
+              "selectedBy": "agent:jev-visual-1",
+              "action": "move-sticker",
+              "object": "butterfly-1",
+              "basedOnRevision": 36,
+              "accepted": true,
+              "reason": "ok",
+              "resultRevision": 37,
+              "replayed": false
+            },
+            "position": {
+              "x": 0.352566,
+              "y": 0.17146
+            }
+          },
+          {
+            "kind": "stop",
+            "at": 96868.712417,
+            "subject": "butterfly-1",
+            "serial": 1,
+            "reason": "child-grabbed"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-isolation",
+      "farm": {
+        "revision": 38,
+        "principal": "human:kid",
+        "page": {
+          "id": "farm",
+          "name": "The Farm"
+        },
+        "stickers": [
+          {
+            "id": "butterfly-1",
+            "definition": "butterfly",
+            "x": 0.68,
+            "y": 0.52,
+            "scale": 1.0,
+            "facing": "right",
+            "owner": "human:kid",
+            "mine": true,
+            "animation": "rest",
+            "revision": 38
+          },
+          {
+            "id": "cow-1",
+            "definition": "cow",
+            "x": 0.24,
+            "y": 0.86,
+            "scale": 1.0,
+            "facing": "right",
+            "owner": "human:kid",
+            "mine": true,
+            "animation": "rest",
+            "revision": 1
+          }
+        ],
+        "motion": [],
+        "capabilities": {
+          "creator_agent": true,
+          "conversational_agent": true,
+          "jev_controller": true,
+          "page_image_creator": false,
+          "conversation_acknowledgement": true
+        }
+      },
+      "space": {
+        "ok": true,
+        "state": {
+          "revision": 0,
+          "principal": "human:kid",
+          "page": {
+            "id": "space",
+            "name": "Space"
+          },
+          "stickers": [],
+          "motion": [],
+          "capabilities": {
+            "creator_agent": true,
+            "conversational_agent": true,
+            "jev_controller": true,
+            "page_image_creator": false,
+            "conversation_acknowledgement": true
+          }
+        }
+      },
+      "restored": {
+        "ok": true,
+        "state": {
+          "revision": 38,
+          "principal": "human:kid",
+          "page": {
+            "id": "farm",
+            "name": "The Farm"
+          },
+          "stickers": [
+            {
+              "id": "butterfly-1",
+              "definition": "butterfly",
+              "x": 0.68,
+              "y": 0.52,
+              "scale": 1.0,
+              "facing": "right",
+              "owner": "human:kid",
+              "mine": true,
+              "animation": "rest",
+              "revision": 38
+            },
+            {
+              "id": "cow-1",
+              "definition": "cow",
+              "x": 0.24,
+              "y": 0.86,
+              "scale": 1.0,
+              "facing": "right",
+              "owner": "human:kid",
+              "mine": true,
+              "animation": "rest",
+              "revision": 1
+            }
+          ],
+          "motion": [],
+          "capabilities": {
+            "creator_agent": true,
+            "conversational_agent": true,
+            "jev_controller": true,
+            "page_image_creator": false,
+            "conversation_acknowledgement": true
+          }
+        }
+      }
+    },
+    {
+      "id": "language",
+      "utterance": "Make the butterfly flutter.",
+      "elapsed": 5.49,
+      "response": {
+        "ok": true,
+        "reply": "Flutter flutter! \ud83e\udd8b Here comes the butterfly's pretty wing dance \u2014 flap, flap, flap!",
+        "interaction": {
+          "episodeId": "episode-1",
+          "sequence": 1,
+          "sceneRevision": 38,
+          "utterance": "Make the butterfly flutter.",
+          "inputMode": "text",
+          "deicticReference": null,
+          "signals": []
+        },
+        "jev": {
+          "ok": true,
+          "goal": {
+            "subject": "butterfly-1",
+            "intent": "animate",
+            "behavior": "flutter"
+          },
+          "activity": {
+            "subject": "butterfly-1",
+            "goal": {
+              "subject": "butterfly-1",
+              "intent": "animate",
+              "behavior": "flutter"
+            },
+            "heading": 0,
+            "headingCount": 16,
+            "speed": 0.055,
+            "lastDelta": {
+              "dx": 0.0,
+              "dy": 0.0
+            },
+            "moving": false,
+            "remainingTicks": 0,
+            "recentTurns": 0,
+            "recentSteeringHeadings": [],
+            "steering": "heading",
+            "curveDegreesPerTick": 0.0
+          },
+          "result": "playing"
+        },
+        "state": {
+          "revision": 38,
+          "principal": "human:kid",
+          "page": {
+            "id": "farm",
+            "name": "The Farm"
+          },
+          "stickers": [
+            {
+              "id": "butterfly-1",
+              "definition": "butterfly",
+              "x": 0.68,
+              "y": 0.52,
+              "scale": 1.0,
+              "facing": "right",
+              "owner": "human:kid",
+              "mine": true,
+              "animation": "rest",
+              "revision": 38
+            },
+            {
+              "id": "cow-1",
+              "definition": "cow",
+              "x": 0.24,
+              "y": 0.86,
+              "scale": 1.0,
+              "facing": "right",
+              "owner": "human:kid",
+              "mine": true,
+              "animation": "rest",
+              "revision": 1
+            }
+          ],
+          "motion": [
+            {
+              "subject": "butterfly-1",
+              "goal": {
+                "subject": "butterfly-1",
+                "intent": "animate",
+                "behavior": "flutter"
+              },
+              "heading": 0,
+              "headingCount": 16,
+              "speed": 0.055,
+              "lastDelta": {
+                "dx": 0.0,
+                "dy": 0.0
+              },
+              "moving": false,
+              "remainingTicks": 0,
+              "recentTurns": 0,
+              "recentSteeringHeadings": [],
+              "steering": "heading",
+              "curveDegreesPerTick": 0.0
+            }
+          ],
+          "capabilities": {
+            "creator_agent": true,
+            "conversational_agent": true,
+            "jev_controller": true,
+            "page_image_creator": false,
+            "conversation_acknowledgement": true
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+Pillow==11.1.0
+numpy==2.1.3
+scipy==1.15.1
+soundfile==0.13.1
+CairoSVG==2.9.0
+# Optional measured vocal alignment: faster-whisper>=1.2,<2
