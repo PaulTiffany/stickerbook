@@ -13050,30 +13050,26 @@
       "original_path": "web/static/assets/stickers/paul-tiffany/rest.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/paul-tiffany/rest.svg",
       "original_sha256": "31a28066a67dcd8b87faa363563fa81a06207b23e3959a0443e9bcf1af8df96a",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_05_pose_01.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/paul-tiffany_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/paul-tiffany/rest.png",
-      "sheet_id": "people_05_pose_01",
-      "cell": 2,
+      "sheet_id": "paul-tiffany_user_portraits",
+      "cell": 0,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Giulio Prisco (giulio-prisco), pose: rest; David Orban (david-orban), pose: rest; Paul Tiffany (paul-tiffany), pose: rest; leave unused cells blank. No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied Paul portraits. rest=neutral; explain=open hands; chalkboard=thinking/notebook; poster=wave. Legacy pose names/clips preserved; source alpha retained with disconnected flecks removed.",
+      "prompt": null,
       "crop_union_bounds": [
         46,
         71,
         488,
         525
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "57a62ccfb3cce284f5b8f998af42790f3010d4dcc7de3036c0793d0533e27f0f"
     },
     {
       "asset": "giulio-prisco",
@@ -13146,30 +13142,26 @@
       "original_path": "web/static/assets/stickers/paul-tiffany/explain.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/paul-tiffany/explain.svg",
       "original_sha256": "dc8a3eb71f2f6ab1cb9ba025cd26652af6f33204d5589148b4aa5c74cff53d4e",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_05_pose_02.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/paul-tiffany_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/paul-tiffany/explain.png",
-      "sheet_id": "people_05_pose_02",
-      "cell": 2,
+      "sheet_id": "paul-tiffany_user_portraits",
+      "cell": 1,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Giulio Prisco (giulio-prisco), pose: cosmic; David Orban (david-orban), pose: explain; Paul Tiffany (paul-tiffany), pose: explain; leave unused cells blank. No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied Paul portraits. rest=neutral; explain=open hands; chalkboard=thinking/notebook; poster=wave. Legacy pose names/clips preserved; source alpha retained with disconnected flecks removed.",
+      "prompt": null,
       "crop_union_bounds": [
         46,
         71,
         488,
         525
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "9d288981fba9ca67a388d118f1db9df4ced7b783f69938dcba61b89fa75f520c"
     },
     {
       "asset": "giulio-prisco",
@@ -13242,30 +13234,26 @@
       "original_path": "web/static/assets/stickers/paul-tiffany/chalkboard.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/paul-tiffany/chalkboard.svg",
       "original_sha256": "1ceb31a5a5e094bd22167b22be08449289ee59c3a49706f86d4f3c8926a57400",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_05_pose_03.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/paul-tiffany_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/paul-tiffany/chalkboard.png",
-      "sheet_id": "people_05_pose_03",
+      "sheet_id": "paul-tiffany_user_portraits",
       "cell": 2,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Giulio Prisco (giulio-prisco), pose: book; David Orban (david-orban), pose: point; Paul Tiffany (paul-tiffany), pose: chalkboard; leave unused cells blank. No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied Paul portraits. rest=neutral; explain=open hands; chalkboard=thinking/notebook; poster=wave. Legacy pose names/clips preserved; source alpha retained with disconnected flecks removed.",
+      "prompt": null,
       "crop_union_bounds": [
         46,
         71,
         488,
         525
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "3f68616c5b3f8dc988e52e524c4c58eb68b89f13f09f2aac20940210c3b278ca"
     },
     {
       "asset": "giulio-prisco",
@@ -13338,35 +13326,31 @@
       "original_path": "web/static/assets/stickers/paul-tiffany/poster.svg",
       "backup_path": "assets/_backup_pre_minimax_refresh/web/static/assets/stickers/paul-tiffany/poster.svg",
       "original_sha256": "b440cdb01d8ef42055d636753b2badc1d6e8d8641e5f97b7b87894622ff2ebb4",
-      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/people_05_pose_04.png",
+      "generated_sheet_path": "assets/_generated_minimax_refresh/sheets/paul-tiffany_user_portraits.png",
       "cropped_output_path": "assets/_generated_minimax_refresh/cropped/paul-tiffany/poster.png",
-      "sheet_id": "people_05_pose_04",
-      "cell": 2,
+      "sheet_id": "paul-tiffany_user_portraits",
+      "cell": 3,
       "generation_settings": {
-        "provider": "OpenRouter",
-        "model": "openai/gpt-image-2",
-        "n": 1,
-        "aspect_ratio": "1:1",
-        "quality": "low",
-        "background": "opaque",
-        "style_reference": "assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png"
+        "provider": "user-supplied artwork",
+        "model": null
       },
-      "replacement_succeeded": false,
-      "status": "skipped-likeness-review",
-      "notes": "Original retained for all poses: generated cameo sets failed reliable likeness/identity continuity; some copied animal references. One rest sheet also failed with HTTP 400. Use verified portrait references in a subsequent pass.",
-      "prompt": "Create a 2x2 sheet of four separate sticker illustrations, one per cell, with generous clear margins and no overlap or text. Cohesive colorful child-friendly polished storybook style, clean silhouettes readable at small sizes. Plain removable white background. Preserve each subject and its specified pose; people must retain recognizable likenesses. Subjects, in top-left, top-right, bottom-left, bottom-right order: Giulio Prisco (giulio-prisco), pose: think; David Orban (david-orban), pose: wave; Paul Tiffany (paul-tiffany), pose: poster; leave unused cells blank. No scenery or perches. Pose names describe actual body poses, not labels. For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; land settle; alert raise head. Preserve distinct poses. Reference supplies style only, not subjects or poses. Keep all four sticker silhouettes inside their own cells.",
+      "replacement_succeeded": true,
+      "status": "replaced",
+      "notes": "User-supplied Paul portraits. rest=neutral; explain=open hands; chalkboard=thinking/notebook; poster=wave. Legacy pose names/clips preserved; source alpha retained with disconnected flecks removed.",
+      "prompt": null,
       "crop_union_bounds": [
         46,
         71,
         488,
         525
       ],
-      "generation_status": "cropped-awaiting-visual-review"
+      "generation_status": "cropped-awaiting-visual-review",
+      "output_sha256": "81b10f646ee542ce2759bd277c5db298e811dda5b12ffc90d6381aa4601fca58"
     }
   ],
   "summary": {
-    "replaced_stickers": 57,
-    "replaced_pose_files": 228,
+    "replaced_stickers": 58,
+    "replaced_pose_files": 232,
     "retained_stickers": [
       "anders-sandberg",
       "aubrey-de-grey",
@@ -13383,7 +13367,6 @@
       "max-more",
       "natasha-vita-more",
       "nick-bostrom",
-      "paul-tiffany",
       "ray-kurzweil",
       "robert-ettinger",
       "vernor-vinge"
@@ -13400,5 +13383,20 @@
     "active_interface": "Original SVG paths/viewBoxes with embedded 256px transparent PNGs",
     "backgrounds_changed": false,
     "runtime_code_changed": false
-  }
+  },
+  "supplied_sheets": [
+    {
+      "id": "paul-tiffany_user_portraits",
+      "path": "assets/_generated_minimax_refresh/sheets/paul-tiffany_user_portraits.png",
+      "source_filename": "Four Friendly Sticker Portraits.png",
+      "source_sha256": "6140b3394c292e696e95c49c9b154833cf641367f9b35d39389fb6109e82d6e1",
+      "provenance": "Supplied by Paul for Paul Tiffany stickers; no new inference",
+      "cell_to_pose": {
+        "rest": 0,
+        "explain": 1,
+        "chalkboard": 2,
+        "poster": 3
+      }
+    }
+  ]
 }

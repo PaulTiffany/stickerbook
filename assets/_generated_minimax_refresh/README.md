@@ -2,7 +2,8 @@
 
 Branch: `feat/minimax-sprite-refresh` (historical working name).
 
-Refreshed **57 stickers / 228 pose files** using **OpenRouter GPT Image 2**,
+Refreshed **58 stickers / 232 pose files** using OpenRouter and supplied artwork.
+The generated assets used **OpenRouter GPT Image 2**,
 low quality setting, 1024px 2x2 sheets. Reported API usage cost including
 consistency refinements: **$1.86151**. Failed calls supplied no usage cost.
 Existing local OpenRouter credentials were used without printing or copying
@@ -36,7 +37,7 @@ including rejected cameos: those rejected images are **not active**.
 
 ## Retained originals and failures
 
-All **19 cameo stickers / 76 poses** remain original. Generated sets did not
+The other **18 cameo stickers / 72 poses** remain original. Generated sets did not
 reliably preserve identity across poses; some even copied animals from the
 style reference. `people_01_pose_01` failed twice, with HTTP 400 recorded on
 retry. Other cameo outputs were rejected during visual review. Use verified
@@ -51,7 +52,7 @@ in the refresh manifest. No background refresh is proposed in this pass.
 ## Validation
 
 - 304 original/backup SHA-256 pairs verified before replacement.
-- 228 installed SVG raster payloads match staged crops and have real alpha.
+- 232 installed SVG raster payloads match staged crops and have real alpha.
 - All 304 active image URLs served successfully by the running local app.
 - Canonical manifest and all clip references remain unchanged.
 - A replaced Butterfly SVG rendered successfully through CairoSVG.
@@ -70,3 +71,15 @@ offline workflow dependencies, not new application dependencies. Preparation,
 generation, cropping, reviewed replacement, validation, and this report each
 have a script under `tools/`. Do not rerun staging over installed assets without
 reviewing and reinstalling the resulting crops. No credentials belong in Git.
+
+## Paul Tiffany supplied portraits
+
+Paul supplied a transparent four-portrait sheet, installed without new inference.
+The source is staged as `sheets/paul-tiffany_user_portraits.png`. Neutral maps
+to `rest`, open hands to `explain`, thinking/notebook to `chalkboard`, and waving
+to the legacy `poster` frame. Clip names and timings are unchanged; the supplied
+poses do not depict a literal chalkboard or poster. Crops retain source alpha
+and a common scale. Rejected generated Paul crops are archived in
+`attempts/paul-tiffany_rejected_crops/`. Paul is now replaced; the retained-ID
+list above reflects the earlier generation review. The other 18 cameos remain
+original. All 304 live image URLs were reverified; no additional inference cost.
