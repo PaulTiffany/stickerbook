@@ -364,7 +364,7 @@ class Bridge:
             page_image_creator = bool(self.page_image_runtime.available())
         except Exception:
             page_image_creator = False
-        return {
+        result = {
             "creator_agent": bool(raw.get("creator_agent", False)),
             "conversational_agent": bool(
                 raw.get("conversational_agent", False))
@@ -372,6 +372,26 @@ class Bridge:
             "jev_controller": self.jev_controller.available(),
             "page_image_creator": page_image_creator,
         }
+        if raw.get('conversation_acknowledgement') is True and result['conversational_agent']:
+            result['conversation_acknowledgement'] = True
+        return result
+
+    def acknowledge(self, body):
+        """Speech only; no semantic goal, history, memory or kernel consumer."""
+        if not isinstance(body, dict) or set(body) != {'text'} or not isinstance(body['text'], str) or not 1 <= len(body['text'].strip()) <= 2000:
+            return {'ok': False}
+        activation = self._activation_serial
+        if not self._agent_capabilities().get('conversation_acknowledgement'):
+            return {'ok': False}
+        try:
+            result = self.agent_runtime.acknowledge(body['text'].strip())
+        except Exception:
+            return {'ok': False}
+        if not self._active or activation != self._activation_serial:
+            return {'ok': False}
+        if not isinstance(result, dict) or set(result) != {'ok', 'reply'} or result.get('ok') is not True or not isinstance(result.get('reply'), str) or not 1 <= len(result['reply'].strip()) <= 240:
+            return {'ok': False}
+        return {'ok': True, 'reply': result['reply'].strip()}
 
     @_world_locked
     def _gesture(self, command):
@@ -1451,6 +1471,7 @@ def make_handler(bridge: Bridge, quiet: bool = False):
                   "/api/resize": "resize",
                   "/api/facing": "facing",
                   "/api/agent/converse": "converse",
+                  "/api/agent/acknowledge": "acknowledge",
                   "/api/observe-page-path": "observe_page_path",
                   "/api/adult/inference": "set_inference",
                   "/api/creator/draft": "creator_draft"}

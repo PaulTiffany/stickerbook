@@ -142,6 +142,30 @@ class PatternProvider(unittest.TestCase):
                          self.module.prompt_for_input({'scene': {}}))
         self.assertFalse(self.staged({'subject': 'frog-1', 'intent': 'move', 'arbitrary': 4})['ok'])
 
+    def test_optional_acknowledgement_is_short_non_reasoning_and_speech_only(self):
+        module = self.module
+        env = module.INFERENCE_PRESETS['openrouter']['env']
+        with patch.dict(os.environ, {'STICKERBOOK_ACKNOWLEDGEMENT': '1', env: 'test-placeholder'}):
+            for content, expected in [({'reply': 'Let me consider what you mean.'}, True),
+                                      ({'reply': 'Doing it', 'goal': {'intent': 'move'}}, False),
+                                      ({'reply': 'x' * 241}, False), ({'reply': []}, False)]:
+                with patch.object(module.OpenAICompatibleTransport, '_request', autospec=True,
+                        return_value={'choices': [{'message': {'content': json.dumps(content)}}]}) as request:
+                    result = module.acknowledge({'text': 'Fly around the tree.'})
+                    self.assertEqual(result['ok'], expected)
+                    transport, payload, _ = request.call_args.args
+                    self.assertEqual(transport.timeout, 3)
+                    self.assertEqual(payload['reasoning'], {'enabled': False})
+                    self.assertEqual(payload['max_tokens'], 240)
+            with patch.object(module.OpenAICompatibleTransport, '_request', side_effect=TimeoutError) as request:
+                self.assertEqual(module.acknowledge({'text': 'hello'}), {'ok': False})
+                self.assertEqual(request.call_count, 1)  # no retry
+            self.assertEqual(module.acknowledge({'text': 'hello', 'goal': {}}), {'ok': False})
+        with patch.dict(os.environ, {'STICKERBOOK_ACKNOWLEDGEMENT': '0'}):
+            with patch.object(module.OpenAICompatibleTransport, '_request') as request:
+                self.assertEqual(module.acknowledge({'text': 'hello'}), {'ok': False})
+                request.assert_not_called()
+
     def test_missing_and_invalid_pattern_references_fail_closed(self):
         for value in (None, "", "x" * 65, "ANIMATE:frog-1:hop", 8, {}):
             with self.subTest(value=value):

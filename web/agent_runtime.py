@@ -131,10 +131,16 @@ class LoopbackAgentRuntime:
         except Exception:
             return {"creator_agent": False, "conversational_agent": False}
         ready = bool(health.get("ok")) and health.get("role") == "omegallm"
-        return {
+        result = {
             "creator_agent": ready and health.get('creator_agent') is True,
             "conversational_agent": ready,
         }
+        if ready and health.get('conversation_acknowledgement') is True:
+            result['conversation_acknowledgement'] = True
+        return result
+
+    def acknowledge(self, text):
+        return self._json('/acknowledge', {'text': text}, timeout=3.5, limit=4096)
 
     def inference_options(self) -> list:
         try:

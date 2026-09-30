@@ -22,7 +22,8 @@ class VoiceContractCase(unittest.TestCase):
             "converseWithStickerBook(transcript, true, textChatEnabled);",
             app,
         )
-        self.assertIn("const payload = await observePoweredRequest(() => world.converse(body));", app)
+        self.assertIn("const payload = await observePoweredRequest(() => {", app)
+        self.assertIn("const request = world.converse(body);", app)
         self.assertIn('fetch("/api/agent/converse"', app)
         self.assertIn("window.speechSynthesis.speak(utterance);", app)
 
