@@ -147,6 +147,15 @@ class RuntimeAdapterCase(unittest.TestCase):
             ["actions", "goal", "max_turns", "scene", "turn"],
         )
 
+    def test_creator_has_separate_bounded_image_deadline_and_no_world_or_credential_payload(self):
+        runtime = LoopbackAgentRuntime('http://127.0.0.1:8761')
+        with mock.patch.object(runtime, '_json', return_value={'ok': True}) as request:
+            runtime.creator_draft(kind='sticker', prompt='purple dragon', animation_intent='animate',
+                asset_schema_version=2, principal='human:kid', scene={'kernel': 'must not transmit'})
+        self.assertEqual(request.call_args.args, ('/create', {'kind':'sticker','prompt':'purple dragon'}))
+        self.assertEqual(request.call_args.kwargs['timeout'], 320)
+        self.assertEqual(request.call_args.kwargs['limit'], 10*1024*1024)
+
     def test_non_loopback_urls_are_refused_before_network_use(self):
         for cls in (LoopbackAgentRuntime, LoopbackJevRuntime):
             for url in (

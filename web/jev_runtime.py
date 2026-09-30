@@ -110,6 +110,9 @@ class LoopbackJevRuntime:
             "max_turns": int(max_turns),
         })
 
+    def remember(self, events):
+        return self._json('/memory/events', {'events': events})
+
 
 def jev_runtime_from_env():
     """Opt into live OmegaJev only when an explicit loopback URL is supplied."""

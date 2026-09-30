@@ -330,6 +330,8 @@ Browser JavaScript is syntax-checked in GitHub Actions.
 | [`jev/EXPERIMENT.md`](jev/EXPERIMENT.md) | Experimental record, including failures and retractions. |
 | [`openshell/README.md`](openshell/README.md) | Pinned containment layer, policies, provider profiles, and current proof boundary. |
 | [`runtime/README.md`](runtime/README.md) | One-command boot/shutdown, dual-Omega loopback seams, and voice-first deployment graph. |
+| [`docs/OMEGA_AGENT_MEMORY.md`](docs/OMEGA_AGENT_MEMORY.md) | Separate native Omega memories, child feedback, persistence, and learning limits. |
+| [`docs/LOCAL_PLAY_REPAIRS.md`](docs/LOCAL_PLAY_REPAIRS.md) | Live curve/loop fixes, four-frame creation, image drafts, and remaining product limits. |
 | [`NOTICE`](NOTICE) | Third-party attribution and upstream modifications. |
 
 ## Current direction

@@ -81,7 +81,66 @@ class PatternProvider(unittest.TestCase):
             with self.subTest(label=label):
                 result = self.staged({"subject": "frog-1", "intent": "remember-pattern",
                                       "label": label})
-                self.assertEqual(result, {"ok": False, "error": "omegallm-failed-closed"})
+                self.assertEqual(result, {"ok": False, "error": "omegallm-failed-closed",
+                                          "reason": "invalid-semantic-response"})
+
+    def test_native_recall_and_teaching_use_only_offered_experience(self):
+        rpc = types.ModuleType('stickerbookrpc')
+        rpc.current_request = Mock(return_value={'text': 'I like that curve.',
+            'scene': {'page': {'id': 'farm'}, 'recentExperiences': [{'id': 'accepted-1'}]}, 'inference': {}})
+        rpc.recall_memory = Mock(return_value=[{'kind': 'conversation', 'child': 'Call me River.'}])
+        rpc.remember_conversation = Mock()
+        rpc.stage_result = Mock(return_value=True)
+        provider = self.module.StickerBookLLMProvider()
+        transport = Mock()
+        response = {'reply': 'Thanks River.', 'teaching': {'experience': 'accepted-1',
+                    'valence': 'positive', 'lesson': 'Likes gentle curves.'}}
+        with patch.dict(sys.modules, {'stickerbookrpc': rpc}), \
+                patch.object(self.module, 'harden_llm_commands'), \
+                patch.object(self.module, 'clean_inference', return_value=('test', 'test', {})), \
+                patch.object(provider, '_transport', return_value=transport):
+            transport.complete.return_value = json.dumps(response)
+            provider.chat('ignored raw history')
+            self.assertEqual(rpc.stage_result.call_args.args[0]['teaching'], response['teaching'])
+            rpc.remember_conversation.assert_called_once_with('farm', 'I like that curve.', 'Thanks River.')
+            self.assertIn('River', str(transport.complete.call_args))
+            response['teaching']['experience'] = 'invented'
+            transport.complete.return_value = json.dumps(response)
+            provider.chat('ignored raw history')
+            self.assertEqual(rpc.stage_result.call_args.args[0]['reason'], 'unknown-teaching-experience')
+            self.assertEqual(rpc.remember_conversation.call_count, 1)
+
+    def test_sponsored_completion_budget_and_empty_response_diagnostics(self):
+        transport = self.module.OpenAICompatibleTransport('http://unused', 'ASI_API_KEY', 40)
+        with patch.object(transport, '_request', return_value={'choices':[{'message':{'content':'{"reply":"Hello"}'}}]}) as request, \
+                patch.object(transport, '_token', return_value='test-placeholder'):
+            transport.complete('minimax/minimax-m3', {'text':'hello','scene':{}},1200)
+        payload = request.call_args.args[0]
+        self.assertEqual(payload['reasoning_effort'],'low')
+        self.assertEqual(payload['max_tokens'],4096)
+        for finish, reason in [('length','inference-output-budget'), ('stop','inference-empty-content')]:
+            with self.assertRaisesRegex(ValueError, reason):
+                self.module._extract_content({'choices':[{'finish_reason':finish,'message':{'content':None}}]})
+
+    def test_prompt_projection_preserves_rules_when_reference_evidence_exists(self):
+        full = self.module.SYSTEM_PROMPT
+        compact = self.module.prompt_for_input({'scene': {'interaction': {'signals': []}}})
+        self.assertLess(len(compact), len(full) - 2000)
+        for rule in ('image', 'omega_memory', 'teaching', 'remember-pattern',
+                     'perform-pattern', 'authority kernel', 'Never invent an event'):
+            self.assertIn(rule, compact)
+        for scene in ({'interaction': {'signals': [{'kind': 'page-path'}]}},
+                      {'pendingReference': {'demonstration': 'event-1'}}):
+            self.assertEqual(self.module.prompt_for_input({'scene': scene}), full)
+
+    def test_transport_uses_compact_prompt_without_changing_goal_validation(self):
+        transport = self.module.OpenAICompatibleTransport('http://unused', 'ASI_API_KEY', 40)
+        with patch.object(transport, '_request', return_value={'choices': [{'message': {'content': '{"reply":"Hi"}'}}]}) as request, \
+                patch.object(transport, '_token', return_value='test-placeholder'):
+            transport.complete('minimax/minimax-m3', {'scene': {}}, 1200)
+        self.assertEqual(request.call_args.args[0]['messages'][0]['content'],
+                         self.module.prompt_for_input({'scene': {}}))
+        self.assertFalse(self.staged({'subject': 'frog-1', 'intent': 'move', 'arbitrary': 4})['ok'])
 
     def test_missing_and_invalid_pattern_references_fail_closed(self):
         for value in (None, "", "x" * 65, "ANIMATE:frog-1:hop", 8, {}):

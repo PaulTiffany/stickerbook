@@ -56,6 +56,26 @@ class Body(unittest.TestCase):
   self.assertEqual(len(moves),CONTINUATION_TICKS)
   self.assertEqual(len(self.jev.calls),1)
   self.assertAlmostEqual(self.b.kernel.sticker('butterfly-1').x,.52+.055*MOTOR_TICK_SECONDS*CONTINUATION_TICKS)
+ def test_one_curve_choice_bends_every_accepted_tick_and_remains_finite(self):
+  self.jev.choice='MOVE:butterfly-1:CURVE-RIGHT+CLIP-flutter'
+  self.start();self.p.activities['butterfly-1'].next_decision=1000
+  self.advance(CONTINUATION_TICKS+3)
+  moves=[e['position'] for e in self.receipts() if e['receipt']['action']=='move-sticker']
+  self.assertEqual(len(moves),CONTINUATION_TICKS)
+  points=[{'x':.52,'y':.38},*moves]
+  slopes=[round((q['y']-p['y'])/(q['x']-p['x']),5) for p,q in zip(points,points[1:])]
+  self.assertEqual(len(set(slopes)),CONTINUATION_TICKS)
+  self.assertEqual(slopes,sorted(slopes))
+  self.assertEqual(self.b.kernel.sticker('butterfly-1').animation,'flutter')
+  self.b.hold({'sticker':'butterfly-1'});revision=self.b.kernel.revision
+  self.advance(3);self.assertEqual(self.b.kernel.revision,revision)
+ def test_late_curve_choice_does_not_rewind_heading_progress_during_think_time(self):
+  self.jev.choice='MOVE:butterfly-1:CURVE-RIGHT'
+  self.start();a=self.p.activities['butterfly-1']
+  a.heading=4
+  self.jev.hook=lambda _: setattr(a,'heading',4.25)
+  self.advance()
+  self.assertEqual(a.heading,4.25)
  def test_curved_course_and_context_come_from_accepted_motor_deltas(self):
   self.start();self.advance()
   self.jev.choice='MOVE:butterfly-1:RIGHT-SMALL'

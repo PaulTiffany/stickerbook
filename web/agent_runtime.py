@@ -94,7 +94,7 @@ class LoopbackAgentRuntime:
         self.base_url = _loopback_base(base_url)
         self.timeout = float(timeout)
 
-    def _json(self, path: str, payload: dict | None = None) -> dict:
+    def _json(self, path: str, payload: dict | None = None, *, timeout=None, limit=_MAX_RESPONSE_BYTES) -> dict:
         data = None if payload is None else json.dumps(
             payload, separators=(",", ":")).encode("utf-8")
         request = urllib.request.Request(
@@ -104,8 +104,8 @@ class LoopbackAgentRuntime:
             method="GET" if payload is None else "POST",
         )
         try:
-            with urllib.request.urlopen(request, timeout=self.timeout) as response:
-                raw = response.read(_MAX_RESPONSE_BYTES + 1)
+            with urllib.request.urlopen(request, timeout=self.timeout if timeout is None else timeout) as response:
+                raw = response.read(limit + 1)
         except urllib.error.HTTPError as exc:
             code = {409: "omegallm-busy", 503: "omegallm-not-ready",
                     504: "omegallm-timeout"}.get(exc.code, "omegallm-http-error")
@@ -115,7 +115,7 @@ class LoopbackAgentRuntime:
             code = ("omegallm-timeout" if isinstance(reason, TimeoutError)
                     else "omegallm-unavailable")
             raise AgentRuntimeError(code) from exc
-        if len(raw) > _MAX_RESPONSE_BYTES:
+        if len(raw) > limit:
             raise AgentRuntimeError("agent-response-too-large")
         try:
             decoded = json.loads(raw.decode("utf-8"))
@@ -132,7 +132,7 @@ class LoopbackAgentRuntime:
             return {"creator_agent": False, "conversational_agent": False}
         ready = bool(health.get("ok")) and health.get("role") == "omegallm"
         return {
-            "creator_agent": False,
+            "creator_agent": ready and health.get('creator_agent') is True,
             "conversational_agent": ready,
         }
 
@@ -180,7 +180,7 @@ class LoopbackAgentRuntime:
             asset_schema_version: int | None,
             principal: str,
             scene: dict) -> dict:
-        return {"ok": False, "error": "creator-agent-unavailable"}
+        return self._json('/create', {'kind': kind, 'prompt': prompt}, timeout=320, limit=10 * 1024 * 1024)
 
 
 def agent_runtime_from_env():

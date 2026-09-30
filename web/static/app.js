@@ -219,6 +219,7 @@ async function loadAssetManifest() {
 }
 
 function stickerAsset(kind) {
+  if (state && state.visualAssets && state.visualAssets[kind]) return state.visualAssets[kind];
   return assetManifest &&
     assetManifest.stickers &&
     assetManifest.stickers[kind] || null;
@@ -3056,10 +3057,10 @@ function creatorUnavailableMessage() {
   return "The creator-agent seam is ready, but no local creator agent is connected yet.";
 }
 
-let stickerClipIntent = "still";
-
 async function requestCreatorDraft(kind) {
   const isSticker = kind === "sticker";
+  const requestedPage = state && state.page && state.page.id;
+  const go = document.getElementById(isSticker ? "sticker-agent-go" : "page-agent-go");
   const prompt = document.getElementById(
     isSticker ? "sticker-agent-prompt" : "page-agent-prompt"
   ).value.trim();
@@ -3081,12 +3082,13 @@ async function requestCreatorDraft(kind) {
   }
 
   statusNode.textContent = "Making a draft…";
+  go.disabled = true;
 
   try {
     const payload = await world.creatorDraft({
       kind,
       prompt,
-      animation_intent: isSticker ? stickerClipIntent : null,
+      animation_intent: isSticker ? "animate" : null,
       asset_schema_version: 2,
       based_on_revision: state ? state.revision : null,
     });
@@ -3101,14 +3103,58 @@ async function requestCreatorDraft(kind) {
       statusNode.textContent =
         "Draft package ready: " +
         (payload.draft && payload.draft.summary || "idle + behavior clips");
+      const draft = payload.draft;
+      if (draft && draft.asset) {
+        const preview = document.getElementById("sticker-agent-preview");
+        preview.replaceChildren(); preview.hidden = false;
+        for (const src of Object.values(draft.asset.sprites)) {
+          const image = document.createElement("img");
+          image.src = src; image.alt = "Animation pose"; image.width = 72; image.height = 72;
+          preview.appendChild(image);
+        }
+        const use = document.createElement("button");
+        use.type = "button"; use.textContent = "Add to my stickers";
+        use.addEventListener("click", async () => {
+          use.disabled = true;
+          try {
+            const response = await fetch("/api/creator/accept-sticker", {method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify({_page: requestedPage, draft: draft.id})});
+            const accepted = await response.json();
+            if (!accepted.ok) throw new Error(accepted.error || "Draft unavailable");
+            state = accepted.state; hotbarKinds.unshift(accepted.asset);
+            stickerTheme = "all"; stickerCategory = "all"; stickerSearchQuery = "";
+            if (stickerSearch) stickerSearch.value = "";
+            render();
+            backToStickerLibrary();
+          } catch (error) { statusNode.textContent = "Couldn't add this draft. Please try again."; use.disabled = false; }
+        });
+        preview.appendChild(use);
+      }
     } else {
       statusNode.textContent =
         "Draft page ready: " +
         (payload.draft && payload.draft.summary || "preview available");
+      if (payload.draft && payload.draft.variants) {
+        pageUploadDraft = payload.draft;
+        renderPageUploadDraft();
+        const preview = document.getElementById("page-agent-preview");
+        preview.replaceChildren(); preview.hidden = false;
+        for (const variant of Object.values(payload.draft.variants)) {
+          const image = document.createElement("img");
+          image.src = variant.src; image.alt = variant.filename;
+          preview.appendChild(image);
+          const link = document.createElement("a");
+          link.href = variant.src; link.download = variant.filename;
+          link.textContent = "Save " + variant.filename + " "; statusNode.appendChild(link);
+        }
+      }
     }
   } catch (error) {
     console.error(error);
     statusNode.textContent = "Creator agent is unavailable.";
+  } finally {
+    go.disabled = false;
   }
 }
 
@@ -3434,7 +3480,11 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
         "omegallm-not-ready": "I'm getting ready. Please try again in a moment.",
         "page-changed": "The page changed. Please ask me again on this page.",
       };
-      const message = messages[payload && payload.error] ||
+      const responseMessages = {
+        "inference-output-budget": "My answer ran out of room. Please try a shorter request.",
+        "inference-empty-content": "I didn't get an answer that time. Please try again.",
+      };
+      const message = responseMessages[payload && payload.diagnostic && payload.diagnostic.reason] || messages[payload && payload.error] ||
         "I couldn't answer just now. Please try again.";
       if (DEV && payload && payload.diagnostic) {
         dev.verdict.className = "verdict rejected";
@@ -3610,15 +3660,6 @@ for (const button of document.querySelectorAll("[data-page-mode]")) {
 for (const button of document.querySelectorAll("[data-sticker-mode]")) {
   button.addEventListener("click", () => {
     setCreatorMode("sticker", button.dataset.stickerMode);
-  });
-}
-
-for (const button of document.querySelectorAll("[data-clip-intent]")) {
-  button.addEventListener("click", () => {
-    stickerClipIntent = button.dataset.clipIntent;
-    for (const peer of document.querySelectorAll("[data-clip-intent]")) {
-      peer.classList.toggle("active", peer === button);
-    }
   });
 }
 

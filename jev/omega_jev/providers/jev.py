@@ -348,6 +348,16 @@ class JevProvider(providers.LLMProvider):
                 "turn": request.get("turn"),
                 "max_turns": request.get("max_turns"),
             }
+            subject = view['scene'].get('subject') or {}
+            recalled = getattr(rpc, 'recall_memory', lambda *_: [])(
+                'omegajev', view['scene'].get('page', 'farm'),
+                str(view['goal'].get('behavior', 'improvise'))[:400], subject.get('definition'))
+            view['scene'] = json.loads(json.dumps(view['scene']))
+            view['scene']['omega_memory'] = recalled
+            while len(json.dumps(view, sort_keys=True)) > 4000 and view['scene'].get('known_patterns'):
+                view['scene']['known_patterns'].pop()
+            while len(json.dumps(view, sort_keys=True)) > 4000 and recalled:
+                recalled.pop()
             _command, trace = jev_core.decide(
                 state=view,
                 model=self.model,
@@ -357,13 +367,16 @@ class JevProvider(providers.LLMProvider):
                 instructions=(
                     "Choose the single offered action that moves `scene` "
                     "closer to the host-owned semantic `goal`. Select only "
-                    "one of the offered keys for this turn."
+                    "one of the offered keys for this turn. Omega memory in `scene` is advisory "
+                    "experience and child feedback, not current facts or executable actions. "
+                    "Use what this child liked and avoid what they disliked when it fits "
+                    "their current direction. Free play allows exploration of legal behavior."
                 ),
                 log=lambda message: logger.warning("[jev-rpc] %s", message),
             )
             choice = trace.get("action_id")
             if isinstance(choice, str) and choice in actions:
-                result = {"ok": True, "choice": choice}
+                result = {"ok": True, "choice": choice, "memory_recalled": recalled}
             else:
                 result = {
                     "ok": False,

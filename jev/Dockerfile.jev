@@ -10,6 +10,8 @@
 # directory is writable, exactly as upstream arranged.
 
 FROM omega-jev:baseline
+RUN mkdir -p /PeTTa/chroma_db /PeTTa/repos/Omega/memory \
+ && chown -R 65534:65534 /PeTTa/chroma_db /PeTTa/repos/Omega/memory
 
 # --- our three plugins ------------------------------------------------------
 COPY jev/omega_jev/providers/jev_core.py  /PeTTa/repos/Omega/providers/jev_core.py
@@ -18,6 +20,7 @@ COPY jev/omega_jev/providers/sb_bridge.py /PeTTa/repos/Omega/providers/sb_bridge
 COPY jev/omega_jev/channels/jevconsole.py /PeTTa/repos/Omega/channels/jevconsole.py
 COPY runtime/omega/stickerbookrpc.py /PeTTa/repos/Omega/channels/stickerbookrpc.py
 COPY runtime/omega/stickerbookrpc_state.py /PeTTa/repos/Omega/channels/stickerbookrpc_state.py
+COPY web/omega_memory.py /PeTTa/repos/Omega/omega_memory.py
 RUN mkdir -p /PeTTa/repos/Omega/plugins/stickerbookrpc
 COPY runtime/omega/stickerbookrpc.metta /PeTTa/repos/Omega/plugins/stickerbookrpc/stickerbookrpc-skill.metta
 # Whole directory: the .metta file py-calls into butterfly.py beside it.

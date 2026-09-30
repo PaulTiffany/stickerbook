@@ -1717,3 +1717,8 @@ button:focus-visible, a:focus-visible, label:focus-within {
   vector-effect: non-scaling-stroke;
   pointer-events: none;
 }
+/* Pixel drafts remain previews until the child accepts a sticker design. */
+.creator-preview { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.creator-preview[hidden] { display: none; }
+.creator-preview img { max-width: 160px; max-height: 160px; object-fit: contain; }
+.creator-preview button { flex-basis: 100%; }

@@ -13,7 +13,7 @@ memoryDirectory: "./repos/Omega/memory"
 maxFeedback: 2000
 maxRecallItems: 5
 maxEpisodeRecallLines: 5
-maxHistory: 4000
+maxHistory: 0
 chromaDbPath: "./chroma_db"
 embeddingprovider: Local
 embeddingModel: ""
@@ -23,6 +23,7 @@ securityPolicyPath: "./repos/Omega/profile/policy.yaml"
 
 commchannel: stickerbookrpc
 stickerbookRpcRole: "omegallm"
+stickerbookMemoryEnabled: true
 stickerbookRpcPort: 8761
 stickerbookRpcTimeout: 45
 

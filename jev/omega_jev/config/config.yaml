@@ -1,13 +1,13 @@
 # General
 
 # Turns the agent keeps running after a new human message before idling (seconds) 
-maxNewInputLoops: 8
+maxNewInputLoops: 1
 # Extra turns granted on each scheduled wake-up
 maxWakeLoops: 0
 # (deprecated)
 spamShield: False
 # Delay between loop iterations (seconds)
-sleepInterval: 1
+sleepInterval: 0.1
 # LLM model to load overrides *_model parameters see below
 #model: 
 # LLM provider id, see the list below in the Providers section
@@ -27,13 +27,13 @@ memoryDirectory: "./repos/Omega/memory"
 # Memory
 
 # Ceiling on `LAST_SKILL_USE_RESULTS` text fed back into the prompt (chars)
-maxFeedback: 50000
+maxFeedback: 256
 # Items returned by `query`
 maxRecallItems: 20
 # Lines returned by `episodes`
 maxEpisodeRecallLines: 20
 # Tail of `memory/history.metta` included in the prompt (chars)
-maxHistory: 30000
+maxHistory: 0
 # ChromaDB persistence directory used for long-term memory portability.
 chromaDbPath: "./chroma_db"
 # `Local` (Python-side model) or the id of a provider serving OpenAI-compatible embeddings: `OpenAI`, `ASICloud`
@@ -205,6 +205,7 @@ jevActionSet: generic
 # Live service channel settings. These are inert unless commchannel is
 # explicitly overridden to stickerbookrpc by the operator launcher.
 stickerbookRpcRole: "omegajev"
+stickerbookMemoryEnabled: true
 stickerbookRpcPort: 8762
 stickerbookRpcTimeout: 45
 # Deployment authority profile used in stickerbook mode.

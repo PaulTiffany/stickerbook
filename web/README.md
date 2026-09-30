@@ -114,10 +114,13 @@ sprites, and bounded scale metadata. The two version numbers describe different
 layers: creator draft interchange versus installed visual assets.
 
 The current built-ins contain 76 definitions with four initial pose sprites
-each. Those sprites are a starter pose set, not a claim that every future
-sticker must have exactly four. All creator/image seams return drafts only and
-do not mutate the authority kernel or install generated media into a governed
-page.
+each. New powered sticker generation makes four poses for one looping clip.
+The child previews the poses and explicitly adds the host-defined design to
+the page's library. Creation and design acceptance do not place stickers;
+ordinary kernel placement is still required. Page generation returns landscape
+and portrait artwork previews/save links, not a new governed page. Generated
+design catalogs currently last for the host page session. See
+[live repairs](../docs/LOCAL_PLAY_REPAIRS.md) for provider and qualification details.
 
 ## Page gestures
 

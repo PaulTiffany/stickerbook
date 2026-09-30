@@ -353,8 +353,9 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
                 b'id="page-agent-go"',
                 b'id="sticker-agent-prompt"',
                 b'id="sticker-agent-go"',
-                b'data-clip-intent="animate"'):
+                b'id="sticker-agent-preview"'):
             self.assertIn(marker, page)
+        self.assertNotIn(b'data-clip-intent=', page)
 
     def test_voice_and_accessible_chat_are_adult_enabled(self):
         with urllib.request.urlopen(self.url("/"), timeout=5) as r:

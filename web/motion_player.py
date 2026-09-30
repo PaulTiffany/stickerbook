@@ -33,6 +33,7 @@ class Steering:
     facing: str | None = None
     stop: bool = False
     relative: str | None = None
+    curve: int = 0  # host-owned quarter-heading increments per tick
 
 
 @dataclass
@@ -53,6 +54,7 @@ class Activity:
     delta: dict = field(default_factory=lambda: {'dx': 0.0, 'dy': 0.0})
     headings: deque = field(default_factory=lambda: deque(maxlen=6))
     relative: str | None = None
+    curve: int = 0
     next_tick: float = 0.0
     next_decision: float = 0.0
 
@@ -67,7 +69,8 @@ class Activity:
                 'moving': self.remaining > 0, 'remainingTicks': self.remaining,
                 'recentTurns': min(self.turns, DECISION_HORIZON),
                 'recentSteeringHeadings': list(self.headings),
-                'steering': self.relative or 'heading'}
+                'steering': self.relative or ('curve-left' if self.curve < 0 else 'curve-right' if self.curve else 'heading'),
+                'curveDegreesPerTick': self.curve * 5.625}
 
 
 class SerializedJevRuntime:
@@ -82,6 +85,11 @@ class SerializedJevRuntime:
     def choose(self, **kwargs):
         with self.gate:
             return self.runtime.choose(**kwargs)
+
+    def remember(self, events):
+        if not hasattr(self.runtime, 'remember'):
+            return {'ok': False, 'error': 'omega-memory-unavailable'}
+        return self.runtime.remember(events)
 
 
 class MotionPlayer:
@@ -123,6 +131,8 @@ class MotionPlayer:
                 if reason in {'child-interrupted', 'human-superseded', 'child-grabbed', 'child-redirected', 'semantic-work', 'child-left-page'}:
                     self.child_versions[sid] = self.child_versions.get(sid,0) + 1
                 a = self.activities.pop(sid, None)
+                flush = getattr(self.controller, 'experience_flush', None)
+                if flush: flush(sid)
                 if a:
                     self._note('stop', subject=sid, serial=a.serial, reason=reason)
         self.wake.set()
@@ -201,7 +211,7 @@ class MotionPlayer:
         point = self._target_point(a)
         if point is None:
             return None
-        return round(math.atan2(point[1]-sticker.y,point[0]-sticker.x) * HEADING_COUNT/math.tau) % HEADING_COUNT
+        return (round(math.atan2(point[1]-sticker.y,point[0]-sticker.x) * HEADING_COUNT * 4/math.tau) / 4) % HEADING_COUNT
 
     def _relative_heading(self, a, relative):
         bearing = self._bearing(a)
@@ -236,6 +246,7 @@ class MotionPlayer:
                         [('E',0),('SE',2),('S',4),('SW',6),('W',8),('NW',10),('N',12),('NE',14)]})
         options = [(name, heading, a.speed, None) for name, heading in motions.items()]
         options += [('SLOW', a.heading, max(0,a.speed-1), a.relative), ('FASTER', a.heading, min(2,a.speed+1), a.relative)]
+        options += [('CURVE-LEFT', a.heading, a.speed, None), ('CURVE-RIGHT', a.heading, a.speed, None)]
         target_point = self._target_point(a)
         if target_point is not None:
             options += [(name,self._relative_heading(a,relative),a.speed,relative)
@@ -253,13 +264,16 @@ class MotionPlayer:
                 continue
             for clip in [None, *clips]:
                 key = 'MOVE:%s:%s%s' % (a.subject, name, '' if clip is None else '+CLIP-'+clip)
-                choices[key] = Steering(heading, speed, clip, relative=relative)
+                curve = -1 if name == 'CURVE-LEFT' else 1 if name == 'CURVE-RIGHT' else a.curve if name in ('SLOW', 'FASTER') else 0
+                choices[key] = Steering(heading, speed, clip, relative=relative, curve=curve)
                 descriptions[key] = ('Steer %s (heading %d/16); travel at %.3f page fractions/sec '
                     'for at most %d ticks of %.1f seconds%s. Child interruption cancels immediately.'
                     % (name, heading, SPEEDS[speed], CONTINUATION_TICKS, MOTOR_TICK_SECONDS,
                        '' if clip is None else "; also set clip '%s'" % clip))
                 if relative:
                     descriptions[key] += (' Travel toward the target.' if relative == 'toward' else ' Curve around the target in a short local arc, keeping roughly the current radius.') + ' Sense the target and derive a finite heading at each of the six ticks.'
+                if curve:
+                    descriptions[key] += ' Bend %s by 5.625 degrees EACH tick, making one short continuous arc rather than a straight diagonal.' % ('left' if curve < 0 else 'right')
                 if target_point:
                     distance = math.hypot(point[0]-target_point[0],point[1]-target_point[1])
                     descriptions[key] += ' Distance to current target after first tick: %.4f.' % distance
@@ -304,6 +318,7 @@ class MotionPlayer:
             # advances. It carries steering, not an old absolute destination.
             if self._valid(a):
                 self._note('decision', subject=a.subject, serial=a.serial,
+                           memoryRecallCount=min(3, len(result.get('memory_recalled', []))) if isinstance(result, dict) and isinstance(result.get('memory_recalled'), list) else 0,
                            seconds=round(self.clock()-start,6), choice=result.get('choice') if isinstance(result,dict) and isinstance(result.get('choice'),str) and result.get('choice') in choices else None)
                 choice = result.get('choice') if isinstance(result,dict) and result.get('ok') else None
                 if not isinstance(choice,str) or choice not in choices:
@@ -326,7 +341,11 @@ class MotionPlayer:
                         if steer.facing is not None:
                             self._submit(a, 'FACE:%s:%s' % (a.subject,steer.facing.upper()))
                         if a.subject in self.activities and steer.heading is not None:
-                            a.heading, a.speed, a.relative = steer.heading, steer.speed, steer.relative
+                            # A curve is a steering change, not a heading copied
+                            # from before think-time. Keep the body's live heading.
+                            if not steer.curve:
+                                a.heading = steer.heading
+                            a.speed, a.relative, a.curve = steer.speed, steer.relative, steer.curve
                             a.headings.append(a.heading)
                             a.remaining = CONTINUATION_TICKS
                             a.next_tick = max(a.next_tick, self.clock())
@@ -350,6 +369,8 @@ class MotionPlayer:
                             self.stop(a.subject,'target-removed')
                             continue
                         a.heading = self._relative_heading(a,a.relative)
+                    elif a.curve:
+                        a.heading = (a.heading + a.curve / 4) % HEADING_COUNT
                     point = self._point(sticker,a.heading,a.speed)
                     if not all(0 <= v <= 1 for v in point):
                         a.remaining = 0
@@ -375,7 +396,7 @@ class MotionPlayer:
                     'stepsOmitted':max(0,len(p['steps'])-2)} for p in scene['known_patterns']]
                 scene['motion'] = {**a.describe(), 'targetContext':self._target_context(a), 'tickSeconds':MOTOR_TICK_SECONDS,
                     'continuationTicks':CONTINUATION_TICKS,
-                    'contract':'Choose an offered steering/pose intent; coordinates are host-owned. Free play is exploration, not a straight march: vary heading, curves, speed, and pose as you choose. Child directions and known taught patterns shape play. With a target, honor the requested relation: around/circle calls for AROUND steering, not repeated approach. STOP/NOOP pauses. Each choice permits at most six ticks; continuing needs a new choice. Child interruption cancels.'}
+                    'contract':'Choose offered steering/pose only. CURVE bends each tick; LEFT/RIGHT changes heading once. Free play may explore curves, speed and pose. Child direction and memory shape play. Around/circle uses AROUND steering, not approach. At most six ticks per choice, each kernel-adjudicated. Child interruption cancels.'}
                 kwargs = {'goal':dict(a.goal),'scene':scene,'actions':descriptions,
                           'turn':a.turns % DECISION_HORIZON + 1,'max_turns':DECISION_HORIZON}
                 view={'goal':kwargs['goal'],'scene':scene,'turn':kwargs['turn'],'max_turns':kwargs['max_turns']}

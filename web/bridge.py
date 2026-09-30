@@ -52,6 +52,8 @@ from jev_runtime import DisabledJevRuntime, jev_runtime_from_env  # noqa: E402
 from motion_player import MotionPlayer, SerializedJevRuntime  # noqa: E402
 from page_assets import supported_upload  # noqa: E402
 from visual_context import clean_visual, MAX_VISUAL_BODY  # noqa: E402
+from agent_experience import ExperienceCourier  # noqa: E402
+from creator_drafts import publish as publish_creator_draft  # noqa: E402
 from page_image_runtime import (  # noqa: E402
     DisabledPageImageRuntime, page_image_runtime_from_env,
 )
@@ -121,6 +123,8 @@ class Bridge:
         self._world_lock = world_lock or RLock()
         self._active = True
         self._activation_serial = 0
+        self.creator_drafts = {}
+        self.created_assets = {}
         # One inspectable host-only snapshot, replaced on successful resolution.
         # No historical lookup endpoint or execution consumer.
         self.last_trajectory_reference = None
@@ -164,6 +168,11 @@ class Bridge:
             activity=lambda: self._activation_serial if self._active else None)
         self.motion_player = (MotionPlayer(self.jev_controller, threaded=motion_threaded)
                               if continuous_motion else None)
+        self.experiences = ExperienceCourier(self.kernel, self.jev_runtime, self.page_id)
+        self.jev_controller.page_id = self.page_id
+        self.jev_controller.experience_record = self.experiences.record
+        self.jev_controller.experience_flush = self.experiences.flush
+        self.jev_controller.asset_labels = self.created_assets
         if self.motion_player:
             self.jev_controller.subject_activity = lambda subject: self.motion_player.child_versions.get(subject,0)
         self._jev_counter = 0
@@ -215,6 +224,7 @@ class Bridge:
             "definitions": [
                 {
                     "id": name,
+                    **({'name': self.created_assets[name]['name']} if name in self.created_assets else {}),
                     "animations": list(d.animations),
                     "rest_clip": d.rest_animation,
                     "scale_bounds": {
@@ -222,8 +232,9 @@ class Bridge:
                         "max": d.scale_max,
                     },
                 }
-                for name, d in sorted(farm.ASSETS.items())
+                for name, d in sorted(self.kernel.assets.items())
             ],
+            'visualAssets': dict(self.created_assets),
             "capabilities": capabilities,
             "stickers": stickers,
             "motion": self.motion_player.describe() if self.motion_player else [],
@@ -237,6 +248,7 @@ class Bridge:
         source the child can read in-app, without seeing operator instructions.
         """
         scene = self.state()
+        scene.pop('visualAssets', None)
         if self.motion_player:
             # Semantic goals address existing subjects. Keep their clip declarations
             # and the library names, rather than sending every unused definition.
@@ -256,6 +268,8 @@ class Bridge:
         # Declarative only: no complete action keys, so OmegaLLM can refer to
         # what happened without being able to reconstruct or author it.
         scene["recent_actions"] = self.history.describe_for_scene()
+        with self._world_lock:
+            scene['recentExperiences'] = self.experiences.describe()
         return scene
 
     def _runtime_inference_options(self) -> list:
@@ -372,6 +386,7 @@ class Bridge:
             self.motion_player.stop(command.object_id, 'child-interrupted')
         receipt = self.kernel.propose(command)
         self.history.record(receipt, origin=ORIGIN_HUMAN_GESTURE)
+        self.experiences.record(receipt)
         return receipt
 
     def converse(self, body: dict) -> dict:
@@ -452,6 +467,7 @@ class Bridge:
         if not result.get("ok"):
             error = result.get("error")
             return {"ok": False,
+                    'diagnostic': {'stage': 'omegallm-response', 'reason': result.get('reason') if result.get('reason') in ('invalid-teaching', 'unknown-teaching-experience', 'unknown-response-field', 'invalid-goal-fields', 'invalid-semantic-response', 'provider-or-memory-error', 'inference-output-budget', 'inference-empty-content') else 'invalid-agent-response'},
                     "error": error if isinstance(error, str)
                     else "agent-runtime-error",
                     "state": self.state()}
@@ -465,6 +481,10 @@ class Bridge:
                    "interaction": episode.describe()}
         if visual:
             payload['observation'] = {'imageUsed': result.get('image_used') is True}
+        if 'teaching' in result:
+            payload['teaching'] = self.experiences.teach(result['teaching'], scene.get('recentExperiences', []))
+            if not payload['teaching'].get('ok'):
+                payload['reply'] = "I heard your feedback, but couldn't save it for next time."
         # A valid linguistic response consumes the carry even if its goal is
         # refused. All runtime/invalid-response exits above preserve it.
         self.pending_reference = None
@@ -845,7 +865,7 @@ class Bridge:
         except (TypeError, ValueError):
             return {"ok": False, "error": "invalid-agent-response",
                     "state": self.state()}
-        if len(encoded.encode("utf-8")) > 65536:
+        if len(encoded.encode("utf-8")) > 10 * 1024 * 1024:
             return {"ok": False, "error": "agent-response-too-large",
                     "state": self.state()}
 
@@ -856,7 +876,36 @@ class Bridge:
                     else "invalid-agent-response",
                     "state": self.state()}
 
-        return {"ok": True, "draft": result["draft"], "state": self.state()}
+        # Legacy injected draft adapters remain supported; the powered image
+        # lane must publish only its typed PNG frames/variants.
+        draft = result['draft']
+        if draft.get('kind') in ('sticker', 'page'):
+            with self._world_lock:
+                if len(self.creator_drafts) >= 8:
+                    return {'ok': False, 'error': 'creator-draft-limit', 'state': self.state()}
+            try:
+                draft = publish_creator_draft(draft, GENERATED_PAGE_DIR)
+            except (ValueError, OSError):
+                return {'ok': False, 'error': 'invalid-creator-draft', 'state': self.state()}
+            with self._world_lock:
+                self.creator_drafts[draft['id']] = draft
+        return {"ok": True, "draft": draft, "state": self.state()}
+
+    @_world_locked
+    def accept_sticker_draft(self, body):
+        if not isinstance(body, dict) or set(body) != {'draft'}:
+            return self._bad_request('invalid-draft-reference')
+        draft = self.creator_drafts.get(body['draft']) if isinstance(body['draft'], str) else None
+        if not draft or draft['kind'] != 'sticker':
+            return self._bad_request('unknown-sticker-draft')
+        if len(self.created_assets) >= 32:
+            return self._bad_request('created-sticker-limit')
+        identity = 'made-' + draft['id']
+        self.kernel.assets[identity] = self.kernel.load_definition({
+            'name': identity, 'animations': ['none','rest','play'], 'default_clip': 'rest'})
+        self.created_assets[identity] = draft['asset']
+        del self.creator_drafts[draft['id']]
+        return {'ok': True, 'asset': identity, 'state': self.state()}
 
     def page_image_draft(
             self, image_bytes: bytes, content_type: str, filename: str) -> dict:
@@ -1405,6 +1454,7 @@ def make_handler(bridge: Bridge, quiet: bool = False):
                   "/api/observe-page-path": "observe_page_path",
                   "/api/adult/inference": "set_inference",
                   "/api/creator/draft": "creator_draft"}
+        ROUTES['/api/creator/accept-sticker'] = 'accept_sticker_draft'
 
         def do_POST(self):
             path = self.path.split("?")[0]
