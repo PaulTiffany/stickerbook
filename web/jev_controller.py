@@ -271,6 +271,8 @@ class JevController:
             return {
                 "id": sticker.id,
                 "definition": sticker.asset,
+                **({'name': self.asset_labels[sticker.asset]['name']}
+                   if sticker.asset in getattr(self, 'asset_labels', {}) else {}),
                 "x": sticker.x,
                 "y": sticker.y,
                 "scale": sticker.scale,

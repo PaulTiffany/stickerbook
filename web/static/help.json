@@ -91,15 +91,15 @@
         "title": "Public demo versus powered local mode",
         "paragraphs": [
           "The public Pages site is a mechanical demonstration: sticker dragging and animation happen in browser memory and no live agent or provider credential is present.",
-          "The powered version runs locally through the Python authority bridge plus separate OmegaLLM and OmegaJev OpenShell sandboxes. Provider access is limited at the containment boundary and world changes still go through the StickerBook kernel."
+          "The current powered development version runs a host Python authority bridge with separate restricted Docker containers for OmegaLLM and OmegaJev. Each agent has its own memory. World changes still go through the StickerBook kernel. Ordinary Docker does not reproduce OpenShell credential or network mediation."
         ]
       },
       {
         "id": "start-stop",
         "title": "Starting and stopping",
         "paragraphs": [
-          "On the Windows development host, Start StickerBook.cmd is the normal powered launcher and Stop StickerBook.cmd is the normal shutdown path. The first provider setup may ask the responsible operator for an OpenRouter key with hidden input; the launcher does not save that key in repository runtime state.",
-          "Shutdown is outside the agents: the host bridge is stopped and both StickerBook sandboxes are deleted without requiring model cooperation."
+          "The current Docker development path is documented in docs/DOCKER_POWERED_LOCAL.md: the operator starts the two role containers and then the host bridge with explicit localhost URLs. Credentials belong in ignored local operator configuration and are injected when containers are created.",
+          "Shutdown is outside the agents. Stopping the host bridge and role containers does not require model cooperation; each role's Docker memory volumes survive container recreation."
         ]
       },
       {
@@ -113,8 +113,8 @@
         "id": "limits",
         "title": "Current limits",
         "paragraphs": [
-          "Some visual pages may exist before a governed world has been connected for them. Generated page or sticker media is treated as a draft until a separate save/install path exists.",
-          "The dual-Omega OpenShell runtime is implemented and mechanically checked in the repository, but its full WSL2/Docker Desktop/provider path is not labeled live-host verified until it is exercised on the actual host."
+          "All six existing scenes have separate governed page states locally. Generated stickers have four animation poses and enter the current page library only when the child accepts the draft. Generated page artwork can be previewed and saved but does not yet create a new governed page.",
+          "Live local Docker play works, but conversational latency and target fidelity remain variable. Agent memory can shape inference without training model weights. OpenShell remains a desired hardened runtime, outside this local development qualification."
         ]
       }
     ]

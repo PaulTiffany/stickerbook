@@ -101,9 +101,10 @@
         placeholder="A moonlit pond with fireflies..."></textarea>
       <button id="page-agent-go" class="agent-go" type="button">Make a draft</button>
       <div id="page-agent-status" class="agent-status" role="status"></div>
+      <div id="page-agent-preview" class="creator-preview" hidden></div>
     </div>
 
-    <div class="creator-note">The public demo only previews uploads locally and never sends them to a model. In powered local mode, an operator-enabled page-image gateway sends selected artwork to the configured OpenRouter image model to make horizontal and portrait page variants. Saving remains separate.</div>
+    <div class="creator-note">The public demo previews uploads locally. Powered local StickerBook can make landscape and portrait artwork from your description. You can preview and save both pictures; adding new worlds to the book remains separate.</div>
   </div>
 </section>
 
@@ -256,13 +257,10 @@
         <label for="sticker-agent-prompt">What sticker should we make?</label>
         <textarea id="sticker-agent-prompt" maxlength="500"
           placeholder="A sleepy purple dragon..."></textarea>
-        <div class="clip-intent" aria-label="Animation intent">
-          <button type="button" data-clip-intent="still" class="active">still</button>
-          <button type="button" data-clip-intent="move">move</button>
-          <button type="button" data-clip-intent="animate">frames</button>
-        </div>
+        <p>We make four poses that play as one looping animation.</p>
         <button id="sticker-agent-go" class="agent-go" type="button">Make a draft</button>
         <div id="sticker-agent-status" class="agent-status" role="status"></div>
+        <div id="sticker-agent-preview" class="creator-preview" hidden></div>
       </div>
     </div>
   </div>

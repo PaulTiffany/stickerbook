@@ -190,12 +190,18 @@ class _Handler(BaseHTTPRequestHandler):
         payload = {"ok": ready, "role": state.role}
         if state.role == "omegallm":
             payload.update(metadata)
+            try:
+                from sticker_creator import available
+                payload['creator_agent'] = available()
+            except ImportError:
+                payload['creator_agent'] = False
         return self._send(200, payload)
 
     def do_POST(self):
         expected = "/converse" if state.role == "omegallm" else "/choose"
         memory_request = self.path == '/memory/events'
-        if self.path != expected and not memory_request:
+        creator_request = self.path == '/create' and state.role == 'omegallm'
+        if self.path != expected and not memory_request and not creator_request:
             return self._send(404, {"ok": False, "error": "not-found"})
 
         try:
@@ -209,6 +215,12 @@ class _Handler(BaseHTTPRequestHandler):
         except (UnicodeDecodeError, ValueError):
             return self._send(400, {"ok": False, "error": "bad-json"})
 
+        if creator_request:
+            try:
+                from sticker_creator import create
+                return self._send(200, create(payload))
+            except ImportError:
+                return self._send(503, {'ok': False, 'error': 'creator-agent-unavailable'})
         if memory_request:
             if state.memory is None:
                 return self._send(503, {'ok': False, 'error': 'omega-memory-unavailable'})
