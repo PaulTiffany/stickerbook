@@ -42,10 +42,10 @@ def main():
         portrait = Image.fromarray(pixels)
         pieces[cell] = portrait.crop(portrait.getbbox())
     assert set(pieces)=={0,1,2,3}
-    sheet_path = ROOT / 'assets/_generated_minimax_refresh/sheets/paul-tiffany_user_portraits.png'
+    sheet_path = ROOT / 'assets/_generated_sprite_refresh/sheets/paul-tiffany_user_portraits.png'
     assert not sheet_path.exists(), 'Supplied sheet already installed'
     shutil.copy2(args.source, sheet_path)
-    archive = ROOT / 'assets/_generated_minimax_refresh/attempts/paul-tiffany_rejected_crops'
+    archive = ROOT / 'assets/_generated_sprite_refresh/attempts/paul-tiffany_rejected_crops'
     archive.mkdir(parents=True, exist_ok=True)
     longest = max(max(p.size) for p in pieces.values())
     mapping = {'rest':0, 'explain':1, 'chalkboard':2, 'poster':3}

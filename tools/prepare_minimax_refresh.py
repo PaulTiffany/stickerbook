@@ -62,8 +62,8 @@ def main():
                         'asset': identifier, 'pose': pose, 'family': family,
                         'original_path': path.relative_to(ROOT).as_posix(),
                         'backup_path': backup(path), 'original_sha256': digest(path),
-                        'generated_sheet_path': f'assets/_generated_minimax_refresh/sheets/{sheet_id}.png',
-                        'cropped_output_path': f'assets/_generated_minimax_refresh/cropped/{identifier}/{pose}.png',
+                        'generated_sheet_path': f'assets/_generated_sprite_refresh/sheets/{sheet_id}.png',
+                        'cropped_output_path': f'assets/_generated_sprite_refresh/cropped/{identifier}/{pose}.png',
                         'sheet_id': sheet_id, 'cell': cell,
                         'generation_settings': {'provider': 'sponsored MiniMax (unverified image lane)',
                                                 'model': None, 'endpoint': None,
@@ -79,7 +79,7 @@ def main():
                     if entry['sheet_id'] == sheet_id:
                         entry['prompt'] = prompt
     for directory in ['sheets', 'cropped']:
-        (ASSETS / '_generated_minimax_refresh' / directory).mkdir(parents=True, exist_ok=True)
+        (ASSETS / '_generated_sprite_refresh' / directory).mkdir(parents=True, exist_ok=True)
     result = {'version': 1, 'source_manifest': SOURCE.relative_to(ROOT).as_posix(),
               'source_manifest_backup': backup(SOURCE),
               'status': 'prepared-not-generated',

@@ -85,7 +85,7 @@ def main():
             canvas.save(destination)
             asset.update(status='cropped-awaiting-visual-review', crop_union_bounds=bounds,
                          notes='Exterior white removed; interior whites and sticker outline retained. Shared pose bounds.')
-    review = ROOT / 'assets/_generated_minimax_refresh/review'
+    review = ROOT / 'assets/_generated_sprite_refresh/review'
     review.mkdir(exist_ok=True)
     if args.only:
         prepared = {}

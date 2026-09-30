@@ -73,7 +73,7 @@ def main():
             original, backup = ROOT / entry['original_path'], ROOT / entry['backup_path']
             assert original.read_bytes() == backup.read_bytes(), 'Original changed; review first'
             assert hashlib.sha256(backup.read_bytes()).hexdigest() == entry['original_sha256']
-        sheet = ROOT / f'assets/_generated_minimax_refresh/sheets/{identifier}_builtin_portraits.png'
+        sheet = ROOT / f'assets/_generated_sprite_refresh/sheets/{identifier}_builtin_portraits.png'
         assert not sheet.exists(), 'Sheet already installed'
         # Giulio's neighboring white die-cut edges touch at the bottom gutter;
         # its subjects/props are separate and the reviewed quadrant split is safe.
@@ -85,7 +85,7 @@ def main():
         identifier = spec['id']
         shutil.copy2(spec['source'], sheet)
         mapping = {pose: cell for cell, pose in enumerate(POSES[identifier])}
-        archive = ROOT / f'assets/_generated_minimax_refresh/attempts/{identifier}_rejected_crops'
+        archive = ROOT / f'assets/_generated_sprite_refresh/attempts/{identifier}_rejected_crops'
         archive.mkdir(parents=True, exist_ok=True)
         for cell, canvas in canvases.items():
             review.paste(canvas, (cell*256, row*280), canvas)
@@ -115,13 +115,13 @@ def main():
             'sha256': hashlib.sha256(sheet.read_bytes()).hexdigest(), 'prompt': spec['prompt'],
             'generation_settings': settings, 'identity_reference': {
                 'page': refs[identifier]['page'], 'image_url': refs[identifier]['image_url']},
-            'style_reference': 'assets/_generated_minimax_refresh/sheets/david-orban_user_portraits.png',
+            'style_reference': 'assets/_generated_sprite_refresh/sheets/david-orban_user_portraits.png',
             'cell_to_pose': mapping})
     manifest['summary'].update(replaced_stickers=76, replaced_pose_files=304, retained_stickers=[],
                                builtin_generated_sheet_count=9, builtin_generation_cost_usd=None)
     manifest['status'] = 'replacement-complete'
     path.write_bytes((json.dumps(manifest, indent=2)+'\n').encode())
-    review.save(ROOT / 'assets/_generated_minimax_refresh/review/builtin-cameos.png')
+    review.save(ROOT / 'assets/_generated_sprite_refresh/review/builtin-cameos.png')
     print(json.dumps({'installed_stickers': 9, 'installed_poses': 36, 'total_pose_files': 304}))
 
 

@@ -30,19 +30,19 @@ def main():
     manifest = json.loads(manifest_path.read_text())
     if args.sheet_id == 'all':
         if args.refine:
-            archive = ROOT / 'assets/_generated_minimax_refresh/attempts'
+            archive = ROOT / 'assets/_generated_sprite_refresh/attempts'
             archive.mkdir(exist_ok=True)
             for s in manifest['sheets']:
                 if s['family'] == 'people' or s['id'].endswith('_pose_01'):
                     continue
-                destination = ROOT / f"assets/_generated_minimax_refresh/sheets/{s['id']}.png"
+                destination = ROOT / f"assets/_generated_sprite_refresh/sheets/{s['id']}.png"
                 if destination.exists() and not s.get('matched_family_reference'):
                     destination.rename(archive / (s['id'] + '_first_attempt.png'))
                     s.setdefault('attempts', []).append({k: s[k] for k in
                         ['status', 'model', 'cost_usd', 'latency_seconds'] if k in s})
                     s['cost_usd'] = None
             manifest_path.write_text(json.dumps(manifest, indent=2)+'\n')
-        pending = [s for s in manifest['sheets'] if not (ROOT / f"assets/_generated_minimax_refresh/sheets/{s['id']}.png").exists()]
+        pending = [s for s in manifest['sheets'] if not (ROOT / f"assets/_generated_sprite_refresh/sheets/{s['id']}.png").exists()]
         if args.refine:
             pending = [s for s in pending if s['family'] != 'people']
         # Workers perform inference only. A single writer owns manifest updates.
@@ -76,26 +76,26 @@ def record(manifest, sheet):
             asset['generation_settings'] = {'provider': 'OpenRouter', 'model': MODEL,
                 'n': 1, 'aspect_ratio': '1:1', 'quality': 'low', 'background': 'opaque',
                 'style_reference': sheet.get('reference_path',
-                    'assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png')}
+                    'assets/_generated_sprite_refresh/sheets/animals_01_pose_01.png')}
             asset['status'] = sheet['status']
             asset['prompt'] = sheet.get('generation_prompt', sheet['prompt'])
     manifest['status'] = 'generation-in-progress'
 
 
 def generate(sheet, key, refine=False):
-    destination = ROOT / f"assets/_generated_minimax_refresh/sheets/{sheet['id']}.png"
+    destination = ROOT / f"assets/_generated_sprite_refresh/sheets/{sheet['id']}.png"
     if destination.exists():
         raise SystemExit('Sheet already exists; refusing to overwrite')
     settings = {'model': MODEL, 'n': 1, 'aspect_ratio': '1:1',
                 'quality': 'low', 'background': 'opaque'}
-    reference = ROOT / 'assets/_generated_minimax_refresh/sheets/animals_01_pose_01.png'
+    reference = ROOT / 'assets/_generated_sprite_refresh/sheets/animals_01_pose_01.png'
     payload = {**settings, 'prompt': sheet['prompt'] +
         ' No scenery or perches. Pose names describe actual body poses, not labels. '
         'For wings-up raise wings; wings-down lower wings; crouch squat low; hop leap; '
         'land settle; alert raise head. Preserve distinct poses. Reference supplies style only, '
         'not subjects or poses. Keep all four sticker silhouettes inside their own cells.'}
     if refine:
-        reference = ROOT / ('assets/_generated_minimax_refresh/sheets/' +
+        reference = ROOT / ('assets/_generated_sprite_refresh/sheets/' +
             sheet['id'].rsplit('_pose_',1)[0] + '_pose_01.png')
         payload['prompt'] = sheet['prompt'] + (
             ' The reference is the SAME four subjects in the SAME cell positions. '

@@ -84,10 +84,10 @@ def main():
     draw = ImageDraw.Draw(review)
     for row, (source,identifier,mapping,entries,canvases) in enumerate(prepared):
         sheet_id = identifier+'_user_portraits'
-        sheet = ROOT / f'assets/_generated_minimax_refresh/sheets/{sheet_id}.png'
+        sheet = ROOT / f'assets/_generated_sprite_refresh/sheets/{sheet_id}.png'
         assert not sheet.exists(), 'Supplied sheet already installed'
         shutil.copy2(source,sheet)
-        archive = ROOT / f'assets/_generated_minimax_refresh/attempts/{identifier}_rejected_crops'
+        archive = ROOT / f'assets/_generated_sprite_refresh/attempts/{identifier}_rejected_crops'
         archive.mkdir(parents=True,exist_ok=True)
         for cell, canvas in canvases.items():
             review.paste(canvas,(cell*256,row*280),canvas)
@@ -112,7 +112,7 @@ def main():
                 status='replaced',replacement_succeeded=True,
                 output_sha256=hashlib.sha256(raw).hexdigest(),notes=note)
         if identifier=='ray-kurzweil':
-            canvases[3].save(ROOT / 'assets/_generated_minimax_refresh/cropped/ray-kurzweil/celebration-unused.png')
+            canvases[3].save(ROOT / 'assets/_generated_sprite_refresh/cropped/ray-kurzweil/celebration-unused.png')
         manifest.setdefault('supplied_sheets',[]).append({
             'id':sheet_id,'path':sheet.relative_to(ROOT).as_posix(),'source_filename':source.name,
             'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),
@@ -121,7 +121,7 @@ def main():
     manifest['summary']['replaced_stickers'] += len(prepared)
     manifest['summary']['replaced_pose_files'] += len(prepared)*4
     path.write_bytes((json.dumps(manifest,indent=2)+'\n').encode())
-    review.save(ROOT / 'assets/_generated_minimax_refresh/review/supplied-cameos.png')
+    review.save(ROOT / 'assets/_generated_sprite_refresh/review/supplied-cameos.png')
     print(json.dumps({'installed_stickers':len(prepared),'installed_poses':len(prepared)*4,'new_inference_cost':0}))
 
 
