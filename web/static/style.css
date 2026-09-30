@@ -1706,3 +1706,14 @@ button:focus-visible, a:focus-visible, label:focus-within {
     animation-duration: 2.4s;
   }
 }
+
+/* Input evidence: actual bounded pointer samples, alongside the reference box. */
+.deictic-path {
+  fill: none;
+  stroke: rgba(255, 238, 122, .95);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}

@@ -98,8 +98,9 @@ class JevController:
 
     def __init__(self, kernel, runtime, selector_id: str = OMEGA_JEV_ID,
                  patterns=None, history=None, replays=None, world_lock=None,
-                 executions=None, activity=None):
+                 executions=None, activity=None, subject_activity=None):
         self.activity = activity or (lambda: 0)
+        self.subject_activity = subject_activity or (lambda subject_id: 0)
         self.kernel = kernel
         self.runtime = runtime
         self.selector_id = selector_id
@@ -149,7 +150,7 @@ class JevController:
             return None, "unknown-jev-subject"
 
         intent = raw.get("intent", "control")
-        if intent not in _ALLOWED_INTENTS:
+        if not isinstance(intent, str) or intent not in _ALLOWED_INTENTS:
             return None, "invalid-jev-intent"
 
         goal = {"subject": subject, "intent": intent}
@@ -398,6 +399,7 @@ class JevController:
         max_turns = max(1, min(int(max_turns), MAX_GOAL_TURNS))
         trace = []
         activation = self.activity()
+        child_epoch = self.subject_activity(goal["subject"])
 
         for index in range(max_turns):
             # One coherent read: table, scene, and the revision the choice is
@@ -405,6 +407,8 @@ class JevController:
             with self._world():
                 if activation is None or self.activity() != activation:
                     return {"ok": False, "error": "page-changed", "goal": goal, "trace": trace}
+                if self.subject_activity(goal['subject']) != child_epoch:
+                    return {'ok':False,'error':'human-superseded','goal':goal,'trace':trace}
                 table, moves = self._table(
                     actor, goal, animate_only=animate_only, improvise_only=improvise_only)
                 scene = self._scene(actor, goal, table) if table else None
@@ -459,6 +463,8 @@ class JevController:
             with self._world():
                 if self.activity() != activation:
                     return {"ok": False, "error": "page-changed", "goal": goal, "trace": trace}
+                if self.subject_activity(goal['subject']) != child_epoch:
+                    return {'ok':False,'error':'human-superseded','goal':goal,'trace':trace}
                 receipt = self.kernel.propose_key(
                     actor,
                     choice,

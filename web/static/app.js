@@ -817,8 +817,8 @@ function createMechanicalWorld() {
 const kernelWorld = {
   name: "local kernel",
 
-  async state() {
-    const res = await fetch("/api/state", { cache: "no-store" });
+  async state(fast = false) {
+    const res = await fetch(fast ? "/api/state?watch=1&page=" + encodeURIComponent(state.page.id) : "/api/state", { cache: "no-store" });
     if (!res.ok) throw new Error("state: HTTP " + res.status);
     return res.json();
   },
@@ -1533,63 +1533,164 @@ async function drawGallery() {
 
 // --------------------------------------------------------------- render
 
-function drawStickers(stickers) {
-  layers.stickers.replaceChildren();
+// Authoritative endpoints stay in `state`; these records are presentation only.
+const stickerVisuals = new Map();
+let motionEpoch = 0;
+const STATE_POLL_MS = 125;
+const MOVE_TWEEN_MS = 250;
+let pageStateWatcher = null;
+let renderedBackground = null;
+let renderedTray = null;
 
-  for (const sticker of stickers) {
-    const clipName = sticker.animation && sticker.animation !== "none"
-      ? sticker.animation
-      : null;
-    const node = stickerNode(
-      sticker.definition,
-      "sticker",
-      true,
-      null,
-      clipName
-    );
-    node.setAttribute("data-id", sticker.id);
-    node.setAttribute(
-      "transform",
-      (() => {
-        const metrics = activePageMetrics();
-        const scale = Number.isFinite(sticker.scale) ? sticker.scale : 1;
-        const scaleX = sticker.facing === "left" ? -scale : scale;
-        return "translate(" +
-          (sticker.x * metrics.width) + " " +
-          (sticker.y * metrics.height) + ") scale(" +
-          scaleX + " " + scale + ")";
-      })()
-    );
-    node.setAttribute("tabindex", "0");
-    node.setAttribute("role", "button");
-    node.setAttribute(
-      "aria-label",
-      sticker.definition + " sticker. Drag to move. Double tap to bring to life."
-    );
+function stopPageStateWatch() {
+  if (pageStateWatcher) {
+    pageStateWatcher.stopped = true;
+    clearTimeout(pageStateWatcher.timer);
+    pageStateWatcher = null;
+  }
+}
 
-    if (sticker.animation && sticker.animation !== "none") {
-      node.classList.add("alive");
-      const clip = stickerClip(sticker.definition, sticker.animation);
-      // CSS motion is legacy/explicit only. A v4 clip name such as "flight"
-      // or "flutter" must not silently become a transform animation merely
-      // because an old CSS keyframe happens to share that name.
-      if (clip && clip.motion) {
-        node.setAttribute("data-alive", clip.motion);
+function startPageStateWatch() {
+  if (world !== kernelWorld || pageStateWatcher || screens.play.hidden || document.hidden) return;
+  const watch = { epoch: motionEpoch, stopped: false, timer: null };
+  pageStateWatcher = watch;
+  const poll = async () => {
+    if (watch.stopped || watch.epoch !== motionEpoch) return;
+    try {
+      const next = await world.state(true);
+      if (!watch.stopped && watch.epoch === motionEpoch &&
+          (next.revision > state.revision || JSON.stringify(next.motion) !== JSON.stringify(state.motion))) {
+        applyAuthoritativeState(next, watch.epoch);
       }
-    }
+    } catch (_) { /* A failed observation never invents state or a mutation. */ }
+    if (!watch.stopped && watch.epoch === motionEpoch) watch.timer = setTimeout(poll, STATE_POLL_MS);
+  };
+  poll();
+}
 
-    node.addEventListener("pointerdown", (event) => grabPlaced(event, sticker));
-    node.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        send("/api/animate", {
-          sticker: sticker.id,
-          command_id: nextId("anim-key"),
-        });
-      }
+
+function setStickerPosition(visual, point) {
+  visual.position = { x: point.x, y: point.y };
+  const metrics = activePageMetrics();
+  const scale = Number.isFinite(visual.sticker.scale) ? visual.sticker.scale : 1;
+  const sx = visual.sticker.facing === "left" ? -scale : scale;
+  visual.node.setAttribute("transform", "translate(" + point.x * metrics.width +
+    " " + point.y * metrics.height + ") scale(" + sx + " " + scale + ")");
+}
+
+function cancelStickerTween(visual) {
+  if (visual.frame != null) cancelAnimationFrame(visual.frame);
+  visual.frame = null;
+}
+
+function cancelVisualMotion() {
+  stopPageStateWatch();
+  motionEpoch += 1;
+  for (const visual of stickerVisuals.values()) cancelStickerTween(visual);
+}
+
+function tweenSticker(visual, endpoint) {
+  cancelStickerTween(visual);
+  const from = { ...visual.position };
+  const start = performance.now();
+  const epoch = motionEpoch;
+  const frame = (now) => {
+    if (visual.held || epoch !== motionEpoch) return;
+    const t = Math.min(1, Math.max(0, (now - start) / MOVE_TWEEN_MS));
+    const eased = t; // Constant-speed interpolation; steering supplies curvature.
+    setStickerPosition(visual, t === 1 ? endpoint : {
+      x: from.x + (endpoint.x - from.x) * eased,
+      y: from.y + (endpoint.y - from.y) * eased,
     });
+    visual.frame = t < 1 ? requestAnimationFrame(frame) : null;
+  };
+  visual.frame = requestAnimationFrame(frame);
+}
 
-    layers.stickers.appendChild(node);
+function applyAuthoritativeState(next, epoch = motionEpoch) {
+  if (!next || epoch !== motionEpoch) return false;
+  if (state && (next.page.id !== state.page.id || next.revision < state.revision)) return false;
+  state = next;
+  render();
+  return true;
+}
+
+async function observePoweredRequest(request) {
+  if (world !== kernelWorld) return request();
+  const epoch = motionEpoch;
+  let finished = false;
+  let timer = null;
+  const poll = async () => {
+    if (finished || epoch !== motionEpoch) return;
+    try {
+      const next = await world.state(true);
+      if (!finished && epoch === motionEpoch && next.revision > state.revision) {
+        applyAuthoritativeState(next, epoch);
+      }
+    } catch (_) { /* The action response owns error reporting. */ }
+    if (!finished && epoch === motionEpoch) timer = setTimeout(poll, STATE_POLL_MS);
+  };
+  if (!pageStateWatcher) poll();
+  try {
+    const payload = await request();
+    if (payload && payload.state) applyAuthoritativeState(payload.state, epoch);
+    return payload;
+  } finally {
+    finished = true;
+    clearTimeout(timer);
+  }
+}
+
+function drawStickers(stickers) {
+  const ids = new Set(stickers.map((sticker) => sticker.id));
+  for (const [id, visual] of stickerVisuals) {
+    if (!ids.has(id)) {
+      cancelStickerTween(visual);
+      visual.node.remove();
+      stickerVisuals.delete(id);
+    }
+  }
+  for (const sticker of stickers) {
+    let visual = stickerVisuals.get(sticker.id);
+    if (!visual) {
+      const node = el("g", { class: "sticker", "data-id": sticker.id, tabindex: "0", role: "button" });
+      visual = { node, sticker, position: { x: sticker.x, y: sticker.y },
+        endpoint: { x: sticker.x, y: sticker.y }, frame: null, held: false, artKey: null };
+      stickerVisuals.set(sticker.id, visual);
+      node.addEventListener("pointerdown", (event) => grabPlaced(event, visual.sticker));
+      node.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          send("/api/animate", { sticker: sticker.id, command_id: nextId("anim-key") });
+        }
+      });
+      layers.stickers.appendChild(node);
+      setStickerPosition(visual, visual.position);
+    }
+    visual.sticker = sticker;
+    visual.node.setAttribute("aria-label", sticker.definition +
+      " sticker. Drag to move. Double tap to bring to life.");
+    if (visual.held) continue;
+    const artKey = sticker.definition + ":" + sticker.animation;
+    if (visual.artKey !== artKey) {
+      const art = stickerNode(sticker.definition, "sticker", true, null,
+        sticker.animation && sticker.animation !== "none" ? sticker.animation : null);
+      if (sticker.animation && sticker.animation !== "none") {
+        art.classList.add("alive");
+        const clip = stickerClip(sticker.definition, sticker.animation);
+        if (clip && clip.motion) art.setAttribute("data-alive", clip.motion);
+      }
+      visual.node.replaceChildren(art);
+      visual.artKey = artKey;
+    }
+    const endpoint = { x: sticker.x, y: sticker.y };
+    if (endpoint.x !== visual.endpoint.x || endpoint.y !== visual.endpoint.y) {
+      visual.endpoint = endpoint;
+      if (world === kernelWorld) tweenSticker(visual, endpoint);
+      else setStickerPosition(visual, endpoint);
+    } else if (visual.frame == null) {
+      setStickerPosition(visual, endpoint);
+    }
   }
 }
 
@@ -1639,12 +1740,21 @@ function render() {
   if (!state) return;
 
   applyActivePageViewport();
-  drawScene(layers.picture, state.picture, "play", state.page && state.page.id);
+  const metrics = activePageMetrics();
+  const backgroundKey = JSON.stringify([state.page.id, state.picture, metrics.width, metrics.height]);
+  if (renderedBackground !== backgroundKey) {
+    drawScene(layers.picture, state.picture, "play", state.page && state.page.id);
+    renderedBackground = backgroundKey;
+  }
   drawStickers(state.stickers);
   if (!deicticGesture) {
     drawDeicticReference(pendingDeicticReference, false);
   }
-  drawTray();
+  const trayKey = JSON.stringify([state.definitions, hotbarKinds]);
+  if (renderedTray !== trayKey) {
+    drawTray();
+    renderedTray = JSON.stringify([state.definitions, hotbarKinds]);
+  }
 
   if (DEV) {
     dev.mode.textContent = world.name;
@@ -1672,7 +1782,13 @@ function speak(message) {
 function showScreen(name) {
   closeLibrary();
   clearPlacement();
-  if (name !== "play") clearDeicticReference(false);
+  if (name !== "play") {
+    if (!screens.play.hidden && world === kernelWorld) {
+      world.send('/api/pause-activities', {}).catch(() => {});
+    }
+    cancelVisualMotion();
+    clearDeicticReference(false);
+  }
 
   for (const [key, node] of Object.entries(screens)) {
     node.hidden = key !== name;
@@ -1683,9 +1799,13 @@ function showScreen(name) {
   }
 
   updateConversationControls();
+  if (name === 'play') startPageStateWatch();
 }
 
 async function enterPlay(pageId) {
+  cancelVisualMotion();
+  for (const visual of stickerVisuals.values()) visual.node.remove();
+  stickerVisuals.clear();
   try {
     const result = await world.selectPage(pageId);
 
@@ -1826,6 +1946,12 @@ function drawDeicticReference(reference, drafting = false) {
     }));
   }
 
+  if (reference.path && reference.path.length > 1) {
+    group.appendChild(el("polyline", {
+      points: reference.path.map((p) => (p.x * metrics.width) + "," + (p.y * metrics.height)).join(" "),
+      class: "deictic-path",
+    }));
+  }
   layers.reference.appendChild(group);
 }
 
@@ -1910,7 +2036,7 @@ function updateDeicticGesture(event) {
   const x2 = Math.max(deicticGesture.start.x, point.x);
   const y2 = Math.max(deicticGesture.start.y, point.y);
   drawDeicticReference(
-    { kind: "box", box: { x1, y1, x2, y2 } },
+    { kind: "box", box: { x1, y1, x2, y2 }, path: deicticGesture.samples },
     true
   );
 }
@@ -1988,6 +2114,7 @@ function finishDeicticGesture(event) {
   setDeicticReference({
     kind: "box",
     box: { x1, y1, x2, y2 },
+    path: gesture.samples,
   });
   recordPagePath(gesture);
 }
@@ -2016,14 +2143,23 @@ function grabPlaced(event, sticker) {
   event.stopPropagation();
 
   const node = event.currentTarget;
+  const gestureEpoch = motionEpoch;
+  const visual = stickerVisuals.get(sticker.id);
+  if (visual) { cancelStickerTween(visual); visual.held = true; }
+  // Ordered before release/double-tap so a late grab cannot cancel a new invitation.
+  const pendingHold = world === kernelWorld
+    ? world.send('/api/hold', { sticker: sticker.id }).then((result) => {
+        if (result && result.state) applyAuthoritativeState(result.state, gestureEpoch);
+      }).catch(() => {})
+    : Promise.resolve();
   const startedAt = performance.now();
   const startX = event.clientX;
   const startY = event.clientY;
   const metricsAtGrab = activePageMetrics();
   const pointAtGrab = pagePoint(event);
   const stickerCenterAtGrab = {
-    x: sticker.x * metricsAtGrab.width,
-    y: sticker.y * metricsAtGrab.height,
+    x: (visual ? visual.position.x : sticker.x) * metricsAtGrab.width,
+    y: (visual ? visual.position.y : sticker.y) * metricsAtGrab.height,
   };
   const grabOffset = pointAtGrab ? {
     x: pointAtGrab.x - stickerCenterAtGrab.x,
@@ -2142,28 +2278,28 @@ function grabPlaced(event, sticker) {
 
     const point = draggedFraction(moveEvent);
     observeDrag(point);
-    node.setAttribute(
-      "transform",
-      (() => {
-        const metrics = activePageMetrics();
-        const scale = Number.isFinite(sticker.scale) ? sticker.scale : 1;
-        const scaleX = sticker.facing === "left" ? -scale : scale;
-        return "translate(" +
-          (point.x * metrics.width) + " " +
-          (point.y * metrics.height) + ") scale(" +
-          scaleX + " " + scale + ")";
-      })()
-    );
+    if (visual) setStickerPosition(visual, point);
+    else node.setAttribute('transform', 'translate(' +
+      point.x * activePageMetrics().width + ' ' + point.y * activePageMetrics().height + ')');
     hotbar.classList.toggle("drop-ready", overRemovalZone(moveEvent));
   };
 
-  const onCancel = () => {
-    cleanup();
+  const releaseVisual = () => {
+    if (visual) {
+      visual.held = false;
+      visual.artKey = null;
+      const current = state.stickers.find((item) => item.id === sticker.id);
+      if (current) { visual.endpoint = { x: current.x, y: current.y }; setStickerPosition(visual, visual.endpoint); }
+    }
     render();
   };
+  const onCancel = () => { cleanup(); releaseVisual(); };
 
   const onUp = async (upEvent) => {
     cleanup();
+    try {
+    await pendingHold;
+    if (gestureEpoch !== motionEpoch) return;
 
     if (overRemovalZone(upEvent) && moved) {
       await send("/api/remove", {
@@ -2198,6 +2334,7 @@ function grabPlaced(event, sticker) {
     const drag = dragPayload();
     if (drag) request.drag = drag;
     await send("/api/propose-move", request);
+    } finally { releaseVisual(); }
   };
 
   node.addEventListener("pointermove", onMove);
@@ -2650,7 +2787,12 @@ async function send(path, body) {
   let payload;
 
   try {
-    payload = await world.send(path, body);
+    const epoch = motionEpoch;
+    payload = path === "/api/animate"
+      ? await observePoweredRequest(() => world.send(path, body))
+      : await world.send(path, body);
+    if (epoch !== motionEpoch) return;
+
   } catch (error) {
     console.error(error);
     try { await reload(); } catch (_) {}
@@ -2662,7 +2804,7 @@ async function send(path, body) {
     return;
   }
 
-  if (payload.state) state = payload.state;
+  if (payload.state) applyAuthoritativeState(payload.state);
   render();
 
   const receipt = payload.receipt;
@@ -2693,7 +2835,10 @@ async function reload() {
 function showVerdict(payload) {
   const receipt = payload.receipt;
 
-  if (!receipt) {
+  if (payload.jev && payload.jev.result === 'playing') {
+    dev.verdict.className = 'verdict accepted';
+    dev.verdict.textContent = 'playing ? ' + payload.jev.goal.subject + '; each movement still requires a kernel receipt';
+  } else if (!receipt) {
     dev.verdict.className = "verdict rejected";
     dev.verdict.textContent = "refused — " + (payload.error || "invalid request");
   } else {
@@ -3171,6 +3316,74 @@ function setVoiceOrbState(name) {
   if (voiceOrbState) voiceOrbState.textContent = name || "ready";
 }
 
+async function captureVisualContext() {
+  // Observational pixels only. Render accepted endpoints, never tween frames.
+  if (world.name === "public mechanical" || !state) return null;
+  const snapshot = state;
+  const metrics = activePageMetrics();
+  const clone = svg.cloneNode(true);
+  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  clone.setAttribute("width", metrics.width);
+  clone.setAttribute("height", metrics.height);
+  for (const id of ["reference-layer", "placement-layer"]) {
+    const node = clone.querySelector("#" + id);
+    if (node) node.remove();
+  }
+  for (const sticker of snapshot.stickers) {
+    const node = Array.from(clone.querySelectorAll(".sticker")).find(n => n.dataset.id === sticker.id);
+    if (!node) continue;
+    const scale = Number.isFinite(sticker.scale) ? sticker.scale : 1;
+    node.setAttribute("transform", "translate(" + sticker.x * metrics.width + " " +
+      sticker.y * metrics.height + ") scale(" + (sticker.facing === "left" ? -scale : scale) + " " + scale + ")");
+  }
+  // Inline same-origin artwork so SVG rasterization cannot fetch remote URLs.
+  const resources = new Map();
+  for (const node of clone.querySelectorAll("image")) {
+    const href = node.getAttribute("href") || node.getAttributeNS("http://www.w3.org/1999/xlink", "href");
+    if (!href) continue;
+    if (!resources.has(href)) {
+      resources.set(href, (async () => {
+        if (href.startsWith("data:image/")) return href;
+        const url = new URL(href, location.href);
+        if (url.origin !== location.origin) throw new Error("nonlocal-artwork");
+        const response = await fetch(url.href, {signal: AbortSignal.timeout(5000)});
+        if (!response.ok) throw new Error("artwork-unavailable");
+        const blob = await response.blob();
+        if (blob.size > 8 * 1024 * 1024) throw new Error("artwork-too-large");
+        return await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      })());
+    }
+    node.setAttribute("href", await resources.get(href));
+    node.removeAttributeNS("http://www.w3.org/1999/xlink", "href");
+  }
+  const objectURL = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(clone)], {type: "image/svg+xml"}));
+  try {
+    const image = new Image();
+    await new Promise((resolve, reject) => { image.onload = resolve; image.onerror = reject; image.src = objectURL; });
+    const canvas = document.createElement("canvas");
+    const ratio = Math.min(1, 1024 / Math.max(metrics.width, metrics.height));
+    canvas.width = Math.max(1, Math.round(metrics.width * ratio));
+    canvas.height = Math.max(1, Math.round(metrics.height * ratio));
+    const context = canvas.getContext("2d");
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    for (const quality of [.8, .6, .4]) {
+      const jpeg = canvas.toDataURL("image/jpeg", quality);
+      if (jpeg.length <= 180000) return {page: snapshot.page.id, revision: snapshot.revision,
+        width: canvas.width, height: canvas.height, image: jpeg};
+    }
+    throw new Error("visual-context-too-large");
+  } finally {
+    URL.revokeObjectURL(objectURL);
+  }
+}
+
 async function converseWithStickerBook(text, aloud, mirrorToAccessibility = false) {
   const clean = String(text || "").trim();
   if (!clean) return null;
@@ -3205,12 +3418,14 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
     // only: it carries no authority and nothing branches on it.
     const body = { text: clean, input_mode: aloud ? "voice" : "text" };
     if (reference) body.reference = reference;
-    const payload = await world.converse(body);
-
-    if (payload && payload.state) {
-      state = payload.state;
-      render();
+    const epoch = motionEpoch;
+    if (!stub) {
+      try { body.visual = await captureVisualContext(); }
+      catch (_) { if (DEV) dev.verdict.textContent = "Visual context unavailable; asking with structured state."; }
+      if (epoch !== motionEpoch) return null;
     }
+    const payload = await observePoweredRequest(() => world.converse(body));
+    if (epoch !== motionEpoch) return null;
 
     if (!payload || !payload.ok || typeof payload.reply !== "string") {
       const messages = {
@@ -3593,3 +3808,14 @@ if (window.visualViewport) {
 
 syncViewportCssVars();
 boot();
+
+// A hidden/closed page cannot keep paying for autonomous play. Observation
+// leases on the host cover abrupt tab closure or a lost connection too.
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    cancelVisualMotion();
+    if (world === kernelWorld) world.send('/api/pause-activities', {}).catch(() => {});
+  } else if (!screens.play.hidden) {
+    reload().then(startPageStateWatch).catch(() => {});
+  }
+});

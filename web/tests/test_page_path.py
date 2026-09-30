@@ -236,6 +236,8 @@ pendingPathObservation.then(() => console.log(JSON.stringify({reference, sent}))
         output = subprocess.run(["node", "-e", harness + functions + tail],
                                 capture_output=True, text=True, check=True)
         result = json.loads(output.stdout)
+        visible_path = result["reference"].pop("path")
+        self.assertEqual([p["y"] for p in visible_path], [.3, .1, .6, .4])
         self.assertEqual(result["reference"], {"kind": "box", "box": {
             "x1": .2, "y1": .3, "x2": .8, "y2": .4},
             "sourceEvent": "input-event-1"})
