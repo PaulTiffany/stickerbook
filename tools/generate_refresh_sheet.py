@@ -1,4 +1,5 @@
 """Generate one staged sheet using the local OpenRouter credential, never log it."""
+from sprite_refresh_paths import REFRESH_MANIFEST
 import argparse
 import base64
 import json
@@ -26,7 +27,7 @@ def main():
                     key = line.partition('=')[2].strip().strip('\"\'')
     if not key:
         raise SystemExit('Local OpenRouter credential unavailable')
-    manifest_path = ROOT / 'assets/minimax_refresh_manifest.json'
+    manifest_path = REFRESH_MANIFEST
     manifest = json.loads(manifest_path.read_text())
     if args.sheet_id == 'all':
         if args.refine:

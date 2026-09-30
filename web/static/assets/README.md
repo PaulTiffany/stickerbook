@@ -196,7 +196,7 @@ Manifest v2 represents each StickerDefinition as named clips:
   "clips": {
     "idle": {
       "frames": [
-        "static/assets/stickers/frog.svg"
+        "static/assets/stickers/frog/rest.svg"
       ],
       "loop": false
     },

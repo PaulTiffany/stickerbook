@@ -1,4 +1,5 @@
 """Install Paul's supplied four-portrait sheet without generating new likenesses."""
+from sprite_refresh_paths import REFRESH_MANIFEST
 import argparse
 import base64
 import hashlib
@@ -16,7 +17,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('source', type=Path)
     args = parser.parse_args()
-    manifest_path = ROOT / 'assets/minimax_refresh_manifest.json'
+    manifest_path = REFRESH_MANIFEST
     manifest = json.loads(manifest_path.read_text())
     entries = [a for a in manifest['assets'] if a['asset']=='paul-tiffany']
     for entry in entries:

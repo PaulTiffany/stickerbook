@@ -11,7 +11,8 @@ referenced cameo sheets generated with the built-in image_gen tool.
 OpenRouter used low quality, 1024px 2x2 family sheets, up to four subjects per
 sheet with separate sheets per pose. Reported usage including consistency
 refinements was **$1.86151**. Failed calls supplied no usage cost. There are
-79 successful original sheet files and 45 archived first-pose attempts.
+Generation history records the original attempts and refinements; only the
+79 source sheets used by active artwork remain in the working tree.
 The nine final built-in sheets each contain four poses of one person, using
 that person's portrait as identity reference and the supplied David Orban
 sheet as style reference. The built-in tool exposes neither model name nor
@@ -21,7 +22,7 @@ No credentials are included in artifacts; the ASI lane is unchanged.
 The final nine are Anders Sandberg, David Pearce, FM-2030, Giulio Prisco,
 Hans Moravec, K. Eric Drexler, Martine Rothblatt, Robert Ettinger, and Vernor
 Vinge. Full prompts, cell mappings, identity-reference URLs, settings, paths,
-checksums, and outcomes are in `assets/minimax_refresh_manifest.json` under
+checksums, and outcomes are in `assets/sprite_refresh_manifest.json` under
 `builtin_generated_sheets` and the corresponding pose records. Historical
 photos vary in resolution, especially Robert Ettinger's small professor
 portrait. Referenced illustration does not guarantee exact portrait likeness.
@@ -29,15 +30,18 @@ Downloaded identity photos are local workflow inputs, not shipped assets.
 
 All full sheets are in `sheets/`; individual transparent 256px PNGs are in
 `cropped/<id>/`. Review contact sheets include `review/builtin-cameos.png`
-and `review/supplied-cameos.png`. Previously rejected cameo crops are archived
-under `attempts/<id>_rejected_crops/` and are not active. Original failed and
+and `review/supplied-cameos.png`. Rejected/superseded image binaries have been removed. Original failed and
 rejected generation records remain in the manifest as pipeline history;
 there are now no retained original pose files.
 
-## Compatibility and backups
+## Compatibility and recovery
 
-All **304 originals plus the canonical manifest** remain backed up byte-for-byte
-under `assets/_backup_pre_minimax_refresh/`, preserving repository structure.
+All superseded originals, backup copies, rejected sheets/crops, unused review
+images and nine legacy single-file sprites have been removed: **471 files,
+68,977,905 bytes (~65.8 MiB)**. Git history provides recovery. Original SHA-256
+checksums and historical paths remain in `assets/sprite_refresh_manifest.json`;
+retention flags distinguish removed artifacts from retained files. Deleting
+tracked files reduces checkout/deployment size, not existing Git history size.
 Original SVG paths, `-72 -72 144 144` viewBoxes, clip names, ordering, timing,
 scale bounds, and canonical manifest metadata remain unchanged. Active SVGs
 embed their transparent PNG, adding no runtime image URLs or dependencies.
@@ -64,7 +68,7 @@ Full per-person mappings and source provenance remain in the manifest.
 
 ## Validation
 
-- All 304 original/backup SHA-256 pairs match.
+- 304 provenance records and the original canonical-manifest hash verified.
 - All 304 installed SVG payloads match their staged transparent 256px PNGs.
 - All 304 active image URLs resolve through the running local app.
 - Canonical manifest, clip references and SVG viewBoxes remain unchanged.
@@ -79,6 +83,9 @@ for subtle pose alignment. The generated contact sheets were visually reviewed.
 
 Offline preparation/generation/cropping/installation/validation tools are in
 `tools/`. They require Python, Pillow, NumPy and SciPy, not new app dependencies.
+`sprite_refresh_paths.py` centralizes the manifest location.
+`prepare_sprite_refresh.py` prepares new inventories. The one-time installers
+require original backups: restore those from Git before rerunning a replacement.
 `install_builtin_cameos.py` takes reviewed sheet specs plus identity-reference
 metadata and preflights all originals/crops before replacing files. Do not
 rerun old staging over installed crops without reviewing the outputs.

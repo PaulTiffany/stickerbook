@@ -1,4 +1,5 @@
 """Install supplied cameo sheets without inventing likenesses or clip names."""
+from sprite_refresh_paths import REFRESH_MANIFEST
 import argparse
 import base64
 import hashlib
@@ -67,7 +68,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('directory', type=Path)
     args = parser.parse_args()
-    path = ROOT / 'assets/minimax_refresh_manifest.json'
+    path = REFRESH_MANIFEST
     manifest = json.loads(path.read_text())
     prepared = []
     # Preflight every sheet before changing any active files.
