@@ -20,7 +20,7 @@ never calls this route. No keys reach the browser or are baked into images.
 
 - Reply-only JSON, at most 600 characters and a requested 45–60 words, aiming
   for roughly 15–20 seconds of speech. Browser voice and speaking rate affect
-  duration. Final results still interrupt interim speech rather than wait for it.
+  duration. Final audio queues behind interim speech; governed action does not wait.
 - Child text only: no images, coordinates, world snapshot, recall, tools,
   semantic goals, teaching, receipts or memory/history writes.
 - One independent non-queuing gate per process, separate from the native goal
@@ -29,7 +29,8 @@ never calls this route. No keys reach the browser or are baked into images.
   adapter uses a 3.5-second I/O timeout and 4 KiB reply limit.
 - The browser starts the goal request first and never awaits acknowledgement
   before processing the result. Failed or late replies are discarded.
-- Final response, page exit and voice disable cancel interim speech. Page exit
+- Page exit and voice disable cancel interim and queued speech. Final response
+  queues behind an acknowledgement already speaking. Page exit
   during image capture also prevents sending the old request.
 - Host and provider independently refuse extra fields, including goals.
   Tentative language is instructed by prompt, not guaranteed factual correctness;
@@ -77,6 +78,12 @@ The later 45–60-word prompt produced 41 and 51 words in 1.693 and 1.111 second
 The updated host accepted a 55-word, 285-character reply in 0.965 seconds without
 changing world revision. At 180 words/minute those are approximately 14, 17 and
 18 seconds of speech; actual browser audio duration was not observed.
-Provider timeout, parallel execution and cancellation are unchanged. The larger
+Provider timeout and parallel execution are unchanged. The larger
 host/browser envelope is 600 characters; completion budget is 300 tokens.
 The updated preview is `http://localhost:8764/?dev=1`; earlier sessions were kept.
+
+The subsequent starting-behavior tranche removes final-reply speech cancellation.
+Native browser synthesis queues the actual reply behind the acknowledgement;
+world actions already run while speech finishes. Page exit/voice disable still
+cancel both. Executable tests verify queue order and absence of cancellation.
+Browser audio remains a manual product check. Current preview: port 8765.
