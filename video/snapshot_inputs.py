@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 
 def main():
-    manifest=json.loads((ROOT/'web/static/assets/manifest.json').read_text())
+    manifest=json.loads((ROOT/'web/static/assets/manifest.json').read_text(encoding='utf-8'))
     paths={ROOT/'web/static/assets/manifest.json',ROOT/'assets/video/audio/im-upping-my-phop.wav',ROOT/'video/lyrics.txt'}
     paths.update((ROOT/'video/input').rglob('*'))
     paths.update(ROOT/'video/data'/name for name in ['audio.json','lyrics.json','timeline.json','proof.json'])

@@ -12,7 +12,7 @@
     },
     {
       "path": "video/data/lyrics.json",
-      "sha256": "ba7008288373595beae6204739dd9fa86e72109bfe69bcc3b543b8d494433c54"
+      "sha256": "b05ee7805686bfa9c7ddf060d8b8adca3b996ff7b85798881166e0b0bca5f1b6"
     },
     {
       "path": "video/data/proof.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "video/data/timeline.json",
-      "sha256": "14173a0f84a74aa58393286a0a2e4e5f37e97c84e4cdea122775fe52fa14e52a"
+      "sha256": "2066e658b70fb891e9bbba05d9361c737bae731368e99709f02d285ae65173f5"
     },
     {
       "path": "video/input/Docker-svgrepo-com.svg",
@@ -56,7 +56,7 @@
     },
     {
       "path": "video/lyrics.txt",
-      "sha256": "ce0773e6ff32814df867c3fccd4b1f81ca77f07b5e998f24adf67250dcb88870"
+      "sha256": "d51b2da0abc7a2dc3622f606367b065077ad6c089706452824f22a6027a511d9"
     },
     {
       "path": "web/static/assets/cover.svg",

@@ -9,18 +9,21 @@ import render
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parent
 
 def check_sources():
-    inputs=json.loads((HERE/'data/inputs.json').read_text())
+    inputs=json.loads((HERE/'data/inputs.json').read_text(encoding='utf-8'))
     for record in inputs['files']:
         assert hashlib.sha256((ROOT/record['path']).read_bytes()).hexdigest()==record['sha256'], record['path']
-    audio=json.loads((HERE/'data/audio.json').read_text())
+    audio=json.loads((HERE/'data/audio.json').read_text(encoding='utf-8'))
     assert hashlib.sha256((ROOT/'assets/video/audio/im-upping-my-phop.wav').read_bytes()).hexdigest()==audio['audio_sha256']
-    timeline=json.loads((HERE/'data/timeline.json').read_text())
+    timeline=json.loads((HERE/'data/timeline.json').read_text(encoding='utf-8'))
     assert all(timeline[i]['start']<=timeline[i+1]['start'] for i in range(len(timeline)-1))
-    source=[line for line in (HERE/'lyrics.txt').read_text().splitlines() if line and not line.startswith('[')]
+    source=[line for line in (HERE/'lyrics.txt').read_text(encoding='utf-8').splitlines() if line and not line.startswith('[')]
     assert [s['lyric'] for s in timeline]==source
     assert all(0<=s['start']<=s['end']<=audio['duration'] for s in timeline)
     assert set(s['world'] for s in timeline)==set(render.PAGES)
-    proof=json.loads((HERE/'data/proof.json').read_text())
+    assert len(timeline)==100 and all(s['lyric'].strip() for s in timeline)
+    assert [s['cameo'] for s in timeline[31:37]]==['ray-kurzweil','aubrey-de-grey','david-eagleman','natasha-vita-more','ben-goertzel','max-more']
+    assert all(s['scene']=='people-ensemble' for s in timeline[94:98])
+    proof=json.loads((HERE/'data/proof.json').read_text(encoding='utf-8'))
     double=next(p for p in proof['proofs'] if p['id']=='double-tap')
     accepted=[e for e in double['audit']['events'] if e['kind']=='receipt' and e['receipt']['accepted']]
     assert any(e['receipt']['action']=='move-sticker' for e in accepted)
@@ -36,7 +39,7 @@ def check_sources():
     language=next(p for p in proof['proofs'] if p['id']=='language')
     assert language['response']['ok'] and language['response']['jev']['goal']['subject']==double['subject']
     hashes={}
-    for t in [.8,47.6,76.5,92.8,102.7,152.4,179.65]:
+    for t in [.8,47.6,76.5,92.8,102.7,152.4,104.5,170.6,174.4,175.5,179.65]:
         a=render.render(t);b=render.render(t)
         assert a.size==(1920,1080) and a.tobytes()==b.tobytes()
         hashes[str(t)]=hashlib.sha256(a.tobytes()).hexdigest()
@@ -53,7 +56,7 @@ def main():
     for duration in [v['duration'],a['duration'],info['format']['duration']]:assert abs(float(duration)-audio['duration'])<.00002
     subprocess.run(['ffmpeg','-v','error','-i',str(path),'-f','null','-'],check=True)
     encoded_frame_error={}
-    for t in [47.6,76.5,92.8,102.7,152.4]:
+    for t in [47.6,76.5,92.8,102.7,152.4,65,104.5,170.6,174.4]:
         raw=subprocess.check_output(['ffmpeg','-v','error','-ss',str(t),'-i',str(path),'-frames:v','1','-c:v','png','-f','image2pipe','pipe:1'])
         decoded=np.asarray(Image.open(BytesIO(raw)).convert('RGB'),dtype=np.float32)
         reference=np.asarray(render.render(t),dtype=np.float32)

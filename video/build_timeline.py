@@ -5,22 +5,14 @@ ROOT=Path(__file__).resolve().parents[1]
 D=ROOT/'video/data'
 
 def main():
-    lyrics=json.loads((D/'lyrics.json').read_text())
+    lyrics=json.loads((D/'lyrics.json').read_text(encoding='utf-8'))
     # Editorial cue corrections for regions where music ASR did not match the
     # supplied lyrics. These are visual windows, not claims of forced alignment.
-    overrides={31:(61.74,62.9),32:(62.9,64.1),33:(64.1,66.3),34:(66.5,68),35:(68,70.1),36:(70.1,72.8),37:(72.8,75.68),
-               60:(119.26,121.9),61:(121.9,122.84)}
-    # Do not stack unmatched tail lyrics at one ASR timestamp. Stage the visual
-    # ideas in measured final-chorus/outro windows while preserving source text.
-    tail=[(87,160.5),(88,161.7),(89,162.9),(90,164.1),(91,165.3),(92,166.5),(93,167.7),(94,168.9),
-          (95,170.24),(96,171.38),(97,172.62),(98,173.82),(99,176.48),(100,177.36)]
-    for (i,t),(j,end) in zip(tail,tail[1:]):overrides[i]=(t,end)
-    overrides[100]=(177.36,178.4)
-    for i in range(101,110):overrides[i]=(178.4,179.55)
-    overrides[110]=(179.55,179.84)
+    overrides={}
     shots=[]
     for line in lyrics:
-        i=line['id'];start,end=overrides.get(i,(line['start'],line['end']))
+        actual_id=line['id'];i=actual_id if actual_id<=38 else actual_id-1
+        start,end=line['start'],line['end']
         section=line['section']; text=line['text']; low=text.lower()
         scene='play';world='farm';subject='frog';title='';cameo=None
         if section=='Intro':scene=['cover','worlds','tray','hop'][i]; title=['OPEN THE BOOK','PICK A WORLD','PICK A STICKER','MAKE IT MOVE'][i]
@@ -42,16 +34,19 @@ def main():
             elif 'p-doom' in low or 'going up' in low:scene='meters';title='P-HOP UP / P-DOOM DOWN'
             elif 'tap it' in low or 'teach it' in low:scene='teach';title='SAY IT. TAP IT. TEACH IT.'
             if section=='Final Chorus':
-                if i in range(77,83):scene='worlds';title='SIX WORLDS. ONE BOOK.'
-                if i in [83,84,89,90]:scene='isolation';title='RESPONSES KNOW THEIR PLACE'
-                if i in [85,86]:scene='localhost';title='POWERED ON LOCALHOST'
-                if i in [87,88]:scene='memory';title='EACH WORLD KEEPS ITS STATE'
-                if i in [91,92,93,94]:scene='pipeline';title='LANGUAGE → CHOICE → RECEIPT'
-                if i in [95,96,97,98]:scene='ensemble';title='START SMALL. LET IT PLAY.'
+                if actual_id in range(78,84):scene='worlds';title='SIX WORLDS. ONE BOOK.'
+                if actual_id in [84,85]:scene='isolation';title='RESPONSES KNOW THEIR PLACE'
+                if actual_id in [86,87]:scene='localhost';title='POWERED ON LOCALHOST'
+                if actual_id in range(88,94):
+                    scene='cameo';world='theater'
+                    cameo=['ray-kurzweil','aubrey-de-grey','natasha-vita-more','ben-goertzel','david-eagleman','david-orban'][actual_id-88]
+                    title=['RAY','AUBREY','NATASHA','BEN','EAGLEMAN','DAVID'][actual_id-88]
+                if actual_id in range(94,98):scene='people-ensemble';world='theater';title='NOBODY KNOWS. EVERYBODY CAN PLAY.'
         elif section=='Post-Chorus':
-            scene='cameo';cameo={31:'natasha-vita-more',32:'max-more',33:'ben-goertzel'}.get(i)
-            world={31:'playground',32:'beach',33:'space',34:'theater',35:'space',36:'school',37:'farm'}[i]
-            title={31:'NATASHA',32:'MAX',33:'BEN'}.get(i,'EVERY WORLD HAS A PLACE')
+            scene='cameo'
+            cameo=['ray-kurzweil','aubrey-de-grey','david-eagleman','natasha-vita-more','ben-goertzel','max-more',None,None][actual_id-31]
+            world=['playground','beach','school','theater','space','beach','farm','farm'][actual_id-31]
+            title=['RAY','AUBREY','EAGLEMAN','NATASHA','BEN','MAX','EVERY WORLD HAS A PLACE','A CLEARLY MARKED DOOR'][actual_id-31]
         elif section=='Verse 2':
             scene='pipeline';title='OMEGA → JEV → HOST'
             if i==38:scene='proof-language';title='REAL LANGUAGE / BOUNDED GOAL'
@@ -66,9 +61,11 @@ def main():
             if i in [69,70]:title='OPENSHELL: THE HARDENED TARGET'
             if i in [71,72,73,74]:title='LOCAL DEV: RESTRICTED DOCKER'
         elif section=='Outro':scene='outro';title='HOP!' if i==110 else 'ONE BOOK. MANY WORLDS.'
-        shots.append({'id':i,'start':start,'end':end,'scene':scene,'world':world,'subject':subject,'title':title,'cameo':cameo,
+        shots.append({'id':actual_id,'start':start,'end':end,'scene':scene,'world':world,'subject':subject,'title':title,'cameo':cameo,
                       'lyric':text,'section':section,'timing': 'editorial visual cue; uncertain ASR match' if i in overrides else 'matched vocal cue',
                       'confidence':line['alignment_confidence']})
+    for n,shot in enumerate(shots[:-1]):
+        shot['end']=min(shot['end'],shots[n+1]['start'])
     # Fill instrumental intro/short gaps with the previous picture; shot changes
     # stay anchored to vocals, motion accents to measured beat times.
     # Preserve motion across adjacent cues belonging to one visual shot.

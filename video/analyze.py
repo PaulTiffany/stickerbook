@@ -40,14 +40,16 @@ def main():
     DATA.mkdir(exist_ok=True)
     (DATA/'audio.json').write_text(json.dumps(beat,indent=2),encoding='utf-8',newline='\n')
     if not (DATA/'transcription.json').exists():print(json.dumps({'duration':duration,'bpm':bpm,'awaiting':'transcription'}));return
-    segments=json.loads((DATA/'transcription.json').read_text())
+    segments=json.loads((DATA/'transcription.json').read_text(encoding='utf-8'))
     observed=[]
     for s in segments:
         for w in s['words']:
             for token in tokens(w['text']):observed.append((token,w['start'],w['end']))
-    lines=[]; section=''
-    for text in (ROOT/'video/lyrics.txt').read_text().splitlines():
-        if text.startswith('['):section=text.strip('[]');continue
+    lines=[]; section=''; occurrences={}
+    for text in (ROOT/'video/lyrics.txt').read_text(encoding='utf-8').splitlines():
+        if text.startswith('['):
+            base=text.strip('[]');occurrences[base]=occurrences.get(base,0)+1
+            section=base+(str(occurrences[base]) if occurrences[base]>1 else '');continue
         if text.strip():lines.append({'text':text,'section':section,'tokens':tokens(text)})
     expected=[tok for line in lines for tok in line['tokens']]
     matched={}

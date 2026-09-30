@@ -36,7 +36,7 @@
     "id": 3
   },
   {
-    "text": "There's a frog by the water and a bird in the sky",
+    "text": "There\u2019s a frog by the water and a bird in the sky",
     "section": "Verse 1",
     "start": 10.08,
     "end": 12.48,
@@ -45,7 +45,7 @@
     "id": 4
   },
   {
-    "text": "There's a kid with a finger going, \"What if it could fly?\"",
+    "text": "There\u2019s a kid with a finger going, \u201cWhat if it could fly?\u201d",
     "section": "Verse 1",
     "start": 12.7,
     "end": 14.96,
@@ -144,7 +144,7 @@
     "id": 15
   },
   {
-    "text": "\"Make the frog hop.\"",
+    "text": "\u201cMake the frog hop.\u201d",
     "section": "Verse 1",
     "start": 37.46,
     "end": 38.24,
@@ -153,7 +153,7 @@
     "id": 16
   },
   {
-    "text": "You don't need the future finished",
+    "text": "You don\u2019t need the future finished",
     "section": "Pre-Chorus",
     "start": 38.34,
     "end": 40.06,
@@ -162,7 +162,7 @@
     "id": 17
   },
   {
-    "text": "You don't need the final proof",
+    "text": "You don\u2019t need the final proof",
     "section": "Pre-Chorus",
     "start": 40.52,
     "end": 42.24,
@@ -189,7 +189,7 @@
     "id": 20
   },
   {
-    "text": "I'M UPPING MY P-HOP",
+    "text": "I\u2019M UPPING MY P-HOP",
     "section": "Chorus",
     "start": 47.22,
     "end": 48.37,
@@ -198,7 +198,7 @@
     "id": 21
   },
   {
-    "text": "While they're measuring P-DOOM",
+    "text": "While they\u2019re measuring P-DOOM",
     "section": "Chorus",
     "start": 48.44,
     "end": 49.85,
@@ -279,67 +279,76 @@
     "id": 30
   },
   {
-    "text": "Natasha on the playground",
+    "text": "Kurzweil on the playground",
     "section": "Post-Chorus",
-    "start": 61.68,
+    "start": 61.74,
     "end": 62.9,
-    "alignment_confidence": 0.75,
+    "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
     "id": 31
   },
   {
-    "text": "Max is at the beach",
+    "text": "Aubrey at the beach",
     "section": "Post-Chorus",
-    "start": 62.727,
+    "start": 63.16,
     "end": 63.84,
-    "alignment_confidence": 0.6,
+    "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
     "id": 32
   },
   {
-    "text": "Ben is asking how much farther intelligence can reach",
+    "text": "Eagleman is asking what the nervous system can reach",
     "section": "Post-Chorus",
-    "start": 67.68,
-    "end": 68.035,
-    "alignment_confidence": 0.222,
+    "start": 63.94,
+    "end": 66.22,
+    "alignment_confidence": 0.889,
     "alignment": "ASR token match/interpolation",
     "id": 33
   },
   {
-    "text": "Minds inside the theater",
+    "text": "Natasha in the theater",
     "section": "Post-Chorus",
-    "start": 67.86,
-    "end": 68.078,
-    "alignment_confidence": 0.0,
+    "start": 66.52,
+    "end": 67.38,
+    "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
     "id": 34
   },
   {
-    "text": "Dreaming out in space",
+    "text": "Ben is out in space",
     "section": "Post-Chorus",
-    "start": 67.94,
+    "start": 67.68,
     "end": 68.4,
-    "alignment_confidence": 0.75,
+    "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
     "id": 35
   },
   {
-    "text": "Every little world still gets",
+    "text": "Max says every boundary is an invitation to explore",
     "section": "Post-Chorus",
-    "start": 72.9,
-    "end": 74.28,
-    "alignment_confidence": 0.6,
+    "start": 68.66,
+    "end": 71.44,
+    "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
     "id": 36
   },
   {
-    "text": "A boundary and a place",
+    "text": "So every little world comes with",
     "section": "Post-Chorus",
-    "start": 74.28,
-    "end": 75.684,
-    "alignment_confidence": 0.2,
+    "start": 72.78,
+    "end": 74.28,
+    "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
     "id": 37
+  },
+  {
+    "text": "A clearly marked door",
+    "section": "Post-Chorus",
+    "start": 74.28,
+    "end": 75.46,
+    "alignment_confidence": 1.0,
+    "alignment": "ASR token match/interpolation",
+    "id": 38
   },
   {
     "text": "Omega gets the poetry, Jev gets the final key",
@@ -348,16 +357,16 @@
     "end": 77.68,
     "alignment_confidence": 0.889,
     "alignment": "ASR token match/interpolation",
-    "id": 38
+    "id": 39
   },
   {
-    "text": "Hypergraphs can hold the dream; the host checks what can be",
+    "text": "Ben can dream in hypergraphs; the host checks what can be",
     "section": "Verse 2",
-    "start": 77.71,
+    "start": 77.92,
     "end": 80.0,
-    "alignment_confidence": 0.727,
+    "alignment_confidence": 0.818,
     "alignment": "ASR token match/interpolation",
-    "id": 39
+    "id": 40
   },
   {
     "text": "The model says a paragraph, Jev only needs the move",
@@ -366,7 +375,7 @@
     "end": 82.36,
     "alignment_confidence": 0.9,
     "alignment": "ASR token match/interpolation",
-    "id": 40
+    "id": 41
   },
   {
     "text": "Compress a cloud of language to a thing the host can prove",
@@ -375,7 +384,7 @@
     "end": 84.68,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 41
+    "id": 42
   },
   {
     "text": "Agency begins with choices, so we made the choices typed",
@@ -384,7 +393,7 @@
     "end": 86.93,
     "alignment_confidence": 0.7,
     "alignment": "ASR token match/interpolation",
-    "id": 42
+    "id": 43
   },
   {
     "text": "Dream as far as language goes; the action stays prescribed",
@@ -393,7 +402,7 @@
     "end": 89.24,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 43
+    "id": 44
   },
   {
     "text": "Sometimes language tells it, sometimes fingers make the call",
@@ -402,7 +411,7 @@
     "end": 91.6,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 44
+    "id": 45
   },
   {
     "text": "Double-tap goes straight to Jev, no L-L-M at all",
@@ -411,7 +420,7 @@
     "end": 93.96,
     "alignment_confidence": 0.9,
     "alignment": "ASR token match/interpolation",
-    "id": 45
+    "id": 46
   },
   {
     "text": "Three taps taught it eastward, three small moves became a track",
@@ -420,7 +429,7 @@
     "end": 96.18,
     "alignment_confidence": 0.727,
     "alignment": "ASR token match/interpolation",
-    "id": 46
+    "id": 47
   },
   {
     "text": "Teach the frog a pattern; Jev can bring the pattern back",
@@ -429,7 +438,7 @@
     "end": 98.5,
     "alignment_confidence": 0.909,
     "alignment": "ASR token match/interpolation",
-    "id": 47
+    "id": 48
   },
   {
     "text": "Memory makes suggestions; it can never take command",
@@ -438,7 +447,7 @@
     "end": 100.84,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 48
+    "id": 49
   },
   {
     "text": "The model gets a sandbox",
@@ -447,7 +456,7 @@
     "end": 102.04,
     "alignment_confidence": 0.8,
     "alignment": "ASR token match/interpolation",
-    "id": 49
+    "id": 50
   },
   {
     "text": "The child still gets the hand",
@@ -456,142 +465,142 @@
     "end": 103.22,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 50
+    "id": 51
   },
   {
-    "text": "Teach it, don't enthrone it",
-    "section": "Pre-Chorus 2",
+    "text": "Teach it, don\u2019t enthrone it",
+    "section": "Pre-Chorus2",
     "start": 103.54,
     "end": 105.38,
     "alignment_confidence": 0.833,
     "alignment": "ASR token match/interpolation",
-    "id": 51
-  },
-  {
-    "text": "Let it learn the groove",
-    "section": "Pre-Chorus 2",
-    "start": 105.6,
-    "end": 107.44,
-    "alignment_confidence": 1.0,
-    "alignment": "ASR token match/interpolation",
     "id": 52
   },
   {
-    "text": "A pattern can remember",
-    "section": "Pre-Chorus 2",
-    "start": 108.0,
-    "end": 109.68,
+    "text": "Let it learn the groove",
+    "section": "Pre-Chorus2",
+    "start": 105.6,
+    "end": 107.44,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
     "id": 53
   },
   {
-    "text": "The child still picks the move",
-    "section": "Pre-Chorus 2",
-    "start": 110.18,
-    "end": 111.82,
+    "text": "A pattern can remember",
+    "section": "Pre-Chorus2",
+    "start": 108.0,
+    "end": 109.68,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
     "id": 54
   },
   {
-    "text": "I'M UPPING MY P-HOP",
-    "section": "Chorus 2",
-    "start": 111.82,
-    "end": 113.21,
-    "alignment_confidence": 0.6,
+    "text": "The child still picks the move",
+    "section": "Pre-Chorus2",
+    "start": 110.18,
+    "end": 111.82,
+    "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
     "id": 55
   },
   {
-    "text": "While they're measuring P-DOOM",
-    "section": "Chorus 2",
-    "start": 113.26,
-    "end": 114.72,
-    "alignment_confidence": 0.8,
+    "text": "I\u2019M UPPING MY P-HOP",
+    "section": "Chorus2",
+    "start": 111.82,
+    "end": 113.21,
+    "alignment_confidence": 0.6,
     "alignment": "ASR token match/interpolation",
     "id": 56
   },
   {
-    "text": "Safety scissors ready, give the weird a little room",
-    "section": "Chorus 2",
-    "start": 114.88,
-    "end": 116.98,
-    "alignment_confidence": 1.0,
+    "text": "While they\u2019re measuring P-DOOM",
+    "section": "Chorus2",
+    "start": 113.26,
+    "end": 114.72,
+    "alignment_confidence": 0.8,
     "alignment": "ASR token match/interpolation",
     "id": 57
   },
   {
-    "text": "MAKE THE FROG HOP",
-    "section": "Chorus 2",
-    "start": 117.06,
-    "end": 117.86,
+    "text": "Safety scissors ready, give the weird a little room",
+    "section": "Chorus2",
+    "start": 114.88,
+    "end": 116.98,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
     "id": 58
   },
   {
-    "text": "MAKE THE BIRD FLY",
-    "section": "Chorus 2",
-    "start": 118.02,
-    "end": 118.98,
+    "text": "MAKE THE FROG HOP",
+    "section": "Chorus2",
+    "start": 117.06,
+    "end": 117.86,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
     "id": 59
   },
   {
-    "text": "Tap it with a finger, tell Omega what to try",
-    "section": "Chorus 2",
-    "start": 122.2,
-    "end": 122.54,
-    "alignment_confidence": 0.1,
+    "text": "MAKE THE BIRD FLY",
+    "section": "Chorus2",
+    "start": 118.02,
+    "end": 118.98,
+    "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
     "id": 60
   },
   {
-    "text": "Say it, tap it, teach it",
-    "section": "Chorus 2",
-    "start": 122.4,
-    "end": 122.76,
-    "alignment_confidence": 0.333,
+    "text": "Touch can move it directly; Omega takes the cry",
+    "section": "Chorus2",
+    "start": 119.26,
+    "end": 121.7,
+    "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
     "id": 61
   },
   {
-    "text": "Let the small world bloom",
-    "section": "Chorus 2",
-    "start": 122.84,
-    "end": 123.9,
-    "alignment_confidence": 1.0,
+    "text": "Say it, tap it, teach it",
+    "section": "Chorus2",
+    "start": 121.88,
+    "end": 122.76,
+    "alignment_confidence": 0.667,
     "alignment": "ASR token match/interpolation",
     "id": 62
   },
   {
-    "text": "P-HOP going up",
-    "section": "Chorus 2",
-    "start": 123.98,
-    "end": 125.0,
-    "alignment_confidence": 0.667,
+    "text": "Let the small world bloom",
+    "section": "Chorus2",
+    "start": 122.84,
+    "end": 123.9,
+    "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
     "id": 63
   },
   {
-    "text": "While P-DOOM goes down",
-    "section": "Chorus 2",
-    "start": 125.1,
-    "end": 126.18,
-    "alignment_confidence": 0.75,
+    "text": "P-HOP going up",
+    "section": "Chorus2",
+    "start": 123.98,
+    "end": 125.0,
+    "alignment_confidence": 0.667,
     "alignment": "ASR token match/interpolation",
     "id": 64
   },
   {
-    "text": "\"If anybody builds it, everybody might die\"",
+    "text": "While P-DOOM goes down",
+    "section": "Chorus2",
+    "start": 125.1,
+    "end": 126.18,
+    "alignment_confidence": 0.75,
+    "alignment": "ASR token match/interpolation",
+    "id": 65
+  },
+  {
+    "text": "\u201cIf anybody builds it, everybody might die\u201d",
     "section": "Bridge",
     "start": 126.36,
     "end": 128.58,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 65
+    "id": 66
   },
   {
     "text": "But in a sticker sandbox, a child can make them fly",
@@ -600,7 +609,7 @@
     "end": 130.8,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 66
+    "id": 67
   },
   {
     "text": "Eliezer asks,",
@@ -609,16 +618,16 @@
     "end": 131.373,
     "alignment_confidence": 0.0,
     "alignment": "ASR token match/interpolation",
-    "id": 67
+    "id": 68
   },
   {
-    "text": "\"What happens when it learns to leave the box?\"",
+    "text": "\u201cWhat happens when it learns to leave the box?\u201d",
     "section": "Bridge",
     "start": 131.54,
     "end": 132.98,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 68
+    "id": 69
   },
   {
     "text": "OpenShell says,",
@@ -627,16 +636,16 @@
     "end": 133.86,
     "alignment_confidence": 0.5,
     "alignment": "ASR token match/interpolation",
-    "id": 69
+    "id": 70
   },
   {
-    "text": "\"First of all, we actually have a box.\"",
+    "text": "\u201cFirst of all, we actually have a box.\u201d",
     "section": "Bridge",
     "start": 133.86,
     "end": 135.3,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 70
+    "id": 71
   },
   {
     "text": "Every frog deserves a pond",
@@ -645,7 +654,7 @@
     "end": 136.48,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 71
+    "id": 72
   },
   {
     "text": "Every process gets a shell",
@@ -654,7 +663,7 @@
     "end": 137.64,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 72
+    "id": 73
   },
   {
     "text": "Freedom works much better",
@@ -663,7 +672,7 @@
     "end": 138.7,
     "alignment_confidence": 0.5,
     "alignment": "ASR token match/interpolation",
-    "id": 73
+    "id": 74
   },
   {
     "text": "When you know the boundary well",
@@ -672,25 +681,25 @@
     "end": 140.8,
     "alignment_confidence": 0.833,
     "alignment": "ASR token match/interpolation",
-    "id": 74
+    "id": 75
   },
   {
-    "text": "I'M UPPING MY P-HOP",
+    "text": "I\u2019M UPPING MY P-HOP",
     "section": "Final Chorus",
     "start": 141.76,
     "end": 142.93,
     "alignment_confidence": 0.6,
     "alignment": "ASR token match/interpolation",
-    "id": 75
+    "id": 76
   },
   {
-    "text": "While they're measuring P-DOOM",
+    "text": "While they\u2019re measuring P-DOOM",
     "section": "Final Chorus",
     "start": 143.0,
     "end": 144.43,
     "alignment_confidence": 0.8,
     "alignment": "ASR token match/interpolation",
-    "id": 76
+    "id": 77
   },
   {
     "text": "Farm and beach and playground",
@@ -699,7 +708,7 @@
     "end": 145.48,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 77
+    "id": 78
   },
   {
     "text": "Everybody make room",
@@ -708,7 +717,7 @@
     "end": 146.72,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 78
+    "id": 79
   },
   {
     "text": "School to space to theater",
@@ -717,7 +726,7 @@
     "end": 147.84,
     "alignment_confidence": 0.8,
     "alignment": "ASR token match/interpolation",
-    "id": 79
+    "id": 80
   },
   {
     "text": "Every page its own",
@@ -726,7 +735,7 @@
     "end": 148.96,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 80
+    "id": 81
   },
   {
     "text": "Six small worlds can share the stickers",
@@ -735,25 +744,25 @@
     "end": 150.08,
     "alignment_confidence": 0.714,
     "alignment": "ASR token match/interpolation",
-    "id": 81
+    "id": 82
   },
   {
-    "text": "Without sharing what they've known",
+    "text": "Without sharing what they\u2019ve known",
     "section": "Final Chorus",
     "start": 150.08,
     "end": 151.24,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 82
+    "id": 83
   },
   {
-    "text": "A delayed reply from Farm can't wander into Space",
+    "text": "A delayed reply from Farm can\u2019t wander into Space",
     "section": "Final Chorus",
     "start": 151.38,
     "end": 153.44,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 83
+    "id": 84
   },
   {
     "text": "Humans may transcend the flesh; responses know their place",
@@ -762,7 +771,7 @@
     "end": 155.72,
     "alignment_confidence": 0.556,
     "alignment": "ASR token match/interpolation",
-    "id": 84
+    "id": 85
   },
   {
     "text": "Some minds dream of leaving bodies, substrates, Earth, and home",
@@ -771,97 +780,79 @@
     "end": 157.92,
     "alignment_confidence": 0.8,
     "alignment": "ASR token match/interpolation",
-    "id": 85
+    "id": 86
   },
   {
-    "text": "Our powered agent stays on localhost; it doesn't need to roam",
+    "text": "Our powered agent stays on localhost; it doesn\u2019t need to roam",
     "section": "Final Chorus",
     "start": 158.06,
     "end": 160.32,
     "alignment_confidence": 0.917,
     "alignment": "ASR token match/interpolation",
-    "id": 86
-  },
-  {
-    "text": "Every page keeps history",
-    "section": "Final Chorus",
-    "start": 160.834,
-    "end": 163.368,
-    "alignment_confidence": 0.0,
-    "alignment": "ASR token match/interpolation",
     "id": 87
   },
   {
-    "text": "Every world keeps state",
+    "text": "Ray can chart tomorrow",
     "section": "Final Chorus",
-    "start": 163.93,
-    "end": 166.416,
-    "alignment_confidence": 0.0,
+    "start": 160.66,
+    "end": 161.36,
+    "alignment_confidence": 0.75,
     "alignment": "ASR token match/interpolation",
     "id": 88
   },
   {
-    "text": "Anything that finishes late",
+    "text": "Aubrey buys us time",
     "section": "Final Chorus",
-    "start": 167.026,
-    "end": 168.12,
-    "alignment_confidence": 0.25,
+    "start": 161.38,
+    "end": 162.5,
+    "alignment_confidence": 0.75,
     "alignment": "ASR token match/interpolation",
     "id": 89
   },
   {
-    "text": "Still has to know the gate",
+    "text": "Natasha says the human form is ours to redesign",
     "section": "Final Chorus",
-    "start": 168.04,
-    "end": 168.66,
-    "alignment_confidence": 0.0,
+    "start": 162.72,
+    "end": 164.564,
+    "alignment_confidence": 0.667,
     "alignment": "ASR token match/interpolation",
     "id": 90
   },
   {
-    "text": "Language makes suggestions",
+    "text": "Ben can bring the A-G-I",
     "section": "Final Chorus",
-    "start": 168.52,
-    "end": 168.93,
-    "alignment_confidence": 0.0,
+    "start": 164.716,
+    "end": 166.19,
+    "alignment_confidence": 0.429,
     "alignment": "ASR token match/interpolation",
     "id": 91
   },
   {
-    "text": "Jev decides the move",
+    "text": "Eagleman brings the strange",
     "section": "Final Chorus",
-    "start": 168.76,
-    "end": 169.29,
-    "alignment_confidence": 0.0,
+    "start": 166.06,
+    "end": 167.06,
+    "alignment_confidence": 0.75,
     "alignment": "ASR token match/interpolation",
     "id": 92
   },
   {
-    "text": "The host can check the answer",
+    "text": "David brings the jolt that says acceleration itself can change",
     "section": "Final Chorus",
-    "start": 169.08,
-    "end": 169.784,
-    "alignment_confidence": 0.167,
+    "start": 167.32,
+    "end": 170.04,
+    "alignment_confidence": 0.9,
     "alignment": "ASR token match/interpolation",
     "id": 93
   },
   {
-    "text": "Before there's anything to prove",
-    "section": "Final Chorus",
-    "start": 169.64,
-    "end": 170.231,
-    "alignment_confidence": 0.0,
-    "alignment": "ASR token match/interpolation",
-    "id": 94
-  },
-  {
     "text": "And nobody here knows",
     "section": "Final Chorus",
-    "start": 170.24,
+    "start": 169.95,
     "end": 171.38,
     "alignment_confidence": 0.75,
     "alignment": "ASR token match/interpolation",
-    "id": 95
+    "id": 94
   },
   {
     "text": "How the century will move",
@@ -870,7 +861,7 @@
     "end": 172.6,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 96
+    "id": 95
   },
   {
     "text": "So start with something small enough",
@@ -879,7 +870,7 @@
     "end": 173.82,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 97
+    "id": 96
   },
   {
     "text": "To know what it can do",
@@ -888,7 +879,7 @@
     "end": 176.42,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 98
+    "id": 97
   },
   {
     "text": "MAKE THE FROG HOP",
@@ -897,105 +888,15 @@
     "end": 177.22,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 99
+    "id": 98
   },
   {
     "text": "Let the whole book play",
     "section": "Final Chorus",
     "start": 177.36,
-    "end": 178.4,
+    "end": 179.84,
     "alignment_confidence": 1.0,
     "alignment": "ASR token match/interpolation",
-    "id": 100
-  },
-  {
-    "text": "Human makes the meaning",
-    "section": "Final Chorus",
-    "start": 178.0,
-    "end": 178.4,
-    "alignment_confidence": 0.0,
-    "alignment": "ASR token match/interpolation",
-    "id": 101
-  },
-  {
-    "text": "Machine helps move it on its way",
-    "section": "Final Chorus",
-    "start": 178.0,
-    "end": 178.4,
-    "alignment_confidence": 0.0,
-    "alignment": "ASR token match/interpolation",
-    "id": 102
-  },
-  {
-    "text": "One book",
-    "section": "Outro",
-    "start": 178.0,
-    "end": 178.4,
-    "alignment_confidence": 0.0,
-    "alignment": "ASR token match/interpolation",
-    "id": 103
-  },
-  {
-    "text": "Many worlds",
-    "section": "Outro",
-    "start": 178.0,
-    "end": 178.4,
-    "alignment_confidence": 0.0,
-    "alignment": "ASR token match/interpolation",
-    "id": 104
-  },
-  {
-    "text": "Little moves",
-    "section": "Outro",
-    "start": 178.0,
-    "end": 178.4,
-    "alignment_confidence": 0.0,
-    "alignment": "ASR token match/interpolation",
-    "id": 105
-  },
-  {
-    "text": "Visible rules",
-    "section": "Outro",
-    "start": 178.0,
-    "end": 178.4,
-    "alignment_confidence": 0.0,
-    "alignment": "ASR token match/interpolation",
-    "id": 106
-  },
-  {
-    "text": "The future isn't finished",
-    "section": "Outro",
-    "start": 178.0,
-    "end": 178.4,
-    "alignment_confidence": 0.0,
-    "alignment": "ASR token match/interpolation",
-    "id": 107
-  },
-  {
-    "text": "That's the point",
-    "section": "Outro",
-    "start": 178.0,
-    "end": 178.4,
-    "alignment_confidence": 0.0,
-    "alignment": "ASR token match/interpolation",
-    "id": 108
-  },
-  {
-    "text": "Again.",
-    "section": "Outro",
-    "start": 178.0,
-    "end": 178.4,
-    "alignment_confidence": 0.0,
-    "alignment": "ASR token match/interpolation",
-    "id": 109
-  },
-  {
-    "text": "HOP.",
-    "section": "Outro",
-    "start": 178.0,
-    "end": 179.84,
-    "alignment_confidence": 0.0,
-    "alignment": "ASR token match/interpolation",
-    "id": 110
+    "id": 99
   }
 ]

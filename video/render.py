@@ -16,10 +16,10 @@ ROOT=Path(__file__).resolve().parents[1]
 HERE=ROOT/'video'
 W,H=1920,1080
 INK='#222336';PINK='#ea4bad';BLUE='#395ec9';GREEN='#247d65';PAPER='#fff9eb';YELLOW='#ffd351'
-MANIFEST=json.loads((ROOT/'web/static/assets/manifest.json').read_text())
-AUDIO=json.loads((HERE/'data/audio.json').read_text())
-TIMELINE=json.loads((HERE/'data/timeline.json').read_text())
-PROOF=json.loads((HERE/'data/proof.json').read_text())
+MANIFEST=json.loads((ROOT/'web/static/assets/manifest.json').read_text(encoding='utf-8'))
+AUDIO=json.loads((HERE/'data/audio.json').read_text(encoding='utf-8'))
+TIMELINE=json.loads((HERE/'data/timeline.json').read_text(encoding='utf-8'))
+PROOF=json.loads((HERE/'data/proof.json').read_text(encoding='utf-8'))
 PAGES=['farm','beach','playground','school','space','theater']
 STARTS=[s['start'] for s in TIMELINE]
 
@@ -212,6 +212,8 @@ def render(t):
     for y in range(25,H,42):
         for x in range(24,W,42):d.ellipse((x,y,x+2,y+2),fill='#e9ddc9')
     scene=shot['scene'];world=shot['world'];title=shot['title'];subject=shot['subject']
+    if 174<=t<176:scene='credit';world='theater';title='MADE WITH PLAY. BUILT BY PAUL TIFFANY.'
+    if t>=179.55:scene='outro';title='HOP!'
     beat=max(0,bisect.bisect_right(AUDIO['beats'],t)-1)
     pulse=math.exp(-max(0,t-AUDIO['beats'][beat])*8)
     if scene not in {'worlds','cover','pipeline','proof-language','compress','choices','isolation','outro','shell'}:book(im,world,t)
@@ -231,13 +233,34 @@ def render(t):
             d.rounded_rectangle((x-200,y-130,x+200,y+140),25,fill='white',outline='#ead8ba',width=3)
             sprite(im,asset,x,y,270,t+i,active=False)
         pointer(im,300,420,tap=True)
-    elif scene in {'hop','chorus','play','boundary','cameo','ensemble'}:
+    elif scene=='people-ensemble':
+        people=list(MANIFEST['stickers'])[-19:]
+        for i,asset in enumerate(people):
+            row=i//7;col=i%7;count=min(7,len(people)-row*7)
+            x=960+(col-(count-1)/2)*245;y=305+row*220+12*math.sin(t*3+i)
+            sprite(im,asset,x,y,225,t+i*.13,angle=math.sin(t+i)*3)
+        confetti(im,t,.7)
+    elif scene=='credit':
+        sprite(im,'paul-tiffany',610,530,610,t,angle=math.sin(t*2)*3)
+        text(im,'PAUL TIFFANY',1330,390,73,PINK,width=840)
+        text(im,'StickerBook',1330,480,63,GREEN)
+        text(im,'One book. Many worlds. Your move.',1330,570,34,width=860)
+        d.rounded_rectangle((905,645,1770,735),25,fill='white',outline=BLUE,width=4)
+        text(im,'github.com/PaulTiffany/stickerbook',1337,690,32,BLUE,width=810)
+        sprite(im,'bee',1650,790,155,t);sprite(im,'balloon',1030,790,145,t)
+    elif scene=='boundary' and shot['section'].endswith('2'):
+        for i,asset in enumerate(['rabbit','cat','bee','teddy-bear','kite','pinwheel']):
+            x=280+i*270;y=510+110*math.sin(t*1.6+i)
+            sprite(im,asset,x,y,290,t+i,angle=math.sin(t+i)*9)
+        d.rounded_rectangle((145,255,1775,800),40,outline=PINK,width=7)
+        pointer(im,1490,740,tap=True)
+    elif scene in {'hop' ,'chorus','play','boundary','cameo','ensemble'}:
         if scene=='ensemble':
             for i,asset in enumerate(['frog','bird','butterfly','fish','robot','flower']):
                 sprite(im,asset,250+i*280,570+70*math.sin(t*3+i),310,t+i,angle=math.sin(t*2+i)*8)
         elif scene=='cameo' and shot['cameo']:
             sprite(im,shot['cameo'],960,520,560,t,angle=math.sin(t*2)*4)
-            for i,asset in enumerate(['butterfly','fish','frog']):sprite(im,asset,400+i*570,760,180,t+i)
+            for i,asset in enumerate(['starfish','crab','turtle']):sprite(im,asset,400+i*570,760,180,t+i)
         else:
             hop=max(0,math.sin((t-AUDIO['phase'])*math.pi/(60/AUDIO['bpm'])))
             x=960+180*math.sin(t*.9);y=665-250*hop
@@ -340,8 +363,8 @@ def render(t):
         size=round(96+14*pulse) if title in {'P-HOP','MAKE THE FROG HOP','MAKE THE BIRD FLY'} else 68
         text(im,title,960,95,size,PINK if 'HOP' in title else INK,width=1770)
     # Minimal editorial lyric cue, sourced ONLY from the supplied lyric file.
-    # Unmatched tail ideas are staged visually; do not pretend they are karaoke.
-    if scene!='outro' and shot['confidence']>=.45:
+    # Every supplied vocal line remains visible, including credit shots.
+    if shot['lyric']:
         text(im,shot['lyric'],960,979,37,INK,width=1740)
     text(im,'StickerBook',91,1035,25,GREEN,anchor='lm')
     text(im,'I\'M UPPING MY P(HOP)',1815,1035,22,INK,anchor='rm')
@@ -384,13 +407,13 @@ def main():
     parser.add_argument('--workers',type=int,choices=[1,2],default=1)
     args=parser.parse_args();args.output.parent.mkdir(parents=True,exist_ok=True)
     if args.stills:
-        times=[.8,3.5,4.9,6,12.8,16,20.7,23,30,47.6,52.8,55.5,62.1,64.8,76.5,81,85.5,92.8,96.8,102.7,113,127.5,134,138,145.2,152.4,158.8,166.9,173,179.65]
-        sheet=Image.new('RGB',(5*384,6*238),PAPER)
+        times=[62.1,63.5,65,67,68,70,74.8,104.5,107,110.5,170.6,172,174.4,175.5,.8,3.5,4.9,6,12.8,16,20.7,23,30,47.6,52.8,55.5,62.1,64.8,76.5,81,85.5,92.8,96.8,102.7,113,127.5,134,138,145.2,152.4,158.8,166.9,173,179.65]
+        sheet=Image.new('RGB',(5*384,math.ceil(len(times)/5)*238),PAPER)
         for i,t in enumerate(times):
             frame=render(t);frame.save(HERE/f'output/still-{t:06.2f}.png')
             thumb=frame.resize((384,216),Image.Resampling.LANCZOS);sheet.paste(thumb,(i%5*384,i//5*238))
             ImageDraw.Draw(sheet).text((i%5*384+7,i//5*238+218),f'{t:.2f}s',fill=INK)
-        sheet.save(HERE/'output/contact-sheet.png');print('Saved 30 shot stills and contact sheet');return
+        sheet.save(HERE/'output/contact-sheet.png');print('Saved revised shot stills and contact sheet');return
     duration=min(args.to,AUDIO['duration'])-args.start
     assert duration>0 and args.start>=0, 'Invalid master-clock window'
     temporary=args.output.with_name(args.output.stem+'.rendering.mp4')

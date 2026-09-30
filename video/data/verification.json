@@ -9,26 +9,34 @@
   "video_frames": 5395,
   "video_codec": "h264",
   "audio_codec": "aac",
-  "mp4_sha256": "063d21928bd949dc35c95fd8bb2e2295b2341d7c75037e3d7f592040db76650c",
+  "mp4_sha256": "3adae9dddaa6a9aa5dbbe1b6139ec5af996bca3fbe5bc52915a8d871dba7a8d8",
   "accepted_double_tap_receipts": 34,
   "real_proof_moments": 4,
   "reproducibility_inputs_verified": 326,
   "deterministic_frame_sha256": {
     "0.8": "851bfc90c890115883d64f5dc3097d9acc26174638fbb9cc1b11226d22c3dcb3",
-    "47.6": "af7a70e426987506e8abee418f3272851bbbc43feca29cdb7dc3f8e258b0ae18",
+    "47.6": "abfa50a958598586d53b0640dc7bc49bd99ac47b5b60bcf38cb74af07efa3e75",
     "76.5": "e3e5dcb6cba97be153aef3eedc0b105110dc73ed3b7c4bee4427076589238bc5",
     "92.8": "d638dc85261d63f1cb4431cc715fd5dec9d1be785f0de6044b7c356ab1f17e84",
     "102.7": "844075eea39938847c54c77fe80af80a10470ca1f4a6a0d38e0a1de47f3e8645",
-    "152.4": "32036afa39f5963a4807ff4368faedb5a561b8f1a22d34ed7a86e2f0ebf0e4e7",
-    "179.65": "91edb13c26e583ae1ebbe22fb964a398f577d41ff0f18cf158bf0a872f12f74b"
+    "152.4": "e826fa54ecd58e1c5960998cbe738d3a14a62108bc43cf8235279deb8d0087a5",
+    "104.5": "ea113336a96ae65bd6fe7c7b269342849cda79a6a221d44238f5113c11e2951c",
+    "170.6": "bb9ecb0b4ff4cc060ec2b49333d96514f5dbc7fb4fe5c219856f0f6037f39860",
+    "174.4": "81e9730d262b9bb6487da57736f738f83289a60350dbe44eab7f7e9cba437bd1",
+    "175.5": "0a58d5ad1e1daed8b67351f7264670cd62a2dca0ed1719d598aa0dc66c0d8903",
+    "179.65": "f1dedfa989a266b854ca1faf6758f601380425a6879e71e6c24f27635b8c8211"
   },
   "full_decode": "passed",
   "encoded_frame_rmse": {
-    "47.6": 2.8395,
-    "76.5": 3.3436,
+    "47.6": 2.8393,
+    "76.5": 3.3219,
     "92.8": 3.9122,
     "102.7": 3.5701,
-    "152.4": 3.3938
+    "152.4": 3.4189,
+    "65": 2.5761,
+    "104.5": 4.686,
+    "170.6": 3.6984,
+    "174.4": 3.4625
   },
   "source_lyrics": "unchanged user supplied text",
   "uncertain_timing": "editorial windows marked in timeline"

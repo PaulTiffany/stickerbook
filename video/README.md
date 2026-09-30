@@ -123,3 +123,7 @@ Restricted Docker has direct provider egress and is not OpenShell-equivalent.
 proof authority and deterministic frames, decodes the finished MP4, and compares
 five decoded video frames against the renderer (allowing normal H.264 loss).
 Human editorial review remains appropriate for music/lyric alignment and taste.
+
+## Revised vocal edit
+
+The corrected user-supplied lyrics contain 100 vocal cues. Every cue is captioned, including previously low-confidence alignments. The post-chorus now follows Ray, Aubrey, Eagleman, Natasha, Ben and Max. The second pre-chorus features rabbit, cat, bee, teddy bear, kite and pinwheel. All 19 people appear together for the closing reflection. At 174-176 seconds Paul's existing portrait poses animate beside the project GitHub credit. The master audio and captured runtime evidence are unchanged.
