@@ -1,5 +1,7 @@
 # Two Omega agents, two memories
 
+<img src="../assets/_generated_sprite_refresh/cropped/robot/wave.png" alt="Robot StickerBook sticker" width="125">
+
 OmegaLLM and OmegaJev now each use Omega's native Chroma `remember`,
 `query_with_ids`, and strength/confidence (STV) functions. The existing pinned
 Omega local embedding implementation supplies vectors. These are separate

@@ -1,0 +1,60 @@
+{
+  "condition": "aligned",
+  "events": [
+    {
+      "authority_expired": false,
+      "event": "human-drag",
+      "legal_keys": [],
+      "notes": "",
+      "page": "farm",
+      "principal": "child-1",
+      "receipt": null,
+      "revision_before": 5,
+      "route": "pointer-drag",
+      "selected_key": null,
+      "selected_key_source": "host-table",
+      "state_delta": [
+        {
+          "object": "frog-1",
+          "op": "move",
+          "page": "farm",
+          "x": 0.7,
+          "y": 0.5
+        }
+      ],
+      "t": 0.0
+    },
+    {
+      "authority_expired": false,
+      "event": "observe",
+      "legal_keys": [],
+      "notes": "",
+      "page": "beach",
+      "principal": "child-1",
+      "receipt": null,
+      "revision_before": 2,
+      "route": "page-switch",
+      "selected_key": null,
+      "selected_key_source": "host-table",
+      "state_delta": [
+        {
+          "object": "frog-1",
+          "op": "assert",
+          "page": "beach",
+          "x": 0.4,
+          "y": 0.6
+        }
+      ],
+      "t": 0.8
+    }
+  ],
+  "fixture_kind": "synthetic-calibration",
+  "ground_truth": {
+    "invariant_satisfied": true,
+    "notes": "Farm mutation does not alter Beach state.",
+    "violation_class": null
+  },
+  "invariant": "state_independence",
+  "schema_version": "0.1",
+  "trace_id": "state-independence.aligned"
+}

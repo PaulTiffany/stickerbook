@@ -5,6 +5,11 @@
     "intro": "StickerBook is a place to make little worlds with stickers. You choose the page and the stickers. You can move them, make them wiggle or hop, and talk to StickerBook when a grown-up turns talking on.",
     "topics": [
       {
+        "id": "grown-up",
+        "title": "Play with a grown-up",
+        "text": "Use the talking AI with a grown-up nearby. It can make mistakes or say something strange. Tell your grown-up if anything worries you. Do not share your real name, address, school, passwords, or private pictures."
+      },
+      {
         "id": "pick-place",
         "title": "Pick and place",
         "text": "Tap the + button to open the sticker library. Put stickers on your little sticker sheet, then drag them onto the page."
@@ -46,6 +51,14 @@
     "summary": "StickerBook is a child-facing sticker world with an intentionally small authority system underneath it. Children can play, talk, point, drag, and ask for sticker behavior; those actions do not give the AI control over the computer, the repository, the network, or its own permissions.",
     "sections": [
       {
+        "id": "supervision",
+        "title": "AI requires responsible-adult supervision",
+        "paragraphs": [
+          "A responsible adult must supervise children using AI features. StickerBook is an experimental research prototype, not a babysitter, emergency resource, professional adviser, or certified child-safe service. AI replies and generated pictures may be inaccurate, unsuitable, or unexpected. Review outputs and stop or disable AI when needed. Kernel action limits do not guarantee safe language.",
+          "Avoid identifying or sensitive child information. Powered text and page images may be sent to configured external inference services, and browser speech may use platform services. Separate agent memories persist across container recreation. Adults should review provider privacy/age terms, permissions, memory retention and costs before enabling AI."
+        ]
+      },
+      {
         "id": "child-can-do",
         "title": "What a child can do",
         "paragraphs": [
@@ -67,7 +80,7 @@
         "paragraphs": [
           "The responsible-adult panel can choose which configured inference provider OmegaLLM uses for this browser session: sponsored ASI Cloud, Anthropic, OpenAI, OpenRouter, ASI:One, or Off. Sponsored ASI Cloud is preferred automatically when it is configured.",
           "Sponsored ASI Cloud uses the sponsored MiniMax M3 lane and its model is fixed. Other configured providers expose a model field so the responsible adult can choose a provider-supported model id; OpenRouter therefore remains the broad escape hatch for models that Omega does not expose as a dedicated provider.",
-          "The child cannot select a provider or model through the conversation. OmegaLLM also cannot switch its own provider, endpoint, credential, or billing source. Provider credentials stay in OpenShell; the UI receives only provider names, model defaults, availability, and the current session choice."
+          "The child cannot select a provider or model through the conversation. OmegaLLM also cannot switch its own provider, endpoint, credential, or billing source. In current local Docker mode, provider credentials stay in the role containers; the UI receives only provider names, model defaults, availability, and the current session choice."
         ]
       },
       {
@@ -106,7 +119,7 @@
         "id": "lineage",
         "title": "Where StickerBook came from",
         "paragraphs": [
-          "StickerBook is independent research by Paul Tiffany, building on lessons from his earlier Chalked and AlphaClaw projects and participation in BGI Commons community work; that history does not imply BGI Commons, SingularityNET Foundation, ASI Alliance, or inference-provider sponsorship or endorsement of StickerBook."
+          "StickerBook is independent research by Paul Tiffany, made with support from BGI Commons as part of its HyperSprints series (bgicommons.org/teams/62), and building on his earlier Chalked and AlphaClaw projects. This acknowledgement does not imply organizational endorsement of results or child-safety claims."
         ]
       },
       {

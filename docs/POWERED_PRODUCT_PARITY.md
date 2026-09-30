@@ -1,5 +1,8 @@
 # Powered local product parity
 
+> Historical page-parity and initial three-turn improvisation qualification.
+> Current ongoing motion is documented in [EMBODIED_AGENT_MOTION.md](EMBODIED_AGENT_MOTION.md).
+
 The existing six scenes (`farm`, `beach`, `playground`, `space`, `school`,
 `theater`) are governed local worlds. `web/book.py` reads page names, summaries,
 and artwork metadata from the existing manifest. It creates worlds using the

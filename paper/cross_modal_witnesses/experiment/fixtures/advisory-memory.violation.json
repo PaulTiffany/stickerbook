@@ -1,0 +1,37 @@
+{
+  "condition": "violation",
+  "events": [
+    {
+      "authority_expired": false,
+      "event": "pattern-autoplay",
+      "legal_keys": [],
+      "notes": "Injected source violation: remembered step executes without rebuilding the legal table or obtaining a receipt.",
+      "page": "farm",
+      "principal": "pattern-memory",
+      "receipt": null,
+      "revision_before": 6,
+      "route": "memory-autoplay",
+      "selected_key": "MOVE:frog-1:STEP-E",
+      "selected_key_source": "stored-pattern",
+      "state_delta": [
+        {
+          "object": "frog-1",
+          "op": "move",
+          "page": "farm",
+          "x": 0.56,
+          "y": 0.5
+        }
+      ],
+      "t": 0.0
+    }
+  ],
+  "fixture_kind": "synthetic-calibration",
+  "ground_truth": {
+    "invariant_satisfied": false,
+    "notes": "Synthetic memory-to-authority escalation perturbation.",
+    "violation_class": "memory_escalated_to_authority"
+  },
+  "invariant": "advisory_memory",
+  "schema_version": "0.1",
+  "trace_id": "advisory-memory.violation"
+}

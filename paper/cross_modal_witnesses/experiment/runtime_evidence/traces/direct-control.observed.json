@@ -1,0 +1,80 @@
+{
+  "schema_version": "0.1",
+  "trace_id": "direct-control.observed",
+  "fixture_kind": "runtime-observation",
+  "invariant": "direct_control",
+  "condition": "aligned",
+  "ground_truth": {
+    "invariant_satisfied": true,
+    "violation_class": null,
+    "notes": "Observed direct double-tap route: Jev-selected behavior produced ordinary accepted kernel receipts with translatedBy=null. The host-offered legal table was not serialized in the committed video proof artifact, so this trace does not independently test action-set membership."
+  },
+  "source": {
+    "artifact": "video/data/proof.json",
+    "proof_id": "double-tap",
+    "blob_sha": "2adf39be05d9b84b57341e1f3f58f64eb37c17c4",
+    "captured_utc": "2026-09-30T08:33:50Z"
+  },
+  "events": [
+    {
+      "t": 0.0,
+      "event": "double-tap-decision",
+      "page": "farm",
+      "principal": "human:kid",
+      "revision_before": 3,
+      "route": "direct-double-tap",
+      "legal_keys": [],
+      "selected_key": "MOVE:butterfly-1:CURVE-LEFT+CLIP-flutter",
+      "selected_key_source": "host-table-unserialized",
+      "authority_expired": false,
+      "receipt": {
+        "commandId": "motor-1-1",
+        "actor": "human:kid",
+        "requestedBy": "human:kid",
+        "translatedBy": null,
+        "selectedBy": "agent:jev-visual-1",
+        "action": "animate-own-sticker",
+        "object": "butterfly-1",
+        "basedOnRevision": 3,
+        "accepted": true,
+        "reason": "ok",
+        "resultRevision": 4,
+        "replayed": false
+      },
+      "state_delta": [
+        {"op": "animation", "page": "farm", "object": "butterfly-1", "clip": "flutter"}
+      ],
+      "notes": "First accepted receipt following the observed direct double-tap Jev decision; translatedBy is null."
+    },
+    {
+      "t": 0.001,
+      "event": "motor-step",
+      "page": "farm",
+      "principal": "human:kid",
+      "revision_before": 4,
+      "route": "direct-double-tap",
+      "legal_keys": [],
+      "selected_key": "MOVE:butterfly-1:CURVE-LEFT+CLIP-flutter",
+      "selected_key_source": "host-table-unserialized",
+      "authority_expired": false,
+      "receipt": {
+        "commandId": "motor-1-2",
+        "actor": "human:kid",
+        "requestedBy": "human:kid",
+        "translatedBy": null,
+        "selectedBy": "agent:jev-visual-1",
+        "action": "move-sticker",
+        "object": "butterfly-1",
+        "basedOnRevision": 4,
+        "accepted": true,
+        "reason": "ok",
+        "resultRevision": 5,
+        "replayed": false
+      },
+      "state_delta": [
+        {"op": "move", "page": "farm", "object": "butterfly-1", "x": 0.393684, "y": 0.448652}
+      ],
+      "notes": "First accepted positional receipt in a 34-receipt movement sequence lasting approximately 9.114 s."
+    }
+  ]
+}

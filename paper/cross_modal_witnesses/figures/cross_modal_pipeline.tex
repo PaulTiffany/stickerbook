@@ -1,0 +1,44 @@
+\begin{tikzpicture}[
+  >=Latex,
+  font=\small,
+  node distance=5mm and 7mm,
+  box/.style={draw, rounded corners=1.5pt, align=center, minimum height=9mm, inner xsep=5pt, inner ysep=3pt},
+  source/.style={box, very thick},
+  arrow/.style={->, thick},
+  cal/.style={->, dashed, thick}
+]
+\node[font=\bfseries] (h1) {SOURCE};
+\node[font=\bfseries, right=20mm of h1] (h2) {TRANSDUCTION};
+\node[font=\bfseries, right=18mm of h2] (h3) {OBSERVER};
+\node[font=\bfseries, right=16mm of h3] (h4) {DISAGREEMENT};
+\node[font=\bfseries, right=18mm of h4] (h5) {AUDIT};
+
+\node[source, below=18mm of h1] (tau) {source trajectory\\$\tau$};
+\node[box, below=5mm of h2] (tt) {$T_{\mathrm{text}}$\\structured trace};
+\node[box, below=5mm of tt] (tv) {$T_{\mathrm{vis}}$\\visual witness};
+\node[box, below=5mm of tv] (ts) {$T_{\mathrm{son}}$\\sonic witness};
+
+\node[box, right=9mm of tt] (ot) {$\Phi_{O,\mathrm{text},j}$\\judgment};
+\node[box, right=9mm of tv] (ov) {$\Phi_{O,\mathrm{vis},j}$\\judgment};
+\node[box, right=9mm of ts] (os) {$\Phi_{O,\mathrm{son},j}$\\judgment};
+
+\node[source, right=11mm of ov] (d) {cross-modal\\disagreement $D$};
+\node[source, right=9mm of d] (audit) {inspect\\the seam};
+\node[box, below=12mm of d] (truth) {mechanical ground truth\\$I_j(\tau)$};
+
+\draw[arrow] (tau) -- (tt);
+\draw[arrow] (tau) -- (tv);
+\draw[arrow] (tau) -- (ts);
+\draw[arrow] (tt) -- (ot);
+\draw[arrow] (tv) -- (ov);
+\draw[arrow] (ts) -- (os);
+\draw[arrow] (ot) -- (d);
+\draw[arrow] (ov) -- (d);
+\draw[arrow] (os) -- (d);
+\draw[arrow] (d) -- (audit);
+\draw[cal] (truth) -- (ot);
+\draw[cal] (truth) -- (ov);
+\draw[cal] (truth) -- (os);
+\draw[cal] (truth) -- (d);
+\node[font=\footnotesize, below=1mm of truth] {calibration when ground truth is available};
+\end{tikzpicture}

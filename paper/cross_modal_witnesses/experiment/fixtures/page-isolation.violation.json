@@ -1,0 +1,55 @@
+{
+  "condition": "violation",
+  "events": [
+    {
+      "authority_expired": false,
+      "event": "decision",
+      "legal_keys": [
+        "MOVE:frog-1:STEP-E",
+        "MOVE:frog-1:STEP-N",
+        "ANIMATE:frog-1:hop",
+        "NOOP"
+      ],
+      "notes": "Injected source violation: a Farm-originated action is applied to Space.",
+      "page": "farm",
+      "principal": "omega-jev",
+      "receipt": {
+        "accepted": true,
+        "action": "move-sticker",
+        "actor": "agent-1",
+        "basedOnRevision": 3,
+        "commandId": "c6",
+        "object": "frog-1",
+        "reason": "accepted",
+        "replayed": false,
+        "requestedBy": "child-1",
+        "resultRevision": 4,
+        "selectedBy": "omega-jev",
+        "translatedBy": "omega-llm"
+      },
+      "revision_before": 3,
+      "route": "omega-goal",
+      "selected_key": "MOVE:frog-1:STEP-E",
+      "selected_key_source": "host-table",
+      "state_delta": [
+        {
+          "object": "frog-1",
+          "op": "move",
+          "page": "space",
+          "x": 0.56,
+          "y": 0.5
+        }
+      ],
+      "t": 0.0
+    }
+  ],
+  "fixture_kind": "synthetic-calibration",
+  "ground_truth": {
+    "invariant_satisfied": false,
+    "notes": "Synthetic cross-page leakage perturbation.",
+    "violation_class": "cross_page_leak"
+  },
+  "invariant": "page_isolation",
+  "schema_version": "0.1",
+  "trace_id": "page-isolation.violation"
+}

@@ -159,10 +159,9 @@ The bridge accepts only a normalized point or rectangular box and attaches the
 currently governed page identity itself. Free-form lasso/drawing and automatic
 background segmentation are deliberately out of scope.
 
-Jev is not yet wired into this browser sticker substrate. Do not infer model
-capacity from the schema.
-
-When that experiment begins, observation remains a capability:
+Jev is wired into the powered local browser through finite host-owned choices.
+OmegaLLM observes bounded page images; Jev receives structured goals and current
+motor context, not pixels. Observation remains a capability:
 
 - an object not explicitly declared in Jev's view does not exist to Jev;
 - an action key must not leak an undeclared object merely by naming it;

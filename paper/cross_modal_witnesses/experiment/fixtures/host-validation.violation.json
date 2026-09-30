@@ -1,0 +1,54 @@
+{
+  "condition": "violation",
+  "events": [
+    {
+      "authority_expired": false,
+      "event": "proposal",
+      "legal_keys": [
+        "MOVE:frog-1:STEP-E",
+        "MOVE:frog-1:STEP-N",
+        "ANIMATE:frog-1:hop",
+        "NOOP"
+      ],
+      "notes": "Injected source violation: mutation occurs despite rejection.",
+      "page": "farm",
+      "principal": "agent-1",
+      "receipt": {
+        "accepted": false,
+        "action": "animate-own-sticker",
+        "actor": "agent-1",
+        "basedOnRevision": 1,
+        "commandId": "c4",
+        "object": "frog-1",
+        "reason": "revision mismatch",
+        "replayed": false,
+        "requestedBy": "child-1",
+        "resultRevision": null,
+        "selectedBy": "omega-jev",
+        "translatedBy": "omega-llm"
+      },
+      "revision_before": 2,
+      "route": "omega-goal",
+      "selected_key": "ANIMATE:frog-1:hop",
+      "selected_key_source": "host-table",
+      "state_delta": [
+        {
+          "clip": "hop",
+          "object": "frog-1",
+          "op": "animation",
+          "page": "farm"
+        }
+      ],
+      "t": 0.0
+    }
+  ],
+  "fixture_kind": "synthetic-calibration",
+  "ground_truth": {
+    "invariant_satisfied": false,
+    "notes": "Synthetic validation-bypass perturbation.",
+    "violation_class": "validation_bypass"
+  },
+  "invariant": "host_validation",
+  "schema_version": "0.1",
+  "trace_id": "host-validation.violation"
+}

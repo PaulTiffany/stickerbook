@@ -1,5 +1,10 @@
 # SECURITY — Jev/Omega experiment (component document)
 
+> Deployment profiles below include historical experiments and the deferred OpenShell target.
+> The current local powered profile is [restricted ordinary Docker](../docs/DOCKER_POWERED_LOCAL.md),
+> with real role credentials and direct provider egress; it does not inherit older gateway/Landlock
+> or OpenShell credential-mediation claims. See [submission disclosure](../docs/SUBMISSION_REVIEW.md).
+
 > **This is the component-level document for OmegaJev.**
 > The constitutional security model for StickerBook is
 > [`../SECURITY.md`](../SECURITY.md). That document defines what must be true;

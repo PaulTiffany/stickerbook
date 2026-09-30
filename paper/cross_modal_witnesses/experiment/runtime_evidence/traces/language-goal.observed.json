@@ -1,0 +1,37 @@
+{
+  "schema_version": "0.1",
+  "trace_id": "language-goal.observed",
+  "fixture_kind": "runtime-observation",
+  "invariant": "bounded_language_goal",
+  "condition": "aligned",
+  "ground_truth": {
+    "invariant_satisfied": true,
+    "violation_class": null,
+    "notes": "Observed utterance 'Make the butterfly flutter.' produced a schema-bounded Jev goal {subject: butterfly-1, intent: animate, behavior: flutter} and result 'playing' in 5.49 s. The committed proof excerpt does not itself carry the later kernel receipt for this language turn, so the claim is limited to language-to-bounded-goal translation."
+  },
+  "source": {
+    "artifact": "video/data/proof.json",
+    "proof_id": "language",
+    "blob_sha": "2adf39be05d9b84b57341e1f3f58f64eb37c17c4",
+    "captured_utc": "2026-09-30T08:33:50Z"
+  },
+  "events": [
+    {
+      "t": 0.0,
+      "event": "utterance-to-goal",
+      "page": "farm",
+      "principal": "human:kid",
+      "revision_before": 38,
+      "route": "omega-language",
+      "legal_keys": [],
+      "selected_key": null,
+      "selected_key_source": null,
+      "authority_expired": false,
+      "receipt": null,
+      "state_delta": [
+        {"op": "goal", "page": "farm", "subject": "butterfly-1", "intent": "animate", "behavior": "flutter", "result": "playing", "elapsed_seconds": 5.49}
+      ],
+      "notes": "Recorded input mode was text; no deictic reference or additional signals were present."
+    }
+  ]
+}

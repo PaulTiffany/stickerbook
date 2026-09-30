@@ -96,7 +96,13 @@ OpenShell's credential replacement, network mediation, or its policy boundary.
 Docker daemon administrators can inspect container credentials. Read-only
 filesystems and finite kernel authority do not remove those gaps.
 
-## Live results
+## Recorded live results ? initial Docker qualification
+
+These measurements describe the earlier qualification run, not current process
+availability or the newest test totals. Later page, motion, memory, and creation
+work is recorded in [development status](DEVELOPMENT-STATE.md). As of submission,
+the upstream OpenShell deployment issue remains unresolved; ordinary Docker is
+the demonstrated local profile, not equivalent containment.
 
 Both health endpoints report `ok: true` and their correct role. OmegaJev uses
 OpenRouter's Decisions API with `typesafe/jev-1.13`. One offered-key selection
@@ -143,7 +149,7 @@ its one-turn carry was consumed was unavailable. Testing then used a real
 powered discrete demonstration, a legal replay starting state, and a fresh
 current path. These existing lifetime/authority rules were preserved.
 
-The host bridge is available on `http://127.0.0.1:8757/` (8756 was already in
+During this qualification the host bridge was available on `http://127.0.0.1:8757/` (8756 was already in
 use). Its `/api/state` reports conversational agent and Jev controller true.
 The live HTTP bridge is selected to the locked ASI lane; "Make the cow chew"
 completed in 12.079 seconds with an accepted host kernel chew receipt followed

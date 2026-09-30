@@ -1,9 +1,17 @@
 # StickerBook governed runtime
 
+> **Current status (September 30, 2026):** Local powered development uses separate
+> restricted ordinary Docker containers, with the kernel on the host. See
+> [the current operator instructions](../docs/DOCKER_POWERED_LOCAL.md).
+> The OpenShell launch/provisioning instructions below are an archived hardened
+> target record, not the current working start path. OpenShell work is stopped.
+> Docker is not equivalent to OpenShell containment.
+
+
 This directory is operator infrastructure for the powered localhost book. It is
 outside both agent authority graphs.
 
-The normal Windows path is intentionally boring:
+The archived OpenShell Windows launcher path is:
 
 1. double-click **`Start StickerBook.cmd`** at the repository root;
 2. use StickerBook in the browser opened at `http://127.0.0.1:8756/`;

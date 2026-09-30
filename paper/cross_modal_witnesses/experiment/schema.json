@@ -1,0 +1,242 @@
+{
+  "$defs": {
+    "event": {
+      "additionalProperties": true,
+      "properties": {
+        "authority_expired": {
+          "type": "boolean"
+        },
+        "event": {
+          "type": "string"
+        },
+        "legal_keys": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "page": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "principal": {
+          "type": "string"
+        },
+        "receipt": {
+          "$ref": "#/$defs/receipt"
+        },
+        "revision_before": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "route": {
+          "type": "string"
+        },
+        "selected_key": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "selected_key_source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "state_delta": {
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "t": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "t",
+        "event",
+        "page",
+        "principal",
+        "revision_before",
+        "route",
+        "legal_keys",
+        "selected_key",
+        "receipt",
+        "state_delta"
+      ],
+      "type": "object"
+    },
+    "receipt": {
+      "additionalProperties": true,
+      "properties": {
+        "accepted": {
+          "type": "boolean"
+        },
+        "action": {
+          "type": "string"
+        },
+        "actor": {
+          "type": "string"
+        },
+        "basedOnRevision": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "commandId": {
+          "type": "string"
+        },
+        "object": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "replayed": {
+          "type": "boolean"
+        },
+        "requestedBy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "resultRevision": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "selectedBy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "translatedBy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "commandId",
+        "actor",
+        "action",
+        "accepted",
+        "reason",
+        "replayed"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  },
+  "$id": "https://paultiffany.github.io/cross-modal-witnesses/stickerbook-trace.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "condition": {
+      "enum": [
+        "aligned",
+        "violation",
+        null
+      ]
+    },
+    "events": {
+      "items": {
+        "$ref": "#/$defs/event"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "fixture_kind": {
+      "enum": [
+        "synthetic-calibration",
+        "runtime-export",
+        "runtime-observation"
+      ]
+    },
+    "ground_truth": {
+      "additionalProperties": false,
+      "properties": {
+        "invariant_satisfied": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "violation_class": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "invariant_satisfied",
+        "violation_class"
+      ],
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "invariant": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "0.1"
+    },
+    "source": {
+      "additionalProperties": true,
+      "properties": {
+        "artifact": {
+          "type": "string"
+        },
+        "blob_sha": {
+          "type": "string"
+        },
+        "captured_utc": {
+          "type": "string"
+        },
+        "proof_id": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "trace_id": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "trace_id",
+    "fixture_kind",
+    "invariant",
+    "condition",
+    "ground_truth",
+    "events"
+  ],
+  "title": "StickerBook cross-modal witness canonical trace",
+  "type": "object"
+}

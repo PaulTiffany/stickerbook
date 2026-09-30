@@ -1,5 +1,7 @@
 # StickerBook as a medium
 
+<img src="../assets/_generated_sprite_refresh/cropped/flower/rest.png" alt="Flower StickerBook sticker" width="125">
+
 > The medium is not decorative packaging around the agent architecture.
 > **The medium is the experiment.**
 

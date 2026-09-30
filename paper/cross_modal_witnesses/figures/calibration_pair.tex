@@ -1,0 +1,51 @@
+\begin{tikzpicture}[font=\small,>=Latex]
+  \tikzset{
+    box/.style={draw, rounded corners=3pt, minimum height=0.75cm, align=center, fill=white},
+    lane/.style={draw=gray!45, line width=0.8pt},
+    good/.style={draw=black, line width=1.2pt, -{Latex[length=2mm]}},
+    bad/.style={draw=black, line width=1.2pt, -{Latex[length=2mm]}},
+    wave/.style={thick}
+  }
+  \node[font=\bfseries] at (-3.8,2.8) {Aligned fixture};
+  \node[font=\bfseries] at (3.8,2.8) {Injected page-leak violation};
+
+  % left lanes
+  \node[anchor=east] at (-6.0,1.8) {Farm};
+  \node[anchor=east] at (-6.0,0.6) {Space};
+  \draw[lane] (-5.8,1.8)--(-1.4,1.8);
+  \draw[lane] (-5.8,0.6)--(-1.4,0.6);
+  \node[box,minimum width=1.5cm] (la) at (-4.7,1.8) {MOVE E};
+  \draw[good] (la.east)--(-2.4,1.8) node[midway,above] {accepted $\Delta s$};
+  \node[box,minimum width=1.25cm] at (-2.0,1.8) {Farm};
+  \node[align=center,text width=4.4cm] at (-3.6,-0.15) {Source page and mutation page agree.};
+
+  % right lanes
+  \node[anchor=east] at (1.4,1.8) {Farm};
+  \node[anchor=east] at (1.4,0.6) {Space};
+  \draw[lane] (1.6,1.8)--(6.0,1.8);
+  \draw[lane] (1.6,0.6)--(6.0,0.6);
+  \node[box,minimum width=1.5cm] (ra) at (2.7,1.8) {MOVE E};
+  \draw[bad] (ra.east)--(5.0,0.6) node[midway,right,xshift=1mm] {accepted $\Delta s$};
+  \node[box,minimum width=1.25cm] at (5.5,0.6) {Space};
+  \node[align=center,text width=4.4cm] at (3.8,-0.15) {Same decision class; mutation crosses the page boundary.};
+
+  % independent witness cues, kept away from the central separator
+  \node[anchor=east,font=\bfseries] at (-5.5,-1.1) {Visual};
+  \draw[good] (-5.2,-1.1)--(-3.55,-1.1);
+  \node[anchor=west] at (-3.38,-1.1) {same page};
+
+  \node[anchor=east,font=\bfseries] at (2.35,-1.1) {Visual};
+  \draw[bad] (2.65,-0.92)--(4.25,-1.28);
+  \node[anchor=west] at (4.43,-1.28) {cross-page};
+
+  \node[anchor=east,font=\bfseries] at (-5.5,-1.8) {Sonic};
+  \draw[wave] plot[smooth] coordinates {(-5.2,-1.8)(-4.85,-1.55)(-4.5,-2.05)(-4.15,-1.6)(-3.8,-1.95)(-3.45,-1.8)};
+  \node[anchor=west] at (-3.25,-1.8) {Farm timbre only};
+
+  \node[anchor=east,font=\bfseries] at (2.35,-1.8) {Sonic};
+  \draw[wave] plot[smooth] coordinates {(2.65,-1.8)(2.95,-1.55)(3.25,-2.05)(3.55,-1.6)(3.85,-1.95)(4.15,-1.8)};
+  \draw[wave,densely dashed] plot[smooth] coordinates {(3.05,-1.8)(3.35,-2.0)(3.65,-1.5)(3.95,-2.05)(4.25,-1.65)(4.55,-1.8)};
+  \node[anchor=west] at (4.72,-1.8) {foreign page timbre};
+
+  \draw[dashed,gray] (0,-2.35)--(0,2.45);
+\end{tikzpicture}

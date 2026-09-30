@@ -1,0 +1,17 @@
+\begin{tikzpicture}[
+  >=Latex,
+  font=\small,
+  box/.style={draw, rounded corners=1pt, align=center, minimum height=9mm, inner xsep=5pt, inner ysep=3pt},
+  arrow/.style={->, thick}
+]
+\node[box] (p) {$\tau^+$\\$I_j(\tau^+)=1$};
+\node[box, below=9mm of p] (m) {$\tau^-$\\$I_j(\tau^-)=0$};
+\node[box, right=12mm of $(p)!0.5!(m)$] (same) {same representation\\$T_m(\tau^+)=T_m(\tau^-)$};
+\node[box, right=17mm of same] (dec) {any downstream decoder\\$\Phi_{O,m,j}$};
+\node[box, right=17mm of dec] (one) {one observable\\answer};
+\draw[arrow] (p) -- (same);
+\draw[arrow] (m) -- (same);
+\draw[arrow] (same) -- (dec);
+\draw[arrow] (dec) -- (one);
+\node[align=center, font=\footnotesize, below=11mm of same] {Once distinct invariant states collide in the representation,\\no observer restricted to that representation can recover both perfectly.};
+\end{tikzpicture}

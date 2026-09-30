@@ -17,6 +17,19 @@ StickerBook is intended to support children. Therefore the boundary must be
 
 ---
 
+## Current deployment and child-use notice
+
+The working local development path uses restricted ordinary Docker, separate
+OmegaLLM/OmegaJev containers and memories, and a host-owned kernel. OpenShell
+sections below specify the deferred hardened profile, not achieved Docker
+credential or network mediation. The Docker agent holds its own provider key
+and has direct provider egress. See [current restrictions and gaps](docs/DOCKER_POWERED_LOCAL.md).
+
+**AI use by children requires a responsible adult supervising.** Architectural
+action limits do not guarantee truthful, appropriate, or harmless conversation.
+This research prototype is not child-safety certified or an emergency service.
+Review [privacy, persistence, and supervision](docs/RESPONSIBLE_USE.md).
+
 ## 0. Scope, deployment profiles, and how to read this document
 
 This is the **root** document: it defines what must be true of StickerBook.
@@ -1095,7 +1108,7 @@ unless a test actually proves it.** Current status:
 | 8 | Duplicate IDs do not duplicate effects | **VERIFIED (core)** | `T08` — replay returns the original receipt, applies nothing |
 | 9 | Agent disable prevents subsequent mutations | **VERIFIED (core)** | `T09` |
 | 10 | Restart/reconnect does not expand authority | **VERIFIED (core)** | `T10` — re-registering with a wider tool set changes nothing |
-| 11 | Memory cannot change authorization | **VERIFIED (core)**, narrow sense | `T11` — a previously accepted action, still in the receipt log, does not re-authorize the same action after the capability is withdrawn. There is no memory subsystem yet; what is proved is that authorization reads current state only |
+| 11 | Memory cannot change authorization | **VERIFIED (core)**, narrow sense | `T11` — a previously accepted action, still in the receipt log, does not re-authorize the same action after the capability is withdrawn. this original test proves current-state authorization, independently of the later advisory pattern and native Omega memory subsystems |
 | 12 | Malicious Book/Sticker manifest cannot declare authority | **VERIFIED (core)** | `T12` — hostile `owner`/`capabilities`/`policy`/`script` fields discarded; a declared animation grants no invocation right |
 | 13 | Renderer cannot bypass world kernel | **VERIFIED (core + web host seam)** | `T13` proves views are copies/hostile proposals validate identically; web bridge tests exercise browser proposal endpoints returning authoritative kernel state/receipts |
 | 14 | Agent observations do not expose configured secrets | **VERIFIED (core + omegajev)** | `T14`; container env scrub; `TestBoundedView` proves the view leaks no prompt machinery |
@@ -1189,7 +1202,7 @@ Open gaps that remain architectural rather than cosmetic:
 |---|---|
 | Real WSL2/Docker/OpenShell dual-agent deployment proof | OPEN |
 | Runtime denial tests for GitHub/PyPI and real-secret non-observability | OPEN |
-| End-to-end live voice/text -> OmegaLLM -> OmegaJev -> receipt proof | OPEN |
+| End-to-end live text -> OmegaLLM -> OmegaJev -> receipt proof | OBSERVED in local Docker; browser speech is a separate platform seam |
 | Receipt persistence/export | OPEN |
 | Broader persistence/accounts/social features | OUT OF CURRENT SUBSTRATE |
 
@@ -1245,12 +1258,14 @@ again by the host against current world state.
 ### OmegaJev
 
 The child-control path supplies fresh scene state and a finite action table on
-every turn. Movement remains eight ephemeral local candidates around the
-subject's current normalized coordinate; state is re-observed after each
-accepted action.
+every turn. Finite pattern/trajectory steps retain local compass candidates.
+Continuous local motion additionally offers host-resolved heading/stride
+steering and clip combinations. Each host motor update re-observes current
+state and receives its own accepted/refused receipt; motor context grants no authority.
 
 Double-click/tap bypasses OmegaLLM but not OmegaJev or the kernel: it creates a
-one-turn animation-only finite choice surface.
+bounded ongoing motion/clip invitation. Every short continuation remains
+finite, child-interruptible, page-bound, and kernel-adjudicated.
 
 In live RPC mode OmegaJev does not call the old in-container kernel bridge.
 Every host key maps to the same fixed `sb-return` command, so the selected key
@@ -1258,7 +1273,10 @@ never becomes executable text. The host rejects invented/stale choices before
 the kernel sees them; the kernel independently authorizes the resulting current
 key.
 
-### Boot and shutdown
+### Archived OpenShell boot and shutdown
+
+For the current Docker path see [the operator record](docs/DOCKER_POWERED_LOCAL.md).
+The following describes the retained OpenShell launcher.
 
 The operator-owned launcher is outside both agent loops.
 

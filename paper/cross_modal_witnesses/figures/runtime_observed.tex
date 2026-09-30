@@ -1,0 +1,31 @@
+\begin{tikzpicture}[
+  font=\small,
+  >=Latex,
+  box/.style={draw,rounded corners=2pt,align=center,minimum height=15mm,text width=31mm,inner sep=4pt},
+  source/.style={box,very thick,text width=62mm},
+  note/.style={draw,dashed,rounded corners=2pt,align=left,text width=62mm,inner sep=5pt},
+  arrow/.style={->,thick}
+]
+% The source artifact is visually separated from the four observations, and
+% the claim-boundary notes sit on their own row.  This avoids implying that
+% the notes are additional runtime events or downstream causal stages.
+\node[source] (src) at (0,4.15) {\textbf{committed runtime proof}\\\texttt{video/data/proof.json}\\capture: 2026-09-30 08:33:50Z};
+
+\node[box] (lang) at (-5.25,1.65) {\textbf{language $\rightarrow$ bounded goal}\\``Make the butterfly flutter''\\$\Rightarrow$ animate/flutter\\5.49 s};
+\node[box] (tap) at (-1.75,1.65) {\textbf{direct double-tap}\\LLM translation: none\\selector: Jev\\accepted receipts};
+\node[box] (hand) at (1.75,1.65) {\textbf{human hand}\\active motion stops\\\texttt{child-grabbed}\\human move accepted};
+\node[box] (page) at (5.25,1.65) {\textbf{page state isolation}\\Farm rev.~38\\Space rev.~0 / empty\\Farm restored};
+
+% One trunk, four branches: all observations derive from the same committed
+% proof artifact, without suggesting that one observation causes another.
+\coordinate (fork) at (0,3.05);
+\draw[thick] (src.south) -- (fork);
+\draw[thick] (-5.25,3.05) -- (5.25,3.05);
+\foreach \x in {lang,tap,hand,page}{
+  \draw[arrow] (\x.north |- fork) -- (\x.north);
+}
+
+\node[note] (yes) at (-3.65,-1.25) {\textbf{What the capture supports}\\bounded language goal; direct Jev path without OmegaLLM translation; child interruption and control; page-local state persistence.};
+\node[note] (no) at (3.65,-1.25) {\textbf{What it does not yet support}\\matched violation detection; injected stale-provider response across pages; independent proof of offered-key membership from the video artifact; hardened OpenShell live-graph operation.};
+
+\end{tikzpicture}

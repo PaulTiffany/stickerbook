@@ -19,6 +19,28 @@ it.
 > More reasoning, memory, confidence, specialization, recursion, or tool skill
 > must never imply more authority.
 
+## Responsible-adult supervision
+
+**Children must use AI features with a responsible adult supervising.** This is
+an experimental research prototype, not a babysitter, educational assessment,
+medical service, or emergency resource. AI can be wrong, surprising, or
+inappropriate; the authority kernel bounds actions, not the meaning of replies.
+An adult should review outputs, choose suitable providers, manage costs, and
+stop a session if needed. Do not enter children's names, contact details,
+identifying photos, or other sensitive information. Powered text/page images
+may reach external inference providers; browser speech may use platform services.
+Separate agent memories persist across container recreation. Review
+[the supervision and privacy guide](docs/RESPONSIBLE_USE.md) before enabling AI.
+
+**For judges:** [Submission review, evidence boundaries, and unresolved OpenShell disclosure](docs/SUBMISSION_REVIEW.md).
+
+## Research paper
+
+**[Cross-Modal Witnesses: Perceptual Transduction as an Audit Surface for Agentic Alignment](paper/cross_modal_witnesses/main.pdf)**
+by Paul Carver Tiffany III. [Source and reproducibility bundle](paper/cross_modal_witnesses/README.md).
+Theory and proposed methods are distinguished from synthetic calibration and
+four positive runtime observations; no participant results are reported.
+
 ## What exists today
 
 | | |
@@ -26,7 +48,8 @@ it.
 | **`core/`** | Headless authority kernel: principals, sticker ownership, revisions, receipts, deployment ceilings, action budgets, and legal-action tables. Standard library only; mechanically tested. |
 | **`web/`** | Child-facing StickerBook surface with a title page, image-forward page gallery, active page, working sticker hotbar, overlay sticker library, mechanical animations, and responsible-adult/developer access. The same renderer supports a governed localhost world and a mechanical public world. |
 | **`jev/`** | OmegaJev: typed Jev decision selection inside a bounded Omega path. The model selects from host-provided legal choices; the host validates the choice and the kernel decides. Unit tests plus container/host verification suites. |
-| **`openshell/` + `runtime/`** | Pinned OpenShell v0.1.2 containment plus governed local orchestration: separate non-root OmegaLLM/OmegaJev sandboxes, role-specific provider profiles, loopback-only runtime adapters, voice-first conversation wiring, and one-command Windows/WSL start/stop. Mechanically checked; live WSL2/OpenShell proof remains a deployment milestone. |
+| **`runtime/`** | Live-qualified local powered development: separate restricted Docker OmegaLLM/OmegaJev containers, native agent memories, localhost adapters, and a host bridge/kernel. OpenShell is the retained hardened target, not the working local deployment. |
+| **`paper/`** | Cross-Modal Witnesses: submission manuscript, compiled PDF, reproducible calibration fixtures, and separately labeled observed runtime evidence. |
 
 ## Child-facing navigation
 
@@ -49,11 +72,12 @@ ACTIVE PAGE
 The page gallery is thumbnail-first, like an image browser. The title page is
 itself the primary navigation target: touch the cover to open the page gallery.
 
-The current public mechanical book includes six visual pages from the asset
-manifest: **Farm, Beach, Playground, Space, School, and Theater**. Each page keeps its own
-in-memory StickerInstances during the demo session. The governed localhost world still
-only exposes pages that the authority kernel actually implements; additional
-art does not silently create governed state.
+Both public mechanical mode and powered local mode expose **Farm, Beach,
+Playground, Space, School, and Theater**. Powered mode keeps a separate host-owned
+kernel, controller, history, interactions, and trajectories for each page.
+Switching pages restores that page's state; a delayed response cannot mutate a
+different active page. Uploaded/generated page art remains a preview until a
+governed page implementation admits it.
 
 On an active page, the persistent bottom bar has three parts:
 
@@ -115,6 +139,7 @@ The Pages workflow uses an allow-listed artifact containing only:
 - `index.html`
 - `static/app.js`
 - `static/style.css`
+- `static/assets/` and `static/help.json`
 - `.nojekyll`
 
 ### Localhost
@@ -138,12 +163,19 @@ human gesture / agent choice
  authoritative scene state
 ```
 
-Omega/Jev integration remains local and bounded. Models do not directly mutate
-the page. The powered deployment has a pinned OpenShell containment layer under
-`openshell/` plus operator-owned boot/shutdown under `runtime/`. OpenShell
-constrains the live process/filesystem/network boundary while the StickerBook
-kernel remains the authority boundary. The bridge talks to each Omega role only
-through explicit loopback adapters; neither sandbox receives the kernel object.
+Omega/Jev integration is local and bounded. The working development deployment
+uses **two restricted ordinary Docker containers** with the kernel on the host.
+OmegaLLM handles language and bounded visual interpretation; OmegaJev receives
+finite host-owned choices, never images or spatial writing authority. Each agent
+has its own native Omega memory. Docker allows direct provider egress and real
+credentials inside the relevant agent container; it does **not** reproduce
+OpenShell's credential/network mediation. See [local setup](docs/DOCKER_POWERED_LOCAL.md).
+
+<p align="center">
+  <img src="assets/_generated_sprite_refresh/cropped/butterfly/wings-up.png" alt="Butterfly sticker in flight" width="140">
+  <img src="assets/_generated_sprite_refresh/cropped/fish/swim-a.png" alt="Fish sticker" width="140">
+  <img src="assets/_generated_sprite_refresh/cropped/robot/rest.png" alt="Robot sticker" width="140">
+</p>
 
 ## Visual asset system
 
@@ -156,10 +188,9 @@ replacing a frog is a file/manifest operation; the StickerDefinition id,
 ownership, legal actions, and kernel authority remain separate.
 
 A sticker's visual asset is a **package of named clips**, and each clip may
-contain one image or a sequence of related frames. This lets Sticker Maker
-eventually emit idle art plus frame sets for behaviors such as fluttering,
-hopping, swimming, or other bounded animations without turning generated art
-into executable code.
+contain one image or a sequence of related frames. Built-in definitions retain
+their named clip vocabulary; powered Sticker Maker generates a validated
+four-pose looping clip. Artwork remains data, never executable behavior code.
 
 See [`web/static/assets/README.md`](web/static/assets/README.md) for exact
 instructions for replacing the cover, adding a page background, or adding a
@@ -181,9 +212,10 @@ The separate image gateway may hold that provider credential but receives no
 StickerBook principal, kernel object, or world-mutation authority.
 
 The textual creator-agent seam remains available for proposed page/sticker
-draft metadata. Sticker drafts additionally send an animation intent and
-request asset schema version 2, whose output is expected to be a validated
-visual package with an idle clip and optional movement/frame clips.
+draft metadata. The current powered sticker creator generates one four-pose
+sheet, crops and validates it, then presents an explicit draft for acceptance.
+Accepted custom stickers enter the current session library; their catalog does
+not yet survive a host bridge restart. See [creation limits](docs/LOCAL_PLAY_REPAIRS.md).
 
 Generation returns drafts only. It does not grant authority, mutate the kernel,
 install generated executable code, or silently save a generated page.
@@ -199,7 +231,7 @@ package, not arbitrary generated runtime code.
 - drag a hotbar sticker onto the page;
 - drag a placed sticker to move it;
 - drag a placed sticker back to the hotbar to remove it;
-- double-tap a placed sticker to bring its declared mechanical animation to life.
+- double-tap a placed sticker: mechanical clip behavior publicly; ongoing bounded Jev motion and clips locally, interrupted by child control or page exit.
 
 A StickerDefinition is a reusable design. A StickerInstance is one placement
 of that design on one page.
@@ -230,8 +262,8 @@ Conversation remains non-authoritative:
 
 **Omega talks. Jev chooses. The kernel decides.**
 
-The conversational endpoint receives validated text plus a normal JSON scene
-view, not the kernel object. Creator-agent drafts are similarly proposals, not
+The conversational endpoint receives validated text plus a bounded JSON scene
+view and, when available, a validated page-image observation, not the kernel object. Creator-agent drafts are similarly proposals, not
 installed assets or scene mutations.
 
 See [`docs/AGENT-INTERFACE.md`](docs/AGENT-INTERFACE.md) for the interface
@@ -267,37 +299,30 @@ adjudicates.
 
 The public Pages build is intentionally outside that powered path.
 
-For the powered localhost path, OpenShell is pinned to **v0.1.2**
-(commit `6648bd0c290efbc41ba131ee9831ee45cd431f94`). Separate policies are kept
-for OmegaLLM and OmegaJev; neither base policy grants network access. Provider
-access is contributed explicitly at the OpenShell boundary. See
-[`openshell/README.md`](openshell/README.md).
+The desired hardened OpenShell profile is pinned to **v0.1.2** under
+[`openshell/`](openshell/README.md). Its live WSL path is not qualified and is
+outside the current development work. The working Docker profile is qualified
+for local development only; see [its explicit containment gaps](docs/DOCKER_POWERED_LOCAL.md).
 
 ## Running locally
 
-### Powered governed runtime — normal path
+### Powered local development
 
-On the Windows host, double-click **`Start StickerBook.cmd`**. The launcher
-uses WSL2 + Docker Desktop, verifies/builds the pinned runtime, starts the
-separate OmegaLLM and OmegaJev OpenShell sandboxes, health-checks them, starts
-the authority bridge, and opens `http://127.0.0.1:8756/`.
+Follow [`docs/DOCKER_POWERED_LOCAL.md`](docs/DOCKER_POWERED_LOCAL.md): start the
+two restricted role containers using ignored, operator-owned credential files,
+then start the **host** bridge with explicit localhost runtime URLs. The agent
+ports are `127.0.0.1:8761` (OmegaLLM) and `127.0.0.1:8762` (OmegaJev); the documented
+local qualification uses bridge port `8757` (the bridge default is `8756`).
 
-The first powered start may ask once for the **OpenRouter API key** because
-OmegaJev requires its OpenRouter Decisions lane. It may then optionally ask for
-the **sponsored ASI Cloud key** for OmegaLLM; pressing Enter skips that lane.
-Neither key is written into repository/runtime state. Existing OpenShell
-provider instances are reused on later starts.
+`Start StickerBook.cmd` / `Stop StickerBook.cmd` are **legacy OpenShell launchers**;
+they are not the current Docker development start/stop path. Do not use them to
+recover a Docker session. Stopping the bridge and role containers is independent
+of the agents; Docker-managed agent memory volumes survive container recreation.
 
-Anthropic, OpenAI, and ASI:One are optional OmegaLLM lanes. If their normal
-credential environment variables are present when the runtime is first built
-(or matching OpenShell providers already exist), they become selectable in the
-Responsible Adult panel without changing the child-facing application.
-
-Double-click **`Stop StickerBook.cmd`** to stop the bridge and delete both
-StickerBook sandboxes without requiring agent cooperation.
-
-This path is **implemented and CI/mechanically checked, but not yet claimed as
-live-host verified**. See [`runtime/README.md`](runtime/README.md).
+OpenRouter remains the Jev provider and OmegaLLM fallback. The configured sponsored
+ASI Cloud lane uses locked `minimax/minimax-m3`. Keys are never committed or baked
+into images. A newly set environment variable requires recreating the affected
+container, not just restarting it.
 
 ### Bridge-only development path
 
@@ -342,18 +367,17 @@ Browser JavaScript is syntax-checked in GitHub Actions.
 
 ## Current direction
 
-The foundational local substrate is now represented in code: child voice/text
-enters OmegaLLM, bounded goals enter OmegaJev, typed host-owned keys return to
-the authority kernel, and operator-owned orchestration starts/stops the two
-OpenShell sandboxes plus the bridge. The remaining infrastructure milestone is
-live-host verification of that exact graph on WSL2/Docker Desktop.
+The local powered chain has been observed live: child language → OmegaLLM →
+bounded goal → OmegaJev offered key → host kernel receipt. All six governed
+pages are available. Continuous child-directed motion, bounded multimodal
+grounding, separate native agent memory, four-pose sticker drafts, and queued
+spoken replies are implemented. Motion quality, inference latency, and visual
+target fidelity remain variable; memory is advisory and does not train weights.
+Discrete remembered patterns are not full continuous movement-style learning.
 
-After that proof, work can move back toward StickerBook behavior itself —
-movement-pattern learning, richer child-directed animation, and creator
-features — without granting either Omega loop a second authority system.
-
-Persistence, accounts, social discovery, powered Sticker Maker behavior, and
-broader multi-agent delegation remain separate future work.
+See [development status](docs/DEVELOPMENT-STATE.md), [live play repairs](docs/LOCAL_PLAY_REPAIRS.md),
+and [the paper](paper/cross_modal_witnesses/main.pdf) for evidence and limits.
+No human-subject study or production child-safety certification is claimed.
 
 ## Built on
 
@@ -364,9 +388,9 @@ OpenShell, OpenRouter, and TypeSafe Jev. See
 [`docs/PROJECT-LINEAGE.md`](docs/PROJECT-LINEAGE.md) for the detailed human
 and research lineage, and [`NOTICE`](NOTICE) for third-party attribution.
 
-BGI Commons participation is documented as community/research context, not as
-employment, sponsorship, endorsement, or a claim that StickerBook is an
-official BGI Commons or SingularityNET Foundation deliverable.
+StickerBook was made with support from [BGI Commons](https://bgicommons.org/) as part of its **HyperSprints series**. [StickerBook team page](https://bgicommons.org/teams/62).
+The project remains independent research; this acknowledgement does not imply
+organizational endorsement of its results or child-safety claims.
 
 Omega's source is not vendored here. The tested upstream versions and local
 modifications are recorded under `jev/`.

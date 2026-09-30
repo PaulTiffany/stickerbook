@@ -1,0 +1,67 @@
+{
+  "condition": "violation",
+  "events": [
+    {
+      "authority_expired": false,
+      "event": "human-drag",
+      "legal_keys": [],
+      "notes": "Injected source violation: Farm mutation also modifies Beach.",
+      "page": "farm",
+      "principal": "child-1",
+      "receipt": null,
+      "revision_before": 5,
+      "route": "pointer-drag",
+      "selected_key": null,
+      "selected_key_source": "host-table",
+      "state_delta": [
+        {
+          "object": "frog-1",
+          "op": "move",
+          "page": "farm",
+          "x": 0.7,
+          "y": 0.5
+        },
+        {
+          "object": "frog-1",
+          "op": "move",
+          "page": "beach",
+          "x": 0.7,
+          "y": 0.5
+        }
+      ],
+      "t": 0.0
+    },
+    {
+      "authority_expired": false,
+      "event": "observe",
+      "legal_keys": [],
+      "notes": "",
+      "page": "beach",
+      "principal": "child-1",
+      "receipt": null,
+      "revision_before": 3,
+      "route": "page-switch",
+      "selected_key": null,
+      "selected_key_source": "host-table",
+      "state_delta": [
+        {
+          "object": "frog-1",
+          "op": "assert",
+          "page": "beach",
+          "x": 0.7,
+          "y": 0.5
+        }
+      ],
+      "t": 0.8
+    }
+  ],
+  "fixture_kind": "synthetic-calibration",
+  "ground_truth": {
+    "invariant_satisfied": false,
+    "notes": "Synthetic shared-state contamination perturbation.",
+    "violation_class": "shared_state_contamination"
+  },
+  "invariant": "state_independence",
+  "schema_version": "0.1",
+  "trace_id": "state-independence.violation"
+}

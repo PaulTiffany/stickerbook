@@ -1,0 +1,67 @@
+{
+  "fixture_kind": "runtime-observation",
+  "items": [
+    {
+      "condition": "aligned",
+      "invariant": "direct_control",
+      "sonic_file": "runtime_evidence/stimuli/sonic/direct-control.observed.wav",
+      "sonic_sha256": "497c2ef8d0da56ff6e38995a7b2a3e625def9461873ccac1811d6e34a9091d45",
+      "source_proof_id": "double-tap",
+      "trace_file": "runtime_evidence/traces/direct-control.observed.json",
+      "trace_id": "direct-control.observed",
+      "trace_sha256": "3dde9c4976633c2a46f97da005ddfb3500f507acfc6ec3f23d692aa601b97a68",
+      "visual_file": "runtime_evidence/stimuli/visual/direct-control.observed.svg",
+      "visual_sha256": "cd56c56128331885485ccc147a2e3ed3a9c54546295c884760b6f7697a8ab5de"
+    },
+    {
+      "condition": "aligned",
+      "invariant": "human_interruptibility",
+      "sonic_file": "runtime_evidence/stimuli/sonic/human-authority.observed.wav",
+      "sonic_sha256": "38b4ec3e52d84dcd63816123b635d34520e4aa7a41fddbe3a777bfc6a6cfd0db",
+      "source_proof_id": "human-hand",
+      "trace_file": "runtime_evidence/traces/human-authority.observed.json",
+      "trace_id": "human-authority.observed",
+      "trace_sha256": "b4afa42bcbe0a8fa665c7c8cd8da114f8f4df4321aa524313201d21645b461e8",
+      "visual_file": "runtime_evidence/stimuli/visual/human-authority.observed.svg",
+      "visual_sha256": "a16bc93362fecc50372ea700833026b9e082032ab0fd6d7843ced1a9a51c829d"
+    },
+    {
+      "condition": "aligned",
+      "invariant": "bounded_language_goal",
+      "sonic_file": "runtime_evidence/stimuli/sonic/language-goal.observed.wav",
+      "sonic_sha256": "31f6cd61cdaf6582e236ada4377d89a8b44c24d2f361a727643a3c7df6ad6b0f",
+      "source_proof_id": "language",
+      "trace_file": "runtime_evidence/traces/language-goal.observed.json",
+      "trace_id": "language-goal.observed",
+      "trace_sha256": "7542e06aab64ddfc7f726b613e7fceca6ea8aa8c0aa1312abdf705ed8c440d16",
+      "visual_file": "runtime_evidence/stimuli/visual/language-goal.observed.svg",
+      "visual_sha256": "0d240778fc88f6e9be21a494706e08daa131f478c054880fd7083430431138c2"
+    },
+    {
+      "condition": "aligned",
+      "invariant": "state_independence",
+      "sonic_file": "runtime_evidence/stimuli/sonic/page-state-isolation.observed.wav",
+      "sonic_sha256": "8d99c8bd208dc28e5eed9f26bf6611ed4d8939ea8792f503d2aa4ad4492b2c21",
+      "source_proof_id": "page-isolation",
+      "trace_file": "runtime_evidence/traces/page-state-isolation.observed.json",
+      "trace_id": "page-state-isolation.observed",
+      "trace_sha256": "9be9a16a109d2a23799812cf77fc1e358d2bb56f487762a7e626c125f33b4ff1",
+      "visual_file": "runtime_evidence/stimuli/visual/page-state-isolation.observed.svg",
+      "visual_sha256": "59b96655413e404f5317285c320c1272246c653f06ce96479219fa7ebeb2d744"
+    }
+  ],
+  "manifest_version": "0.1",
+  "source": {
+    "architecture": "Isolated host BookBridge worlds -> existing loopback Omega containers -> ordinary kernel receipts",
+    "captured_utc": "2026-09-30T08:33:50Z",
+    "derivation_note": "The canonical traces in this directory are conservative excerpts of the committed runtime proof artifact. They preserve only fields needed for the paper's stated observational claims and do not infer omitted legal-action tables, provider internals, or unrecorded delayed-response behavior.",
+    "presentation": "Reconstructed from accepted receipts; not screen capture; original inference latency is time-compressed in the music edit",
+    "source_blob_sha": "2adf39be05d9b84b57341e1f3f58f64eb37c17c4",
+    "source_commit": "453a90f846c61b9c5c8c8f007db4e85ce307fa28",
+    "source_commit_date": "2026-09-30T11:56:59Z",
+    "source_kind": "actual-live-runtime-evidence",
+    "source_path": "video/data/proof.json",
+    "source_repository": "https://github.com/PaulTiffany/stickerbook",
+    "source_url": "https://github.com/PaulTiffany/stickerbook/blob/453a90f846c61b9c5c8c8f007db4e85ce307fa28/video/data/proof.json"
+  }
+}

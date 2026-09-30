@@ -1,0 +1,43 @@
+\begin{tikzpicture}[
+  x=1cm,y=1cm,
+  >=Latex,
+  font=\small,
+  box/.style={draw, rounded corners=2pt, align=center, minimum height=9mm, inner xsep=5pt, inner ysep=3pt},
+  ext/.style={box, fill=gray!10, text width=36mm},
+  human/.style={box, fill=orange!14, very thick, text width=30mm},
+  specbox/.style={box, fill=blue!8, text width=31mm},
+  map/.style={box, fill=blue!8, text width=29mm},
+  agent/.style={box, fill=violet!10, text width=31mm},
+  witness/.style={box, fill=green!12, very thick, text width=34mm},
+  core/.style={draw=blue!50!black, rounded corners=6pt, fill=blue!4, align=center, text width=42mm, inner xsep=7pt, inner ysep=5pt},
+  arrow/.style={->, very thick},
+  feedback/.style={->, very thick, blue!60!black}
+]
+% External artifact enters the same observer that later receives the constructed witness.
+\node[ext] (pdoom) at (0,4.0) {external precedent: \emph{P(doom)} song + code-rendered visualization};
+\node[human] (observer) at (0,1.65) {human observer\\perception + judgment};
+
+% Clockwise transformation/construction loop.
+\node[specbox] (spec) at (4.7,1.65) {new specification\\bounded agency + alignment question};
+\node[map] (concept) at (5.7,-0.05) {concept + lyrics\\``make the frog hop''};
+\node[map] (music) at (4.7,-1.85) {musical transduction\\\emph{P(HOP)}};
+\node[agent] (construct) at (0,-1.85) {agent construction\\code + assets + timed scene mapping};
+\node[witness] (phop) at (-4.8,-1.85) {public audiovisual witness\\\emph{I'm Upping My P(HOP)}\\YouTube + GitHub};
+\node[core] (core) at (0,-0.05) {\textbf{target distinctions}\\action $\cdot$ authority $\cdot$ state $\cdot$ containment};
+
+\draw[arrow] (pdoom.south) -- node[pos=.45,right,font=\footnotesize]{ingress} (observer.north);
+\draw[arrow] (observer.east) -- node[above,font=\footnotesize]{interpret} (spec.west);
+\draw[arrow] (spec.south east) -- node[pos=.55,right,xshift=10pt,font=\footnotesize]{encode} (concept.north west);
+\draw[arrow] (concept.south west) -- node[right,xshift=10pt,font=\footnotesize]{sonify} (music.north east);
+\draw[arrow] (music.west) -- node[above,font=\footnotesize]{direct} (construct.east);
+\draw[arrow] (construct.west) -- node[above,font=\footnotesize]{render} (phop.east);
+\draw[feedback] (phop.north west) to[out=150,in=-150] node[left,font=\footnotesize,align=right]{re-ingress\\disagreement / insight} (observer.south west);
+
+% The preserved distinctions are the payload carried through each representation.
+\draw[dashed, blue!50!black] (core) -- (spec);
+\draw[dashed, blue!50!black] (core) -- (music);
+\draw[dashed, blue!50!black] (core) -- (phop);
+
+\node[draw=blue!45!black, dashed, rounded corners=4pt, fit=(observer)(spec)(concept)(music)(construct)(phop), inner sep=6pt,
+      label={[font=\footnotesize,blue!60!black]below:recursive observer--transform--agent loop}] {};
+\end{tikzpicture}

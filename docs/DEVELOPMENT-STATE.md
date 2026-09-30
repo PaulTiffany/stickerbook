@@ -1,5 +1,23 @@
 # Development state
 
+## Current status — September 30, 2026
+
+The live local chain is qualified using restricted Docker, not OpenShell.
+All six scenes have distinct governed kernels/controllers and preserved page
+state. OmegaLLM has bounded visual context and language; OmegaJev steers finite
+host-generated motion/clip choices. Continuous play is interrupted by child
+control or page exit. Each agent has its own persistent native Omega memory;
+recall and reward-strength updates remain advisory, not weight training.
+Conversation latency, curving consistency, target fidelity, and creation quality
+remain product limitations. The public site stays mechanical and has no models.
+
+Current records: [Docker](DOCKER_POWERED_LOCAL.md), [page parity](POWERED_PRODUCT_PARITY.md),
+[motion](EMBODIED_AGENT_MOTION.md), [visual grounding](VISUAL_GROUNDING.md),
+[memory](OMEGA_AGENT_MEMORY.md), [play repairs](LOCAL_PLAY_REPAIRS.md),
+[starting behavior](STARTING_BEHAVIOR.md), [conversation acknowledgement](CONVERSATION_ACKNOWLEDGEMENT.md).
+The older tranche narrative below records the development sequence, not a
+claim that later live milestones remain unimplemented.
+
 ## Architecture
 
 OmegaLLM receives bounded language and scene context, replies, and may emit one
@@ -7,8 +25,8 @@ bounded semantic goal. OmegaJev receives that goal, fresh state, and the CURRENT
 finite host-owned legal action table; it chooses among offered actions. The
 kernel alone adjudicates world mutation. Browser/device speech-to-text supplies
 a transcript to `/api/agent/converse`; microphone audio is not stored. A direct
-double-click gesture reaches OmegaJev without OmegaLLM. Separate OpenShell
-sandboxes contain the two powered loops. The public GitHub Pages build is a
+double-click gesture reaches OmegaJev without OmegaLLM. Separate restricted Docker
+containers contain the two powered loops; OpenShell is the deferred hardened target. The public GitHub Pages build is a
 mechanical static demo; the powered authority-kernel runtime runs on localhost.
 
 ## Invariants

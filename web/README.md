@@ -1,5 +1,7 @@
 # web — StickerBook browser surface
 
+<img src="../assets/_generated_sprite_refresh/cropped/rabbit/rest.png" alt="Rabbit StickerBook sticker" width="125">
+
 The browser surface is shared by two intentionally different worlds:
 
 - **localhost**: browser gestures are proposals to the Python authority kernel;
@@ -37,7 +39,8 @@ in-memory StickerInstances for the current session.
 
 The governed localhost profile is intentionally stricter: a visual page asset
 does not become a governed page until the authority kernel has page state for
-it. Today that means Farm remains the connected governed page.
+it. All six built-in scenes now have distinct governed kernels and controllers;
+switching restores their page-local state. See [page parity](../docs/POWERED_PRODUCT_PARITY.md).
 
 ## Library → sheet → page
 
@@ -47,7 +50,8 @@ strip in both orientations, so it never obscures the governed page surface.
 
 Built-in page artwork is authored directly for that remaining browser rectangle:
 **1916 × 717** landscape and **941 × 1574** portrait.
-School and Theater ship as text-SVG page assets at those same canonical sizes; they can later be replaced by manually uploaded raster artwork without changing page semantics. The title/cover uses
+All six upgraded backgrounds use SVG wrappers at those canonical sizes; artwork
+can be replaced through the manifest without changing governed page semantics. The title/cover uses
 separate **1916 × 821** and **941 × 1672** artboards because it does not share
 space with the hotbar.
 
@@ -168,10 +172,14 @@ never teleports the sticker's center underneath the pointer. Once the move is
 accepted, the authoritative clip is the definition's rest clip. A rest clip
 may itself contain subtle non-locomotive frame animation. Without OmegaJev,
 double-tap/click toggles between that rest clip and the definition's first
-active behavior. With OmegaJev connected, the same gesture supplies a one-turn
-animation-only choice surface instead.
+active behavior. With OmegaJev connected, the same gesture starts ongoing
+bounded motion and clip play; a grab, stop, redirection, or page exit interrupts it.
 
 ## Adult / developer controls
+
+AI play requires responsible-adult supervision. Read the
+[privacy and supervision guide](../docs/RESPONSIBLE_USE.md) before enabling it.
+The kernel limits mutations; it does not certify conversational content.
 
 The title-page gear opens a deliberately separate **Responsible adult** panel.
 Research/developer links are grouped in their own footer inside that panel rather
@@ -257,8 +265,10 @@ a goal, the host validates the goal, constructs bounded Jev choices, and applies
 only a Jev-selected host key through `Kernel.propose_key()`.
 
 The child may also reach OmegaJev without OmegaLLM by double-clicking/tapping a
-sticker. That creates a one-turn animation-only goal; Jev may choose only one
-declared clip key or NOOP.
+sticker. That starts a child-authorized motion invitation with no OmegaLLM
+translation. Jev chooses current host-owned steering/clip/facing keys; each
+finite continuation uses ordinary kernel receipts. No arbitrary coordinates
+from the model are executable.
 
 ### Movement-pattern memory
 
@@ -363,10 +373,12 @@ Assisted play uses the parallel bounded path:
 
 ```text
 child language -> OmegaLLM goal -> OmegaJev finite choice -> Kernel.propose_key
-child double-click ----------------^  (animation-only for one turn)
+child double-click ----------------^  (bounded ongoing motion and clips)
 ```
 
-OmegaJev movement is expressed as ephemeral local N/NE/E/SE/S/SW/W/NW steps.
+Finite pattern/trajectory control retains ephemeral local compass steps.
+Continuous local play uses finite heading/stride steering and clip combinations
+with short host-owned continuations; see [motion](../docs/EMBODIED_AGENT_MOTION.md).
 After each selected step StickerBook re-observes authoritative state and builds
 a fresh table; OmegaLLM does not precompile a movement sequence.
 
@@ -375,9 +387,8 @@ Add `?dev=1` for revision, acting principal, last verdict, and receipt stream.
 **If Python changes, restart the bridge.** Static HTML/CSS/JS are read per
 request, but the kernel is imported once at startup.
 
-For the complete powered path, use the repository-root
-`Start StickerBook.cmd`; it starts the two OpenShell-contained Omega loops
-before attaching the bridge. For bridge-only development:
+For the current powered path use [restricted Docker setup](../docs/DOCKER_POWERED_LOCAL.md).
+The root `.cmd` launchers are the archived OpenShell path. For bridge-only development:
 
 ```bash
 cd web

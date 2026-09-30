@@ -1,0 +1,13 @@
+{
+  "source_repository": "https://github.com/PaulTiffany/stickerbook",
+  "source_commit": "453a90f846c61b9c5c8c8f007db4e85ce307fa28",
+  "source_commit_date": "2026-09-30T11:56:59Z",
+  "source_path": "video/data/proof.json",
+  "source_blob_sha": "2adf39be05d9b84b57341e1f3f58f64eb37c17c4",
+  "source_url": "https://github.com/PaulTiffany/stickerbook/blob/453a90f846c61b9c5c8c8f007db4e85ce307fa28/video/data/proof.json",
+  "captured_utc": "2026-09-30T08:33:50Z",
+  "source_kind": "actual-live-runtime-evidence",
+  "architecture": "Isolated host BookBridge worlds -> existing loopback Omega containers -> ordinary kernel receipts",
+  "presentation": "Reconstructed from accepted receipts; not screen capture; original inference latency is time-compressed in the music edit",
+  "derivation_note": "The canonical traces in this directory are conservative excerpts of the committed runtime proof artifact. They preserve only fields needed for the paper's stated observational claims and do not infer omitted legal-action tables, provider internals, or unrecorded delayed-response behavior."
+}
