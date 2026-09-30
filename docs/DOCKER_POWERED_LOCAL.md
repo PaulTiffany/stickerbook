@@ -4,7 +4,9 @@ Ordinary Docker is a local development path. OpenShell remains the desired
 hardened runtime. The browser calls the host bridge/kernel; the host separately
 calls OmegaLLM and OmegaJev on loopback. Neither agent receives the host kernel
 or mutation authority. Public GitHub Pages continues using its mechanical stub.
-Governed page support remains Farm only.
+Governed local play exposes the six existing pages with separate page worlds.
+Both agents now retain separate native Omega memory; see
+[Omega agent memory](OMEGA_AGENT_MEMORY.md) for scope and live qualification.
 
 ## Shared RPC state defect
 
@@ -19,7 +21,8 @@ name from Omega's channels search path. Python caches that state module once
 per interpreter. All locks, request staging, readiness, role, and server
 lifecycle state are shared; the HTTP implementation and public RPC functions
 remain in the channel. Role mismatch validation remains intact. There is no
-persistence, IPC, global registry in builtins, or change to Omega's loader.
+persistence of RPC process state, IPC, global registry in builtins, or change
+to Omega's loader. The separate native memory backend persists agent experience.
 
 `web/tests/test_rpc_module_identity.py` reproduces the unregistered plugin load,
 starts the real HTTP channel, normally imports the provider-facing module, and
@@ -68,16 +71,17 @@ channel binding remains `127.0.0.1` for the hardened runtime.
 
 Both containers run as `65534:65534`, with all capabilities dropped,
 `no-new-privileges`, a read-only root filesystem, 2 CPU, 2 GiB memory, and a
-256 PID limit. No bind mounts, volumes, repository mount, Docker socket, host
-network, or privileged mode are used. Writable locations are tmpfs only:
+256 PID limit. No bind mounts, repository mount, Docker socket, host network,
+or privileged mode are used. Writable locations are explicit:
 
-| Location | Limit |
+| Location | Storage |
 | --- | --- |
 | `/tmp` | 128 MiB |
-| `/PeTTa/chroma_db` | 128 MiB, uid/gid 65534 |
-| `/PeTTa/repos/Omega/memory` | 64 MiB, uid/gid 65534 |
+| `/PeTTa/chroma_db` | Separate per-agent Docker named volume, uid/gid 65534 |
+| `/PeTTa/repos/Omega/memory` | Separate per-agent Docker named volume, uid/gid 65534 |
 
-Tmpfs locations are `nosuid,nodev`. Agents use separate bridge networks
+The `/tmp` tmpfs is `nosuid,nodev`. Native memory survives container recreation;
+typed record caps are not volume disk quotas. Agents use separate bridge networks
 `stickerbook-jev-local` and `stickerbook-llm-local`; they do not coordinate with
 each other. Published ports are exclusively `127.0.0.1:8762` and
 `127.0.0.1:8761`. The host bridge coordinates both.

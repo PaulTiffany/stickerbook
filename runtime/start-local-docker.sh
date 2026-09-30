@@ -13,5 +13,7 @@ for role in jev llm; do
  docker network inspect "$name" >/dev/null 2>&1 || docker network create "$name"
  if docker container inspect "$name" >/dev/null 2>&1; then docker stop "$name" >/dev/null; docker rm "$name" >/dev/null; fi
  if [ "$role" = jev ]; then set -- commchannel=stickerbookrpc jevActionSet=stickerbook-rpc jevTransport=direct; else set --; fi
- docker run -d --name "$name" --user 65534:65534 --cap-drop ALL --security-opt no-new-privileges --cpus 2 --memory 2g --pids-limit 256 --read-only --tmpfs /tmp:rw,nosuid,nodev,size=128m --tmpfs /PeTTa/chroma_db:rw,nosuid,nodev,uid=65534,gid=65534,size=128m --tmpfs /PeTTa/repos/Omega/memory:rw,nosuid,nodev,uid=65534,gid=65534,size=64m --network "$name" -p "127.0.0.1:$port:$port" --env-file "$ENV_FILE" -e PYTHONDONTWRITEBYTECODE=1 -e HF_HUB_OFFLINE=1 -e TRANSFORMERS_OFFLINE=1 "stickerbook-omega-$role:local" "$@" stickerbookRpcBind=0.0.0.0
+ # Each Omega owns its own native memory and index, surviving recreation.
+ # Docker-managed volumes only: no host directory, repository, or socket mount.
+ docker run -d --name "$name" --user 65534:65534 --cap-drop ALL --security-opt no-new-privileges --cpus 2 --memory 2g --pids-limit 256 --read-only --tmpfs /tmp:rw,nosuid,nodev,size=128m --mount "type=volume,src=$name-chroma,dst=/PeTTa/chroma_db" --mount "type=volume,src=$name-memory,dst=/PeTTa/repos/Omega/memory" --log-opt max-size=20m --log-opt max-file=3 --network "$name" -p "127.0.0.1:$port:$port" --env-file "$ENV_FILE" -e PYTHONDONTWRITEBYTECODE=1 -e HF_HUB_OFFLINE=1 -e TRANSFORMERS_OFFLINE=1 "stickerbook-omega-$role:local" "$@" stickerbookRpcBind=0.0.0.0
  done

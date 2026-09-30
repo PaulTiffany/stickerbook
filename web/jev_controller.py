@@ -311,6 +311,7 @@ class JevController:
                 if step_index < len(pattern.steps) else None)
 
         return {
+            'page': getattr(self, 'page_id', 'farm'),
             "revision": self.kernel.revision,
             "turn": self.kernel.turn,
             "principal": actor,
@@ -524,6 +525,8 @@ class JevController:
 
     def _record(self, receipt, *, origin, key=None, subject_id=None):
         """Note one governed action in host-owned history, if it is present."""
+        callback = getattr(self, 'experience_record', None)
+        if callback: callback(receipt, subject_id)
         if self.history is None:
             return None
         return self.history.record(

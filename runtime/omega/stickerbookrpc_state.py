@@ -17,6 +17,7 @@ class RpcState:
         self.role = ""
         self.server = None
         self.thread = None
+        self.memory = None
 
 
 state = RpcState()

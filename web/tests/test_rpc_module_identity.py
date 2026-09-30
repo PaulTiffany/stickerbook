@@ -42,6 +42,13 @@ class RpcIdentityCase(unittest.TestCase):
                             provider = importlib.import_module("stickerbookrpc")
                             self.assertIsNot(provider, serving)
                             self.assertIs(provider.state, serving.state)
+                            memory = types.SimpleNamespace(recall=lambda *args: [{'kind': 'experience'}])
+                            serving.state.memory = memory
+                            self.assertIs(provider.state.memory, memory)
+                            self.assertEqual(provider.recall_memory(role, 'farm', 'play'), [{'kind': 'experience'}])
+                            with self.assertRaises(ValueError):
+                                provider.recall_memory('omegallm' if role == 'omegajev' else 'omegajev', 'farm', 'play')
+                            serving.state.memory = None
                             with self.assertRaisesRegex(RuntimeError, "role does not match"):
                                 provider.set_provider_ready("omegallm" if role == "omegajev" else "omegajev")
                             provider.set_provider_ready(role)

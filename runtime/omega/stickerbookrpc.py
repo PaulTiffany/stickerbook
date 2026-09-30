@@ -54,6 +54,22 @@ def current_request(expected_role: str | None = None):
         return copy.deepcopy(state.current.payload)
 
 
+def recall_memory(role, page, query, asset=None):
+    if role != state.role:
+        raise ValueError('memory-role-mismatch')
+    return state.memory.recall(page, query, asset) if state.memory else []
+
+
+def remember_conversation(page, text, reply):
+    if state.role != 'omegallm':
+        raise ValueError('memory-role-mismatch')
+    if state.memory:
+        import uuid
+        return state.memory.remember([{'kind': 'conversation', 'id': 'conversation-' + uuid.uuid4().hex,
+                                      'page': page, 'text': text, 'reply': reply}])
+    return {'ok': False, 'error': 'omega-memory-disabled'}
+
+
 def set_provider_ready(role: str, metadata: dict | None = None) -> None:
     clean = _clean_role(role)
     if clean != state.role:
@@ -164,6 +180,8 @@ class _Handler(BaseHTTPRequestHandler):
         self.wfile.write(raw)
 
     def do_GET(self):
+        if self.path == '/memory' and state.memory is not None:
+            return self._send(200, state.memory.describe())
         if self.path != "/health":
             return self._send(404, {"ok": False, "error": "not-found"})
         with state.lock:
@@ -176,7 +194,8 @@ class _Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         expected = "/converse" if state.role == "omegallm" else "/choose"
-        if self.path != expected:
+        memory_request = self.path == '/memory/events'
+        if self.path != expected and not memory_request:
             return self._send(404, {"ok": False, "error": "not-found"})
 
         try:
@@ -190,6 +209,17 @@ class _Handler(BaseHTTPRequestHandler):
         except (UnicodeDecodeError, ValueError):
             return self._send(400, {"ok": False, "error": "bad-json"})
 
+        if memory_request:
+            if state.memory is None:
+                return self._send(503, {'ok': False, 'error': 'omega-memory-unavailable'})
+            if not isinstance(payload, dict) or set(payload) != {'events'}:
+                return self._send(400, {'ok': False, 'error': 'invalid-memory-fields'})
+            try:
+                return self._send(200, state.memory.remember(payload['events']))
+            except ValueError:
+                return self._send(400, {'ok': False, 'error': 'invalid-memory-event'})
+            except Exception:
+                return self._send(503, {'ok': False, 'error': 'omega-memory-unavailable'})
         error = _validate_payload(state.role, payload)
         if error:
             return self._send(400, {"ok": False, "error": error})
@@ -236,6 +266,11 @@ class StickerBookRPCChannel(channels.CommChannel):
             "stickerbookRpcPort", 8761 if state.role == "omegallm" else 8762))
         state.provider_ready = False
         state.provider_metadata = {}
+        if config_get_by_key('stickerbookMemoryEnabled', False):
+            from omega_memory import NativeOmegaMemory
+            state.memory = NativeOmegaMemory(state.role)
+        else:
+            state.memory = None
         # Docker needs the container interface; publication remains host-loopback.
         # The hardened runtime retains the default internal loopback binding.
         bind = str(config_get_by_key("stickerbookRpcBind", "127.0.0.1"))

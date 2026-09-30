@@ -83,6 +83,11 @@ class SerializedJevRuntime:
         with self.gate:
             return self.runtime.choose(**kwargs)
 
+    def remember(self, events):
+        if not hasattr(self.runtime, 'remember'):
+            return {'ok': False, 'error': 'omega-memory-unavailable'}
+        return self.runtime.remember(events)
+
 
 class MotionPlayer:
     def __init__(self, controller, *, clock=time.monotonic, threaded=True):
@@ -123,6 +128,8 @@ class MotionPlayer:
                 if reason in {'child-interrupted', 'human-superseded', 'child-grabbed', 'child-redirected', 'semantic-work', 'child-left-page'}:
                     self.child_versions[sid] = self.child_versions.get(sid,0) + 1
                 a = self.activities.pop(sid, None)
+                flush = getattr(self.controller, 'experience_flush', None)
+                if flush: flush(sid)
                 if a:
                     self._note('stop', subject=sid, serial=a.serial, reason=reason)
         self.wake.set()
@@ -304,6 +311,7 @@ class MotionPlayer:
             # advances. It carries steering, not an old absolute destination.
             if self._valid(a):
                 self._note('decision', subject=a.subject, serial=a.serial,
+                           memoryRecallCount=min(3, len(result.get('memory_recalled', []))) if isinstance(result, dict) and isinstance(result.get('memory_recalled'), list) else 0,
                            seconds=round(self.clock()-start,6), choice=result.get('choice') if isinstance(result,dict) and isinstance(result.get('choice'),str) and result.get('choice') in choices else None)
                 choice = result.get('choice') if isinstance(result,dict) and result.get('ok') else None
                 if not isinstance(choice,str) or choice not in choices:

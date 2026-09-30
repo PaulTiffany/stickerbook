@@ -81,7 +81,34 @@ class PatternProvider(unittest.TestCase):
             with self.subTest(label=label):
                 result = self.staged({"subject": "frog-1", "intent": "remember-pattern",
                                       "label": label})
-                self.assertEqual(result, {"ok": False, "error": "omegallm-failed-closed"})
+                self.assertEqual(result, {"ok": False, "error": "omegallm-failed-closed",
+                                          "reason": "invalid-semantic-response"})
+
+    def test_native_recall_and_teaching_use_only_offered_experience(self):
+        rpc = types.ModuleType('stickerbookrpc')
+        rpc.current_request = Mock(return_value={'text': 'I like that curve.',
+            'scene': {'page': {'id': 'farm'}, 'recentExperiences': [{'id': 'accepted-1'}]}, 'inference': {}})
+        rpc.recall_memory = Mock(return_value=[{'kind': 'conversation', 'child': 'Call me River.'}])
+        rpc.remember_conversation = Mock()
+        rpc.stage_result = Mock(return_value=True)
+        provider = self.module.StickerBookLLMProvider()
+        transport = Mock()
+        response = {'reply': 'Thanks River.', 'teaching': {'experience': 'accepted-1',
+                    'valence': 'positive', 'lesson': 'Likes gentle curves.'}}
+        with patch.dict(sys.modules, {'stickerbookrpc': rpc}), \
+                patch.object(self.module, 'harden_llm_commands'), \
+                patch.object(self.module, 'clean_inference', return_value=('test', 'test', {})), \
+                patch.object(provider, '_transport', return_value=transport):
+            transport.complete.return_value = json.dumps(response)
+            provider.chat('ignored raw history')
+            self.assertEqual(rpc.stage_result.call_args.args[0]['teaching'], response['teaching'])
+            rpc.remember_conversation.assert_called_once_with('farm', 'I like that curve.', 'Thanks River.')
+            self.assertIn('River', str(transport.complete.call_args))
+            response['teaching']['experience'] = 'invented'
+            transport.complete.return_value = json.dumps(response)
+            provider.chat('ignored raw history')
+            self.assertEqual(rpc.stage_result.call_args.args[0]['reason'], 'unknown-teaching-experience')
+            self.assertEqual(rpc.remember_conversation.call_count, 1)
 
     def test_missing_and_invalid_pattern_references_fail_closed(self):
         for value in (None, "", "x" * 65, "ANIMATE:frog-1:hop", 8, {}):

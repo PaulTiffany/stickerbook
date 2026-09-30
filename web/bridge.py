@@ -52,6 +52,7 @@ from jev_runtime import DisabledJevRuntime, jev_runtime_from_env  # noqa: E402
 from motion_player import MotionPlayer, SerializedJevRuntime  # noqa: E402
 from page_assets import supported_upload  # noqa: E402
 from visual_context import clean_visual, MAX_VISUAL_BODY  # noqa: E402
+from agent_experience import ExperienceCourier  # noqa: E402
 from page_image_runtime import (  # noqa: E402
     DisabledPageImageRuntime, page_image_runtime_from_env,
 )
@@ -164,6 +165,10 @@ class Bridge:
             activity=lambda: self._activation_serial if self._active else None)
         self.motion_player = (MotionPlayer(self.jev_controller, threaded=motion_threaded)
                               if continuous_motion else None)
+        self.experiences = ExperienceCourier(self.kernel, self.jev_runtime, self.page_id)
+        self.jev_controller.page_id = self.page_id
+        self.jev_controller.experience_record = self.experiences.record
+        self.jev_controller.experience_flush = self.experiences.flush
         if self.motion_player:
             self.jev_controller.subject_activity = lambda subject: self.motion_player.child_versions.get(subject,0)
         self._jev_counter = 0
@@ -256,6 +261,8 @@ class Bridge:
         # Declarative only: no complete action keys, so OmegaLLM can refer to
         # what happened without being able to reconstruct or author it.
         scene["recent_actions"] = self.history.describe_for_scene()
+        with self._world_lock:
+            scene['recentExperiences'] = self.experiences.describe()
         return scene
 
     def _runtime_inference_options(self) -> list:
@@ -372,6 +379,7 @@ class Bridge:
             self.motion_player.stop(command.object_id, 'child-interrupted')
         receipt = self.kernel.propose(command)
         self.history.record(receipt, origin=ORIGIN_HUMAN_GESTURE)
+        self.experiences.record(receipt)
         return receipt
 
     def converse(self, body: dict) -> dict:
@@ -452,6 +460,7 @@ class Bridge:
         if not result.get("ok"):
             error = result.get("error")
             return {"ok": False,
+                    'diagnostic': {'stage': 'omegallm-response', 'reason': result.get('reason') if result.get('reason') in ('invalid-teaching', 'unknown-teaching-experience', 'unknown-response-field', 'invalid-goal-fields', 'invalid-semantic-response', 'provider-or-memory-error') else 'invalid-agent-response'},
                     "error": error if isinstance(error, str)
                     else "agent-runtime-error",
                     "state": self.state()}
@@ -465,6 +474,10 @@ class Bridge:
                    "interaction": episode.describe()}
         if visual:
             payload['observation'] = {'imageUsed': result.get('image_used') is True}
+        if 'teaching' in result:
+            payload['teaching'] = self.experiences.teach(result['teaching'], scene.get('recentExperiences', []))
+            if not payload['teaching'].get('ok'):
+                payload['reply'] = "I heard your feedback, but couldn't save it for next time."
         # A valid linguistic response consumes the carry even if its goal is
         # refused. All runtime/invalid-response exits above preserve it.
         self.pending_reference = None

@@ -23,6 +23,7 @@ securityPolicyPath: "./repos/Omega/profile/policy.yaml"
 
 commchannel: stickerbookrpc
 stickerbookRpcRole: "omegallm"
+stickerbookMemoryEnabled: true
 stickerbookRpcPort: 8761
 stickerbookRpcTimeout: 45
 
