@@ -102,22 +102,39 @@ movement and late inference cannot restart a revoked invitation.
 
 ## Next learning seam
 
-The child's goal is cumulative shaping, not a host-authored dance. The current
-Jev RPC adapter reads probabilities into its trace but returns only the winning
-key. It forwards no reward, updates no learned preference policy, and has no
-per-child persistent learner. Advising "vary" is not reinforcement learning.
+The child's goal is cumulative shaping, not a host-authored dance. Omega is the
+intended owner of agent memory and continuity; Jev is its decision inference.
+The current Jev RPC adapter reads probabilities into its trace but returns only
+the winning key. It forwards no reward and updates no learned preference policy.
+Advising "vary" is not reinforcement learning.
 TypeSafe describes the base model's training as RLCD; that does not demonstrate
 online updating of this application's hosted inference calls. OpenRouter's
 [Decisions guide](https://openrouter.ai/blog/tutorials/how-to-use-jev/) documents
 typed probability distributions suitable for an explicit application policy.
 
-A subsequent reward loop should preserve and strictly validate that distribution
+Inspection of the pinned running Omega source confirms that `getContext` includes
+`getHistory`, and native memory supplies remember/query/episode operations. Our
+RPC provider constructs its inference view solely from the host request instead
+of that context. The channel delivers only a `STICKERBOOK-RPC` request-id marker;
+the fixed return skill produces `SB-RPC-RETURNED`. Child teaching and accepted
+world receipts therefore do not automatically become useful Omega experiences.
+The hardened command allowlist also excludes unrestricted recall/remember skills.
+Restoring the whole raw prompt or arbitrary skills is not the right repair.
+
+The next integration should feed bounded accepted motion episodes and explicit
+child feedback into Omega-owned memory, then expose narrowly projected relevant
+recall as advisory state for Jev. This is not a replacement host-side learner.
+Current taught pattern descriptions and recent steering are useful but do not
+constitute that full Omega memory loop. The current Docker memory/chroma locations
+are tmpfs, so persistence across recreation also needs deliberate qualification.
+
+A subsequent reward loop can preserve and strictly validate the distribution
 against the CURRENT legal table, support bounded exploration instead of always
 choosing its winner, and bind positive/negative child feedback to a specific
 accepted motion episode. OmegaLLM can interpret spoken teaching such as "I like
-that twirl"; the host must resolve which actual episode the child means. Learned
-preferences/examples should then inform later Jev evaluations or an explicit
-agent preference policy. Memory and policy may change; legal actions must still
+that twirl"; the host must resolve which actual episode the child means. Omega's
+retained feedback/examples should then inform later Jev evaluations and the
+OmegaJev agent's learned preferences. Memory and policy may change; legal actions must still
 come solely from the current host table, with child interruption taking priority.
 
 This is a direction for genuine adaptation of the OmegaJev agent, not a claim
