@@ -41,6 +41,15 @@ class JevOmegaMemory(unittest.TestCase):
                 self.assertNotIn('omega_memory', request['scene'])
                 rpc.recall_memory.assert_called_once_with('omegajev', 'beach', 'improvise', 'butterfly')
                 self.assertEqual(set(core.decide.call_args.kwargs['actions']), {'CURRENT-MOVE', 'NOOP'})
+                request['scene']['padding'] = 'x' * 3000
+                request['scene']['starting_behavior'] = {'tendency': 'x' * 1200}
+                provider.chat('ignored')
+                trimmed = core.decide.call_args.kwargs['state']['scene']
+                self.assertNotIn('starting_behavior', trimmed)
+                self.assertEqual(trimmed['known_patterns'], [{'label': 'happy dance'}])
+                self.assertIn('gentle curves', json.dumps(trimmed['omega_memory']))
+                request['scene'].pop('padding')
+                request['scene'].pop('starting_behavior')
                 core.decide.return_value = ('arbitrary-command', {'action_id': 'INVENTED-MOVE'})
                 provider.chat('ignored')
                 self.assertFalse(rpc.stage_result.call_args.args[0]['ok'])

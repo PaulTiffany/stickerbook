@@ -3568,7 +3568,8 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
     if (aloud && voiceEnabled && reply && "speechSynthesis" in window) {
       speakingReply = true;
       setVoiceOrbState("speaking");
-      window.speechSynthesis.cancel();
+      // Native speech synthesis queues this behind the current acknowledgement.
+      // The accepted goal is already running; only spoken delivery waits.
       const utterance = new SpeechSynthesisUtterance(reply);
       utterance.onend = () => {
         if (turn !== conversationSerial) return;
