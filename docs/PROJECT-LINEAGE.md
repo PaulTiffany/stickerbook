@@ -1,5 +1,9 @@
 # Project lineage and developer context
 
+> Current deployment: restricted ordinary Docker has been live-qualified locally. OpenShell
+> remains the unresolved hardened target; references below to its policies describe that
+> design lineage, not achieved local containment. See [submission disclosure](SUBMISSION_REVIEW.md).
+
 This document records the human and project lineage behind StickerBook for
 researchers, reviewers, and future maintainers.
 
@@ -335,7 +339,7 @@ substrate, not the authority graph.
 
 ---
 
-## 4. BGI Commons: community context and the hosted-agent control question
+## 4. BGI Commons: HyperSprints support and the hosted-agent control question
 
 Public portal: https://bgicommons.org/
 
@@ -344,8 +348,9 @@ learn around beneficial AI/AGI, with resources, collaborators, groups, and
 HyperSprints. Its published Terms and Privacy material identifies the
 SingularityNET Foundation as platform operator.
 
-StickerBook should be understood as independent work developed in dialogue with
-that ecosystem, not as a BGI Commons product.
+StickerBook was made with support from BGI Commons as part of the HyperSprints
+series; see [the project team](https://bgicommons.org/teams/62). It remains
+independent research, with author-owned results and authority boundaries.
 
 ### 4.1 Developer-reported participation
 
@@ -527,3 +532,7 @@ For someone trying to understand why StickerBook looks the way it does:
 
 For someone reproducing StickerBook itself, the binding implementation details
 remain in the StickerBook repository, not in the ancestor projects.
+
+## HyperSprints support
+
+StickerBook was made with support from [BGI Commons](https://bgicommons.org/) as part of its **HyperSprints series**. [StickerBook team page](https://bgicommons.org/teams/62).

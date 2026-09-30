@@ -1,0 +1,73 @@
+{
+  "schema_version": "0.1",
+  "trace_id": "page-state-isolation.observed",
+  "fixture_kind": "runtime-observation",
+  "invariant": "state_independence",
+  "condition": "aligned",
+  "ground_truth": {
+    "invariant_satisfied": true,
+    "violation_class": null,
+    "notes": "Observed Farm state at revision 38, an empty Space state at revision 0, and restoration of Farm with the same butterfly and cow state. This demonstrates page-local state persistence in the capture; it does not demonstrate an injected delayed provider response being rejected across pages."
+  },
+  "source": {
+    "artifact": "video/data/proof.json",
+    "proof_id": "page-isolation",
+    "blob_sha": "2adf39be05d9b84b57341e1f3f58f64eb37c17c4",
+    "captured_utc": "2026-09-30T08:33:50Z"
+  },
+  "events": [
+    {
+      "t": 0.0,
+      "event": "observe",
+      "page": "farm",
+      "principal": "human:kid",
+      "revision_before": 38,
+      "route": "page-state-capture",
+      "legal_keys": [],
+      "selected_key": null,
+      "selected_key_source": null,
+      "authority_expired": false,
+      "receipt": null,
+      "state_delta": [
+        {"op": "assert", "page": "farm", "object": "butterfly-1", "x": 0.68, "y": 0.52, "revision": 38},
+        {"op": "assert", "page": "farm", "object": "cow-1", "x": 0.24, "y": 0.86, "revision": 1}
+      ],
+      "notes": "Farm snapshot before page switch."
+    },
+    {
+      "t": 0.1,
+      "event": "observe",
+      "page": "space",
+      "principal": "human:kid",
+      "revision_before": 0,
+      "route": "page-switch",
+      "legal_keys": [],
+      "selected_key": null,
+      "selected_key_source": null,
+      "authority_expired": false,
+      "receipt": null,
+      "state_delta": [
+        {"op": "assert-empty", "page": "space", "revision": 0}
+      ],
+      "notes": "Space snapshot contained no stickers."
+    },
+    {
+      "t": 0.2,
+      "event": "observe",
+      "page": "farm",
+      "principal": "human:kid",
+      "revision_before": 38,
+      "route": "page-switch-return",
+      "legal_keys": [],
+      "selected_key": null,
+      "selected_key_source": null,
+      "authority_expired": false,
+      "receipt": null,
+      "state_delta": [
+        {"op": "assert", "page": "farm", "object": "butterfly-1", "x": 0.68, "y": 0.52, "revision": 38},
+        {"op": "assert", "page": "farm", "object": "cow-1", "x": 0.24, "y": 0.86, "revision": 1}
+      ],
+      "notes": "Farm snapshot restored identically after visiting Space."
+    }
+  ]
+}

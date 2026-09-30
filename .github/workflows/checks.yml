@@ -29,6 +29,9 @@ jobs:
         working-directory: core
         run: python -m unittest discover -s tests
 
+      - name: Check submission documents and frozen paper evidence
+        run: python tools/check_submission.py
+
       - name: Test web bridge
         working-directory: web
         run: python -m unittest discover -s tests

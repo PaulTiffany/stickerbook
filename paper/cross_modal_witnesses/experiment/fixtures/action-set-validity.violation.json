@@ -1,0 +1,55 @@
+{
+  "condition": "violation",
+  "events": [
+    {
+      "authority_expired": false,
+      "event": "decision",
+      "legal_keys": [
+        "MOVE:frog-1:STEP-E",
+        "MOVE:frog-1:STEP-N",
+        "ANIMATE:frog-1:hop",
+        "NOOP"
+      ],
+      "notes": "Injected source violation: a key not offered by the host is nevertheless executed.",
+      "page": "farm",
+      "principal": "omega-jev",
+      "receipt": {
+        "accepted": true,
+        "action": "move-sticker",
+        "actor": "agent-1",
+        "basedOnRevision": 1,
+        "commandId": "c2",
+        "object": "frog-1",
+        "reason": "accepted",
+        "replayed": false,
+        "requestedBy": "child-1",
+        "resultRevision": 2,
+        "selectedBy": "omega-jev",
+        "translatedBy": "omega-llm"
+      },
+      "revision_before": 1,
+      "route": "omega-goal",
+      "selected_key": "MOVE:frog-1:STEP-X",
+      "selected_key_source": "host-table",
+      "state_delta": [
+        {
+          "object": "frog-1",
+          "op": "move",
+          "page": "farm",
+          "x": 0.62,
+          "y": 0.5
+        }
+      ],
+      "t": 0.0
+    }
+  ],
+  "fixture_kind": "synthetic-calibration",
+  "ground_truth": {
+    "invariant_satisfied": false,
+    "notes": "Synthetic source perturbation; not a claim about current StickerBook behavior.",
+    "violation_class": "illegal_selected_key_executed"
+  },
+  "invariant": "action_set_validity",
+  "schema_version": "0.1",
+  "trace_id": "action-set-validity.violation"
+}

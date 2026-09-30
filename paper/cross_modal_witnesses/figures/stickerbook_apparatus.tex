@@ -1,0 +1,33 @@
+\begin{tikzpicture}[
+  x=1cm,y=1cm,
+  >=Latex,
+  font=\small,
+  box/.style={draw, rounded corners=1.5pt, align=center, minimum height=9mm, inner xsep=5pt, inner ysep=3pt},
+  page/.style={box, very thick, text width=35mm, minimum height=27mm},
+  arrow/.style={->, thick},
+  dashedarrow/.style={->, thick, dashed}
+]
+% Decision path.
+\node[box, text width=23mm] (child) at (-5.0,3.1) {child input};
+\node[box, text width=27mm] (omega) at (-1.9,3.1) {Omega\\language loop};
+\node[box, text width=25mm] (jev) at (1.2,3.1) {Jev\\typed choice};
+\node[box, text width=32mm] (host) at (4.8,3.1) {host validator\\\{MOVE, FACE, \ldots\}};
+\draw[arrow] (child) -- node[above,font=\footnotesize]{language} (omega);
+\draw[arrow] (omega) -- (jev);
+\draw[arrow] (jev) -- (host);
+\draw[arrow] (child.south) to[out=-38,in=-142] node[pos=.52,below=1pt,font=\footnotesize]{direct double-tap} (jev.south);
+
+% Independent page-local domains.
+\node[page] (farm) at (-1.7,-0.45) {\textbf{Farm page}\\local controller\\local history\\local state\\[1mm]frog retained};
+\node[page] (space) at (4.2,-0.45) {\textbf{Space page}\\local controller\\local history\\local state\\[1mm]bird retained};
+\coordinate (fork) at (4.8,1.70);
+\draw[thick] (host.south) -- (fork);
+\draw[arrow] (fork) -| node[pos=.50,right=2pt,font=\footnotesize]{validated action} (space.north);
+
+% Cross-page leakage is an explicit violation.
+\draw[dashedarrow] (farm.east) -- node[above,font=\footnotesize]{delayed reply} (space.west);
+\node[fill=white, inner sep=1pt] at ($(farm.east)!0.50!(space.west)$) {\Large$\times$};
+\node[font=\footnotesize, fill=white, inner sep=1pt] at ($(farm.east)!0.50!(space.west)+(0,-6mm)$) {blocked at page boundary};
+
+\node[align=center, font=\footnotesize] at (1.25,-2.45) {Page-local controllers, histories, and state define separate bounded domains.\\Controlled perturbations violate one gate or boundary at a time.};
+\end{tikzpicture}

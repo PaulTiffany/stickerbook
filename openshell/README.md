@@ -1,5 +1,13 @@
 # StickerBook + OpenShell
 
+> **Current status (September 30, 2026):** Local powered development uses separate
+> restricted ordinary Docker containers, with the kernel on the host. See
+> [the current operator instructions](../docs/DOCKER_POWERED_LOCAL.md).
+> The OpenShell launch/provisioning instructions below are an archived hardened
+> target record, not the current working start path. OpenShell work is stopped.
+> Docker is not equivalent to OpenShell containment.
+
+
 This directory is the deployment-containment layer for the powered localhost
 runtime. It does **not** replace StickerBook's authority kernel.
 

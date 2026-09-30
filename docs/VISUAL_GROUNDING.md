@@ -1,5 +1,7 @@
 # Visual meaning, narrative, and governed movement
 
+<img src="../assets/_generated_sprite_refresh/cropped/butterfly/wings-up.png" alt="Butterfly StickerBook sticker" width="125">
+
 OmegaLLM interprets the child's language **and** observes page pixels. OmegaJev
 does not receive images. It receives the admitted goal, target, current motor
 context, taught pattern descriptions, and finite host-owned choices. Neither

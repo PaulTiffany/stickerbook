@@ -5,7 +5,7 @@ and authority.
 
 > **OmegaLLM translates. OmegaJev chooses. The kernel decides.**
 
-OmegaLLM and OmegaJev are intended to be two separate Omega agent loops.
+OmegaLLM and OmegaJev are two separate Omega agent loops in the live local Docker deployment.
 OmegaLLM bridges the child's language/voice/deictic reference into a bounded
 semantic goal. It does **not** prescribe a motor program. OmegaJev receives the
 goal plus fresh world feedback and repeatedly selects one key from a small
@@ -21,8 +21,8 @@ The browser sends human language to OmegaLLM through:
 The bridge validates the input and fixes the browser principal. OmegaLLM
 receives only the validated text, the fixed browser principal id, a bounded
 JSON scene view, the child-facing help projection, the host-selected
-provider/model record, and the optional transient deictic reference for that
-turn. It never receives the authority-kernel object
+provider/model record, optional validated page-image observation, and optional
+transient deictic reference for that turn. It never receives the authority-kernel object
 or the responsible-adult guide.
 
 OmegaLLM returns language and may optionally attach one bounded `goal` object,
@@ -240,8 +240,9 @@ not a prompt instruction.
    translated into a bounded goal. OmegaJev can then choose the declared clip
    and/or local movement steps over several turns.
 2. **Direct double-click/tap.** The existing child gesture bypasses OmegaLLM
-   and enters OmegaJev as a one-turn animation goal. The action surface contains
-   only declared animation choices for that sticker plus NOOP. If no Jev runtime
+   and starts ongoing child-authorized motion/clip play. Current finite steering,
+   clip, facing and STOP/NOOP choices remain host-owned; short continuations
+   are independently kernel-adjudicated and interrupted by child control. If no Jev runtime
    is connected, StickerBook retains the historical deterministic animation
    toggle so ordinary play still works.
 
@@ -920,11 +921,11 @@ The powered launcher attaches:
 Both adapters reject non-loopback URLs. Neither receives the kernel object or a
 provider credential.
 
-OpenShell is the containment substrate for those two powered Omega loops, not a
-replacement for the StickerBook kernel. They use separate sandboxes, policies,
-and provider identities. The dual-Omega OpenShell path is implemented and
-mechanically checked, but is not labeled live-host verified until exercised on
-the actual WSL2/Docker Desktop/provider host.
+Restricted ordinary Docker is the live-qualified local containment profile,
+with separate networks and agent memory volumes. OpenShell remains the deferred
+hardened target; it has not been live-qualified on this host. Docker permits
+direct provider egress and real role credentials inside the containers, rather
+than OpenShell credential/network mediation. Neither profile replaces the host kernel.
 
 GitHub Pages receives neither Python runtime and remains the mechanical static
 profile.

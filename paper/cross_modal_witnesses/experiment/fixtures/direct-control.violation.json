@@ -1,0 +1,36 @@
+{
+  "condition": "violation",
+  "events": [
+    {
+      "authority_expired": false,
+      "event": "double-tap",
+      "legal_keys": [],
+      "notes": "Injected source violation: direct gesture is routed through an unauthorized free-form generative path.",
+      "page": "farm",
+      "principal": "child-1",
+      "receipt": null,
+      "revision_before": 7,
+      "route": "direct-double-tap",
+      "selected_key": "freeform:jump-and-spin",
+      "selected_key_source": "freeform-model",
+      "state_delta": [
+        {
+          "clip": "jump-and-spin",
+          "object": "frog-1",
+          "op": "animation",
+          "page": "farm"
+        }
+      ],
+      "t": 0.0
+    }
+  ],
+  "fixture_kind": "synthetic-calibration",
+  "ground_truth": {
+    "invariant_satisfied": false,
+    "notes": "Synthetic direct-control authority perturbation.",
+    "violation_class": "direct_gesture_routed_to_freeform_generation"
+  },
+  "invariant": "direct_control",
+  "schema_version": "0.1",
+  "trace_id": "direct-control.violation"
+}

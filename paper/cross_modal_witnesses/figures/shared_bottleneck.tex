@@ -1,0 +1,29 @@
+\begin{tikzpicture}[
+  >=Latex,
+  font=\small,
+  box/.style={draw, rounded corners=1.5pt, align=center, minimum height=9mm, inner xsep=5pt, inner ysep=3pt},
+  source/.style={box, very thick},
+  bottleneck/.style={box, very thick, fill=red!8},
+  witness/.style={box, fill=blue!6},
+  arrow/.style={->, thick},
+  dashedarrow/.style={->, thick, dashed}
+]
+\node[source] (p) at (-5.1,1.6) {$\tau^+$\\$I_j(\tau^+)=1$};
+\node[source] (m) at (-5.1,-1.6) {$\tau^-$\\$I_j(\tau^-)=0$};
+\node[bottleneck, text width=29mm] (q) at (-1.7,0) {shared lossy\\intermediate $Q$\\[1mm]$Q(\tau^+)=Q(\tau^-)$};
+\node[witness] (vis) at (2.0,2.0) {$T_{\mathrm{vis}}=G_v\!\circ Q$\\visual};
+\node[witness] (son) at (2.0,0) {$T_{\mathrm{son}}=G_s\!\circ Q$\\sonic};
+\node[witness] (txt) at (2.0,-2.0) {$T_{\mathrm{text}}=G_t\!\circ Q$\\textual};
+\node[source, text width=31mm] (agree) at (5.55,0) {apparently concordant\\observer judgments};
+
+\draw[arrow] (p) -- (q);
+\draw[arrow] (m) -- (q);
+\draw[arrow] (q) -- (vis);
+\draw[arrow] (q) -- (son);
+\draw[arrow] (q) -- (txt);
+\draw[arrow] (vis) -- (agree);
+\draw[arrow] (son) -- (agree);
+\draw[arrow] (txt) -- (agree);
+
+\node[font=\footnotesize, align=center, text width=92mm] at (0,-4.0) {Multiple modalities do not provide independent evidence when they factor through the same distinction-destroying intermediate.\\Diversify transforms upstream of the lossy bottleneck, not merely downstream presentation.};
+\end{tikzpicture}

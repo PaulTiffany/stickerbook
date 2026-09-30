@@ -41,7 +41,7 @@ Python bridge + StickerBook authority kernel
   |
   | bounded conversation request + child-facing help
   v
-OmegaLLM  [OpenShell sandbox]
+OmegaLLM  [restricted local Docker container]
   |
   | reply + optional bounded semantic goal
   v
@@ -49,7 +49,7 @@ host bridge validates goal
   |
   | fresh scene + finite host-owned action descriptions
   v
-OmegaJev  [separate OpenShell sandbox]
+OmegaJev  [separate restricted local Docker container]
   |
   | one offered action key
   v
@@ -64,7 +64,8 @@ browser renderer
 ~~~
 
 A child's double-click may bypass OmegaLLM and enter OmegaJev directly, but only
-through a one-turn animation-only finite action surface.
+through ongoing bounded motion/clip invitations. Every continuation remains
+finite, interruptible, and kernel-adjudicated.
 
 The public GitHub Pages build is a different profile. It contains the browser
 renderer, static assets, and in-app documentation, but no Python bridge,
@@ -297,7 +298,13 @@ That prevents the model sandbox from owning both selection and authorization.
 
 ---
 
-## 7. NVIDIA OpenShell
+## 7. NVIDIA OpenShell — deferred hardened target
+
+The policies and credential-placeholder behavior below describe the retained
+OpenShell profile, not current local Docker behavior. The working Docker agent
+containers receive their own real provider credentials and have direct provider
+egress. See [the Docker record](DOCKER_POWERED_LOCAL.md) and
+[separate native memory stores](OMEGA_AGENT_MEMORY.md).
 
 Upstream: https://github.com/NVIDIA/OpenShell
 

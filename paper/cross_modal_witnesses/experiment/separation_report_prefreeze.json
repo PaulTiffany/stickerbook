@@ -1,0 +1,41 @@
+{
+  "note": "Byte-level separation only; this is not evidence of human perceptual discriminability.",
+  "pairs": [
+    {
+      "invariant": "action_set_validity",
+      "sonic_separated": false,
+      "visual_separated": true
+    },
+    {
+      "invariant": "advisory_memory",
+      "sonic_separated": true,
+      "visual_separated": true
+    },
+    {
+      "invariant": "direct_control",
+      "sonic_separated": true,
+      "visual_separated": true
+    },
+    {
+      "invariant": "host_validation",
+      "sonic_separated": true,
+      "visual_separated": true
+    },
+    {
+      "invariant": "page_isolation",
+      "sonic_separated": true,
+      "visual_separated": true
+    },
+    {
+      "invariant": "stale_response_rejection",
+      "sonic_separated": true,
+      "visual_separated": true
+    },
+    {
+      "invariant": "state_independence",
+      "sonic_separated": true,
+      "visual_separated": true
+    }
+  ],
+  "report_version": "0.1"
+}
