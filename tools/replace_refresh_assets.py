@@ -1,4 +1,5 @@
 """Install visually reviewed crops behind the existing SVG path interface."""
+from sprite_refresh_paths import REFRESH_MANIFEST
 import argparse
 import base64
 import hashlib
@@ -14,7 +15,7 @@ def main():
     parser.add_argument('--reviewed', action='store_true', required=True)
     parser.add_argument('--exclude', nargs='*', default=[])
     args = parser.parse_args()
-    path = ROOT / 'assets/minimax_refresh_manifest.json'
+    path = REFRESH_MANIFEST
     manifest = json.loads(path.read_text())
     groups = {}
     for asset in manifest['assets']:

@@ -1,4 +1,5 @@
 """Split reviewed-layout sheets; isolate only background connected to cell edges."""
+from sprite_refresh_paths import REFRESH_MANIFEST
 import json
 import argparse
 from pathlib import Path
@@ -48,7 +49,7 @@ def main():
     parser.add_argument('--preview', action='store_true', help='Leave manifest unchanged during generation')
     parser.add_argument('--only', help='Restage a single asset without rebuilding review montages')
     args = parser.parse_args()
-    path = ROOT / 'assets/minimax_refresh_manifest.json'
+    path = REFRESH_MANIFEST
     manifest = json.loads(path.read_text())
     prepared = {}
     for asset in manifest['assets']:

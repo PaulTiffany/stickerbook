@@ -586,7 +586,7 @@ class Q1_BrowserCanDisplayKernelState(ServerCase):
             ("/static/assets/pages/school-vertical.svg", "image/svg+xml"),
             ("/static/assets/pages/theater.svg", "image/svg+xml"),
             ("/static/assets/pages/theater-vertical.svg", "image/svg+xml"),
-            ("/static/assets/stickers/frog.svg", "image/svg+xml"),
+            ("/static/assets/stickers/frog/rest.svg", "image/svg+xml"),
             ("/static/assets/stickers/bird/flight-up.svg", "image/svg+xml"),
             ("/static/assets/stickers/butterfly/wings-down.svg", "image/svg+xml"),
             ("/static/assets/stickers/puppy/bark.svg", "image/svg+xml"),

@@ -3,6 +3,7 @@
 Input is a JSON list of {id, source, prompt}; references are a separate JSON
 list of {id, page, image_url}. Preflight all originals and crops before writes.
 """
+from sprite_refresh_paths import REFRESH_MANIFEST
 import argparse
 import base64
 import hashlib
@@ -62,7 +63,7 @@ def main():
     specs = json.loads(args.specs.read_text())
     refs = {r['id']: r for r in json.loads(args.references.read_text())}
     assert len(specs) == 9 and {s['id'] for s in specs} == set(POSES)
-    path = ROOT / 'assets/minimax_refresh_manifest.json'
+    path = REFRESH_MANIFEST
     manifest = json.loads(path.read_text())
     prepared = []
     for spec in specs:

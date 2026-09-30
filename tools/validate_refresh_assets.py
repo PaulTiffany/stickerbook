@@ -1,4 +1,5 @@
-"""Verify backups, installed raster interfaces, and optional live static serving."""
+"""Verify recorded provenance, installed rasters, and optional live serving."""
+from sprite_refresh_paths import REFRESH_MANIFEST
 import argparse
 import base64
 from concurrent.futures import ThreadPoolExecutor
@@ -17,13 +18,21 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--base-url')
     args = parser.parse_args()
-    manifest = json.loads((ROOT / 'assets/minimax_refresh_manifest.json').read_text())
+    manifest = json.loads((REFRESH_MANIFEST).read_text())
     canonical = ROOT / manifest['source_manifest']
-    assert canonical.read_bytes() == (ROOT / manifest['source_manifest_backup']).read_bytes()
+    if manifest.get('source_manifest_backup_retained', True):
+        assert canonical.read_bytes() == (ROOT / manifest['source_manifest_backup']).read_bytes()
+    else:
+        assert hashlib.sha256(canonical.read_bytes()).hexdigest() == manifest['source_manifest_sha256']
     installed = 0
+    backups = 0
     for asset in manifest['assets']:
         backup = ROOT / asset['backup_path']
-        assert hashlib.sha256(backup.read_bytes()).hexdigest() == asset['original_sha256']
+        if asset.get('backup_retained', True):
+            assert hashlib.sha256(backup.read_bytes()).hexdigest() == asset['original_sha256']
+            backups += 1
+        else:
+            assert not backup.exists()
         original = ROOT / asset['original_path']
         if asset['replacement_succeeded']:
             svg = ET.parse(original).getroot()
@@ -39,8 +48,14 @@ def main():
             assert image.getchannel('A').getextrema() == (0,255)
             installed += 1
         else:
-            assert original.read_bytes() == backup.read_bytes()
+            assert hashlib.sha256(original.read_bytes()).hexdigest() == asset['original_sha256']
     source = json.loads(canonical.read_text())
+    expected_sprites = {ROOT / 'web' / path
+                        for definition in source['stickers'].values()
+                        for path in definition['sprites'].values()}
+    assert expected_sprites == set((ROOT / 'web/static/assets/stickers').rglob('*.svg')), 'Orphaned or missing runtime sprites'
+    for asset in manifest['assets']:
+        assert (ROOT / asset['generated_sheet_path']).is_file()
     for identifier, definition in source['stickers'].items():
         for clip in definition['clips'].values():
             assert all(frame in definition['sprites'] for frame in clip['frames'])
@@ -53,7 +68,7 @@ def main():
                 assert response.read() == (ROOT / 'web' / relative).read_bytes()
         with ThreadPoolExecutor(max_workers=4) as executor:
             list(executor.map(fetch, urls))
-    print(json.dumps({'backups_verified': len(manifest['assets']), 'installed_rasters_verified': installed,
+    print(json.dumps({'backups_verified': backups, 'provenance_records_verified': len(manifest['assets']), 'installed_rasters_verified': installed,
                       'unchanged_pose_files': len(manifest['assets'])-installed,
                       'live_image_urls_verified': len(urls) if args.base_url else 0,
                       'canonical_manifest_unchanged': True}))
