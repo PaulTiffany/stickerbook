@@ -223,7 +223,10 @@ class OpenAICompatibleTransport(_HTTPTransport):
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": content},
             ],
-            "max_tokens": min(int(max_tokens), 1200),
+            # Reasoning consumes completion budget too. Keep visible output
+            # schema-bounded while allowing the sponsored model to finish.
+            "max_tokens": 4096 if self.env_var == 'ASI_API_KEY' else min(int(max_tokens), 1200),
+            **({'reasoning_effort': 'low'} if self.env_var == 'ASI_API_KEY' else {}),
         }, {
             "Content-Type": "application/json",
             "Authorization": "Bearer " + self._token(),
@@ -413,7 +416,7 @@ def _extract_content(body: dict) -> str:
         raise ValueError("invalid message")
     content = message.get("content")
     if not isinstance(content, str) or not content.strip():
-        raise ValueError("missing content")
+        raise ValueError('inference-output-budget' if first.get('finish_reason') == 'length' else 'inference-empty-content')
     return content.strip()
 
 
@@ -658,6 +661,8 @@ class StickerBookLLMProvider(providers.LLMProvider):
                 "[stickerbook-llm] failed closed: %s: %s",
                 type(exc).__name__, str(exc)[:300])
             reasons = {'invalid teaching': 'invalid-teaching',
+                       'inference-output-budget': 'inference-output-budget',
+                       'inference-empty-content': 'inference-empty-content',
                        'unknown teaching experience': 'unknown-teaching-experience',
                        'unknown response field': 'unknown-response-field',
                        'invalid goal fields': 'invalid-goal-fields'}

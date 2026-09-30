@@ -110,6 +110,18 @@ class PatternProvider(unittest.TestCase):
             self.assertEqual(rpc.stage_result.call_args.args[0]['reason'], 'unknown-teaching-experience')
             self.assertEqual(rpc.remember_conversation.call_count, 1)
 
+    def test_sponsored_completion_budget_and_empty_response_diagnostics(self):
+        transport = self.module.OpenAICompatibleTransport('http://unused', 'ASI_API_KEY', 40)
+        with patch.object(transport, '_request', return_value={'choices':[{'message':{'content':'{"reply":"Hello"}'}}]}) as request, \
+                patch.object(transport, '_token', return_value='test-placeholder'):
+            transport.complete('minimax/minimax-m3', {'text':'hello','scene':{}},1200)
+        payload = request.call_args.args[0]
+        self.assertEqual(payload['reasoning_effort'],'low')
+        self.assertEqual(payload['max_tokens'],4096)
+        for finish, reason in [('length','inference-output-budget'), ('stop','inference-empty-content')]:
+            with self.assertRaisesRegex(ValueError, reason):
+                self.module._extract_content({'choices':[{'finish_reason':finish,'message':{'content':None}}]})
+
     def test_missing_and_invalid_pattern_references_fail_closed(self):
         for value in (None, "", "x" * 65, "ANIMATE:frog-1:hop", 8, {}):
             with self.subTest(value=value):
