@@ -18,7 +18,9 @@ never calls this route. No keys reach the browser or are baked into images.
 
 ## Bounds
 
-- Reply-only JSON, at most 240 characters and a requested 15–25 words.
+- Reply-only JSON, at most 600 characters and a requested 45–60 words, aiming
+  for roughly 15–20 seconds of speech. Browser voice and speaking rate affect
+  duration. Final results still interrupt interim speech rather than wait for it.
 - Child text only: no images, coordinates, world snapshot, recall, tools,
   semantic goals, teaching, receipts or memory/history writes.
 - One independent non-queuing gate per process, separate from the native goal
@@ -68,3 +70,13 @@ without world changes. **520 web + 81 core + 40 Jev = 641 tests pass.**
 The existing host on port 8760 and its play state were preserved. OmegaJev was
 not restarted. OmegaLLM memory volumes and Docker restrictions are unchanged.
 The opt-in test app is at `http://localhost:8763/?dev=1`.
+
+### Longer speech follow-up
+
+The later 45–60-word prompt produced 41 and 51 words in 1.693 and 1.111 seconds.
+The updated host accepted a 55-word, 285-character reply in 0.965 seconds without
+changing world revision. At 180 words/minute those are approximately 14, 17 and
+18 seconds of speech; actual browser audio duration was not observed.
+Provider timeout, parallel execution and cancellation are unchanged. The larger
+host/browser envelope is 600 characters; completion budget is 300 tokens.
+The updated preview is `http://localhost:8764/?dev=1`; earlier sessions were kept.

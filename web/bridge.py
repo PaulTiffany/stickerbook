@@ -389,7 +389,7 @@ class Bridge:
             return {'ok': False}
         if not self._active or activation != self._activation_serial:
             return {'ok': False}
-        if not isinstance(result, dict) or set(result) != {'ok', 'reply'} or result.get('ok') is not True or not isinstance(result.get('reply'), str) or not 1 <= len(result['reply'].strip()) <= 240:
+        if not isinstance(result, dict) or set(result) != {'ok', 'reply'} or result.get('ok') is not True or not isinstance(result.get('reply'), str) or not 1 <= len(result['reply'].strip()) <= 600:
             return {'ok': False}
         return {'ok': True, 'reply': result['reply'].strip()}
 

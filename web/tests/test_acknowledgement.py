@@ -21,8 +21,10 @@ class AcknowledgementBoundary(unittest.TestCase):
         self.assertEqual(b.acknowledge({'text':'Make the butterfly fly.'}),{'ok':True,'reply':'Let me consider that.'})
         self.assertEqual(b.kernel.revision,before)
         runtime.converse.assert_not_called()
+        runtime.acknowledge.return_value={'ok':True,'reply':'x'*450}
+        self.assertEqual(len(b.acknowledge({'text':'hello'})['reply']),450)
         for bad in ({'ok':True,'reply':'Move!','goal':{'intent':'move'}},
-                    {'ok':True,'reply':'x'*241}, {'ok':True,'reply':[]}, {'ok':False}):
+                    {'ok':True,'reply':'x'*601}, {'ok':True,'reply':[]}, {'ok':False}):
             runtime.acknowledge.return_value=bad
             self.assertEqual(b.acknowledge({'text':'hello'}),{'ok':False})
             self.assertEqual(b.kernel.revision,before)

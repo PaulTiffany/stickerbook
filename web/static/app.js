@@ -3463,7 +3463,7 @@ async function acknowledgeConversation(text, aloud, mirror, turn) {
     const payload = await world.acknowledge(text);
     if (turn !== conversationSerial || !conversationPending || !payload || payload.ok !== true || typeof payload.reply !== 'string') return;
     const reply = payload.reply.trim();
-    if (!reply || reply.length > 240) return;
+    if (!reply || reply.length > 600) return;
     if (mirror) appendAccessibilityChatLine('StickerBook', reply);
     speak(reply);
     if (aloud && voiceEnabled && 'speechSynthesis' in window) {

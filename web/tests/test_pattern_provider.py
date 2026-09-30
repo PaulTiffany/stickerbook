@@ -148,7 +148,7 @@ class PatternProvider(unittest.TestCase):
         with patch.dict(os.environ, {'STICKERBOOK_ACKNOWLEDGEMENT': '1', env: 'test-placeholder'}):
             for content, expected in [({'reply': 'Let me consider what you mean.'}, True),
                                       ({'reply': 'Doing it', 'goal': {'intent': 'move'}}, False),
-                                      ({'reply': 'x' * 241}, False), ({'reply': []}, False)]:
+                                      ({'reply': 'x' * 450}, True), ({'reply': 'x' * 601}, False), ({'reply': []}, False)]:
                 with patch.object(module.OpenAICompatibleTransport, '_request', autospec=True,
                         return_value={'choices': [{'message': {'content': json.dumps(content)}}]}) as request:
                     result = module.acknowledge({'text': 'Fly around the tree.'})
@@ -156,7 +156,7 @@ class PatternProvider(unittest.TestCase):
                     transport, payload, _ = request.call_args.args
                     self.assertEqual(transport.timeout, 3)
                     self.assertEqual(payload['reasoning'], {'enabled': False})
-                    self.assertEqual(payload['max_tokens'], 240)
+                    self.assertEqual(payload['max_tokens'], 300)
             with patch.object(module.OpenAICompatibleTransport, '_request', side_effect=TimeoutError) as request:
                 self.assertEqual(module.acknowledge({'text': 'hello'}), {'ok': False})
                 self.assertEqual(request.call_count, 1)  # no retry

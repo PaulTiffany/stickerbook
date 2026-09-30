@@ -606,13 +606,13 @@ def acknowledge(payload):
     try:
         preset = INFERENCE_PRESETS['openrouter']
         transport = OpenAICompatibleTransport(preset['url'], preset['env'], 3)
-        body = transport._request({'model': preset['default_model'], 'max_tokens': 240,
+        body = transport._request({'model': preset['default_model'], 'max_tokens': 300,
             'reasoning': {'enabled': False},
-            'messages': [{'role': 'system', 'content': 'Return exactly one JSON object with only reply. In 15-25 words, warmly acknowledge what the child said while another agent considers it. Be tentative; do not promise execution or claim success. You have no image or world state. Never invent scenery, identify a location, tell the child how to act, or issue a command. If unclear, acknowledge that you are considering what they mean. This is not the final answer.'},
+            'messages': [{'role': 'system', 'content': 'Return exactly one JSON object with only reply. In 45-60 words (roughly 15-20 seconds of speech), warmly reflect what the child said while another agent considers it. Keep it relevant and conversational, without repetitive filler or asking for a new answer. Be tentative; do not promise execution or claim success. You have no image or world state. Never invent scenery, identify a location, tell the child how to act, or issue a command. If unclear, acknowledge that you are considering what they mean. This is not the final answer.'},
                          {'role': 'user', 'content': payload['text']}]},
             {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + transport._token()})
         result = _parse_json_object(_extract_content(body))
-        if set(result) != {'reply'} or not isinstance(result['reply'], str) or not 1 <= len(result['reply'].strip()) <= 240:
+        if set(result) != {'reply'} or not isinstance(result['reply'], str) or not 1 <= len(result['reply'].strip()) <= 600:
             return {'ok': False}
         return {'ok': True, 'reply': result['reply'].strip()}
     except Exception:
