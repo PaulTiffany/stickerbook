@@ -97,3 +97,30 @@ browser smoothness. Language latency is still variable and occasionally slow.
 Target fidelity, behavioral diversity, and child-taught continuous style are
 not solved by adding curves. This remains local powered development with
 ordinary Docker, not OpenShell-equivalent containment.
+# OmegaLLM latency follow-up
+
+OmegaLLM already uses one native Omega inference loop per incoming request
+(`maxNewInputLoops: 1`, no autonomous wake loops). Reducing it to zero would
+prevent replies. Its generated Omega prompt is not sent to the provider;
+bounded native conversational recall remains available.
+
+Ordinary turns now omit detailed demonstration instructions when the host
+offers neither interaction signals nor a pending reference. The system prompt
+shrinks from 8,776 to 6,278 characters (28%). Turns with evidence retain the
+complete reference rules. Visual grounding, teaching, pattern memory, goal
+schema and independent validation remain unchanged.
+
+Numeric-only provider logs separate recall, inference and validated conversation
+storage; no child text, images, recalled records or credentials are logged by
+this instrumentation. Three full host requests on the existing active Space
+page succeeded in 15.031, 5.142 and 18.521 seconds. Provider inference consumed
+14.150, 4.210 and 17.626 seconds; recall 0.283/0.121/0.106 seconds and storage
+0.523/0.555/0.534 seconds. These text-only samples demonstrate that provider
+latency dominates, not repeated Omega inference. They do not establish a
+consistent speedup or benchmark image-grounded directions.
+
+The locked sponsored ASI `minimax/minimax-m3` lane and OpenRouter fallback are
+unchanged. Direct gateway probes accepted `thinking: {type: disabled}` and
+`reasoning_effort: none` but still reported reasoning tokens. Those unverified
+switches were not adopted. Only OmegaLLM was recreated, preserving its named
+memory volumes and restrictions; OmegaJev and host play state stayed running.

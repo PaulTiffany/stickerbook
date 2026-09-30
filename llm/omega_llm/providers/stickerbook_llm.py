@@ -19,6 +19,7 @@ import math
 import os
 import re
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -220,7 +221,7 @@ class OpenAICompatibleTransport(_HTTPTransport):
         body = self._request({
             "model": model,
             "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": prompt_for_input(text_input)},
                 {"role": "user", "content": content},
             ],
             # Reasoning consumes completion budget too. Keep visible output
@@ -244,7 +245,7 @@ class AnthropicTransport(_HTTPTransport):
                         "media_type": "image/jpeg", "data": visual['image'].split(',', 1)[1]}}]
         body = self._request({
             "model": model,
-            "system": SYSTEM_PROMPT,
+            "system": prompt_for_input(text_input),
             "messages": [{
                 "role": "user",
                 "content": content,
@@ -572,6 +573,24 @@ independently validates every goal and the authority kernel makes every
 world-mutation decision."""
 
 
+def prompt_for_input(safe_input: dict) -> str:
+    """Keep detailed reference rules only when the host offers reference evidence.
+
+    This is structural context projection, never classification of child language.
+    The public goal schema and its independent validation stay unchanged.
+    """
+    scene = safe_input.get('scene') or {}
+    interaction = scene.get('interaction') or {}
+    if interaction.get('signals') or scene.get('pendingReference'):
+        return SYSTEM_PROMPT
+    start = SYSTEM_PROMPT.index('bind-demonstration carries exactly')
+    end = SYSTEM_PROMPT.index('For "Remember that as your happy dance"')
+    return (SYSTEM_PROMPT[:start] +
+            'No demonstration evidence is available in this turn. Ask the child to '
+            'demonstrate before binding, referencing or performing a trajectory. '
+            'Never invent an event or a frame.\n\n' + SYSTEM_PROMPT[end:])
+
+
 class StickerBookLLMProvider(providers.LLMProvider):
 
     def __init__(self):
@@ -615,15 +634,19 @@ class StickerBookLLMProvider(providers.LLMProvider):
             "scene": request.get("scene"),
             "reference": request.get("reference"),
         }
+        started = time.monotonic()
+        recalled = inferred = remembered = None
         try:
             page = safe_input['scene'].get('page', {}).get('id', 'farm')
             safe_input['omega_memory'] = getattr(rpc, 'recall_memory', lambda *_: [])(
                 'omegallm', page, str(safe_input.get('text') or 'current play')[:400])
+            recalled = time.monotonic()
             provider_id, model, preset = clean_inference(
                 request.get("inference"))
             safe_input = prepare_visual_inference(safe_input, provider_id, model)
             raw = self._transport(preset).complete(
                 model, safe_input, min(int(max_tokens), 1200))
+            inferred = time.monotonic()
             decoded = _parse_json_object(raw)
             if set(decoded) - {"reply", "goal", "teaching"}:
                 raise ValueError("unknown response field")
@@ -656,6 +679,7 @@ class StickerBookLLMProvider(providers.LLMProvider):
                     raise ValueError('unknown teaching experience')
                 result['teaching'] = teaching
             getattr(rpc, 'remember_conversation', lambda *_: None)(page, safe_input['text'], reply)
+            remembered = time.monotonic()
         except Exception as exc:  # every model/provider/schema failure is bounded
             logger.warning(
                 "[stickerbook-llm] failed closed: %s: %s",
@@ -669,6 +693,13 @@ class StickerBookLLMProvider(providers.LLMProvider):
             reason = reasons.get(str(exc), 'invalid-semantic-response') if isinstance(exc, ValueError) else 'provider-or-memory-error'
             result = {"ok": False, "error": "omegallm-failed-closed", 'reason': reason}
 
+        # Numeric timings only: never log child text, pixels, memory or credentials.
+        finished = time.monotonic()
+        logger.info('[stickerbook-llm] timing recall_ms=%s inference_ms=%s remember_ms=%s total_ms=%s ok=%s',
+                    round((recalled - started) * 1000) if recalled is not None else None,
+                    round((inferred - recalled) * 1000) if inferred is not None else None,
+                    round((remembered - inferred) * 1000) if remembered is not None else None,
+                    round((finished - started) * 1000), result['ok'])
         if not rpc.stage_result(result):
             logger.warning("[stickerbook-llm] failed to stage bounded response")
             return ""
