@@ -81,6 +81,12 @@ def set_provider_ready(role: str, metadata: dict | None = None) -> None:
         state.provider_ready = True
 
 
+def set_acknowledger(callback):
+    if state.role != 'omegallm' or not callable(callback):
+        raise ValueError('invalid acknowledgement handler')
+    state.acknowledger = callback
+
+
 def stage_result(result: dict) -> bool:
     """Stage one JSON result for the fixed zero-argument sb-return skill."""
     if not isinstance(result, dict):
@@ -201,7 +207,8 @@ class _Handler(BaseHTTPRequestHandler):
         expected = "/converse" if state.role == "omegallm" else "/choose"
         memory_request = self.path == '/memory/events'
         creator_request = self.path == '/create' and state.role == 'omegallm'
-        if self.path != expected and not memory_request and not creator_request:
+        acknowledgement_request = self.path == '/acknowledge' and state.role == 'omegallm'
+        if self.path != expected and not memory_request and not creator_request and not acknowledgement_request:
             return self._send(404, {"ok": False, "error": "not-found"})
 
         try:
@@ -214,6 +221,16 @@ class _Handler(BaseHTTPRequestHandler):
             payload = json.loads(self.rfile.read(length).decode("utf-8"))
         except (UnicodeDecodeError, ValueError):
             return self._send(400, {"ok": False, "error": "bad-json"})
+
+        if acknowledgement_request:
+            if not state.provider_ready or state.acknowledger is None:
+                return self._send(503, {'ok': False})
+            if not state.ack_gate.acquire(blocking=False):
+                return self._send(409, {'ok': False})
+            try:
+                return self._send(200, state.acknowledger(payload))
+            finally:
+                state.ack_gate.release()
 
         if creator_request:
             try:
@@ -302,6 +319,7 @@ class StickerBookRPCChannel(channels.CommChannel):
     def stop(self) -> None:
         state.provider_ready = False
         state.provider_metadata = {}
+        state.acknowledger = None
         if state.server is not None:
             state.server.shutdown()
             state.server.server_close()

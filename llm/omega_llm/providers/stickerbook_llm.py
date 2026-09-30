@@ -591,6 +591,36 @@ def prompt_for_input(safe_input: dict) -> str:
             'Never invent an event or a frame.\n\n' + SYSTEM_PROMPT[end:])
 
 
+def acknowledgement_available():
+    return os.environ.get('STICKERBOOK_ACKNOWLEDGEMENT') == '1' and bool(
+        os.environ.get(INFERENCE_PRESETS['openrouter']['env'], '').strip())
+
+
+def acknowledge(payload):
+    """Optional stateless speech-only companion; never an Omega action turn."""
+    if not acknowledgement_available():
+        return {'ok': False}
+    if not isinstance(payload, dict) or set(payload) != {'text'} or not isinstance(payload['text'], str) or not 1 <= len(payload['text'].strip()) <= 2000:
+        return {'ok': False}
+    started = time.monotonic()
+    try:
+        preset = INFERENCE_PRESETS['openrouter']
+        transport = OpenAICompatibleTransport(preset['url'], preset['env'], 3)
+        body = transport._request({'model': preset['default_model'], 'max_tokens': 300,
+            'reasoning': {'enabled': False},
+            'messages': [{'role': 'system', 'content': 'Return exactly one JSON object with only reply. In 45-60 words (roughly 15-20 seconds of speech), warmly reflect what the child said while another agent considers it. Keep it relevant and conversational, without repetitive filler or asking for a new answer. Be tentative; do not promise execution or claim success. You have no image or world state. Never invent scenery, identify a location, tell the child how to act, or issue a command. If unclear, acknowledge that you are considering what they mean. This is not the final answer.'},
+                         {'role': 'user', 'content': payload['text']}]},
+            {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + transport._token()})
+        result = _parse_json_object(_extract_content(body))
+        if set(result) != {'reply'} or not isinstance(result['reply'], str) or not 1 <= len(result['reply'].strip()) <= 600:
+            return {'ok': False}
+        return {'ok': True, 'reply': result['reply'].strip()}
+    except Exception:
+        return {'ok': False}
+    finally:
+        logger.info('[stickerbook-llm] acknowledgement_ms=%s', round((time.monotonic()-started)*1000))
+
+
 class StickerBookLLMProvider(providers.LLMProvider):
 
     def __init__(self):
@@ -602,8 +632,10 @@ class StickerBookLLMProvider(providers.LLMProvider):
         self.timeout = int(config_get_by_key(
             "stickerbookLlmTimeout", DEFAULT_TIMEOUT))
         rpc = importlib.import_module("stickerbookrpc")
+        rpc.set_acknowledger(acknowledge)
         rpc.set_provider_ready("omegallm", {
             "inference_options": inference_options(),
+            "conversation_acknowledgement": acknowledgement_available(),
         })
         logger.info(
             "[stickerbook-llm] configured inference lanes=%s",

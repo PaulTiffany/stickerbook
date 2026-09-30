@@ -58,6 +58,26 @@ class RpcIdentityCase(unittest.TestCase):
                                 health = json.load(response)
                             self.assertTrue(health["ok"])
                             self.assertEqual(health["role"], role)
+                            if role == 'omegallm':
+                                provider.set_acknowledger(lambda body: {'ok': True, 'reply': 'Considering it.'})
+                                self.assertIsNotNone(serving.state.acknowledger)
+                                # The acknowledgement has its own gate: it must
+                                # still work while the native goal gate is held.
+                                serving.state.gate.acquire()
+                                try:
+                                    request = urllib.request.Request(f'http://127.0.0.1:{port}/acknowledge',
+                                        data=b'{"text":"hello"}', headers={'Content-Type':'application/json'})
+                                    with urllib.request.urlopen(request) as response:
+                                        self.assertEqual(json.load(response)['reply'], 'Considering it.')
+                                    serving.state.ack_gate.acquire()
+                                    try:
+                                        with self.assertRaises(urllib.error.HTTPError) as busy:
+                                            urllib.request.urlopen(request)
+                                        self.assertEqual(busy.exception.code, 409)
+                                    finally:
+                                        serving.state.ack_gate.release()
+                                finally:
+                                    serving.state.gate.release()
                             choice = {"goal": {}, "scene": {}, "actions": {"NOOP": "Do nothing this turn"},
                                       "turn": 1, "max_turns": 12}
                             self.assertIsNone(serving._validate_payload("omegajev", choice))

@@ -18,6 +18,8 @@ class RpcState:
         self.server = None
         self.thread = None
         self.memory = None
+        self.acknowledger = None
+        self.ack_gate = threading.Lock()
 
 
 state = RpcState()

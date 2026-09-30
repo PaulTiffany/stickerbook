@@ -1,5 +1,9 @@
 # Local powered development (2026-09-29)
 
+For the optional speech-only parallel response, see
+[Conversation acknowledgement](CONVERSATION_ACKNOWLEDGEMENT.md). It is off by
+default, adds a separate OpenRouter call, and does not change the Omega goal loop.
+
 Ordinary Docker is a local development path. OpenShell remains the desired
 hardened runtime. The browser calls the host bridge/kernel; the host separately
 calls OmegaLLM and OmegaJev on loopback. Neither agent receives the host kernel

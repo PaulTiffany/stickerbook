@@ -888,6 +888,18 @@ const kernelWorld = {
     return res.json();
   },
 
+  async acknowledge(text) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3500);
+    try {
+      const res = await fetch("/api/agent/acknowledge", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, _page: state.page.id }), signal: controller.signal,
+      });
+      return res.json();
+    } finally { clearTimeout(timeout); }
+  },
+
   async observePagePath(body) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 2000);
@@ -3446,6 +3458,28 @@ async function captureVisualContext() {
   }
 }
 
+async function acknowledgeConversation(text, aloud, mirror, turn) {
+  try {
+    const payload = await world.acknowledge(text);
+    if (turn !== conversationSerial || !conversationPending || !payload || payload.ok !== true || typeof payload.reply !== 'string') return;
+    const reply = payload.reply.trim();
+    if (!reply || reply.length > 600) return;
+    if (mirror) appendAccessibilityChatLine('StickerBook', reply);
+    speak(reply);
+    if (aloud && voiceEnabled && 'speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(reply);
+      setVoiceOrbState('speaking');
+      const done = () => {
+        if (turn === conversationSerial && conversationPending) setVoiceOrbState('thinking');
+      };
+      utterance.onend = done;
+      utterance.onerror = done;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+  } catch (_) { /* Optional acknowledgement never changes the goal request. */ }
+}
+
 async function converseWithStickerBook(text, aloud, mirrorToAccessibility = false) {
   const clean = String(text || "").trim();
   if (!clean || voiceBusy) return null;
@@ -3478,6 +3512,7 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
 
   try {
     await pendingPathObservation.catch(() => {});
+    if (turn !== conversationSerial) return null;
     reference = deicticPayload(pendingReference);
     // Whether the child spoke or typed. The browser owns the microphone and
     // the keyboard, so it is the only thing that honestly knows. Descriptive
@@ -3488,10 +3523,16 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
     if (!stub) {
       try { body.visual = await captureVisualContext(); }
       catch (_) { if (DEV) dev.verdict.textContent = "Visual context unavailable; asking with structured state."; }
-      if (epoch !== motionEpoch) return null;
+      if (epoch !== motionEpoch || turn !== conversationSerial) return null;
     }
-    const payload = await observePoweredRequest(() => world.converse(body));
-    if (epoch !== motionEpoch) return null;
+    const payload = await observePoweredRequest(() => {
+      const request = world.converse(body);
+      if (!stub && capabilities.conversation_acknowledgement && typeof world.acknowledge === 'function') {
+        void acknowledgeConversation(clean, aloud, mirrorToAccessibility, turn);
+      }
+      return request;
+    });
+    if (epoch !== motionEpoch || turn !== conversationSerial) return null;
 
     if (!payload || !payload.ok || typeof payload.reply !== "string") {
       const messages = {
@@ -3564,6 +3605,7 @@ async function converseWithStickerBook(text, aloud, mirrorToAccessibility = fals
   } finally {
     if (turn === conversationSerial) {
       conversationPending = false;
+      if (!speakingReply && aloud && "speechSynthesis" in window) window.speechSynthesis.cancel();
       if (!speakingReply) voiceBusy = false;
       if (voiceOrb.classList.contains("thinking")) setVoiceOrbState("ready");
       updateConversationControls();
