@@ -1542,8 +1542,8 @@ button:focus-visible, a:focus-visible, label:focus-within {
   position: fixed;
   z-index: 160;
   top: 10px;
-  right: 10px;
-  width: 300px;
+  left: max(10px, env(safe-area-inset-left));
+  width: min(300px, calc(100vw - 20px));
   max-height: min(78vh, 680px);
   overflow: auto;
   padding: 42px 12px 12px;
