@@ -22,7 +22,7 @@
       {
         "id": "talk",
         "title": "Talk to StickerBook",
-        "text": "If a grown-up turns on voice, tap the microphone and talk. The optional text box talks to the same StickerBook. You can ask what a sticker can do or ask for a simple move."
+        "text": "If you see the microphone, tap it and talk. The optional text box talks to the same StickerBook. You can ask what a sticker can do or ask for a simple move."
       },
       {
         "id": "point",
@@ -58,7 +58,7 @@
         "title": "What the AI does",
         "paragraphs": [
           "The powered local version separates language from action. OmegaLLM handles the conversation and may translate a request into one small semantic goal. OmegaJev sees a fresh, finite list of actions that are legal to offer for that goal and selects one. The StickerBook authority kernel independently accepts or refuses the resulting proposal.",
-          "A double-tap can go directly to OmegaJev, but only with a one-turn animation-only choice list. The language model is not required for that path."
+          "A powered double-tap goes directly to OmegaJev for ongoing bounded play using current legal motion and animation choices. A child grab, stop, redirection or page exit interrupts it. The language model is not required for that gesture."
         ]
       },
       {
@@ -74,7 +74,7 @@
         "id": "voice-privacy",
         "title": "Voice and privacy",
         "paragraphs": [
-          "Voice is off until a responsible adult enables it for the current browser session. StickerBook uses the browser/device speech-recognition feature to turn speech into text, so audio handling may depend on the browser or operating system. StickerBook sends the resulting text—not raw microphone audio—to the local conversational runtime.",
+          "Voice is available by default when the local conversational runtime and browser speech recognition are available. Listening starts only when someone taps the microphone and the browser permits it. A responsible adult can turn voice off for the current browser session. StickerBook uses the browser/device speech-recognition feature to turn speech into text, so audio handling may depend on the browser or operating system. StickerBook sends the resulting text—not raw microphone audio—to the local conversational runtime.",
           "Replies may be spoken with the browser/device speech-synthesis feature. The public GitHub Pages demo does not connect to Omega, Jev, OpenRouter, or the Python authority bridge."
         ]
       },

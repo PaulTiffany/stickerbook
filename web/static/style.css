@@ -811,6 +811,36 @@ button:focus-visible, a:focus-visible, label:focus-within {
     0 10px 28px rgba(42,53,45,.20);
 }
 
+.voice-orb.thinking { background: #fff2d5; }
+
+.conversation-status {
+  position: fixed;
+  z-index: 77;
+  right: max(18px, calc(env(safe-area-inset-right) + 12px));
+  top: max(96px, calc(env(safe-area-inset-top) + 90px));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 18px;
+  background: #fff2d5;
+  color: var(--ink);
+  box-shadow: 0 4px 16px rgba(42,53,45,.15);
+  pointer-events: none;
+}
+.conversation-status[hidden] { display: none; }
+.thinking-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: thinking-pulse 1.2s ease-in-out infinite;
+}
+@keyframes thinking-pulse { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) {
+  .thinking-dot { animation: none; }
+}
+
 .voice-orb.error {
   background: #fff0ed;
 }

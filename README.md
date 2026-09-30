@@ -205,9 +205,11 @@ of that design on one page.
 The child-facing page is voice-first rather than chat-first.
 
 A connected local conversational runtime can expose a small push-to-talk
-control, but voice is disabled by default and must be enabled for the current
-session from the responsible-adult panel. A text fallback exists there for
-accessibility and debugging rather than occupying the child's play surface.
+control by default in browsers with speech recognition. Tap the microphone to
+start listening; microphone permission still belongs to the browser. The
+responsible-adult panel can turn voice off for the current session. A text fallback
+exists there for accessibility and debugging rather than occupying the child's
+play surface.
 
 The same responsible-adult panel also owns the OmegaLLM inference selection for
 the current browser session. It can choose **Sponsored ASI Cloud** (MiniMax M3,

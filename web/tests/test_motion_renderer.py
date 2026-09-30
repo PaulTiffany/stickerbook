@@ -24,6 +24,7 @@ const activePageMetrics=()=>({width:1000,height:640});
 const kernelWorld={send:async()=>{receipts++;return {ok:true};}};let world=kernelWorld;
 let state={page:{id:'farm'},revision:1,stickers:[]};
 const render=()=>drawStickers(state.stickers);
+const cancelConversationPresentation=()=>{};
 const sticker=(x,y=.5)=>({id:'bird-1',definition:'bird',x,y,animation:'flap',scale:1});
 const snapshot=(revision,x)=>({page:{id:'farm'},revision,stickers:[sticker(x)]});
 '''
