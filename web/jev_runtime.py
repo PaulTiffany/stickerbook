@@ -21,6 +21,13 @@ from urllib.parse import urlsplit
 _MAX_RESPONSE_BYTES = 128 * 1024
 
 
+class JevRuntimeError(RuntimeError):
+    """Fixed host-owned reason, never provider body or exception text."""
+    def __init__(self, code):
+        self.code = code
+        super().__init__(code)
+
+
 class DisabledJevRuntime:
     """Default: no Jev loop is connected and no network access is attempted."""
 
@@ -68,8 +75,13 @@ class LoopbackJevRuntime:
         try:
             with urllib.request.urlopen(request, timeout=self.timeout) as response:
                 raw = response.read(_MAX_RESPONSE_BYTES + 1)
+        except urllib.error.HTTPError as exc:
+            code = {409:'jev-busy', 503:'jev-not-ready', 504:'jev-timeout',
+                    400:'jev-request-refused', 413:'jev-request-too-large'}.get(exc.code,'jev-http-error')
+            raise JevRuntimeError(code) from exc
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
-            raise RuntimeError("OmegaJev loopback unavailable") from exc
+            reason = getattr(exc,'reason',exc)
+            raise JevRuntimeError('jev-timeout' if isinstance(reason,TimeoutError) else 'jev-unavailable') from exc
         if len(raw) > _MAX_RESPONSE_BYTES:
             raise RuntimeError("OmegaJev response too large")
         try:

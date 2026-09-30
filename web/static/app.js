@@ -818,7 +818,7 @@ const kernelWorld = {
   name: "local kernel",
 
   async state(fast = false) {
-    const res = await fetch(fast ? "/api/state?watch=1" : "/api/state", { cache: "no-store" });
+    const res = await fetch(fast ? "/api/state?watch=1&page=" + encodeURIComponent(state.page.id) : "/api/state", { cache: "no-store" });
     if (!res.ok) throw new Error("state: HTTP " + res.status);
     return res.json();
   },
@@ -1537,7 +1537,37 @@ async function drawGallery() {
 const stickerVisuals = new Map();
 let motionEpoch = 0;
 const STATE_POLL_MS = 125;
-const MOVE_TWEEN_MS = 220;
+const MOVE_TWEEN_MS = 250;
+let pageStateWatcher = null;
+let renderedBackground = null;
+let renderedTray = null;
+
+function stopPageStateWatch() {
+  if (pageStateWatcher) {
+    pageStateWatcher.stopped = true;
+    clearTimeout(pageStateWatcher.timer);
+    pageStateWatcher = null;
+  }
+}
+
+function startPageStateWatch() {
+  if (world !== kernelWorld || pageStateWatcher || screens.play.hidden || document.hidden) return;
+  const watch = { epoch: motionEpoch, stopped: false, timer: null };
+  pageStateWatcher = watch;
+  const poll = async () => {
+    if (watch.stopped || watch.epoch !== motionEpoch) return;
+    try {
+      const next = await world.state(true);
+      if (!watch.stopped && watch.epoch === motionEpoch &&
+          (next.revision > state.revision || JSON.stringify(next.motion) !== JSON.stringify(state.motion))) {
+        applyAuthoritativeState(next, watch.epoch);
+      }
+    } catch (_) { /* A failed observation never invents state or a mutation. */ }
+    if (!watch.stopped && watch.epoch === motionEpoch) watch.timer = setTimeout(poll, STATE_POLL_MS);
+  };
+  poll();
+}
+
 
 function setStickerPosition(visual, point) {
   visual.position = { x: point.x, y: point.y };
@@ -1554,6 +1584,7 @@ function cancelStickerTween(visual) {
 }
 
 function cancelVisualMotion() {
+  stopPageStateWatch();
   motionEpoch += 1;
   for (const visual of stickerVisuals.values()) cancelStickerTween(visual);
 }
@@ -1566,7 +1597,7 @@ function tweenSticker(visual, endpoint) {
   const frame = (now) => {
     if (visual.held || epoch !== motionEpoch) return;
     const t = Math.min(1, Math.max(0, (now - start) / MOVE_TWEEN_MS));
-    const eased = t * t * (3 - 2 * t);
+    const eased = t; // Constant-speed interpolation; steering supplies curvature.
     setStickerPosition(visual, t === 1 ? endpoint : {
       x: from.x + (endpoint.x - from.x) * eased,
       y: from.y + (endpoint.y - from.y) * eased,
@@ -1599,7 +1630,7 @@ async function observePoweredRequest(request) {
     } catch (_) { /* The action response owns error reporting. */ }
     if (!finished && epoch === motionEpoch) timer = setTimeout(poll, STATE_POLL_MS);
   };
-  poll();
+  if (!pageStateWatcher) poll();
   try {
     const payload = await request();
     if (payload && payload.state) applyAuthoritativeState(payload.state, epoch);
@@ -1709,12 +1740,21 @@ function render() {
   if (!state) return;
 
   applyActivePageViewport();
-  drawScene(layers.picture, state.picture, "play", state.page && state.page.id);
+  const metrics = activePageMetrics();
+  const backgroundKey = JSON.stringify([state.page.id, state.picture, metrics.width, metrics.height]);
+  if (renderedBackground !== backgroundKey) {
+    drawScene(layers.picture, state.picture, "play", state.page && state.page.id);
+    renderedBackground = backgroundKey;
+  }
   drawStickers(state.stickers);
   if (!deicticGesture) {
     drawDeicticReference(pendingDeicticReference, false);
   }
-  drawTray();
+  const trayKey = JSON.stringify([state.definitions, hotbarKinds]);
+  if (renderedTray !== trayKey) {
+    drawTray();
+    renderedTray = JSON.stringify([state.definitions, hotbarKinds]);
+  }
 
   if (DEV) {
     dev.mode.textContent = world.name;
@@ -1742,7 +1782,13 @@ function speak(message) {
 function showScreen(name) {
   closeLibrary();
   clearPlacement();
-  if (name !== "play") { cancelVisualMotion(); clearDeicticReference(false); }
+  if (name !== "play") {
+    if (!screens.play.hidden && world === kernelWorld) {
+      world.send('/api/pause-activities', {}).catch(() => {});
+    }
+    cancelVisualMotion();
+    clearDeicticReference(false);
+  }
 
   for (const [key, node] of Object.entries(screens)) {
     node.hidden = key !== name;
@@ -1753,6 +1799,7 @@ function showScreen(name) {
   }
 
   updateConversationControls();
+  if (name === 'play') startPageStateWatch();
 }
 
 async function enterPlay(pageId) {
@@ -2096,8 +2143,15 @@ function grabPlaced(event, sticker) {
   event.stopPropagation();
 
   const node = event.currentTarget;
+  const gestureEpoch = motionEpoch;
   const visual = stickerVisuals.get(sticker.id);
   if (visual) { cancelStickerTween(visual); visual.held = true; }
+  // Ordered before release/double-tap so a late grab cannot cancel a new invitation.
+  const pendingHold = world === kernelWorld
+    ? world.send('/api/hold', { sticker: sticker.id }).then((result) => {
+        if (result && result.state) applyAuthoritativeState(result.state, gestureEpoch);
+      }).catch(() => {})
+    : Promise.resolve();
   const startedAt = performance.now();
   const startX = event.clientX;
   const startY = event.clientY;
@@ -2224,18 +2278,9 @@ function grabPlaced(event, sticker) {
 
     const point = draggedFraction(moveEvent);
     observeDrag(point);
-    node.setAttribute(
-      "transform",
-      (() => {
-        const metrics = activePageMetrics();
-        const scale = Number.isFinite(sticker.scale) ? sticker.scale : 1;
-        const scaleX = sticker.facing === "left" ? -scale : scale;
-        return "translate(" +
-          (point.x * metrics.width) + " " +
-          (point.y * metrics.height) + ") scale(" +
-          scaleX + " " + scale + ")";
-      })()
-    );
+    if (visual) setStickerPosition(visual, point);
+    else node.setAttribute('transform', 'translate(' +
+      point.x * activePageMetrics().width + ' ' + point.y * activePageMetrics().height + ')');
     hotbar.classList.toggle("drop-ready", overRemovalZone(moveEvent));
   };
 
@@ -2253,6 +2298,8 @@ function grabPlaced(event, sticker) {
   const onUp = async (upEvent) => {
     cleanup();
     try {
+    await pendingHold;
+    if (gestureEpoch !== motionEpoch) return;
 
     if (overRemovalZone(upEvent) && moved) {
       await send("/api/remove", {
@@ -2788,7 +2835,10 @@ async function reload() {
 function showVerdict(payload) {
   const receipt = payload.receipt;
 
-  if (!receipt) {
+  if (payload.jev && payload.jev.result === 'playing') {
+    dev.verdict.className = 'verdict accepted';
+    dev.verdict.textContent = 'playing ? ' + payload.jev.goal.subject + '; each movement still requires a kernel receipt';
+  } else if (!receipt) {
     dev.verdict.className = "verdict rejected";
     dev.verdict.textContent = "refused — " + (payload.error || "invalid request");
   } else {
@@ -3685,3 +3735,14 @@ if (window.visualViewport) {
 
 syncViewportCssVars();
 boot();
+
+// A hidden/closed page cannot keep paying for autonomous play. Observation
+// leases on the host cover abrupt tab closure or a lost connection too.
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    cancelVisualMotion();
+    if (world === kernelWorld) world.send('/api/pause-activities', {}).catch(() => {});
+  } else if (!screens.play.hidden) {
+    reload().then(startPageStateWatch).catch(() => {});
+  }
+});

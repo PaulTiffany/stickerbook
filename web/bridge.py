@@ -22,7 +22,7 @@ What the browser is NOT trusted with, enforced here:
   * being believed about success -- every response carries authoritative
     state, and the renderer draws that rather than its own proposal.
 
-There is one kernel. This process holds it; nothing is reimplemented here.
+Each page has one host-owned kernel. Nothing is reimplemented in a model or renderer.
 The bridge holds no provider credential and never talks to OpenRouter directly.
 An optional page-image runtime may call a separately started loopback gateway.
 The server itself binds loopback only.
@@ -49,6 +49,7 @@ from agent_runtime import (  # noqa: E402
 )
 from jev_controller import JevController, OMEGA_LLM_ID  # noqa: E402
 from jev_runtime import DisabledJevRuntime, jev_runtime_from_env  # noqa: E402
+from motion_player import MotionPlayer, SerializedJevRuntime  # noqa: E402
 from page_assets import supported_upload  # noqa: E402
 from page_image_runtime import (  # noqa: E402
     DisabledPageImageRuntime, page_image_runtime_from_env,
@@ -112,7 +113,8 @@ class Bridge:
             governed_history=None, replay_log=None, drag_log=None,
             trajectory_execution_log=None,
             interaction_log=None, page_path_log=None, observed_input_log=None,
-            page_id=book.DEFAULT_PAGE, world_lock=None):
+            page_id=book.DEFAULT_PAGE, world_lock=None, continuous_motion=False,
+            motion_threaded=True):
         self.page_id = page_id
         self.kernel = kernel or book.build_world(page_id)
         self._world_lock = world_lock or RLock()
@@ -159,6 +161,10 @@ class Bridge:
             world_lock=self._world_lock,
             executions=self.trajectory_executions,
             activity=lambda: self._activation_serial if self._active else None)
+        self.motion_player = (MotionPlayer(self.jev_controller, threaded=motion_threaded)
+                              if continuous_motion else None)
+        if self.motion_player:
+            self.jev_controller.subject_activity = lambda subject: self.motion_player.child_versions.get(subject,0)
         self._jev_counter = 0
         self.page_image_runtime = (
             page_image_runtime or DisabledPageImageRuntime())
@@ -167,7 +173,7 @@ class Bridge:
 
     # -- reads -------------------------------------------------------------
 
-    def state(self, *, fast=False) -> dict:
+    def state(self, *, fast=False, observing_page=None) -> dict:
         """Authoritative state, as the browser's principal may observe it.
 
         Only the kernel read is world-locked. kernel.view() already returns a
@@ -175,6 +181,8 @@ class Bridge:
         network availability checks: the browser's polling endpoint must not
         hold the world lock across those.
         """
+        if observing_page == self.page_id and self.motion_player:
+            self.motion_player.observe()
         with self._world_lock:
             view = self.kernel.view(BROWSER_PRINCIPAL)
         capabilities = self._state_capabilities if fast else self._agent_capabilities()
@@ -217,6 +225,7 @@ class Bridge:
             ],
             "capabilities": capabilities,
             "stickers": stickers,
+            "motion": self.motion_player.describe() if self.motion_player else [],
         }
 
     def _conversation_scene(self, episode=None) -> dict:
@@ -227,6 +236,16 @@ class Bridge:
         source the child can read in-app, without seeing operator instructions.
         """
         scene = self.state()
+        if self.motion_player:
+            # Semantic goals address existing subjects. Keep their clip declarations
+            # and the library names, rather than sending every unused definition.
+            present = {s['definition'] for s in scene['stickers']}
+            scene['stickerLibrary'] = [d['id'] for d in scene['definitions']]
+            scene['definitions'] = [d for d in scene['definitions'] if d['id'] in present]
+            scene['motorSurface'] = {
+                'continuousPlay': True,
+                'behaviorMeaning': 'Preserve the child desired movement style (such as swoop, circle near a target, or land) in the existing short behavior field. Visual clips and locomotion are separate vocabulary.',
+                'interruption': 'Child grab, stop, redirection or leaving the page ends old movement.'}
         if episode is not None:
             # Which bounded inputs took part in this turn. Facts only: no
             # shape labels, no raw trajectory samples, no interpretation.
@@ -290,6 +309,8 @@ class Bridge:
         provider_id = body.get("provider")
         model = body.get("model")
         if provider_id == "off":
+            if self.motion_player:
+                self.motion_player.stop(reason='child-interrupted')
             self._inference_selection = {"provider": "off", "model": ""}
             return {"ok": True, "inference": self.inference_settings(),
                     "state": self.state()}
@@ -346,6 +367,8 @@ class Bridge:
         coordinate has no instance-independent typed form -- so it stays
         visible to OmegaLLM without ever becoming a learned PatternStep.
         """
+        if self.motion_player and command.object_id:
+            self.motion_player.stop(command.object_id, 'child-interrupted')
         receipt = self.kernel.propose(command)
         self.history.record(receipt, origin=ORIGIN_HUMAN_GESTURE)
         return receipt
@@ -389,6 +412,8 @@ class Bridge:
             scene["pendingReference"] = pending.describe()
 
         activation = self._activation_serial
+        with self._world_lock:
+            motor_versions = dict(self.motion_player.child_versions) if self.motion_player else {}
         try:
             result = self.agent_runtime.converse(
                 text=text,
@@ -448,13 +473,36 @@ class Bridge:
                 # briefly around each coherent read and each kernel
                 # proposal, so a child's gesture is never queued behind
                 # model latency.
-                payload["jev"] = self.jev_controller.run_semantic_goal(
-                    goal,
-                    actor=BROWSER_PRINCIPAL,
-                    command_prefix="omega-jev-%d" % self._jev_counter,
-                    requested_by=BROWSER_PRINCIPAL,
-                    translated_by=OMEGA_LLM_ID,
-                )
+                if self.motion_player and isinstance(goal, dict) and 'scale' not in goal and goal.get('intent', 'control') in (
+                        'control', 'move', 'move-and-animate', 'animate'):
+                    # Meaning is admitted before installing/replacing a child-owned activity.
+                    with self._world_lock:
+                        admitted, error = self.jev_controller.normalize_goal(goal)
+                    if error:
+                        payload['jev'] = {'ok':False,'error':error}
+                    elif not self.jev_controller.available():
+                        payload['jev'] = {'ok': False, 'error': 'jev-runtime-unavailable'}
+                    elif self.motion_player.child_versions.get(goal.get('subject'),0) != motor_versions.get(goal.get('subject'),0):
+                        payload['jev'] = {'ok': False, 'error': 'human-superseded'}
+                    elif str(goal.get('behavior','')).strip().lower() in {'stop', 'rest', 'land', 'landed', 'still'}:
+                        # Settling is a child direction, not a canned locomotion path.
+                        self.motion_player.stop(goal.get('subject'), 'child-interrupted')
+                        payload['jev'] = self.jev_controller.run_goal(goal,
+                            actor=BROWSER_PRINCIPAL, command_prefix='omega-jev-%d' % self._jev_counter,
+                            requested_by=BROWSER_PRINCIPAL, translated_by=OMEGA_LLM_ID,
+                            animate_only=True, max_turns=1)
+                    else:
+                        payload['jev'] = self.motion_player.start(goal,
+                            actor=BROWSER_PRINCIPAL, requested_by=BROWSER_PRINCIPAL,
+                            translated_by=OMEGA_LLM_ID,
+                            expected_child_version=motor_versions.get(goal.get('subject'),0))
+                else:
+                    if self.motion_player and isinstance(goal,dict):
+                        self.motion_player.stop(goal.get('subject'), 'semantic-work')
+                    payload["jev"] = self.jev_controller.run_semantic_goal(
+                        goal, actor=BROWSER_PRINCIPAL,
+                        command_prefix="omega-jev-%d" % self._jev_counter,
+                        requested_by=BROWSER_PRINCIPAL, translated_by=OMEGA_LLM_ID)
 
         payload["state"] = self.state()
         return payload
@@ -541,6 +589,8 @@ class Bridge:
 
     def _reference_trajectory(self, goal, episode, pending):
         """Resolve coordinate semantics only. Nothing moves."""
+        if self.motion_player and isinstance(goal,dict):
+            self.motion_player.stop(goal.get('subject'), 'semantic-work')
         resolved, error = self._resolve_trajectory(
             goal, episode, pending, ("page", "subject"))
         if error:
@@ -555,6 +605,8 @@ class Bridge:
         Subject frame only: a page-frame path can begin far from the subject,
         and what that should mean is still an open semantic question.
         """
+        if self.motion_player and isinstance(goal,dict):
+            self.motion_player.stop(goal.get('subject'), 'semantic-work')
         resolved, error = self._resolve_trajectory(
             goal, episode, pending, (trajectory_execution.FRAME_SUBJECT,))
         if error:
@@ -879,6 +931,8 @@ class Bridge:
             return self._bad_request("based_on_revision must be an integer")
 
         with self._world_lock:
+            if self.motion_player:
+                self.motion_player.stop(sticker_id, 'human-superseded')
             # The authoritative starting position, read BEFORE anything is
             # proposed. A gesture is measured against this, never against a start
             # the browser asserted.
@@ -995,10 +1049,11 @@ class Bridge:
     def animate(self, body: dict) -> dict:
         """Handle the child's double-click/tap invitation to come alive.
 
-        When OmegaJev is connected, the gesture becomes a three-turn Jev goal
-        with subject-only movement, facing and animation choices. Jev composes
-        currently legal primitives, with learned patterns as advisory context;
-        it does not receive command arguments or bypass the kernel. When no
+        The live host starts an ongoing, child-revocable play invitation with
+        finite steering/pose choices and small kernel-adjudicated continuations.
+        The standalone finite controller remains available for embedding/tests.
+        Learned patterns are advisory; Jev never receives executable command
+        arguments or bypasses the kernel. When no
         Jev runtime is connected, the historical mechanical toggle remains so
         local/public interaction does not depend on model availability.
 
@@ -1023,6 +1078,11 @@ class Bridge:
             return self._bad_request("no such sticker")
 
         if self.jev_controller.available():
+            if self.motion_player:
+                result = self.motion_player.start(
+                    {'subject': sticker_id, 'intent': 'control', 'behavior': 'improvise'},
+                    actor=BROWSER_PRINCIPAL, requested_by=BROWSER_PRINCIPAL)
+                return {'ok': result['ok'], 'jev': result, 'state': self.state()}
             result = self.jev_controller.double_click(
                 sticker_id,
                 actor=BROWSER_PRINCIPAL,
@@ -1065,6 +1125,31 @@ class Bridge:
                 based_on_revision=based_on,
             ))
         return {"ok": True, "receipt": receipt.to_dict(), "state": self.state()}
+
+    def hold(self, body):
+        """A grab revokes autonomous play without inventing a world mutation."""
+        if not isinstance(body, dict) or set(body) != {'sticker'} or not isinstance(body['sticker'],str):
+            return self._bad_request('invalid-hold')
+        with self._world_lock:
+            if self.kernel.sticker(body['sticker']) is None:
+                return self._bad_request('unknown-sticker')
+            if self.motion_player:
+                self.motion_player.stop(body['sticker'], 'child-grabbed')
+        return {'ok': True, 'state': self.state(fast=True)}
+
+    def pause_activities(self, body):
+        if body != {}:
+            return self._bad_request('invalid-pause')
+        with self._world_lock:
+            if self.motion_player:
+                self.motion_player.stop(reason='child-left-page')
+            self._activation_serial += 1
+        return {'ok': True}
+
+    def motion_audit(self):
+        with self._world_lock:
+            return {'activities': self.motion_player.describe() if self.motion_player else [],
+                    'events': list(self.motion_player.audit) if self.motion_player else []}
 
     def resize(self, body: dict) -> dict:
         """Set a sticker's bounded apparent scale.
@@ -1158,6 +1243,8 @@ class BookBridge:
 
     def __init__(self, kernel=None, **runtime_options):
         self._lock = RLock()
+        if runtime_options.get('continuous_motion') and runtime_options.get('jev_runtime'):
+            runtime_options['jev_runtime'] = SerializedJevRuntime(runtime_options['jev_runtime'])
         self._options = runtime_options
         self._patterns = PatternLibrary()
         self._pages = {}
@@ -1175,6 +1262,8 @@ class BookBridge:
         with self._lock:
             if page_id != self._page_id:
                 previous = self._pages[self._page_id]
+                if previous.motion_player:
+                    previous.motion_player.stop(reason='page-changed')
                 previous._active = False
                 previous._activation_serial += 1
                 # Transient linguistic carry never survives a page boundary.
@@ -1190,6 +1279,23 @@ class BookBridge:
                 self._pages[page_id]._active = True
                 self._pages[page_id]._activation_serial += 1
         return {"ok": True, "state": self.state()}
+
+    def state(self, *, fast=False, observing_page=None):
+        with self._lock:
+            session = self._pages[self._page_id]
+            if observing_page == self._page_id and session.motion_player:
+                session.motion_player.observe()
+            activation = session._activation_serial
+        view = session.state(fast=fast)
+        with self._lock:
+            if self._pages[self._page_id] is not session or activation != session._activation_serial:
+                return self._pages[self._page_id].state(fast=True)
+        return view
+
+    def close(self):
+        for session in self._pages.values():
+            if session.motion_player:
+                session.motion_player.close()
 
     def __getattr__(self, name):
         with self._lock:
@@ -1208,13 +1314,15 @@ class BookBridge:
                 args = (body, *args[1:])
             # Direct gestures and observations are atomic with page selection.
             # Model think-time (converse/animate) remains outside this lock.
-            if name in {"place", "remove", "resize", "facing", "propose_move", "observe_page_path"}:
+            if name in {"place", "remove", "resize", "facing", "propose_move", "observe_page_path", "hold", "pause_activities"}:
                 with self._lock:
                     if not session._active or activation != session._activation_serial:
                         return {"ok": False, "error": "page-changed", "state": self.state()}
                     result = value(*args, **kwargs)
             else:
                 result = value(*args, **kwargs)
+            if name == 'pause_activities':
+                return result
             if isinstance(result, dict) and (not session._active or activation != session._activation_serial):
                 return {"ok": False, "error": "page-changed", "state": self.state()}
             return result
@@ -1252,7 +1360,11 @@ def make_handler(bridge: Bridge, quiet: bool = False):
             if path in ("/", "/index.html"):
                 return self._static("index.html")
             if path == "/api/state":
-                return self._send(200, bridge.state(fast="watch=1" in self.path))
+                query = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query)
+                return self._send(200, bridge.state(fast=query.get('watch') == ['1'],
+                    observing_page=query.get('page', [None])[0]))
+            if path == "/api/motion":
+                return self._send(200, bridge.motion_audit())
             if path == "/api/book":
                 return self._send(200, book.listing())
             if path == "/api/receipts":
@@ -1270,6 +1382,8 @@ def make_handler(bridge: Bridge, quiet: bool = False):
                   "/api/place": "place",
                   "/api/remove": "remove",
                   "/api/animate": "animate",
+                  "/api/hold": "hold",
+                  "/api/pause-activities": "pause_activities",
                   "/api/resize": "resize",
                   "/api/facing": "facing",
                   "/api/agent/converse": "converse",
@@ -1378,12 +1492,14 @@ def make_handler(bridge: Bridge, quiet: bool = False):
 
 
 def serve(host="127.0.0.1", port=8756, kernel=None, quiet=False,
-          agent_runtime=None, jev_runtime=None, page_image_runtime=None):
+          agent_runtime=None, jev_runtime=None, page_image_runtime=None,
+          continuous_motion=False):
     bridge = BookBridge(
         kernel,
         agent_runtime=agent_runtime,
         jev_runtime=jev_runtime,
         page_image_runtime=page_image_runtime,
+        continuous_motion=continuous_motion,
     )
     httpd = ThreadingHTTPServer((host, port), make_handler(bridge, quiet))
     return httpd, bridge
@@ -1399,6 +1515,8 @@ if __name__ == "__main__":
             agent_runtime=agent_runtime_from_env(),
             jev_runtime=jev_runtime_from_env(),
             page_image_runtime=page_image_runtime_from_env(),
+            continuous_motion=True,
+            quiet=True,
         )
     except OSError as exc:
         # Fail LOUDLY. A silent bind failure leaves an OLDER process
@@ -1417,4 +1535,5 @@ if __name__ == "__main__":
         httpd.serve_forever()
     except KeyboardInterrupt:
         print("\nstopped")
+        _.close()
         httpd.server_close()
